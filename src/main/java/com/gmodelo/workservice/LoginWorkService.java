@@ -77,12 +77,12 @@ public class LoginWorkService {
 
 	public String login(LoginBean loginBean, HttpServletRequest request) {
 		InitialContext ctx;
-		try {
-			ctx = new InitialContext();
-			NamingEnumeration<NameClassPair> list = ctx.list(""); while (list.hasMore()) { System.out.println(list.next().getName()); }
-		} catch (NamingException e2) {
-			log.error("InitialContext error", e2);
-		} 
+//		try {
+//			ctx = new InitialContext();
+//			NamingEnumeration<NameClassPair> list = ctx.list(""); while (list.hasMore()) { System.out.println(list.next().getName()); }
+//		} catch (NamingException e2) {
+//			log.error("InitialContext error", e2);
+//		} 
 
 		Response<LoginBean> resp = new Response<LoginBean>();
 		Gson gson = new Gson();
@@ -94,7 +94,7 @@ public class LoginWorkService {
 		if (loginBean.getLoginId() == null || loginBean.getLoginId().isEmpty() || loginBean.getLoginPass().isEmpty()
 				|| loginBean.getLoginPass() == null) {
 
-			log.error("Missing data");
+			log.error("[login] Missing data");
 
 			abstractResult.setResultId(-1);
 			abstractResult.setResultMsgAbs("SOME ERROR OCCURED...");
@@ -116,7 +116,7 @@ public class LoginWorkService {
 			try {
 				user = apiUME.checkUserUME(user);
 				
-				myLog.log(Level.WARNING,"Si funcione UME DS");
+//				myLog.log(Level.WARNING,"Si funcione UME DS");
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				user = null;
@@ -126,7 +126,7 @@ public class LoginWorkService {
 				abstractResult.setResultId(ReturnValues.ISUCCESS); 
 			}
 			else{// Check if user exists on LDAP
-				myLog.log(Level.WARNING,"Check if user exists on LDAP");
+				myLog.log(Level.WARNING,"[login] Check if user exists on LDAP");
 				user = new User();
 				user.getEntity().setIdentyId(loginBean.getLoginId().trim());
 				user.getAccInf().setPassword(loginBean.getLoginPass().trim());
@@ -141,7 +141,7 @@ public class LoginWorkService {
 					abstractResult = iConnectionManager.ValidateLDAPLogin(loginBean, con);
 					iConnectionManager.CloseConnection(con);
 				} catch (InvCicException e) {
-					myLog.log(Level.SEVERE,"Error while tryng to retrive the user info from LDAP", e);
+					myLog.log(Level.SEVERE,"[login] Error while tryng to retrive the user info from LDAP", e);
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				}
 //				if (!lsUser.isEmpty()) {
@@ -168,7 +168,7 @@ public class LoginWorkService {
 														// session
 //					session.setAttribute("UUID", value);;
 					
-					myLog.log(Level.WARNING,"Loggin success for: " + user.getEntity().getIdentyId());
+					myLog.log(Level.WARNING,"[login] Loggin success for: " + user.getEntity().getIdentyId());
 					session.setMaxInactiveInterval(ReturnValues.ACTIVE_INTERVAL);
 //					abstractResult.setIntCom1(1*60);
 					loginBean.setActiveInterval(ReturnValues.ACTIVE_INTERVAL);
@@ -185,7 +185,7 @@ public class LoginWorkService {
 				//abstractResult.setResultMsgAbs("USER OR PASSWORD INCORRECT");
 			}
 		} else {
-			log.warn("Session already created");
+			log.warn("[login] Session already created");
 			abstractResult.setResultId(ReturnValues.ISESSIONCREATED);
 			abstractResult.setResultMsgAbs("SESSION ALREADY CREATED");
 		}

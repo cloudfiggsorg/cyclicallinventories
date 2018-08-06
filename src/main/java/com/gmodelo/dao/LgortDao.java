@@ -12,61 +12,61 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.BukrsBean;
+import com.gmodelo.beans.LgortBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
-//Sociedad Dao
-public class BukrsDao {
+public class LgortDao {
 	
-	private Logger log = Logger.getLogger( BukrsDao.class.getName());
+	private Logger log = Logger.getLogger( LgortDao.class.getName());
 	
-	public Response<List<BukrsBean>> getBukrsWithWerks(BukrsBean bukrsBean){
+	public Response<List<LgortBean>> getLgortByWerks(LgortBean lgortBean){
 		
+		Response<List<LgortBean>> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();
-		AbstractResults abstractResult = new AbstractResults();
-		List<BukrsBean> listBukrsBean = new ArrayList<BukrsBean>(); 
+		List<LgortBean> listLgort = new ArrayList<LgortBean>();
 		
-		final String INV_SP_GET_WERKS_BY_BUKRS = "INV_SP_GET_WERKS_BY_BUKRS ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_GET_GORTS_BY_WERKS = "INV_SP_GET_GORTS_BY_WERKS ?, ?, ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[getBukrs] Preparing sentence...");
+		log.log(Level.WARNING,"[getLgortByWerks] Preparing sentence...");
+		
 		try {
-			cs = con.prepareCall(INV_SP_GET_WERKS_BY_BUKRS);
+			cs = con.prepareCall(INV_SP_GET_GORTS_BY_WERKS);
 			
-			if(bukrsBean.getBukrs() != null){
-				cs.setString(1, bukrsBean.getBukrs());
+			if(lgortBean.getWerks() != null){
+				cs.setString(1,lgortBean.getWerks());
 			}else{
 				cs.setNull(1, Types.INTEGER);
 			}
-			if(bukrsBean.getWerks() != null){
-				cs.setString(2, bukrsBean.getWerks());
+			if(lgortBean.getLgort() != null){
+				cs.setString(2,lgortBean.getLgort());
 			}else{
 				cs.setNull(2, Types.INTEGER);
 			}
-			if(bukrsBean.getWerksDesc() != null){
-				cs.setString(3, bukrsBean.getWerksDesc());
+			if(lgortBean.getLgobe() != null){
+				cs.setString(3,lgortBean.getLgobe());
 			}else{
 				cs.setNull(3, Types.INTEGER);
 			}
 			
-			log.log(Level.WARNING,"[getBukrs] Executing query...");
+			log.log(Level.WARNING,"[getLgortByWerks] Executing query...");
 			
 			ResultSet rs = cs.executeQuery();
 			
-			
 			while (rs.next()){
-				bukrsBean = new BukrsBean();
 				
-				bukrsBean.setBukrs(rs.getString(1));
-				bukrsBean.setBukrsDesc(null);
-				bukrsBean.setWerks(rs.getString(2));
-				bukrsBean.setWerksDesc(rs.getString(3));
+				lgortBean = new LgortBean();
 				
-				listBukrsBean.add(bukrsBean);
+				lgortBean.setWerks(rs.getString(1));
+				lgortBean.setLgort(rs.getString(2));
+				lgortBean.setLgobe(rs.getString(3));
+				
+				listLgort.add(lgortBean);
+				
 			}
 			
 			//Retrive the warnings if there're
@@ -78,10 +78,12 @@ public class BukrsDao {
 			
 			//Free resources
 			rs.close();
-			cs.close();			
-			log.log(Level.WARNING,"[getBukrs] Sentence successfully executed.");
+			cs.close();	
+			
+			log.log(Level.WARNING,"[getLgortByWerks] Sentence successfully executed.");
+			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getBukrs] Some error occurred while was trying to execute the S.P.: INV_SP_GET_WERKS_BY_BUKRS ?, ?, ?", e);
+			log.log(Level.SEVERE,"[getLgortByWerks] Some error occurred while was trying to execute the S.P.: INV_SP_GET_GORTS_BY_WERKS ?, ?, ?", e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			res.setAbstractResult(abstractResult);
 			return res;
@@ -89,17 +91,17 @@ public class BukrsDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[getBukrs] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE,"[getLgortByWerks] Some error occurred while was trying to close the connection.", e);
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
 				return res;
 			}
 		}
-		
 		res.setAbstractResult(abstractResult);
-		res.setLsObject(listBukrsBean);
-		return res;
+		res.setLsObject(listLgort);
+		return res ;
+		
 	}
 
 }
