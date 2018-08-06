@@ -117,19 +117,16 @@ public class LoginWorkService {
 				user = apiUME.checkUserUME(user);
 				
 				myLog.log(Level.WARNING,"Si funcione UME DS");
-				System.out.println(Level.WARNING+" Si funcioné UME DS");
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				user = null;
-				log.error("trono", e1);
-				System.out.println(Level.SEVERE+"Ya valió UME DS"+e1);
-				e1.printStackTrace();
+				myLog.log(Level.SEVERE,"Ya valió UME DS",e1);
 			}
 			if(user != null){
 				abstractResult.setResultId(ReturnValues.ISUCCESS); 
 			}
 			else{// Check if user exists on LDAP
-				log.info("Check if user exists on LDAP");
+				myLog.log(Level.WARNING,"Check if user exists on LDAP");
 				user = new User();
 				user.getEntity().setIdentyId(loginBean.getLoginId().trim());
 				user.getAccInf().setPassword(loginBean.getLoginPass().trim());
@@ -144,7 +141,7 @@ public class LoginWorkService {
 					abstractResult = iConnectionManager.ValidateLDAPLogin(loginBean, con);
 					iConnectionManager.CloseConnection(con);
 				} catch (InvCicException e) {
-					log.error("Error while tryng to retrive the user info from LDAP", e);
+					myLog.log(Level.SEVERE,"Error while tryng to retrive the user info from LDAP", e);
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				}
 //				if (!lsUser.isEmpty()) {
@@ -171,7 +168,7 @@ public class LoginWorkService {
 														// session
 //					session.setAttribute("UUID", value);;
 					
-					log.info("Loggin success for: " + user.getEntity().getIdentyId());
+					myLog.log(Level.WARNING,"Loggin success for: " + user.getEntity().getIdentyId());
 					session.setMaxInactiveInterval(ReturnValues.ACTIVE_INTERVAL);
 //					abstractResult.setIntCom1(1*60);
 					loginBean.setActiveInterval(ReturnValues.ACTIVE_INTERVAL);

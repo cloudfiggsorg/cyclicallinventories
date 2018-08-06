@@ -17,7 +17,7 @@ public class HttpSessionCollector implements HttpSessionListener{
 //	private static final int SESSION_TIME = 5 * 60; 
 
 	public void sessionCreated(HttpSessionEvent arg0) {
-		log.info("Registering session...");
+		log.warn("Registering session...");
 		HttpSession session = arg0.getSession();		
 //		session.setMaxInactiveInterval(SESSION_TIME);
 	    sessions.put(session.getId(), session);
@@ -25,7 +25,7 @@ public class HttpSessionCollector implements HttpSessionListener{
 	}
 
 	public void sessionDestroyed(HttpSessionEvent arg0) {
-		log.info("Deleting session...");
+		log.warn("Deleting session...");
 		sessions.remove(arg0.getSession().getId());
 		
 	}

@@ -52,7 +52,6 @@ public class FServices implements Filter {
 			if(!httpRequest.getMethod().equalsIgnoreCase("POST")){
 //				LOGGER.log( Level.SEVERE, "Error trying to access information service without POST method. Anulating request...");
 				log.error("Error trying to access information service without POST method. Anulating request...");
-				System.out.println("Error trying to access information service without POST method. Anulating request...");
 				
 				@SuppressWarnings("rawtypes")
 				Response resp = new Response();
@@ -71,8 +70,7 @@ public class FServices implements Filter {
 			MyRequestWrapper myRequestWrapper = new MyRequestWrapper((HttpServletRequest) sRequest);
 			 String body = myRequestWrapper.getBody();
 			if(body != null && !body.isEmpty()){
-				 log.info(body);
-				System.out.println(body);
+				 log.warn(body);
 				
 				@SuppressWarnings("rawtypes")
 				Request req = null;
@@ -80,7 +78,6 @@ public class FServices implements Filter {
 					req = new Gson().fromJson(body, Request.class) ;
 				} catch (JsonSyntaxException e) {
 					log.error("Error al pasar de Json a Request");
-					System.out.println("Error al pasar de Json a Request");
 					req = null;
 				}
 				log.warn(req);
@@ -88,18 +85,15 @@ public class FServices implements Filter {
 				if(req.getTokenObject().getLoginId() != null && req.getTokenObject().getLoginPass() != null){
 					HttpSession androidSession = HttpSessionCollector.find(req.getTokenObject().getRelationUUID());
 					if(androidSession != null){
-						log.info("Invalidating session...");
-						System.out.println("Invalidating session...");
+						log.warn("Invalidating session...");
 						androidSession.invalidate();
 					}
 					String newSessionAux = new LoginWorkService().login(req.getTokenObject(), (HttpServletRequest)sRequest);
 					log.warn(newSessionAux);
-					System.out.println(newSessionAux);
 				Response<?> res = new Gson().fromJson(newSessionAux, Response.class);
 					log.warn(res);
 					if(res.getAbstractResult().getResultId() == 1){
-						log.info("Renovated session!!. Forwading request..");
-						System.out.println("Renovated session!!. Forwading request..");
+						log.warn("Renovated session!!. Forwading request..");
 							filterChain.doFilter(myRequestWrapper, sResponse);
 							
 					}else{
@@ -111,7 +105,6 @@ public class FServices implements Filter {
 						resp.setAbstractResult(abstractResult);
 						
 						log.error(abstractResult.getResultMsgAbs());
-						System.out.println(abstractResult.getResultMsgAbs());
 						// Using json to response
 						String json = new Gson().toJson(resp);
 						response.getWriter().write(json);
@@ -125,8 +118,7 @@ public class FServices implements Filter {
 				if(!HttpSessionCollector.sessions.isEmpty()){
 					if(req.getTokenObject().getRelationUUID() != null){
 						if(HttpSessionCollector.sessions.containsKey(req.getTokenObject().getRelationUUID())){
-							log.info("Token exists. Forwading request...");
-							System.out.println("Token exists. Forwading request...");
+							log.warn("Token exists. Forwading request...");
 							filterChain.doFilter(myRequestWrapper, sResponse);
 						}else{
 							@SuppressWarnings("rawtypes")
@@ -137,7 +129,6 @@ public class FServices implements Filter {
 							resp.setAbstractResult(abstractResult);
 							
 							log.error(abstractResult.getResultMsgAbs());
-							System.out.println(abstractResult.getResultMsgAbs());
 							// Using json to response
 							String json = new Gson().toJson(resp);
 							response.getWriter().write(json);
@@ -146,7 +137,6 @@ public class FServices implements Filter {
 						// Check if session is avaible for console users
 						if (((HttpServletRequest) sRequest).getSession().getAttribute("user") == null) {
 							log.error("Error trying to Sending params and access information service without session. Anulating request...");
-							System.out.println("Error trying to Sending params and access information service without session. Anulating request...");
 							
 							@SuppressWarnings("rawtypes")
 							Response resp = new Response();
@@ -160,8 +150,7 @@ public class FServices implements Filter {
 							response.getWriter().write(json);
 							
 						} else{
-							log.info("Forwading request...");
-							System.out.println("Forwading request...");
+							log.warn("Forwading request...");
 							filterChain.doFilter(myRequestWrapper, sResponse);	
 						}
 					}
@@ -176,7 +165,6 @@ public class FServices implements Filter {
 					resp.setAbstractResult(abstractResult);
 					
 					log.error(abstractResult.getResultMsgAbs());
-					System.out.println(abstractResult.getResultMsgAbs());
 					// Using json to response
 					String json = new Gson().toJson(resp);
 					response.getWriter().write(json);
@@ -186,7 +174,6 @@ public class FServices implements Filter {
 			// Check if session is avaible
 			if (((HttpServletRequest) sRequest).getSession().getAttribute("user") == null) {
 				log.error("Error trying to access information service without session. Anulating request...");
-				System.out.println("Error trying to access information service without session. Anulating request...");
 				
 				@SuppressWarnings("rawtypes")
 				Response resp = new Response();
@@ -200,13 +187,11 @@ public class FServices implements Filter {
 				response.getWriter().write(json);
 				
 			} else{
-				log.info("Forwading request...");
-				System.out.println("Forwading request...");
+				log.warn("Forwading request...");
 				filterChain.doFilter(myRequestWrapper, sResponse);	
 			}
 		}catch (NullPointerException e) {
 			log.error("Algo se fue nulo",e);
-			System.out.println("Algo se fue nulo"+ e.toString());
 		} 
 		
 	}
