@@ -5,29 +5,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.LgortBean;
+import com.gmodelo.beans.Lgnum;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.gmodelo.dao.LgortDao;
+import com.gmodelo.dao.LgnumDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-public class LgortWorkService {
-
-	private Logger log = Logger.getLogger( LgortWorkService.class.getName());
+public class LgnumWorkService {
 	
-	public Response<List<LgortBean>> getLgortByWerks(Request request){
+	private Logger log = Logger.getLogger(LgnumWorkService.class.getName());
+	
+	public Response<List<Lgnum>> getLgnumByLgort(Request request){
 		
-		log.log(Level.WARNING,"[LgortWorkService] "+request.toString());
-		LgortBean lgortBean;
-		Response<List<LgortBean>> res = new Response<List<LgortBean>>();
+		log.log(Level.WARNING,"[getLgnumByLgort] "+request.toString());
+		Lgnum lgnum;
+		Response<List<Lgnum>> res = new Response<List<Lgnum>>();
 		
 		try {
-			lgortBean = new Gson().fromJson(request.getLsObject().toString(), LgortBean.class);
+			lgnum = new Gson().fromJson(request.getLsObject().toString(), Lgnum.class);
 		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE,"[LgortWorkService] Error al pasar de Json a LgortBean");
-			lgortBean = null;
+			log.log(Level.SEVERE,"[getLgnumByLgort] Error al pasar de Json a LgortBean");
+			lgnum = null;
 			AbstractResults abstractResult = new AbstractResults();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
@@ -35,7 +35,8 @@ public class LgortWorkService {
 			return res;
 		}
 		
-		return new LgortDao().getLgortByWerks(lgortBean);
+		return new LgnumDao().getLgnumByLgort(lgnum);
 		
 	}
+
 }

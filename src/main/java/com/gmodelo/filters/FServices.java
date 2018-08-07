@@ -70,7 +70,7 @@ public class FServices implements Filter {
 			MyRequestWrapper myRequestWrapper = new MyRequestWrapper((HttpServletRequest) sRequest);
 			 String body = myRequestWrapper.getBody();
 			if(body != null && !body.isEmpty()){
-				 log.warn(body);
+//				 log.warn(body);
 				
 				@SuppressWarnings("rawtypes")
 				Request req = null;
@@ -80,7 +80,7 @@ public class FServices implements Filter {
 					log.error("[doFilter] Error al pasar de Json a Request");
 					req = null;
 				}
-				log.warn(req);
+//				log.warn(req);
 				
 				if(req.getTokenObject().getLoginId() != null && req.getTokenObject().getLoginPass() != null){
 					HttpSession androidSession = HttpSessionCollector.find(req.getTokenObject().getRelationUUID());
