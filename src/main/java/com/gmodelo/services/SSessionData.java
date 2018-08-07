@@ -14,8 +14,8 @@ import javax.ws.rs.core.MediaType;
 import org.jboss.logging.Logger;
 
 import com.bmore.ume001.beans.User;
+import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.Response;
-import com.google.gson.Gson;
 
 /**
  * Root resource (exposed at "sessiondata" path)
@@ -39,9 +39,10 @@ public class SSessionData {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getSessionData() {
-		Gson gson = new Gson();
-		log.info("SSessionData ...");
+	public Response getSessionData() {
+		AbstractResults abstractResult = new AbstractResults();
+		
+		log.warn("SSessionData ...");
 		session = request.getSession();
 		 String newSession = (String) session.getAttribute("newSession");
 		 
@@ -56,9 +57,10 @@ public class SSessionData {
 		if(newSession != null){
 			lista.add(newSession);
 		 }
+		
+		resp.setAbstractResult(abstractResult);
 		resp.setLsObject(lista);
-		String jsonString = gson.toJson(resp);
-		return jsonString;
+		return resp;
 	}
 
 	
