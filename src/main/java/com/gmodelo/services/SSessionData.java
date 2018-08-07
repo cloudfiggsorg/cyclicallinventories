@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -37,7 +37,7 @@ public class SSessionData {
 	 * @return String that will be returned as a text/plain response.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@GET
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getSessionData() {
 		Gson gson = new Gson();
