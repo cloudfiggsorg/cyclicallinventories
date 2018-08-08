@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -16,7 +15,9 @@ import org.json.JSONObject;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.google.gson.Gson;
 
 /**
  * Root resource (exposed at "sessiondata" path)
@@ -25,10 +26,7 @@ import com.gmodelo.beans.Response;
 public class SSessionData {
 
 	@Context
-	private HttpServletRequest request;
-	@SuppressWarnings("rawtypes")
-	private Response resp;
-	private HttpSession session;
+	private HttpServletRequest httpRequest;
 	private static Logger log = Logger.getLogger(SSessionData.class.getName());
 
 	/**
@@ -37,29 +35,38 @@ public class SSessionData {
 	 *
 	 * @return String that will be returned as a text/plain response.
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	@POST
+//	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSessionData() {
+	public Response<List<Object>> getSessionData() {
+		Response<List<Object>> resp = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
-		
+		List<Object> listObject = new ArrayList<Object>();
+//		log.warn(request);
 		log.warn("SSessionData ...");
-		session = request.getSession();
-		 String newSession = (String) session.getAttribute("newSession");
-		 
-		User user = (User) session.getAttribute("user");
-		ArrayList<String> roles = (ArrayList<String>) session.getAttribute("roles");
-		JSONObject job = new JSONObject();
-		resp = new Response();
-			
-		job.put("user",user);
-		job.put("roles", roles);
-		if(newSession != null){
-			job.put("newSession", newSession);
-		 }
+		log.warn("id: "+httpRequest.getSession().getId());
+		log.warn("attribute user: "+httpRequest.getSession().getAttribute("user"));
+		log.warn("attribute roles: "+httpRequest.getSession().getAttribute("roles"));
+//		session = httpRequest.getSession();
+////		 String newSession = (String) session.getAttribute("newSession");
+//		 
+		User user = (User) httpRequest.getSession().getAttribute("user");
+		log.warn(user);
+		ArrayList<String> roles = (ArrayList<String>) httpRequest.getSession().getAttribute("roles");
+		log.warn(roles);
+//		JSONObject job = new JSONObject();
 		
+		user.getAccInf().setPassword(null);
+		
+//		job.put("user",user);
+//		job.put("roles",roles);
+		listObject.add(user);
+		listObject.add(roles);
+//		listObject.add(job);
+		resp.setLsObject(listObject);
 		resp.setAbstractResult(abstractResult);
-		resp.setLsObject(job);
+		
 		return resp;
 	}
 

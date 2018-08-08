@@ -53,9 +53,7 @@ public class FServices implements Filter {
 		try {
 			HttpServletRequest httpRequest = (HttpServletRequest) sRequest;
 			if(!httpRequest.getMethod().equalsIgnoreCase("POST")){
-//				LOGGER.log( Level.SEVERE, "Error trying to access information service without POST method. Anulating request...");
-				log.error("[doFilter] Error trying to access information service without POST method. Anulating request...");
-				
+				log.error("Error trying to access information service without POST method. Anulating request...");
 				@SuppressWarnings("rawtypes")
 				Response resp = new Response();
 				AbstractResults abstractResult = new AbstractResults();
@@ -68,6 +66,7 @@ public class FServices implements Filter {
 				response.getWriter().write(json);
 				
 				return;
+				
 			}
 			
 			MyRequestWrapper myRequestWrapper = new MyRequestWrapper((HttpServletRequest) sRequest);
@@ -190,7 +189,7 @@ public class FServices implements Filter {
 				
 			} else{
 				log.warn("[doFilter] Consola. Forwading request...");
-				filterChain.doFilter(sRequest, sResponse);	
+				filterChain.doFilter(myRequestWrapper, sResponse);	
 			}
 		}catch (NullPointerException e) {
 			log.error("Algo se fue nulo",e);
