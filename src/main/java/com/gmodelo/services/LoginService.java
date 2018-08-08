@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import org.jboss.logging.Logger;
 
 import com.gmodelo.beans.LoginBean;
+import com.gmodelo.beans.Response;
 import com.gmodelo.utils.CommunicationObjects;
 import com.gmodelo.workservice.LoginWorkService;
 
@@ -40,7 +41,7 @@ public class LoginService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/login")
-	public String login(LoginBean loginBean) {
+	public Response login(LoginBean loginBean) {
 
 		log.warn((request.getSession().getAttribute("user") != null) ? "Hay sesion" : "NO sesion");
 

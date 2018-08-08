@@ -1,17 +1,16 @@
 package com.gmodelo.workservice;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.logging.Level;
 
 import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.jboss.logging.Logger;
 
+import com.bmore.ume001.beans.Role;
 import com.bmore.ume001.beans.User;
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.AbstractResults;
@@ -75,7 +74,7 @@ public class LoginWorkService {
 //		return gson.toJson(response);
 //	}
 
-	public String login(LoginBean loginBean, HttpServletRequest request) {
+	public Response login(LoginBean loginBean, HttpServletRequest request) {
 		InitialContext ctx;
 //		try {
 //			ctx = new InitialContext();
@@ -85,8 +84,6 @@ public class LoginWorkService {
 //		} 
 
 		Response<LoginBean> resp = new Response<LoginBean>();
-		Gson gson = new Gson();
-		String jsonString;
 		AbstractResults abstractResult = new AbstractResults();
 
 		// LoginBean loginBean = gson.fromJson(login, LoginBean.class);
@@ -98,9 +95,8 @@ public class LoginWorkService {
 
 			abstractResult.setResultId(-1);
 			abstractResult.setResultMsgAbs("SOME ERROR OCCURED...");
-
-			jsonString = gson.toJson(resp);
-			return jsonString;
+			resp.setAbstractResult(abstractResult);
+			return resp;
 		}
 
 		// Check credentials to create a session
@@ -159,6 +155,23 @@ public class LoginWorkService {
 					abstractResult.setResultMsgAbs("BLOCKED USER");
 
 				} else {
+					
+					//verify role to execute application
+					ArrayList<Role> lsRoles = new ArrayList<Role>();
+					lsRoles = apiUME.getUserRoles(loginBean.getLoginId().trim());
+					ArrayList<String> lsRolesAux = new ArrayList<String>();
+					for(Role rol : lsRoles){
+						lsRolesAux.add(rol.getRolId().trim());
+					}
+					
+					if(!lsRolesAux.contains("EXECUTE_INV_CIC_APP")){
+						abstractResult.setResultId(ReturnValues.INOTROLE);
+						abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
+						resp.setAbstractResult(abstractResult);
+						
+						return resp;
+					}
+					
 					session = request.getSession(true);
 					user.getAccInf().setPassword(null);
 					user.getEntity().setDescription(null);
@@ -180,7 +193,7 @@ public class LoginWorkService {
 				}
 
 			} else {
-				log.info(abstractResult.getResultMsgAbs());
+				log.warn(abstractResult.getResultMsgAbs());
 				//abstractResult.setResultId(ReturnValues.IPASSWORDNOTMATCH);
 				//abstractResult.setResultMsgAbs("USER OR PASSWORD INCORRECT");
 			}
@@ -191,8 +204,7 @@ public class LoginWorkService {
 		}
 
 		resp.setAbstractResult(abstractResult);
-		jsonString = gson.toJson(resp);
-		return jsonString;
+		return resp;
 
 	}
 

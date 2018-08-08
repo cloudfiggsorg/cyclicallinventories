@@ -12,6 +12,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.jboss.logging.Logger;
+import org.json.JSONObject;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResults;
@@ -48,18 +49,17 @@ public class SSessionData {
 		 
 		User user = (User) session.getAttribute("user");
 		ArrayList<String> roles = (ArrayList<String>) session.getAttribute("roles");
-
+		JSONObject job = new JSONObject();
 		resp = new Response();
 			
-		List<Object> lista = new ArrayList<Object>();
-		lista.add(user);
-		lista.add(roles);
+		job.put("user",user);
+		job.put("roles", roles);
 		if(newSession != null){
-			lista.add(newSession);
+			job.put("newSession", newSession);
 		 }
 		
 		resp.setAbstractResult(abstractResult);
-		resp.setLsObject(lista);
+		resp.setLsObject(job);
 		return resp;
 	}
 

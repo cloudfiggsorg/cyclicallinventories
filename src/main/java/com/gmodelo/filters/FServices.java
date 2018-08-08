@@ -88,9 +88,7 @@ public class FServices implements Filter {
 						log.warn("[doFilter] Android. Invalidating session...");
 						androidSession.invalidate();
 					}
-					String newSessionAux = new LoginWorkService().login(req.getTokenObject(), (HttpServletRequest)sRequest);
-					log.warn(newSessionAux);
-				Response<?> res = new Gson().fromJson(newSessionAux, Response.class);
+					Response res = new LoginWorkService().login(req.getTokenObject(), (HttpServletRequest)sRequest);
 					log.warn(res);
 					if(res.getAbstractResult().getResultId() == 1){
 						log.warn("[doFilter] Android. Renovated session!!. Forwading request..");
