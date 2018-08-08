@@ -173,13 +173,14 @@ public class LoginWorkService {
 					}
 					
 					session = request.getSession(true);
-					user.getAccInf().setPassword(null);
-					user.getEntity().setDescription(null);
-					user.getEntity().setCreatedBy(null);
-					user.setAccInf(null);
+//					user = new User();
+//					user.getAccInf().setPassword(null);
+//					user.getEntity().setDescription(null);
+//					user.getEntity().setCreatedBy(null);
+//					user.setAccInf(null);
 					session.setAttribute("user", user);// Set the idUser on
 														// session
-//					session.setAttribute("UUID", value);;
+					session.setAttribute("roles", lsRolesAux);
 					
 					myLog.log(Level.WARNING,"[login] Loggin success for: " + user.getEntity().getIdentyId());
 					session.setMaxInactiveInterval(ReturnValues.ACTIVE_INTERVAL);
