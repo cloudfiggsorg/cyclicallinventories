@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.Context;
 
 import org.jboss.logging.Logger;
 
@@ -26,6 +27,8 @@ import com.google.gson.JsonSyntaxException;
 @WebFilter(urlPatterns = "/services/*")
 public class FServices implements Filter {
 
+	@Context
+	private HttpSession session;
 	private Logger log = Logger.getLogger(FServices.class.getName());
 //	private Logger LOGGER = Logger.getLogger(FServices.class.getName());
 
@@ -88,7 +91,8 @@ public class FServices implements Filter {
 						log.warn("[doFilter] Android. Invalidating session...");
 						androidSession.invalidate();
 					}
-					Response res = new LoginWorkService().login(req.getTokenObject(), (HttpServletRequest)sRequest);
+					
+					Response res = new LoginWorkService().login(req.getTokenObject(), (HttpServletRequest)sRequest, session);
 					log.warn(res);
 					if(res.getAbstractResult().getResultId() == 1){
 						log.warn("[doFilter] Android. Renovated session!!. Forwading request..");
@@ -186,7 +190,7 @@ public class FServices implements Filter {
 				
 			} else{
 				log.warn("[doFilter] Consola. Forwading request...");
-				filterChain.doFilter(myRequestWrapper, sResponse);	
+				filterChain.doFilter(sRequest, sResponse);	
 			}
 		}catch (NullPointerException e) {
 			log.error("Algo se fue nulo",e);

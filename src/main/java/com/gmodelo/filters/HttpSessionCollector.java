@@ -9,6 +9,8 @@ import javax.servlet.http.HttpSessionListener;
 
 import org.jboss.logging.Logger;
 
+import com.bmore.ume001.beans.User;
+
 
 public class HttpSessionCollector implements HttpSessionListener{
 	
@@ -26,6 +28,14 @@ public class HttpSessionCollector implements HttpSessionListener{
 
 	public void sessionDestroyed(HttpSessionEvent arg0) {
 		log.warn("Deleting session...");
+		log.warn(arg0.getSession().getId());
+		log.warn(arg0.getSession().getAttribute("user"));
+		if(arg0.getSession().getAttribute("user") == null){
+			log.warn("No trae user");
+		}else{
+			User user = (User) arg0.getSession().getAttribute("user");
+			log.warn(user.getEntity().getIdentyId());
+		}
 		sessions.remove(arg0.getSession().getId());
 		
 	}

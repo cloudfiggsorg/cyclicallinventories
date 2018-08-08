@@ -24,7 +24,7 @@ import com.google.gson.Gson;
 
 public class LoginWorkService {
 
-	HttpSession session;
+	
 
 	private Logger log = Logger.getLogger(LoginWorkService.class.getName());
 	private java.util.logging.Logger myLog = java.util.logging.Logger.getLogger( LoginWorkService.class.getName());
@@ -74,7 +74,7 @@ public class LoginWorkService {
 //		return gson.toJson(response);
 //	}
 
-	public Response login(LoginBean loginBean, HttpServletRequest request) {
+	public Response login(LoginBean loginBean, HttpServletRequest request, HttpSession session) {
 		InitialContext ctx;
 //		try {
 //			ctx = new InitialContext();
@@ -171,7 +171,8 @@ public class LoginWorkService {
 						
 						return resp;
 					}
-					
+					System.out.println("Va user abajo:");
+					System.out.println(user.getEntity().getIdentyId());
 					session = request.getSession(true);
 //					user = new User();
 //					user.getAccInf().setPassword(null);
@@ -189,6 +190,7 @@ public class LoginWorkService {
 					loginBean.setLoginId(null);
 					loginBean.setLoginPass(null);
 					loginBean.setRelationUUID(session.getId());
+					log.warn(loginBean.getRelationUUID());
 					loginBean.setLsObjectLB(new LdapUser<>());
 					resp.setLsObject(loginBean);
 				}

@@ -1,6 +1,7 @@
 package com.gmodelo.services;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -20,6 +21,7 @@ import com.gmodelo.workservice.LoginWorkService;
 public class LoginService {
 	@Context
 	private HttpServletRequest request;
+	private HttpSession session;
 
 	private Logger log = Logger.getLogger(LoginService.class.getName());
 
@@ -45,7 +47,7 @@ public class LoginService {
 
 		log.warn((request.getSession().getAttribute("user") != null) ? "Hay sesion" : "NO sesion");
 
-		return new LoginWorkService().login(loginBean, request);
+		return new LoginWorkService().login(loginBean, request, session);
 
 	}
 
