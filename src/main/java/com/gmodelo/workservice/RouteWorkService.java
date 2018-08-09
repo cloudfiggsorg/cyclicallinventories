@@ -2,7 +2,10 @@ package com.gmodelo.workservice;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.BurksBean;
 import com.gmodelo.beans.HeaderBean;
@@ -13,11 +16,18 @@ import com.gmodelo.beans.LgtypBean;
 import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.RouteBean;
+import com.gmodelo.beans.RoutePositionBean;
 import com.gmodelo.beans.WerksBean;
+import com.gmodelo.dao.RouteDao;
+import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 public class RouteWorkService {
 
+	private Logger log = Logger.getLogger(RouteWorkService.class.getName());
+	
 	public String GetRouteService(Request<LoginBean<?>> request) {
 		Response<HeaderBean> response = new Response<>();
 		String[] almacen = { "LV01", "LV02", "LV03", "LV04" };
@@ -78,5 +88,49 @@ public class RouteWorkService {
 		response.setLsObject(header);
 		response.setAbstractResult(new AbstractResults());
 		return new Gson().toJson(response);
+	}
+	
+public Response<Object> addRoute(Request<?> request, User user){
+		
+		log.log(Level.WARNING,"[addRouteWS] "+request.toString());
+		RouteBean routeBean;
+		Response<Object> res = new Response<Object>();
+		
+		try {
+			routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteBean.class);
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE,"[addRouteWS] Error al pasar de Json a ZoneBean");
+			routeBean = null;
+			AbstractResults abstractResult = new AbstractResults();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		
+		return new RouteDao().addRoute(routeBean, user.getEntity().getIdentyId());
+		
+	}
+
+	public Response<Object> addRoutePosition(Request<?> request){
+	
+		log.log(Level.WARNING,"[addRoutePositionWS] "+request.toString());
+		RoutePositionBean routePositionBean;
+		Response<Object> res = new Response<Object>();
+		
+		try {
+			routePositionBean = new Gson().fromJson(request.getLsObject().toString(), RoutePositionBean.class);
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE,"[addRoutePositionWS] Error al pasar de Json a RoutePositionBean");
+			routePositionBean = null;
+			AbstractResults abstractResult = new AbstractResults();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+	
+	return new RouteDao().addRoutePosition(routePositionBean);
+	
 	}
 }

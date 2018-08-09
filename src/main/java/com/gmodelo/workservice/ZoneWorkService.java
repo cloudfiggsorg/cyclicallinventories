@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
@@ -40,11 +41,11 @@ public class ZoneWorkService {
 			
 		}
 	
-	public Response<?> addZone(Request<?> request, User user){
+	public Response<Object> addZone(Request<?> request, User user){
 		
 		log.log(Level.WARNING,"[addZone] "+request.toString());
 		ZoneBean zoneBean;
-		Response res = new Response();
+		Response<Object> res = new Response<Object>();
 		
 		try {
 			zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
@@ -60,7 +61,29 @@ public class ZoneWorkService {
 		
 		return new ZoneDao().addZone(zoneBean, user.getEntity().getIdentyId());
 		
-	}	
+	}
+	
+	public Response<Object> addPositionZone(Request<?> request){
+		
+		log.log(Level.WARNING,"[addPositionZone] "+request.toString());
+		PositionZoneBean positionZoneBean;
+		Response<Object> res = new Response<Object>();
+		
+		try {
+			positionZoneBean = new Gson().fromJson(request.getLsObject().toString(), PositionZoneBean.class);
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE,"[addPositionZone] Error al pasar de Json a PositionZoneBean");
+			positionZoneBean = null;
+			AbstractResults abstractResult = new AbstractResults();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		
+		return new ZoneDao().addPositionZone(positionZoneBean);
+		
+	}
 
 
 }

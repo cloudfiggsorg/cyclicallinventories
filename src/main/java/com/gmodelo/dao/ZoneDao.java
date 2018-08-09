@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
 import com.gmodelo.utils.ConnectionManager;
@@ -208,6 +209,106 @@ public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[addZone] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		abstractResult.setResultMsgAbs(resultSP);
+		res.setAbstractResult(abstractResult);
+		return res ;
+	}
+	
+	public Response<Object> addPositionZone(PositionZoneBean positionZoneBean){
+		
+		Response<Object> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		CallableStatement cs = null;
+		String resultSP = null;
+		
+		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?"; //The Store procedure to call
+		
+		log.log(Level.WARNING,"[addPositionZone] Preparing sentence...");
+		
+		try {
+			cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
+			
+			if(positionZoneBean.getZoneId() != null){
+				cs.setInt(1,positionZoneBean.getZoneId());
+			}else{
+				cs.setNull(1, Types.INTEGER);
+			}
+			if(positionZoneBean.getPositionId() != null){
+				cs.setString(2,positionZoneBean.getPositionId());
+			}else{
+				cs.setNull(2, Types.INTEGER);
+			}
+			if(positionZoneBean.getLgtyp() != null){
+				cs.setString(3,positionZoneBean.getLgtyp());
+			}else{
+				cs.setNull(3, Types.INTEGER);
+			}
+			if(positionZoneBean.getLgpla() != null){
+				cs.setString(4,positionZoneBean.getLgpla());
+			}else{
+				cs.setNull(4, Types.INTEGER);
+			}
+			if(positionZoneBean.getSecuency() != null){
+				cs.setString(5,positionZoneBean.getSecuency());
+			}else{
+				cs.setNull(5, Types.INTEGER);
+			}
+			
+			log.log(Level.WARNING,"[addPositionZone] Executing query...");
+			
+			ResultSet rs = cs.executeQuery();
+			
+			while (rs.next()){
+				
+				resultSP = rs.getString(1);
+				
+			}
+			
+			if(resultSP != null){
+				try {
+					
+					Integer.parseInt(resultSP);
+					
+				} catch (NumberFormatException e) {
+					
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs(resultSP);
+					
+					res.setAbstractResult(abstractResult);
+					return res;
+				}
+			}
+			//Retrive the warnings if there're
+			SQLWarning warning = cs.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,"[addPositionZone] "+warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			cs.close();	
+			
+			log.log(Level.WARNING,"[addPositionZone] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[addPositionZone] Some error occurred while was trying to execute the S.P.: INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?", e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[addPositionZone] Some error occurred while was trying to close the connection.", e);
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);

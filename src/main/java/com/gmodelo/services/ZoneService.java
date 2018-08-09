@@ -34,9 +34,17 @@ public class ZoneService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addZone")
-	public Response addZone(Request request){
+	public Response<Object> addZone(Request request){
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new ZoneWorkService().addZone(request, user);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/addPositionZone")
+	public Response<Object> addPositionZone(Request request){
+		return new ZoneWorkService().addPositionZone(request);
 	}
 
 }
