@@ -20,7 +20,6 @@ import com.gmodelo.beans.Response;
 import com.gmodelo.dao.UMEDaoE;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
-import com.google.gson.Gson;
 
 public class LoginWorkService {
 
@@ -184,8 +183,8 @@ public class LoginWorkService {
 					session.setAttribute("roles", lsRolesAux);
 					
 					myLog.log(Level.WARNING,"[login] Loggin success for: " + user.getEntity().getIdentyId());
-					session.setMaxInactiveInterval(ReturnValues.ACTIVE_INTERVAL);
-//					abstractResult.setIntCom1(1*60);
+//					session.setMaxInactiveInterval(ReturnValues.ACTIVE_INTERVAL);
+					abstractResult.setIntCom1(1*60);
 					loginBean.setActiveInterval(ReturnValues.ACTIVE_INTERVAL);
 					loginBean.setLoginId(null);
 					loginBean.setLoginPass(null);
@@ -209,6 +208,27 @@ public class LoginWorkService {
 		resp.setAbstractResult(abstractResult);
 		return resp;
 
+	}
+	
+	public Response<?> logout(HttpServletRequest request){
+
+		Response<?> resp = new Response();
+		AbstractResults abstractResult = new AbstractResults();
+		if (request.getSession().getAttribute("user") != null) {
+			
+			request.getSession(false).invalidate();
+			
+			log.warn("[logout] Session closed!");			
+		}else{
+			
+			log.info("[logout] No session to close.");
+			
+			abstractResult.setResultId(ReturnValues.IUSERNOSESSION);
+			abstractResult.setResultMsgAbs(ReturnValues.SUSERNOSESSION);
+		}
+				
+		resp.setAbstractResult(abstractResult);
+		return resp;		
 	}
 
 }
