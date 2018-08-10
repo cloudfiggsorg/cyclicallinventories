@@ -14,6 +14,7 @@ import com.gmodelo.beans.LgnumBean;
 import com.gmodelo.beans.LgplaBean;
 import com.gmodelo.beans.LgtypBean;
 import com.gmodelo.beans.LoginBean;
+import com.gmodelo.beans.MaterialToRouteBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
@@ -130,7 +131,29 @@ public Response<Object> addRoute(Request<?> request, User user){
 			return res;
 		}
 	
-	return new RouteDao().addRoutePosition(routePositionBean);
+		return new RouteDao().addRoutePosition(routePositionBean);
+	
+	}
+	
+	public Response<Object> materialToRoute(Request<?> request){
+		
+		log.log(Level.WARNING,"[materialToRouteWS] "+request.toString());
+		MaterialToRouteBean materialToRouteBean;
+		Response<Object> res = new Response<Object>();
+		
+		try {
+			materialToRouteBean = new Gson().fromJson(request.getLsObject().toString(), MaterialToRouteBean.class);
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE,"[materialToRouteWS] Error al pasar de Json a RoutePositionBean");
+			materialToRouteBean = null;
+			AbstractResults abstractResult = new AbstractResults();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+	
+		return new RouteDao().materialToRoute(materialToRouteBean);
 	
 	}
 }

@@ -45,4 +45,12 @@ public class RouteService {
 	public Response<Object> addRoutePosition(Request request){
 		return new RouteWorkService().addRoutePosition(request);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/materialToRoute")
+	public Response<Object> materialToRoute(Request request){
+		return new RouteWorkService().materialToRoute(request);
+	}
 }

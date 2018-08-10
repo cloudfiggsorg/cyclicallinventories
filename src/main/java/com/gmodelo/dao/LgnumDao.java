@@ -1,11 +1,10 @@
 package com.gmodelo.dao;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -27,40 +26,26 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 		AbstractResults abstractResult = new AbstractResults();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
-		CallableStatement cs = null;
+		PreparedStatement stm = null;
 		List<Lgnum> listLgnum = new ArrayList<Lgnum>();
 		
-		final String INV_SP_GET_NGORT_BY_GORT = "INV_SP_GET_NGORT_BY_GORT ?, ?, ?, ?"; //The Store procedure to call
+		String INV_VW_NGORT_WITH_GORT = "SELECT [WERKS], [LGORT], [LGNUM], [LNUMT] FROM [INV_CIC_DB].[dbo].[INV_VW_NGORT_WITH_GORT] "; //The Store procedure to call
+		
+		String condition = buildCondition(lgnum);
+		
+		if(condition != null){
+			INV_VW_NGORT_WITH_GORT += condition;
+			log.warning(INV_VW_NGORT_WITH_GORT);
+		}
 		
 		log.log(Level.WARNING,"[getLgnumByLgort] Preparing sentence...");
 		
 		try {
-			cs = con.prepareCall(INV_SP_GET_NGORT_BY_GORT);
-			
-			if(lgnum.getWerks() != null){
-				cs.setString(1,lgnum.getWerks());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(lgnum.getLgort() != null){
-				cs.setString(2,lgnum.getLgort());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(lgnum.getLgnum() != null){
-				cs.setString(3,lgnum.getLgnum());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
-			if(lgnum.getLnumt() != null){
-				cs.setString(4,lgnum.getLnumt());
-			}else{
-				cs.setNull(4, Types.INTEGER);
-			}
+			stm = con.prepareCall(INV_VW_NGORT_WITH_GORT);
 			
 			log.log(Level.WARNING,"[getLgnumByLgort] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
 				
@@ -76,7 +61,7 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 			}
 			
 			//Retrive the warnings if there're
-			SQLWarning warning = cs.getWarnings();
+			SQLWarning warning = stm.getWarnings();
 			while (warning != null) {
 				log.log(Level.WARNING,warning.getMessage());
 				warning = warning.getNextWarning();
@@ -84,12 +69,12 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 			
 			//Free resources
 			rs.close();
-			cs.close();	
+			stm.close();	
 			
 			log.log(Level.WARNING,"[getLgnumByLgort] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getLgnumByLgort] Some error occurred while was trying to execute the S.P.: INV_SP_GET_NGORT_BY_GORT ?, ?, ?, ?", e);
+			log.log(Level.SEVERE,"[getLgnumByLgort] Some error occurred while was trying to execute the query: "+INV_VW_NGORT_WITH_GORT, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			res.setAbstractResult(abstractResult);
 			return res;
@@ -108,5 +93,59 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 		res.setLsObject(listLgnum);
 		return res ;
 	}
+	
+	private String buildCondition(Lgnum lgnumO){
+			
+			String werks = null;
+			String lgort = null;
+			String lgnum = null;
+			String lnumt = null;
+			Boolean clause = false;
+			String condition = null;
+			
+			if(lgnumO.getWerks() != null){
+				werks = "WERKS = '" + lgnumO.getWerks()+"'";
+				clause = true;
+			}
+			if(lgnumO.getLgort()!= null){
+				lgort = "LGORT = '" + lgnumO.getLgort()+"'";
+				clause = true;
+			}
+			if(lgnumO.getLgnum() != null){
+				lgnum = "LGNUM = '" + lgnumO.getLgnum()+"'";
+				clause = true;
+			}
+			if(lgnumO.getLnumt() != null){
+				lnumt = "LNUMT = '" + lgnumO.getLnumt()+"'";
+				clause = true;
+			}
+			
+			if(clause){
+				condition = "WHERE ";
+				if(werks != null){
+					condition += werks;
+					if(lgort != null){
+						condition += " AND "+ lgort;
+						if(lgnum != null){
+							condition += " AND "+ lgnum;
+						}
+					}
+				} else if(lgort != null){
+							condition += lgort;
+							if(lgnum != null){
+								condition += " AND "+ lgnum;
+							}
+					}else if(lgnum != null){
+								condition += lgnum;
+								if(lnumt != null){
+									condition += " AND "+ lnumt;
+								}
+						}else if(lnumt != null){
+									condition += lnumt;
+							}
+			}
+			
+			return condition;
+		}
 
 }

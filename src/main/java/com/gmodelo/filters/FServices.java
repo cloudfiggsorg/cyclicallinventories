@@ -93,7 +93,7 @@ public class FServices implements Filter {
 					
 					Response res = new LoginWorkService().login(req.getTokenObject(), (HttpServletRequest)sRequest, session);
 					log.warn(res);
-					if(res.getAbstractResult().getResultId() == 1){
+					if(res.getAbstractResult().getResultId() == 1 || res.getAbstractResult().getResultId() == 2){
 						log.warn("[doFilter] Android. Renovated session!!. Forwading request..");
 							filterChain.doFilter(myRequestWrapper, sResponse);
 							

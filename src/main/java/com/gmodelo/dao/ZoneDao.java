@@ -2,6 +2,7 @@ package com.gmodelo.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -28,45 +29,24 @@ public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
 		AbstractResults abstractResult = new AbstractResults();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
-		CallableStatement cs = null;
+		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
-		final String INV_SP_ZONE_BY_GORT = "INV_SP_ZONE_BY_GORT ?, ?, ?, ?, ?"; //The Store procedure to call
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "; //query
 		
+		String condition = buildCondition(zoneBean);
+		if(condition != null){
+			INV_VW_ZONE_BY_LGORT += condition;
+			log.warning(INV_VW_ZONE_BY_LGORT);
+		}
 		log.log(Level.WARNING,"[getZoneByLgort] Preparing sentence...");
 		
 		try {
-			cs = con.prepareCall(INV_SP_ZONE_BY_GORT);
-			
-			if(zoneBean.getLgort() != null){
-				cs.setString(1,zoneBean.getLgort());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(zoneBean.getIdZone() != null){
-				cs.setInt(2,zoneBean.getIdZone());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(zoneBean.getZoneDesc() != null){
-				cs.setString(3,zoneBean.getZoneDesc());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
-			if(zoneBean.getBukrs() != null){
-				cs.setString(4,zoneBean.getBukrs());
-			}else{
-				cs.setNull(4, Types.INTEGER);
-			}
-			if(zoneBean.getWerks() != null){
-				cs.setString(5,zoneBean.getWerks());
-			}else{
-				cs.setNull(5, Types.INTEGER);
-			}
+			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
 			
 			log.log(Level.WARNING,"[getZoneByLgort] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
 				
@@ -83,7 +63,7 @@ public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
 			}
 			
 			//Retrive the warnings if there're
-			SQLWarning warning = cs.getWarnings();
+			SQLWarning warning = stm.getWarnings();
 			while (warning != null) {
 				log.log(Level.WARNING,warning.getMessage());
 				warning = warning.getNextWarning();
@@ -91,13 +71,14 @@ public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
 			
 			//Free resources
 			rs.close();
-			cs.close();	
+			stm.close();	
 			
 			log.log(Level.WARNING,"[getZoneByLgort] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getZoneByLgort] Some error occurred while was trying to execute the S.P.: INV_SP_ZONE_BY_GORT ?, ?, ?, ?, ?", e);
+			log.log(Level.SEVERE,"[getZoneByLgort] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_BY_LGORT, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
 			return res;
 		}finally {
@@ -320,5 +301,83 @@ public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
 		return res ;
 	}
 
+	private String buildCondition(ZoneBean zoneBean){
+			
+			String lgort = null;
+			String zoneId = null;
+			String zoneDesc = null;
+			String bukrs = null;
+			String werks = null;
+			Boolean clause = false;
+			String condition = null;
+			
+			if(zoneBean.getLgort() != null){
+				lgort = "LGORT = '" + zoneBean.getLgort()+"'";
+				clause = true;
+			}
+			if(zoneBean.getIdZone() != null){
+				zoneId = "ZONE_ID = '" + zoneBean.getIdZone()+"'";
+				clause = true;
+			}
+			if(zoneBean.getZoneDesc() != null){
+				zoneDesc = "ZON_DESC = '" + zoneBean.getZoneDesc()+"'";
+				clause = true;
+			}
+			if(zoneBean.getBukrs() != null){
+				bukrs = "BUKRS = '" + zoneBean.getBukrs()+"'";
+				clause = true;
+			}
+			if(zoneBean.getWerks() != null){
+				werks = "WERKS = '" + zoneBean.getWerks()+"'";
+				clause = true;
+			}
+			
+			if(clause){
+				condition = "WHERE ";
+				if(lgort != null){
+					condition += lgort;
+					if(zoneId != null){
+						condition += " AND "+ zoneId;
+						if(zoneDesc != null){
+							condition += " AND "+ zoneDesc;
+							if(bukrs != null){
+								condition += " AND "+ bukrs;
+								if(werks != null){
+									condition += " AND "+ werks;
+								}
+							}
+						}
+					}
+				} else if(zoneId != null){
+							condition += zoneId;
+							if(zoneDesc != null){
+								condition += " AND "+ zoneDesc;
+								if(bukrs != null){
+									condition += " AND "+ bukrs;
+									if(werks != null){
+										condition += " AND "+ werks;
+									}
+								}
+							}
+				}else if(zoneDesc != null){
+							condition += zoneDesc;
+							if(bukrs != null){
+								condition += " AND "+ bukrs;
+								if(werks != null){
+									condition += " AND "+ werks;
+								}
+							}
+					}else if(bukrs != null){
+								condition += bukrs;
+								if(werks != null){
+									condition += " AND "+ werks;
+								}
+						}else if(werks != null){
+									condition += werks;
+							}
+			}
+			
+			return condition;
+		}
 
 }

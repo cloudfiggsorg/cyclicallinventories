@@ -107,7 +107,7 @@ public class LoginWorkService {
 //			apiUME.setConnectionData("35.172.127.238", "1433", "DBEntities", "ume_user", "Bmore2018.");
 			user.getEntity().setIdentyId(loginBean.getLoginId().trim());
 			user.getAccInf().setPassword(loginBean.getLoginPass().trim());
-			// Check if user exists on UME
+			log.warn("Check if user exists on UME");
 			try {
 				user = apiUME.checkUserUME(user);
 				
