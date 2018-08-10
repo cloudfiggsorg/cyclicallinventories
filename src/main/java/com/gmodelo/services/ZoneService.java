@@ -14,6 +14,7 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
+import com.gmodelo.workservice.RouteWorkService;
 import com.gmodelo.workservice.ZoneWorkService;
 
 @Path("/services/ZoneService")
@@ -45,6 +46,14 @@ public class ZoneService {
 	@Path("/addPositionZone")
 	public Response<Object> addPositionZone(Request request){
 		return new ZoneWorkService().addPositionZone(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/deleteZone")
+	public Response<Object> deleteZone(Request request){
+		return new ZoneWorkService().deleteZone(request);
 	}
 
 }

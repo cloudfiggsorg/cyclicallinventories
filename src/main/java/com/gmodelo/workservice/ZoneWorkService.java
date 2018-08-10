@@ -10,6 +10,7 @@ import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
+import com.gmodelo.dao.RouteDao;
 import com.gmodelo.dao.ZoneDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -84,6 +85,36 @@ public class ZoneWorkService {
 		return new ZoneDao().addPositionZone(positionZoneBean);
 		
 	}
+	
+	public Response<Object> deleteZone(Request<?> request){
+			
+			log.log(Level.WARNING,"[deleteZoneWS] "+request.toString());
+			String arrayIdZones;
+			Response<Object> res = new Response<Object>();
+			AbstractResults abstractResult = new AbstractResults();
+			
+			try {
+				arrayIdZones = request.getLsObject().toString();
+				
+				if(arrayIdZones == null || arrayIdZones.isEmpty()){
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs("NULL OR EMPTY ARRAY");
+					res.setAbstractResult(abstractResult);
+					return res;
+				}
+				
+			} catch (JsonSyntaxException e) {
+				log.log(Level.SEVERE,"[deleteZoneWS] Error al pasar de Json a RoutePositionBean");
+				
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		
+			return new ZoneDao().deleteZone(arrayIdZones);
+		
+		}
 
 
 }

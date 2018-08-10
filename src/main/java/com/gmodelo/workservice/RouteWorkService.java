@@ -182,24 +182,15 @@ public Response<Object> addRoute(Request<?> request, User user){
 	public Response<Object> deleteRoute(Request<?> request){
 		
 		log.log(Level.WARNING,"[deleteRouteWS] "+request.toString());
-		String[] arrayIdRoutes;
+		String arrayIdRoutes;
 		StringBuilder stringRoutes = new StringBuilder();
 		Response<Object> res = new Response<Object>();
 		AbstractResults abstractResult = new AbstractResults();
 		
 		try {
-			arrayIdRoutes = new Gson().fromJson(request.getLsObject().toString(), String[].class);
+			arrayIdRoutes = request.getLsObject().toString();
 			
-			if(arrayIdRoutes != null && arrayIdRoutes.length > 0){
-				for(String idRoute : arrayIdRoutes){
-					
-					if(stringRoutes.length() > 0){
-						stringRoutes.append(',');
-					}
-					stringRoutes.append(idRoute);
-					
-				}
-			}else{
+			if(arrayIdRoutes == null || arrayIdRoutes.isEmpty()){
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs("NULL OR EMPTY ARRAY");
 				res.setAbstractResult(abstractResult);

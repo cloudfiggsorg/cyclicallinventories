@@ -379,5 +379,64 @@ public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
 			
 			return condition;
 		}
+	
+	public Response<Object> deleteZone(String arrayIdZones){
+		
+		Response<Object> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		CallableStatement cs = null;
+		
+		final String INV_SP_DEL_ZONE = "INV_SP_DEL_ZONE ?"; //The Store procedure to call
+		
+		log.log(Level.WARNING,"[deleteZone] Preparing sentence...");
+		
+		try {
+			cs = con.prepareCall(INV_SP_DEL_ZONE);
+			
+			if(arrayIdZones != null && !arrayIdZones.isEmpty()){
+				cs.setString(1,arrayIdZones);
+			}else{
+				cs.setNull(1, Types.INTEGER);
+			}
+			
+			log.log(Level.WARNING,"[deleteZone] Executing query...");
+			
+			ResultSet rs = cs.executeQuery();
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = cs.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,"[deleteZone] "+warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			cs.close();	
+			
+			log.log(Level.WARNING,"[deleteZone] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[deleteZone] Some error occurred while was trying to execute the S.P.: "+INV_SP_DEL_ZONE, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[deleteZone] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		return res ;
+	}
 
 }
