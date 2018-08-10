@@ -2,16 +2,20 @@ package com.gmodelo.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.MaterialToRouteBean;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.RouteB;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RoutePositionBean;
 import com.gmodelo.utils.ConnectionManager;
@@ -225,7 +229,7 @@ public class RouteDao {
 		return res ;
 	}
 	
-public Response<Object> assignMaterialToRoute(MaterialToRouteBean materialToRouteBean){
+	public Response<Object> assignMaterialToRoute(MaterialToRouteBean materialToRouteBean){
 		
 		Response<Object> res = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
@@ -465,4 +469,137 @@ public Response<Object> assignMaterialToRoute(MaterialToRouteBean materialToRout
 			res.setAbstractResult(abstractResult);
 			return res ;
 		}
+	
+	public Response<List<RouteB>> getRoutes(RouteB routeBean){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		
+		Response<List<RouteB>> res = new Response<List<RouteB>>();
+		AbstractResults abstractResult = new AbstractResults();
+		List<RouteB> listRoutesBean = new ArrayList<RouteB>(); 
+		 
+		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT ROUTE_ID, BUKRS, WERKS,  RDESC, STATUS,MODIFIED_BY, MODIFIED_DATE, CREATED_BY, CREATED_DATE, POSITION_ID, LGORT, LGTYP, ZONE_ID, SECUENCY  FROM [INV_CIC_DB].[dbo].[INV_VW_ROUTES_WITH_POSITIONS] WITH(NOLOCK) ";
+		
+		String condition = buildCondition(routeBean);
+		if(condition != null){
+			INV_VW_ROUTES_WITH_POSITIONS += condition;
+			log.warning(INV_VW_ROUTES_WITH_POSITIONS);
+		}
+		log.log(Level.WARNING,"[getRoutesDao] Preparing sentence...");
+		try {
+			
+			stm = con.prepareStatement(INV_VW_ROUTES_WITH_POSITIONS);		
+			
+			log.log(Level.WARNING,"[getRoutesDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				routeBean = new RouteB();
+				
+				routeBean.setRouteId(rs.getString(1));
+				routeBean.setBukrs(rs.getString(2));
+				routeBean.setWerks(rs.getString(3));
+				routeBean.setRdesc(rs.getString(4));
+				routeBean.setStatus(rs.getString(5));
+				routeBean.setModifiedBy(rs.getString(6));
+				routeBean.setModifiedDate(rs.getString(7));
+				routeBean.setCreatedBy(rs.getString(8));
+				routeBean.setCreatedDate(rs.getString(9));
+				routeBean.setPositionId(rs.getString(10));
+				routeBean.setLgort(rs.getString(11));
+				routeBean.setLgtyp(rs.getString(12));
+				routeBean.setZoneId(rs.getString(13));
+				routeBean.setSecuency(rs.getString(13));
+				
+				listRoutesBean.add(routeBean);
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();
+			log.log(Level.WARNING,"[getRoutesDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to execute the query: "+INV_VW_ROUTES_WITH_POSITIONS, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listRoutesBean);
+		return res;
+	}
+	
+	private String buildCondition(RouteB routeB){
+
+		String routeId="";
+		String bukrs="";
+		String werks="";
+		String rdesc="";
+		String status="";
+		String modifiedBy="";
+		String modifiedDate="";
+		String createdBy="";
+		String createdDate="";
+		String positionId="";
+		String lgort="";
+		String lgtyp="";
+		String zoneId="";
+		String secuency="";
+
+		String condition = null;
+		
+		routeId = (routeB.getRouteId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" ROUTE_ID = '"+ routeB.getRouteId() + "' "  : "";
+		condition+=routeId;
+		bukrs = (routeB.getBukrs() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" BUKRS = '"+ routeB.getBukrs() + "' "  : "";
+		condition+=bukrs;
+		werks = (routeB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS = '"+ routeB.getWerks() + "' "  : "";
+		condition+=werks;
+		rdesc = (routeB.getRdesc() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" RDESC = '"+ routeB.getRdesc() + "' "  : "";
+		condition+=rdesc;
+		status = (routeB.getStatus() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" STATUS = '"+ routeB.getStatus() + "' "  : "";
+		condition+=status;
+		modifiedBy = (routeB.getModifiedBy() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" MODIFIED_BY = '"+ routeB.getModifiedBy() + "' "  : "";
+		condition+=modifiedBy;
+		modifiedDate = (routeB.getModifiedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" MODIFIED_DATE = '"+ routeB.getModifiedDate() + "' "  : "";
+		condition+=modifiedDate;
+		createdBy = (routeB.getCreatedBy() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" CREATED_BY = '"+ routeB.getCreatedBy() + "' "  : "";
+		condition+=createdBy;
+		createdDate = (routeB.getCreatedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" CREATED_DATE = '"+ routeB.getCreatedDate() + "' "  : "";
+		condition+=createdDate;
+		positionId = (routeB.getPositionId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" POSITION_ID = '"+ routeB.getPositionId() + "' "  : "";
+		condition+=positionId;		
+		lgort = (routeB.getLgort() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT = '" + routeB.getLgort() +"' " : "";
+		condition+=lgort;
+		lgtyp = (routeB.getLgtyp() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGTYP = '" + routeB.getLgtyp() +"' " : "";
+		condition+=lgtyp;
+		zoneId = (routeB.getZoneId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ZONE_ID = '" + routeB.getZoneId() +"' " : "";
+		condition+=zoneId;
+		secuency = (routeB.getSecuency() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " SECUENCY = '" + routeB.getSecuency() +"' " : "";
+		condition+=secuency;
+		
+		return condition;
+	}
+
 }

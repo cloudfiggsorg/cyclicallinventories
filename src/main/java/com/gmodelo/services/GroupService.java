@@ -12,6 +12,7 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.workservice.GroupWorkService;
+import com.gmodelo.workservice.RouteWorkService;
 
 @Path("/services/GroupService")
 public class GroupService {
@@ -27,6 +28,45 @@ public class GroupService {
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new GroupWorkService().addGroup(request, user);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/assignGroupToUser")
+	public Response<Object> assignGroupToUser(Request request){
+		User user = (User) httpRequest.getSession().getAttribute("user");
+		return new GroupWorkService().assignGroupToUser(request, user);
+	}
 
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/unassignGroupToUser")
+	public Response<Object> unassignGroupToUser(Request request){
+		return new GroupWorkService().unassignGroupToUser(request);
+	}
 
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/assignGroupToRoute")
+	public Response<Object> assignGroupToRoute(Request request){
+		return new GroupWorkService().assignGroupToRoute(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/unassignGroupToRoute")
+	public Response<Object> unassignGroupToRoute(Request request){
+		return new GroupWorkService().unassignGroupToRoute(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/deleteGroup")
+	public Response<Object> deleteGroup(Request request){
+		return new GroupWorkService().deleteGroup(request);
+	}
 }

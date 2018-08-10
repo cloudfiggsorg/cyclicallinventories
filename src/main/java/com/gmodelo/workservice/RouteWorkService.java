@@ -19,8 +19,10 @@ import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RoutePositionBean;
+import com.gmodelo.beans.RouteB;
 import com.gmodelo.beans.WerksBean;
 import com.gmodelo.dao.RouteDao;
+import com.gmodelo.dao.TgortDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -209,4 +211,25 @@ public Response<Object> addRoute(Request<?> request, User user){
 		return new RouteDao().deleteRoute(stringRoutes.toString());
 	
 	}
+
+	public Response<List<RouteB>> getRoutes(Request request){
+		log.log(Level.WARNING,"[getRoutesService] "+request.toString());
+		RouteB routeBean;
+		Response<List<RouteB>> res = new Response<List<RouteB>>();
+		try {
+			routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteB.class) ;
+			
+			log.log(Level.WARNING,request.getLsObject().toString());
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE,"Error al pasar de Json a RouteB");
+			routeBean = null;
+			AbstractResults abstractResult = new AbstractResults();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult );
+			return res;
+		}
+		return new RouteDao().getRoutes(routeBean);
+	}
+
 }

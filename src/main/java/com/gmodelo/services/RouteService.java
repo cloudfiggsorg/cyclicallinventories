@@ -1,5 +1,7 @@
 package com.gmodelo.services;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -13,8 +15,8 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.RouteB;
 import com.gmodelo.workservice.RouteWorkService;
-import com.gmodelo.workservice.ZoneWorkService;
 
 @Path("/services/RouteService")
 public class RouteService {
@@ -69,4 +71,14 @@ public class RouteService {
 	public Response<Object> deleteRoute(Request request){
 		return new RouteWorkService().deleteRoute(request);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getRoutes")
+	public Response<List<RouteB>> getRoutes(Request request){
+		return new RouteWorkService().getRoutes(request);
+	}
+
+	
 }
