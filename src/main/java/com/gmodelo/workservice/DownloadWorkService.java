@@ -25,6 +25,10 @@ public class DownloadWorkService {
 
 	Logger log = Logger.getLogger(getClass().getName());
 
+	public String GetInfoTablesWS(Request<LoginBean<?>> request) {
+		return null;
+	}
+
 	public Response<List<Object>> GetMasterDataWork(Request<LoginBean<?>> request) {
 
 		InitialContext ctx;
