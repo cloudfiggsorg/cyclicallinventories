@@ -98,7 +98,7 @@ public class RouteDao {
 				log.log(Level.WARNING,"[addRoute] Sentence successfully executed.");
 				
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[addRoute] Some error occurred while was trying to execute the S.P.: INV_SP_ADD_ROUTE ?, ?, ?, ?, ?", e);
+				log.log(Level.SEVERE,"[addRoute] Some error occurred while was trying to execute the S.P.: "+INV_SP_ADD_ROUTE, e);
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
@@ -204,7 +204,7 @@ public class RouteDao {
 			log.log(Level.WARNING,"[addRoutePosition] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[addRoutePosition] Some error occurred while was trying to execute the S.P.: INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?, ?, ?", e);
+			log.log(Level.SEVERE,"[addRoutePosition] Some error occurred while was trying to execute the S.P.: "+INV_SP_ADD_ROUTE_POSITION, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -225,7 +225,7 @@ public class RouteDao {
 		return res ;
 	}
 	
-public Response<Object> materialToRoute(MaterialToRouteBean materialToRouteBean){
+public Response<Object> assignMaterialToRoute(MaterialToRouteBean materialToRouteBean){
 		
 		Response<Object> res = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
@@ -236,7 +236,7 @@ public Response<Object> materialToRoute(MaterialToRouteBean materialToRouteBean)
 		
 		final String INV_SP_ASSIGN_MATERIAL_TO_ROUTE = "INV_SP_ASSIGN_MATERIAL_TO_ROUTE ?, ?, ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[materialToRoute] Preparing sentence...");
+		log.log(Level.WARNING,"[assignMaterialToRouteDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ROUTE);
@@ -257,7 +257,7 @@ public Response<Object> materialToRoute(MaterialToRouteBean materialToRouteBean)
 				cs.setNull(3, Types.INTEGER);
 			}
 			
-			log.log(Level.WARNING,"[materialToRoute] Executing query...");
+			log.log(Level.WARNING,"[assignMaterialToRouteDao] Executing query...");
 			
 			ResultSet rs = cs.executeQuery();
 			
@@ -284,7 +284,7 @@ public Response<Object> materialToRoute(MaterialToRouteBean materialToRouteBean)
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
-				log.log(Level.WARNING,"[materialToRoute] "+warning.getMessage());
+				log.log(Level.WARNING,"[assignMaterialToRouteDao] "+warning.getMessage());
 				warning = warning.getNextWarning();
 			}
 			
@@ -292,10 +292,10 @@ public Response<Object> materialToRoute(MaterialToRouteBean materialToRouteBean)
 			rs.close();
 			cs.close();	
 			
-			log.log(Level.WARNING,"[materialToRoute] Sentence successfully executed.");
+			log.log(Level.WARNING,"[assignMaterialToRouteDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[materialToRoute] Some error occurred while was trying to execute the S.P.: INV_SP_ASSIGN_MATERIAL_TO_ROUTE ?, ?, ?", e);
+			log.log(Level.SEVERE,"[assignMaterialToRouteDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_ASSIGN_MATERIAL_TO_ROUTE, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -304,7 +304,7 @@ public Response<Object> materialToRoute(MaterialToRouteBean materialToRouteBean)
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[materialToRoute] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE,"[assignMaterialToRouteDao] Some error occurred while was trying to close the connection.", e);
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
@@ -315,4 +315,154 @@ public Response<Object> materialToRoute(MaterialToRouteBean materialToRouteBean)
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
+
+	public Response<Object> unassignMaterialToRoute(MaterialToRouteBean materialToRouteBean){
+		
+		Response<Object> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		CallableStatement cs = null;
+		String resultSP = null;
+		
+		final String INV_SP_DESASSIGN_MATERIAL_TO_ROUTE = "INV_SP_DESASSIGN_MATERIAL_TO_ROUTE ?, ?, ?"; //The Store procedure to call
+		
+		log.log(Level.WARNING,"[unassignMaterialToRouteDao] Preparing sentence...");
+		
+		try {
+			cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ROUTE);
+			
+			if(materialToRouteBean.getRouteId() != null){
+				cs.setString(1,materialToRouteBean.getRouteId());
+			}else{
+				cs.setNull(1, Types.INTEGER);
+			}
+			if(materialToRouteBean.getPosition() != null){
+				cs.setString(2,materialToRouteBean.getPosition());
+			}else{
+				cs.setNull(2, Types.INTEGER);
+			}
+			if(materialToRouteBean.getMatnr() != null){
+				cs.setString(3,materialToRouteBean.getMatnr());
+			}else{
+				cs.setNull(3, Types.INTEGER);
+			}
+			
+			log.log(Level.WARNING,"[unassignMaterialToRouteDao] Executing query...");
+			
+			ResultSet rs = cs.executeQuery();
+			
+			while (rs.next()){
+				
+				resultSP = rs.getString(1);
+				
+			}
+			
+			if(resultSP != null){
+				try {
+					
+					Integer.parseInt(resultSP);
+					
+				} catch (NumberFormatException e) {
+					
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs(resultSP);
+					
+					res.setAbstractResult(abstractResult);
+					return res;
+				}
+			}
+			//Retrive the warnings if there're
+			SQLWarning warning = cs.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,"[unassignMaterialToRouteDao] "+warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			cs.close();	
+			
+			log.log(Level.WARNING,"[unassignMaterialToRouteDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[unassignMaterialToRouteDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_DESASSIGN_MATERIAL_TO_ROUTE, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[unassignMaterialToRouteDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		abstractResult.setResultMsgAbs(resultSP);
+		res.setAbstractResult(abstractResult);
+		return res ;
+	}
+	
+	public Response<Object> deleteRoute(String arrayIdRoutes){
+			
+			Response<Object> res = new Response<>();
+			AbstractResults abstractResult = new AbstractResults();
+			ConnectionManager iConnectionManager = new ConnectionManager();
+			Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+			CallableStatement cs = null;
+			
+			final String INV_SP_DEL_ROUTES = "INV_SP_DEL_ROUTES ?"; //The Store procedure to call
+			
+			log.log(Level.WARNING,"[deleteRouteDao] Preparing sentence...");
+			
+			try {
+				cs = con.prepareCall(INV_SP_DEL_ROUTES);
+				
+				if(arrayIdRoutes != null && !arrayIdRoutes.isEmpty()){
+					cs.setString(1,arrayIdRoutes);
+				}else{
+					cs.setNull(1, Types.INTEGER);
+				}
+				
+				log.log(Level.WARNING,"[deleteRouteDao] Executing query...");
+				
+				ResultSet rs = cs.executeQuery();
+				
+				//Retrive the warnings if there're
+				SQLWarning warning = cs.getWarnings();
+				while (warning != null) {
+					log.log(Level.WARNING,"[deleteRouteDao] "+warning.getMessage());
+					warning = warning.getNextWarning();
+				}
+				
+				//Free resources
+				rs.close();
+				cs.close();	
+				
+				log.log(Level.WARNING,"[deleteRouteDao] Sentence successfully executed.");
+				
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[deleteRouteDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_DEL_ROUTES, e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}finally {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					log.log(Level.SEVERE,"[deleteRouteDao] Some error occurred while was trying to close the connection.", e);
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs(e.getMessage());
+					res.setAbstractResult(abstractResult);
+					return res;
+				}
+			}
+			res.setAbstractResult(abstractResult);
+			return res ;
+		}
 }
