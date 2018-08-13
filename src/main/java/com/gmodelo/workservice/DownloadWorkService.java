@@ -12,11 +12,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.Exception.InvCicException;
+import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RfcTablesBean;
 import com.gmodelo.utils.ConnectionManager;
+import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 
 public class DownloadWorkService {
@@ -49,17 +51,22 @@ public class DownloadWorkService {
 	 */
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public String GetInfoTablesWS(Request<LoginBean<?>> request) {
+	public Response GetInfoTablesWS(Request<LoginBean<?>> request) {
 		Response<List<RfcTablesBean<?>>> response = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		response.setAbstractResult(abstractResult);
 		// CaFigueroa - Pending Code
 		List<RfcTablesBean<?>> listToReturn = new ArrayList<>();
 		try {
 			listToReturn = new RfcTablesBean().RfcTablesBeanData(request.getLsObject());
 		} catch (InvCicException e) {
 			listToReturn = null;
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			
 		}
 		response.setLsObject(listToReturn);
-		return new Gson().toJson(response);
+		return response;
 	}
 
 	
