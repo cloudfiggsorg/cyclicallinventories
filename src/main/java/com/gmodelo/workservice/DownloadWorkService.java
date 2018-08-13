@@ -25,24 +25,20 @@ public class DownloadWorkService {
 
 	Logger log = Logger.getLogger(getClass().getName());
 
+	//This Method Returns the 
 	public String GetInfoTablesWS(Request<LoginBean<?>> request) {
+		Response<?> response = new Response<>();
+		//CaFigueroa - Pending Code
+		
+		
 		return null;
 	}
 
+	
+	
+	
 	public Response<List<Object>> GetMasterDataWork(Request<LoginBean<?>> request) {
 
-		InitialContext ctx;
-		try {
-			ctx = new InitialContext();
-			NamingEnumeration<NameClassPair> list = ctx.list("");
-			while (list.hasMore()) {
-				System.out.println(list.next().getName());
-			}
-		} catch (NamingException e2) {
-			log.log(Level.INFO, "naming", e2);
-		}
-
-		log.log(Level.WARNING, "Iniciando GetMasterDataWork");
 		log.log(Level.SEVERE, "Iniciando GetMasterDataWork");
 		Response<List<Object>> response = new Response<List<Object>>();
 		Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
