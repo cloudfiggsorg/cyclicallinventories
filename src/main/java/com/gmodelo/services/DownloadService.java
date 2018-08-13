@@ -20,7 +20,7 @@ import com.gmodelo.beans.Response;
 import com.gmodelo.workservice.DownloadWorkService;
 import com.google.gson.Gson;
 
-@Path("/DownloadService")
+@Path("/services/DownloadService")
 public class DownloadService {
 
 	@Context
@@ -46,9 +46,9 @@ public class DownloadService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("GetInfoTables")
-	public String GetInfoTables(Request<LoginBean<?>> request) {
-		return null;
+	@Path("/GetInfoTables")
+	public Response GetInfoTables(Request<LoginBean<?>> request) {
+		return new DownloadWorkService().GetInfoTablesWS(request);
 	}
 
 	@GET

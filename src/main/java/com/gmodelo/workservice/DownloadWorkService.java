@@ -12,12 +12,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.Exception.InvCicException;
-import com.gmodelo.beans.ConnectionBean;
+import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RfcTablesBean;
 import com.gmodelo.utils.ConnectionManager;
+import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 
 public class DownloadWorkService {
@@ -31,36 +32,55 @@ public class DownloadWorkService {
 	 * 
 	 * @ParamType1 @Null this will return all data in the table
 	 * 
-	 * @ParamType2 @List<RfcTableBean> this will return all the tables enumerated on
-	 * the table_name value in the RfcTableBean object contained in the list
+	 * @ParamType2 @List<RfcTableBean> this will return all the tables
+	 * enumerated on the table_name value in the RfcTableBean object contained
+	 * in the list
 	 * 
-	 * @ParamType3 @RfcTableBean object, this object will pass the following filters
-	 * one or all may applies.
+	 * @ParamType3 @RfcTableBean object, this object will pass the following
+	 * filters one or all may applies.
 	 * 
-	 * @ParamType3 @FilterValues #TABLE_NAME if you want only information for the
-	 * defined table.
+	 * @ParamType3 @FilterValues #TABLE_NAME if you want only information for
+	 * the defined table.
 	 * 
 	 * @ParamType3 @FilterValues #DEVICE this will give you information of wich
 	 * tables will be downloaded to device.
 	 * 
-	 * @ParamType3 @FilterValues #LAST_UPDATE will give you the information that is
-	 * updated after the specified date.
+	 * @ParamType3 @FilterValues #LAST_UPDATE will give you the information that
+	 * is updated after the specified date.
 	 * 
 	 */
 
-	public String GetInfoTablesWS(Request<LoginBean<?>> request) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Response GetInfoTablesWS(Request<LoginBean<?>> request) {
 		Response<List<RfcTablesBean<?>>> response = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		response.setAbstractResult(abstractResult);
 		// CaFigueroa - Pending Code
 		List<RfcTablesBean<?>> listToReturn = new ArrayList<>();
 		try {
 			listToReturn = new RfcTablesBean().RfcTablesBeanData(request.getLsObject());
 		} catch (InvCicException e) {
 			listToReturn = null;
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			
 		}
 		response.setLsObject(listToReturn);
-		return new Gson().toJson(response);
+		return response;
 	}
 
+	
+	/*
+	 *	GetMasterDataWS 
+	 *	Expects a @Request with a @LoginBean with @List<RfcTablesBean> with the table names
+	 * 	The expected Result is a @Response<#Object>
+	 * 	where #Object will contain a List<RfcTablesBean<DataOfTable>>
+	 * 	@Param @List<RfcTablesBean> with #Table_name values to get info of the tables.
+	 * 	@Param @List<RfcTablesBean> with #Last_Request values to get info of the tables that are recently updated
+	 * 	Pending TODO change the dynamic query for the views, but the view needs to be
+	 * 	exact in names that table 
+	 */
+	 
 	@SuppressWarnings("unchecked")
 	public String GetMasterDataWS(Request<LoginBean<?>> request) {
 		log.log(Level.WARNING, "Init... GetMasterDataWS(Request<LoginBean<?>> request)");
