@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.Exception.InvCicException;
+import com.gmodelo.beans.ConnectionBean;
 import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
@@ -46,14 +47,69 @@ public class DownloadWorkService {
 	 * updated after the specified date.
 	 * 
 	 */
-	public String GetInfoTablesWS(Request<LoginBean<RfcTablesBean>> request) {
-		Response<List<RfcTablesBean>> response = new Response<>();
+
+	public String GetInfoTablesWS(Request<LoginBean<?>> request) {
+		Response<List<RfcTablesBean<?>>> response = new Response<>();
 		// CaFigueroa - Pending Code
-		List<RfcTablesBean> listToReturn = new ArrayList<>();
+		List<RfcTablesBean<?>> listToReturn = new ArrayList<>();
 		try {
 			listToReturn = new RfcTablesBean().RfcTablesBeanData(request.getLsObject());
 		} catch (InvCicException e) {
 			listToReturn = null;
+		}
+		response.setLsObject(listToReturn);
+		return new Gson().toJson(response);
+	}
+
+	@SuppressWarnings("unchecked")
+	public String GetMasterDataWS(Request<LoginBean<?>> request) {
+		log.log(Level.WARNING, "Init... GetMasterDataWS(Request<LoginBean<?>> request)");
+		Response<Object> response = new Response<>();
+		try {
+			Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
+			PreparedStatement stm = null;
+			ResultSet rs = null;
+			List<RfcTablesBean<?>> responseList = new ArrayList<>();
+			List<RfcTablesBean<Object>> listOfTables = (List<RfcTablesBean<Object>>) request.getLsObject();
+			for (RfcTablesBean<Object> rfcBean : listOfTables) {
+				try {
+					String queryValuesString = rfcBean.getTable_value().replaceAll("\\|", "\\,");
+					queryValuesString = queryValuesString.substring(0, queryValuesString.length() - 1);
+
+					String executableQuery = "SELECT " + queryValuesString + " FROM " + rfcBean.getTable_name()
+							+ " WITH(NOLOCK) ";
+
+					if (rfcBean.getLastUpdate() != null) {
+						executableQuery += " WHERE LASTMODIFY > '" + rfcBean.getLastUpdate() + "' ";
+					}
+
+					stm = con.prepareStatement(executableQuery);
+					rs = stm.executeQuery();
+					List<HashMap<String, String>> mappedColumnData = new ArrayList<>();
+					ResultSetMetaData rsMeta = rs.getMetaData();
+					List<String> columnNames = new ArrayList<>();
+					for (int i = 1; i <= rsMeta.getColumnCount(); i++) {
+						columnNames.add(rsMeta.getColumnName(i));
+					}
+					while (rs.next()) {
+						HashMap<String, String> columnsMap = new HashMap<>();
+						for (String colName : columnNames) {
+							columnsMap.put(colName, rs.getString(colName));
+						}
+						if (!columnsMap.isEmpty()) {
+							mappedColumnData.add(columnsMap);
+						}
+					}
+					rfcBean.setStoredValues(mappedColumnData);
+				} catch (SQLException e) {
+					rfcBean.setStoredValues(null);
+				}
+				responseList.add(rfcBean);
+			}
+			response.setLsObject(responseList);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "Get Master Data WorkService Error: ", e);
+			response.setLsObject(null);
 		}
 		return new Gson().toJson(response);
 	}

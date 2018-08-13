@@ -13,16 +13,16 @@ import javax.annotation.ManagedBean;
 
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.utils.ConnectionManager;
-import com.google.gson.Gson;
 
 @ManagedBean
-public class RfcTablesBean {
+public class RfcTablesBean<V> {
 
 	String table_name;
 	String table_value;
 	String table_sql;
 	Date lastUpdate;
 	Boolean device;
+	V storedValues;
 
 	public String getTable_name() {
 		return table_name;
@@ -62,6 +62,15 @@ public class RfcTablesBean {
 
 	public void setDevice(Boolean device) {
 		this.device = device;
+	}
+
+	
+	public V getStoredValues() {
+		return storedValues;
+	}
+
+	public void setStoredValues(V storedValues) {
+		this.storedValues = storedValues;
 	}
 
 	@Override
