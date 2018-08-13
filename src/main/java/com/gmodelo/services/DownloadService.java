@@ -43,6 +43,14 @@ public class DownloadService {
 		return new Gson().toJson(response);
 	}
 
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("GetInfoTables")
+	public String GetInfoTables(Request<LoginBean<?>> request) {
+		return null;
+	}
+
 	@GET
 	@Path("/GetMasterDataTest")
 	@Produces(MediaType.APPLICATION_JSON)
