@@ -18,7 +18,7 @@ import com.gmodelo.utils.ReturnValues;
 
 public class MantrDao {
 	
-private Logger log = Logger.getLogger( MantrDao.class.getName());
+	private Logger log = Logger.getLogger( MantrDao.class.getName());
 	
 	public Response<List<MantrB>> getMantr(MantrB mantrBean){
 		

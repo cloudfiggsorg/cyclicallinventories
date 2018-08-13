@@ -9,6 +9,7 @@ import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.ZoneB;
 import com.gmodelo.beans.ZoneBean;
 import com.gmodelo.dao.RouteDao;
 import com.gmodelo.dao.ZoneDao;
@@ -22,7 +23,7 @@ public class ZoneWorkService {
 	
 	public Response<List<ZoneBean>> getZoneByLgort(Request<?> request){
 			
-			log.log(Level.WARNING,"[getZoneByLgort] "+request.toString());
+			log.log(Level.WARNING,"[getZoneByLgortWorkService] "+request.toString());
 			ZoneBean zoneBean;
 			Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
 			
@@ -116,5 +117,25 @@ public class ZoneWorkService {
 		
 		}
 
-
+	public Response<List<ZoneB>> getZones(Request<?> request){
+		
+		log.log(Level.WARNING,"[getZonesWorkService] "+request.toString());
+		ZoneB zoneBean;
+		Response<List<ZoneB>> res = new Response<List<ZoneB>>();
+		
+		try {
+			zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneB.class);
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE,"[getZonesWorkService] Error al pasar de Json a ZoneB");
+			zoneBean = null;
+			AbstractResults abstractResult = new AbstractResults();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		
+		return new ZoneDao().getZones(zoneBean);
+		
+	}
 }

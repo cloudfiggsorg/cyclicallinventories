@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.ZoneB;
 import com.gmodelo.beans.ZoneBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -23,80 +24,6 @@ public class ZoneDao {
 	
 	private Logger log = Logger.getLogger( ZoneDao.class.getName());
 	
-public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
-		
-		Response<List<ZoneBean>> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
-		PreparedStatement stm = null;
-		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
-		
-		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "; //query
-		
-		String condition = buildCondition(zoneBean);
-		if(condition != null){
-			INV_VW_ZONE_BY_LGORT += condition;
-			log.warning(INV_VW_ZONE_BY_LGORT);
-		}
-		log.log(Level.WARNING,"[getZoneByLgort] Preparing sentence...");
-		
-		try {
-			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
-			
-			log.log(Level.WARNING,"[getZoneByLgort] Executing query...");
-			
-			ResultSet rs = stm.executeQuery();
-			
-			while (rs.next()){
-				
-				zoneBean = new ZoneBean();
-				
-				zoneBean.setLgort(rs.getString(1));
-				zoneBean.setIdZone(rs.getInt(2));
-				zoneBean.setZoneDesc(rs.getString(3));
-				zoneBean.setBukrs(rs.getString(4));
-				zoneBean.setWerks(rs.getString(5));
-				
-				listZone.add(zoneBean);
-				
-			}
-			
-			//Retrive the warnings if there're
-			SQLWarning warning = stm.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING,warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-			
-			//Free resources
-			rs.close();
-			stm.close();	
-			
-			log.log(Level.WARNING,"[getZoneByLgort] Sentence successfully executed.");
-			
-		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getZoneByLgort] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_BY_LGORT, e);
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		}finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[getZoneByLgort] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		}
-		res.setAbstractResult(abstractResult);
-		res.setLsObject(listZone);
-		return res ;
-	}
-
 	public Response<Object> addZone(ZoneBean zoneBean, String createdBy){
 		
 		Response<Object> res = new Response<>();
@@ -301,85 +228,6 @@ public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
 		return res ;
 	}
 
-	private String buildCondition(ZoneBean zoneBean){
-			
-			String lgort = null;
-			String zoneId = null;
-			String zoneDesc = null;
-			String bukrs = null;
-			String werks = null;
-			Boolean clause = false;
-			String condition = null;
-			
-			if(zoneBean.getLgort() != null){
-				lgort = "LGORT = '" + zoneBean.getLgort()+"'";
-				clause = true;
-			}
-			if(zoneBean.getIdZone() != null){
-				zoneId = "ZONE_ID = '" + zoneBean.getIdZone()+"'";
-				clause = true;
-			}
-			if(zoneBean.getZoneDesc() != null){
-				zoneDesc = "ZON_DESC = '" + zoneBean.getZoneDesc()+"'";
-				clause = true;
-			}
-			if(zoneBean.getBukrs() != null){
-				bukrs = "BUKRS = '" + zoneBean.getBukrs()+"'";
-				clause = true;
-			}
-			if(zoneBean.getWerks() != null){
-				werks = "WERKS = '" + zoneBean.getWerks()+"'";
-				clause = true;
-			}
-			
-			if(clause){
-				condition = "WHERE ";
-				if(lgort != null){
-					condition += lgort;
-					if(zoneId != null){
-						condition += " AND "+ zoneId;
-						if(zoneDesc != null){
-							condition += " AND "+ zoneDesc;
-							if(bukrs != null){
-								condition += " AND "+ bukrs;
-								if(werks != null){
-									condition += " AND "+ werks;
-								}
-							}
-						}
-					}
-				} else if(zoneId != null){
-							condition += zoneId;
-							if(zoneDesc != null){
-								condition += " AND "+ zoneDesc;
-								if(bukrs != null){
-									condition += " AND "+ bukrs;
-									if(werks != null){
-										condition += " AND "+ werks;
-									}
-								}
-							}
-				}else if(zoneDesc != null){
-							condition += zoneDesc;
-							if(bukrs != null){
-								condition += " AND "+ bukrs;
-								if(werks != null){
-									condition += " AND "+ werks;
-								}
-							}
-					}else if(bukrs != null){
-								condition += bukrs;
-								if(werks != null){
-									condition += " AND "+ werks;
-								}
-						}else if(werks != null){
-									condition += werks;
-							}
-			}
-			
-			return condition;
-		}
-	
 	public Response<Object> deleteZone(String arrayIdZones){
 		
 		Response<Object> res = new Response<>();
@@ -437,6 +285,278 @@ public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
 		}
 		res.setAbstractResult(abstractResult);
 		return res ;
+	}
+
+	public Response<List<ZoneBean>> getZoneByLgort(ZoneBean zoneBean){
+		
+		Response<List<ZoneBean>> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
+		
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "; //query
+		
+		String condition = buildCondition(zoneBean);
+		if(condition != null){
+			INV_VW_ZONE_BY_LGORT += condition;
+			log.warning(INV_VW_ZONE_BY_LGORT);
+		}
+		log.log(Level.WARNING,"[getZoneByLgortDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
+			
+			log.log(Level.WARNING,"[getZoneByLgortDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				
+				zoneBean = new ZoneBean();
+				
+				zoneBean.setLgort(rs.getString(1));
+				zoneBean.setIdZone(rs.getInt(2));
+				zoneBean.setZoneDesc(rs.getString(3));
+				zoneBean.setBukrs(rs.getString(4));
+				zoneBean.setWerks(rs.getString(5));
+				
+				listZone.add(zoneBean);
+				
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.log(Level.WARNING,"[getZoneByLgortDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getZoneByLgortDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_BY_LGORT, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getZoneByLgortDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listZone);
+		return res ;
+	}
+	
+	private String buildCondition(ZoneBean zoneBean){
+		
+		String lgort = null;
+		String zoneId = null;
+		String zoneDesc = null;
+		String bukrs = null;
+		String werks = null;
+		Boolean clause = false;
+		String condition = null;
+		
+		if(zoneBean.getLgort() != null){
+			lgort = "LGORT = '" + zoneBean.getLgort()+"'";
+			clause = true;
+		}
+		if(zoneBean.getIdZone() != null){
+			zoneId = "ZONE_ID = '" + zoneBean.getIdZone()+"'";
+			clause = true;
+		}
+		if(zoneBean.getZoneDesc() != null){
+			zoneDesc = "ZON_DESC = '" + zoneBean.getZoneDesc()+"'";
+			clause = true;
+		}
+		if(zoneBean.getBukrs() != null){
+			bukrs = "BUKRS = '" + zoneBean.getBukrs()+"'";
+			clause = true;
+		}
+		if(zoneBean.getWerks() != null){
+			werks = "WERKS = '" + zoneBean.getWerks()+"'";
+			clause = true;
+		}
+		
+		if(clause){
+			condition = "WHERE ";
+			if(lgort != null){
+				condition += lgort;
+				if(zoneId != null){
+					condition += " AND "+ zoneId;
+					if(zoneDesc != null){
+						condition += " AND "+ zoneDesc;
+						if(bukrs != null){
+							condition += " AND "+ bukrs;
+							if(werks != null){
+								condition += " AND "+ werks;
+							}
+						}
+					}
+				}
+			} else if(zoneId != null){
+						condition += zoneId;
+						if(zoneDesc != null){
+							condition += " AND "+ zoneDesc;
+							if(bukrs != null){
+								condition += " AND "+ bukrs;
+								if(werks != null){
+									condition += " AND "+ werks;
+								}
+							}
+						}
+			}else if(zoneDesc != null){
+						condition += zoneDesc;
+						if(bukrs != null){
+							condition += " AND "+ bukrs;
+							if(werks != null){
+								condition += " AND "+ werks;
+							}
+						}
+				}else if(bukrs != null){
+							condition += bukrs;
+							if(werks != null){
+								condition += " AND "+ werks;
+							}
+					}else if(werks != null){
+								condition += werks;
+						}
+		}
+		
+		return condition;
+	}
+	
+	public Response<List<ZoneB>> getZones(ZoneB zoneBean){
+		
+		Response<List<ZoneB>> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		List<ZoneB> listZone = new ArrayList<ZoneB>();
+
+		String INV_VW_ZONE_WITH_POSITIONS = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, CREATED_BY, CREATED_DATE, POSITION_ID, LGTYP, LGPLA, SECUENCY FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_WITH_POSITIONS] "; //query
+		
+		String condition = buildConditionZones(zoneBean);
+		if(condition != null){
+			INV_VW_ZONE_WITH_POSITIONS += condition;
+			log.warning(INV_VW_ZONE_WITH_POSITIONS);
+		}
+		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
+			
+			log.log(Level.WARNING,"[getZonesDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				
+				zoneBean = new ZoneB();
+				
+				zoneBean.setZoneId(rs.getString(1));
+				zoneBean.setZdesc(rs.getString(2));
+				zoneBean.setBukrs(rs.getString(3));
+				zoneBean.setWerks(rs.getString(4));
+				zoneBean.setLgort(rs.getString(5));
+				zoneBean.setCreated_by(rs.getString(6));
+				zoneBean.setCreated_date(rs.getString(7));
+				zoneBean.setPositionId(rs.getString(8));
+				zoneBean.setLgtyp(rs.getString(9));
+				zoneBean.setLgpla(rs.getString(10));
+				zoneBean.setSecuency(rs.getString(11));
+				
+				listZone.add(zoneBean);
+				
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.log(Level.WARNING,"[getZonesDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_WITH_POSITIONS, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getZoneByLgortDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listZone);
+		return res ;
+	}
+
+	private String buildConditionZones(ZoneB zoneB){
+		String condition ="";
+		String zoneId ="";
+		String zdesc ="";
+		String bukrs ="";
+		String werks ="";
+		String lgort ="";
+		String created_by ="";
+		String created_date ="";
+		String positionId ="";
+		String lgtyp ="";
+		String lgpla ="";
+		String secuency ="";
+		
+		zoneId = (zoneB.getZoneId() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZONE_ID = '" 	+ zoneB.getZoneId() + "' " : "");
+		condition+=zoneId;
+		zdesc = (zoneB.getZdesc() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZDESC = '" 	+ zoneB.getZdesc() + "' ": "");
+		condition+=zdesc;
+		bukrs = (zoneB.getBukrs() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS = '" 	+ zoneB.getBukrs() + "' ": "");
+		condition+=bukrs;
+		werks = (zoneB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '"		+ zoneB.getWerks() + "' ": "");
+		condition+=werks;
+		lgort = (zoneB.getLgort() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGORT = '"		+ zoneB.getLgort() + "' ": "");
+		condition+=lgort;
+		created_by = (zoneB.getCreated_by() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "CREATED_BY = '" + zoneB.getCreated_by() + "' ": "");
+		condition+=created_by;
+		created_date = (zoneB.getCreated_date() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "CREATED_DATE = '" + zoneB.getCreated_date() + "' ": "");
+		condition+=created_date;
+		positionId = (zoneB.getPositionId() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "POSITION_ID = '" + zoneB.getPositionId() + "' ": "");
+		condition+=positionId;
+		lgtyp = (zoneB.getLgtyp() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGTYP = '" + zoneB.getLgtyp() + "' ": "");
+		condition+=lgtyp;
+		lgpla = (zoneB.getLgpla() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGPLA = '" + zoneB.getLgpla() + "' ": "");
+		condition+=lgpla;
+		secuency = (zoneB.getSecuency() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "SECUENCY = '"+ zoneB.getSecuency() + "' ": "");
+		condition+=secuency;
+		return condition;
 	}
 
 }

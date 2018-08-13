@@ -2,10 +2,13 @@ package com.gmodelo.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,7 +16,10 @@ import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.GroupToRouteBean;
 import com.gmodelo.beans.GroupToUserBean;
+import com.gmodelo.beans.GroupsB;
+import com.gmodelo.beans.MantrB;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.ZoneB;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -526,4 +532,98 @@ public class GroupDao {
 		return res ;
 	}
 
+	public Response<List<GroupsB>> getGroups(GroupsB groupB){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		
+		Response<List<GroupsB>> res = new Response<List<GroupsB>>();
+		AbstractResults abstractResult = new AbstractResults();
+		List<GroupsB> listGroupsBean = new ArrayList<GroupsB>(); 
+		 
+		String INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
+		
+		String condition = buildCondition(groupB);
+		if(condition != null){
+			INV_VW_GET_GROUPS += condition;
+			log.warning(INV_VW_GET_GROUPS);
+		}
+		log.log(Level.WARNING,"[getGroupsDao] Preparing sentence...");
+		try {
+			
+			stm = con.prepareStatement(INV_VW_GET_GROUPS);		
+			
+			log.log(Level.WARNING,"[getGroupsDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				groupB = new GroupsB();
+				
+				groupB.setGroupId(rs.getString(1));
+				groupB.setGdes(rs.getString(2));
+				groupB.setGtype(rs.getString(3));
+				groupB.setCreateBy(rs.getString(4));
+				groupB.setCreatedDate(rs.getString(5));
+				
+				listGroupsBean.add(groupB);
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();
+			log.log(Level.WARNING,"[getGroupsDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getGroupsDao] Some error occurred while was trying to execute the query: "+INV_VW_GET_GROUPS, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getMantrDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listGroupsBean);
+		return res;
+	}
+	
+	private String buildCondition(GroupsB groupB){
+		String groupId = "";
+		String gdes = "";
+		String gtype = "";
+		String createBy = "";
+		String createdDate = "";
+		
+		String condition = null;
+		//IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE
+		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP = '"+ groupB.getGroupId() + "' "  : "";
+		condition+=groupId;
+		gdes = (groupB.getGdes() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC = '" + groupB.getGdes() +"' " : "";
+		condition+=gdes;
+		gtype = (groupB.getGtype() != null) 	? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GTYPE = '" + groupB.getGtype() +"' " : "";
+		condition+=gtype;
+		createBy = (groupB.getCreateBy() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATE_BY = '" + groupB.getCreateBy() +"' " : "";
+		condition+=createBy;
+		createdDate = (groupB.getCreatedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATED_DATE = '" + groupB.getCreatedDate() +"' " : "";
+		condition+=createdDate;
+		
+		return condition;
+	}
 }

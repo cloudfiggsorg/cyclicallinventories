@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.ZoneB;
 import com.gmodelo.beans.ZoneBean;
 import com.gmodelo.workservice.RouteWorkService;
 import com.gmodelo.workservice.ZoneWorkService;
@@ -54,6 +55,14 @@ public class ZoneService {
 	@Path("/deleteZone")
 	public Response<Object> deleteZone(Request request){
 		return new ZoneWorkService().deleteZone(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getZones")
+	public Response<List<ZoneB>> getZones(Request request){
+		return new ZoneWorkService().getZones(request);
 	}
 
 }

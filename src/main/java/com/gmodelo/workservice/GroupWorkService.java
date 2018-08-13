@@ -1,5 +1,6 @@
 package com.gmodelo.workservice;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -7,12 +8,15 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.TmatnrB;
 import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.GroupToRouteBean;
 import com.gmodelo.beans.GroupToUserBean;
+import com.gmodelo.beans.GroupsB;
 import com.gmodelo.beans.groupToUserBean;
 import com.gmodelo.dao.GroupDao;
 import com.gmodelo.dao.RouteDao;
+import com.gmodelo.dao.TmatnrDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -161,4 +165,25 @@ public class GroupWorkService {
 		return new GroupDao().deleteGroup(stringGroups.toString());
 	
 	}
+
+	public Response<List<GroupsB>> getGroups(Request request){
+		log.log(Level.WARNING,"[GroupsWorkService] "+request.toString());
+		GroupsB groupsBean;
+		Response<List<GroupsB>> res = new Response<List<GroupsB>>();
+		try {
+			groupsBean = new Gson().fromJson(request.getLsObject().toString(), GroupsB.class) ;
+			
+			log.log(Level.WARNING,request.getLsObject().toString());
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE,"Error al pasar de Json a GroupsB");
+			groupsBean = null;
+			AbstractResults abstractResult = new AbstractResults();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult );
+			return res;
+		}
+		return new GroupDao().getGroups(groupsBean);
+	}
+
 }
