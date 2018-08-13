@@ -64,7 +64,6 @@ public class RfcTablesBean<V> {
 		this.device = device;
 	}
 
-	
 	public V getStoredValues() {
 		return storedValues;
 	}
@@ -151,10 +150,11 @@ public class RfcTablesBean<V> {
 					List<RfcTablesBean> filter = (List<RfcTablesBean>) rfcTableFilter;
 					String nameFilters = "";
 					for (RfcTablesBean bean : filter) {
-						nameFilters += "'" + bean.getTable_name() + "'";
+						nameFilters += "'" + bean.getTable_name() + "',";
 					}
 					if (!nameFilters.isEmpty()) {
-						stm = con.prepareStatement(GET_INFO_RFC_TABLES + " WHERE TABLE_NAME IN (" + nameFilters + ")");
+						stm = con.prepareStatement(GET_INFO_RFC_TABLES + " WHERE TABLE_NAME IN ("
+								+ nameFilters.substring(0, nameFilters.length() - 1) + ")");
 					} else {
 						throw new InvCicException(
 								"The Refecenced Filter doesn't contiain any info.... use a @null object instead");
@@ -169,11 +169,11 @@ public class RfcTablesBean<V> {
 						String multiFilter = " WHERE ";
 						Boolean hasFilters = Boolean.FALSE;
 						if (!filter.getTable_name().isEmpty() && filter.getTable_name() != null) {
-							multiFilter += " TABLE_NAME ='" + filter.getTable_name() + "' ";
+							multiFilter += " TABLE_NAME ='" + filter.getTable_name() + "' AND ";
 							hasFilters = Boolean.TRUE;
 						}
 						if (filter.getLastUpdate() != null) {
-							multiFilter += " LAST_REQUEST >= '" + filter.getLastUpdate() + "' ";
+							multiFilter += " LAST_REQUEST >= '" + filter.getLastUpdate() + "' AND ";
 							hasFilters = Boolean.TRUE;
 						}
 						if (filter.getDevice() != null) {
