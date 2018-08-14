@@ -1,5 +1,6 @@
 package com.gmodelo.workservice;
 
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,15 +12,17 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RfcTablesBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class DownloadWorkService {
 
@@ -51,7 +54,9 @@ public class DownloadWorkService {
 	 */
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Response GetInfoTablesWS(Request<LoginBean<?>> request) {
+	public String GetInfoTablesWS(Request request, HttpServletRequest httpRequest) {
+		log.warning("Entrando al Workservice");
+		log.warning(request.toString());
 		Response<List<RfcTablesBean<?>>> response = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
 		response.setAbstractResult(abstractResult);
@@ -65,8 +70,11 @@ public class DownloadWorkService {
 			abstractResult.setResultMsgAbs(e.getMessage());
 			
 		}
+		log.warning("Saliendo del Workservice");
 		response.setLsObject(listToReturn);
-		return response;
+		abstractResult.setStrCom1(httpRequest.getSession().getId());
+		abstractResult.setIntCom1(httpRequest.getSession().getMaxInactiveInterval());
+		return new Gson().toJson(response);
 	}
 
 	
@@ -82,16 +90,18 @@ public class DownloadWorkService {
 	 */
 	 
 	@SuppressWarnings("unchecked")
-	public String GetMasterDataWS(Request<LoginBean<?>> request) {
+	public String GetMasterDataWS(Request request,  HttpServletRequest httpRequest) {
 		log.log(Level.WARNING, "Init... GetMasterDataWS(Request<LoginBean<?>> request)");
 		Response<Object> response = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
 		try {
 			Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
 			PreparedStatement stm = null;
 			ResultSet rs = null;
+			Type listType = new TypeToken<ArrayList<RfcTablesBean>>(){}.getType();
 			List<RfcTablesBean<?>> responseList = new ArrayList<>();
-			List<RfcTablesBean<Object>> listOfTables = (List<RfcTablesBean<Object>>) request.getLsObject();
-			for (RfcTablesBean<Object> rfcBean : listOfTables) {
+			List<RfcTablesBean> listOfTables = new Gson().fromJson(request.getLsObject().toString(), listType);
+			for (RfcTablesBean rfcBean : listOfTables) {
 				try {
 					String queryValuesString = rfcBean.getTable_value().replaceAll("\\|", "\\,");
 					queryValuesString = queryValuesString.substring(0, queryValuesString.length() - 1);
@@ -129,63 +139,13 @@ public class DownloadWorkService {
 			response.setLsObject(responseList);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Get Master Data WorkService Error: ", e);
+			e.printStackTrace();
 			response.setLsObject(null);
+			abstractResult.setStrCom1(httpRequest.getSession().getId());
+			abstractResult.setIntCom1(httpRequest.getSession().getMaxInactiveInterval());
+			
 		}
 		return new Gson().toJson(response);
 	}
 
-	public Response<List<Object>> GetMasterDataWork(Request<LoginBean<?>> request) {
-
-		log.log(Level.SEVERE, "Iniciando GetMasterDataWork");
-		Response<List<Object>> response = new Response<List<Object>>();
-		Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
-		List<Object> tableList = new ArrayList<>();
-		try {
-			PreparedStatement stm = con.prepareStatement(
-					"SELECT TABLE_NAME, TABLE_VALUES FROM RFC_TABLE_FILL WITH(NOLOCK) WHERE TABLE_NAME IN('T134T')");
-			ResultSet rs = stm.executeQuery();
-			while (rs.next()) {
-
-				HashMap<String, Object> tableJson = new HashMap<>();
-
-				String stm2QueryString = rs.getString("TABLE_VALUES").replaceAll("\\|", "\\,");
-				stm2QueryString = stm2QueryString.substring(0, stm2QueryString.length() - 1);
-				PreparedStatement stm2 = con.prepareStatement(
-						"SELECT " + stm2QueryString + "  FROM " + rs.getString("TABLE_NAME") + "  WITH(NOLOCK) ");
-				ResultSet rs2 = stm2.executeQuery();
-				List<HashMap<String, String>> jsonObjectList = new ArrayList<>();
-				ResultSetMetaData objectMetadata = rs2.getMetaData();
-				List<String> columnNames = new ArrayList<>();
-				for (int i = 0; i < objectMetadata.getColumnCount(); i++) {
-					columnNames.add(objectMetadata.getColumnName(i + 1));
-				}
-				if (!columnNames.isEmpty()) {
-					while (rs2.next()) {
-						HashMap<String, String> columnsJson = new HashMap<>();
-						for (String columName : columnNames) {
-							columnsJson.put(columName, rs2.getString(columName));
-						}
-						if (!columnsJson.isEmpty()) {
-							jsonObjectList.add(columnsJson);
-						}
-					}
-				}
-				if (!jsonObjectList.isEmpty()) {
-					tableJson.put(rs.getString("TABLE_NAME"), jsonObjectList);
-					tableList.add(tableJson);
-				}
-			}
-			response.setLsObject(tableList);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return response;
-	}
 }

@@ -1,5 +1,6 @@
 package com.gmodelo.beans;
 
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,14 +8,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.ManagedBean;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.utils.ConnectionManager;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-@ManagedBean
+@XmlRootElement
 public class RfcTablesBean<V> {
 
 	String table_name;
@@ -128,11 +132,11 @@ public class RfcTablesBean<V> {
 	private static final String GET_INFO_RFC_TABLES = "SELECT TABLE_NAME, TABLE_VALUES, TABLE_SQL_FILL, LAST_REQUEST, DEVICE FROM rfc_table_fill WITH(NOLOCK)";
 
 	@SuppressWarnings("resource")
-	public List<RfcTablesBean> RfcTablesBeanData(Object rfcTableFilter) throws InvCicException {
+	public List<RfcTablesBean<?>> RfcTablesBeanData(Object rfcTableFilter) throws InvCicException {
 
 		Logger log = Logger.getLogger(this.getClass().getName());
-
-		List<RfcTablesBean> rfcTablesBeans = new ArrayList<>();
+		log.warning("Entre en RfcTablesBeanData");
+		List<RfcTablesBean<?>> rfcTablesBeans = new ArrayList<>();
 		Connection con = null;
 		try {
 			con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
@@ -147,7 +151,9 @@ public class RfcTablesBean<V> {
 			} else {
 				try {
 					// ParseObject to Material ListNames
-					List<RfcTablesBean> filter = (List<RfcTablesBean>) rfcTableFilter;
+					Type listType = new TypeToken<ArrayList<RfcTablesBean>>(){}.getType();
+					List<RfcTablesBean> filter = new Gson().fromJson(rfcTableFilter.toString(), listType) ;
+					//List<RfcTablesBean> filter = (List<RfcTablesBean>) rfcTableFilter;
 					String nameFilters = "";
 					for (RfcTablesBean bean : filter) {
 						nameFilters += "'" + bean.getTable_name() + "',";
@@ -165,19 +171,24 @@ public class RfcTablesBean<V> {
 					}
 				} catch (Exception e) {
 					try {
-						RfcTablesBean filter = (RfcTablesBean) rfcTableFilter;
+						///////////////////
+						log.warning("Falla lista, trato con objeto");
+						RfcTablesBean filter = new Gson().fromJson(rfcTableFilter.toString(), RfcTablesBean.class) ;
+						////////////////////
+						//RfcTablesBean filter = (RfcTablesBean) rfcTableFilter;
 						String multiFilter = " WHERE ";
 						Boolean hasFilters = Boolean.FALSE;
-						if (!filter.getTable_name().isEmpty() && filter.getTable_name() != null) {
-							multiFilter += " TABLE_NAME ='" + filter.getTable_name() + "' AND ";
+						if (filter.getTable_name() != null && !filter.getTable_name().isEmpty()) {
+							multiFilter += " TABLE_NAME ='" + filter.getTable_name() + "' ";
 							hasFilters = Boolean.TRUE;
 						}
 						if (filter.getLastUpdate() != null) {
-							multiFilter += " LAST_REQUEST >= '" + filter.getLastUpdate() + "' AND ";
+							
+							multiFilter += hasFilters.equals(true)?" AND ":"" + " LAST_REQUEST >= '" + filter.getLastUpdate() + "' ";
 							hasFilters = Boolean.TRUE;
 						}
 						if (filter.getDevice() != null) {
-							multiFilter += " DEVICE =  ";
+							multiFilter += hasFilters.equals(true)?" AND ":"" + " DEVICE =  ";
 							hasFilters = Boolean.TRUE;
 							if (filter.getDevice())
 								multiFilter += "1";
@@ -196,6 +207,7 @@ public class RfcTablesBean<V> {
 						}
 
 					} catch (Exception e1) {
+						log.log(Level.SEVERE,"Va la ex",e1);
 						throw new InvCicException(
 								"RfcTablesBean Object Cast Cannot Be Done.... use @List of RfcTableBean with Names or a @Bean - RfcTableBean with data to filter");
 					}
