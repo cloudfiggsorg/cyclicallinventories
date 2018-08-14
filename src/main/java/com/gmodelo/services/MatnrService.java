@@ -13,21 +13,28 @@ import javax.ws.rs.core.MediaType;
 import com.gmodelo.beans.MantrB;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.TgortB;
-import com.gmodelo.workservice.MantrWorkService;
-import com.gmodelo.workservice.TgortWorkService;
+import com.gmodelo.beans.TmatnrB;
+import com.gmodelo.workservice.MatnrWorkService;
 
-@Path("/services/MantrService")
-public class MantrService {
+@Path("/services/MatnrService")
+public class MatnrService {
 	@Context
 	private HttpServletRequest httpRequest;
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getMantr")
+	@Path("/getMatnr")
 	public Response<List<MantrB>> getMantr(Request request){
-		return new MantrWorkService().getMantr(request);
+		return new MatnrWorkService().getMatnr(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getTmatnr")
+	public Response<List<TmatnrB>> getTmatnr(Request request){
+		return new MatnrWorkService().getTmatnr(request);
 	}
 
 }

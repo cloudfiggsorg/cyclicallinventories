@@ -13,9 +13,7 @@ import javax.ws.rs.core.MediaType;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RfcTablesB;
-import com.gmodelo.beans.TmatnrB;
 import com.gmodelo.workservice.RfcTablesWorkService;
-import com.gmodelo.workservice.TmatnrWorkService;
 
 @Path("/services/RfcTablesService")
 public class RfcTablesService {
