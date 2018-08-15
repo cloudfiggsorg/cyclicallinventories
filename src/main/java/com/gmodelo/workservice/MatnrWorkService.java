@@ -40,21 +40,31 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 	public Response<List<TmatnrB>> getTmatnr(Request request){
 		log.log(Level.WARNING,"[getTmatnrWorkService] "+request.toString());
 		TmatnrB tmatnrBean;
+		String searchFilter = null;
 		Response<List<TmatnrB>> res = new Response<List<TmatnrB>>();
 		try {
 			tmatnrBean = new Gson().fromJson(request.getLsObject().toString(), TmatnrB.class) ;
 			
 			log.log(Level.WARNING,request.getLsObject().toString());
 		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE,"[getTmatnrWorkService] Error al pasar de Json a TmatnrBean");
-			tmatnrBean = null;
-			AbstractResults abstractResult = new AbstractResults();
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult );
-			return res;
+			tmatnrBean = new TmatnrB();
+			try {
+				searchFilter = new Gson().fromJson(request.getLsObject().toString(), String.class) ;
+				
+				log.log(Level.WARNING,request.getLsObject().toString());
+			} catch (JsonSyntaxException e1) {
+				log.log(Level.SEVERE,"[getTmatnrWorkService] Error al parsear el Json");
+				tmatnrBean = null;
+				AbstractResults abstractResult = new AbstractResults();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult );
+				return res;
+			}
+			
+			
 		}
-		return new MatnrDao().getTmatnrWithMatnr(tmatnrBean);
+		return new MatnrDao().getTmatnrWithMatnr(tmatnrBean,searchFilter);
 	}
 
 }

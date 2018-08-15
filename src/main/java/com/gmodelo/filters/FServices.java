@@ -84,7 +84,7 @@ public class FServices implements Filter {
 				}
 //				log.warn(req);
 				
-				if(req.getTokenObject().getLoginId() != null && req.getTokenObject().getLoginPass() != null){
+				if(req.getTokenObject() != null && req.getTokenObject().getLoginId() != null && req.getTokenObject().getLoginPass() != null){
 					HttpSession androidSession = HttpSessionCollector.find(req.getTokenObject().getRelationUUID());
 					if(androidSession != null){
 						log.warn("[doFilter] Android. Invalidating session...");
@@ -117,7 +117,7 @@ public class FServices implements Filter {
 
 				//Check if token exist
 				if(!HttpSessionCollector.sessions.isEmpty()){
-					if(req.getTokenObject().getRelationUUID() != null){
+					if(req.getTokenObject() != null && req.getTokenObject().getRelationUUID() != null){
 						if(HttpSessionCollector.sessions.containsKey(req.getTokenObject().getRelationUUID())){
 							log.warn("[doFilter] Android. Token exists. Forwading request...");
 							filterChain.doFilter(myRequestWrapper, sResponse);

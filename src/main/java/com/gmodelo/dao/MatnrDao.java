@@ -91,7 +91,7 @@ public class MatnrDao {
 		return res;
 	}
 	
-public Response<List<TmatnrB>> getTmatnrWithMatnr(TmatnrB tmatnrBean){
+	public Response<List<TmatnrB>> getTmatnrWithMatnr(TmatnrB tmatnrBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
@@ -103,11 +103,16 @@ public Response<List<TmatnrB>> getTmatnrWithMatnr(TmatnrB tmatnrBean){
 		 
 		String INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, TYP_MAT, DEN_TYP_MAT FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) ";
 		
-		String condition = buildCondition(tmatnrBean);
-		if(condition != null){
-			INV_VW_TYPMATNR_BY_MATNR += condition;
-			log.warning(INV_VW_TYPMATNR_BY_MATNR);
+		if(searchFilter != null){
+			INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, TYP_MAT, DEN_TYP_MAT FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) WHERE MATNR LIKE '%"+searchFilter+"%' OR TYP_MAT LIKE '%"+searchFilter+"%' OR DEN_TYP_MAT LIKE '%"+searchFilter+"%'";
+		}else{
+			String condition = buildCondition(tmatnrBean);
+			if(condition != null){
+				INV_VW_TYPMATNR_BY_MATNR += condition;
+				log.warning(INV_VW_TYPMATNR_BY_MATNR);
+			}
 		}
+		
 		log.log(Level.WARNING,"[getTmatnrWithMatnrDao] Preparing sentence...");
 		try {
 			
@@ -165,7 +170,7 @@ public Response<List<TmatnrB>> getTmatnrWithMatnr(TmatnrB tmatnrBean){
 		String matnr = "";
 		String tmat = "";
 		String dtmat = "";
-		String condition = null;
+		String condition = "";
 		
 		matnr = (tmatnrBean.getMatnr() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" MATNR = '"+ tmatnrBean.getMatnr() + "' "  : "";
 		condition+=matnr;
@@ -173,7 +178,9 @@ public Response<List<TmatnrB>> getTmatnrWithMatnr(TmatnrB tmatnrBean){
 		condition+=tmat;
 		dtmat = (tmatnrBean.getDen_typ_mat() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DEN_TYP_MAT = '" + tmatnrBean.getDen_typ_mat() +"' " : "";
 		condition+=dtmat;
-		
+		if(condition.length() <= 3){
+			condition = null;
+		}
 		return condition;
 	}
 	
