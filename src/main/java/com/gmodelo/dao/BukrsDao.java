@@ -31,17 +31,17 @@ public class BukrsDao {
 		AbstractResults abstractResult = new AbstractResults();
 		List<BukrsBean> listBukrsBean = new ArrayList<BukrsBean>(); 
 		 
-		String INV_VW_NGORT_WITH_GORT = "SELECT [BUKRS], [WERKS], [NAME1] FROM [INV_CIC_DB].[dbo].[INV_VW_WERKS_BY_BUKRS] WITH(NOLOCK) ";
+		String INV_VW_WERKS_BY_BUKRS = "SELECT [BUKRS], [WERKS], [NAME1] FROM [INV_CIC_DB].[dbo].[INV_VW_WERKS_BY_BUKRS] WITH(NOLOCK) ";
 		
 		String condition = buildCondition(bukrsBean);
 		if(condition != null){
-			INV_VW_NGORT_WITH_GORT += condition;
-			log.warning(INV_VW_NGORT_WITH_GORT);
+			INV_VW_WERKS_BY_BUKRS += condition;
+			log.warning(INV_VW_WERKS_BY_BUKRS);
 		}
 		log.log(Level.WARNING,"[getBukrs] Preparing sentence...");
 		try {
 			
-			stm = con.prepareStatement(INV_VW_NGORT_WITH_GORT);		
+			stm = con.prepareStatement(INV_VW_WERKS_BY_BUKRS);		
 			
 			log.log(Level.WARNING,"[getBukrs] Executing query...");
 			
@@ -70,7 +70,7 @@ public class BukrsDao {
 			stm.close();
 			log.log(Level.WARNING,"[getBukrs] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getBukrs] Some error occurred while was trying to execute the query: "+INV_VW_NGORT_WITH_GORT, e);
+			log.log(Level.SEVERE,"[getBukrs] Some error occurred while was trying to execute the query: "+INV_VW_WERKS_BY_BUKRS, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
