@@ -137,7 +137,7 @@ public class ZoneDao {
 		CallableStatement cs = null;
 		String resultSP = null;
 		
-		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addPositionZone] Preparing sentence...");
 		
@@ -168,6 +168,11 @@ public class ZoneDao {
 				cs.setString(5,positionZoneBean.getSecuency());
 			}else{
 				cs.setNull(5, Types.INTEGER);
+			}
+			if(positionZoneBean.getImwm() != null){
+				cs.setString(6,positionZoneBean.getImwm());
+			}else{
+				cs.setNull(6, Types.INTEGER);
 			}
 			
 			log.log(Level.WARNING,"[addPositionZone] Executing query...");
@@ -449,7 +454,7 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZoneB> listZone = new ArrayList<ZoneB>();
 
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, CREATED_BY, CREATED_DATE, POSITION_ID, LGTYP, LGPLA, SECUENCY FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_WITH_POSITIONS] "; //query
+		String INV_VW_ZONE_WITH_POSITIONS = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, CREATED_BY, CREATED_DATE, POSITION_ID, LGTYP, LGPLA, SECUENCY, IMWM FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_WITH_POSITIONS] "; //query
 		
 		String condition = buildConditionZones(zoneBean);
 		if(condition != null){
@@ -480,6 +485,7 @@ public class ZoneDao {
 				zoneBean.setLgtyp(rs.getString(9));
 				zoneBean.setLgpla(rs.getString(10));
 				zoneBean.setSecuency(rs.getString(11));
+				zoneBean.setImwm(rs.getString(12));
 				
 				listZone.add(zoneBean);
 				
@@ -533,6 +539,7 @@ public class ZoneDao {
 		String lgtyp ="";
 		String lgpla ="";
 		String secuency ="";
+		String imwm = "";
 		
 		zoneId = (zoneB.getZoneId() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZONE_ID = '" 	+ zoneB.getZoneId() + "' " : "");
 		condition+=zoneId;
@@ -556,6 +563,8 @@ public class ZoneDao {
 		condition+=lgpla;
 		secuency = (zoneB.getSecuency() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "SECUENCY = '"+ zoneB.getSecuency() + "' ": "");
 		condition+=secuency;
+		imwm = (zoneB.getImwm() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "IMWM = '"+ zoneB.getImwm() + "' ": "");
+		condition+=imwm;
 		return condition;
 	}
 

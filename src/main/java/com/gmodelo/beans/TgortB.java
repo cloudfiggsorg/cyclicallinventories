@@ -6,7 +6,14 @@ public class TgortB {
 	String lgNum;
 	String lgTyp;
 	String ltypt;
+	String imwm;
 	
+	public String getImwm() {
+		return imwm;
+	}
+	public void setImwm(String imwm) {
+		this.imwm = imwm;
+	}
 	public String getWerks() {
 		return werks;
 	}
@@ -41,20 +48,19 @@ public class TgortB {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public TgortB(String werks, String lgort, String lgNum, String lgTyp, String ltypt) {
+	public TgortB(String werks, String lgort, String lgNum, String lgTyp, String ltypt, String imwm) {
 		super();
 		this.werks = werks;
 		this.lgort = lgort;
 		this.lgNum = lgNum;
 		this.lgTyp = lgTyp;
 		this.ltypt = ltypt;
+		this.imwm = imwm;
 	}
 	@Override
 	public String toString() {
 		return "TgortB [werks=" + werks + ", lgort=" + lgort + ", lgNum=" + lgNum + ", lgTyp=" + lgTyp + ", ltypt="
-				+ ltypt + "]";
+				+ ltypt + ", imwm=" + imwm + "]";
 	}
-	 
-
 
 }

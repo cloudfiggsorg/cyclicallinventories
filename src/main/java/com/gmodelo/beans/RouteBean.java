@@ -6,7 +6,14 @@ public class RouteBean {
 	String routeDesc;
 	String bukrs;
 	String werks;
+	String type;
 	
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
 	public String getRouteId() {
 		return routeId;
 	}

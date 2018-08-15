@@ -12,7 +12,9 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.LgortBean;
+import com.gmodelo.beans.NgortB;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.ZoneB;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -136,5 +138,101 @@ public class LgortDao {
 			
 			return condition;
 		}
+
+	public Response<List<NgortB>> getNgorts(NgortB ngortBean){
+		
+		Response<List<NgortB>> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		List<NgortB> listNgort = new ArrayList<NgortB>();
+		
+		String INV_VW_NGORT_WITH_GORT = "SELECT WERKS, LGORT, LGNUM, LNUMT,IMWM FROM [INV_CIC_DB].[dbo].[INV_VW_NGORT_WITH_GORT] "; //Query
+		String condition = buildConditionNgort(ngortBean);
+		
+		if(condition != null){
+			INV_VW_NGORT_WITH_GORT += condition;
+			log.warning(INV_VW_NGORT_WITH_GORT);
+		}
+		
+		log.log(Level.WARNING,"[getNgortsDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_NGORT_WITH_GORT);
+			
+			log.log(Level.WARNING,"[getNgortsDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				
+				ngortBean = new NgortB();
+				
+				ngortBean.setWerks(rs.getString(1));
+				ngortBean.setLgort(rs.getString(2));
+				ngortBean.setLgnum(rs.getString(3));
+				ngortBean.setImwm(rs.getString(4));
+				
+				listNgort.add(ngortBean);
+				
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.log(Level.WARNING,"[getNgortsDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getNgortsDao] Some error occurred while was trying to execute the query: "+ INV_VW_NGORT_WITH_GORT, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getLgortByWerks] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listNgort);
+		return res ;
+		
+	}
+
+	private String buildConditionNgort(NgortB ngortB){
+		String werks = "";
+		String lgort = "";
+		String lgnum = "";
+		String lnumt = "";
+		String imwm = "";
+		String condition = null;
+		
+		werks = (ngortB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '"		+ ngortB.getWerks() + "' ": "");
+		condition+=werks;
+		lgort = (ngortB.getLgort() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGORT = '"		+ ngortB.getLgort() + "' ": "");
+		condition+=lgort;
+		lgnum = (ngortB.getLgnum() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGNUM = '" 	+ ngortB.getLgnum() + "' " : "");
+		condition+=lgnum;
+		lnumt = (ngortB.getLnumt() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LNUMT = '" 	+ ngortB.getLnumt() + "' " : "");
+		condition+=lnumt;
+		imwm = (ngortB.getImwm() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "IMWM = '"+ ngortB.getImwm() + "' ": "");
+		condition+=imwm;
+			
+		return condition;
+	}
 
 }

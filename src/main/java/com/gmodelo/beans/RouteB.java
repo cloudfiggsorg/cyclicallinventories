@@ -15,6 +15,14 @@ public class RouteB {
 	String lgtyp;
 	String zoneId;
 	String secuency;
+	String type;
+	
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
 	public String getRouteId() {
 		return routeId;
 	}

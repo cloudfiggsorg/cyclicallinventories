@@ -12,26 +12,26 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.BukrsBean;
-import com.gmodelo.beans.LgplaB;
+import com.gmodelo.beans.LagpB;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
-public class LgplaDao {
+public class LagpDao {
 
 	private Logger log = Logger.getLogger( BukrsDao.class.getName());
 	
-	public Response<List<LgplaB>> getLagp(LgplaB lgplaBean){
+	public Response<List<LagpB>> getLagp(LagpB lgplaBean){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		
-		Response<List<LgplaB>> res = new Response<List<LgplaB>>();
+		Response<List<LagpB>> res = new Response<List<LagpB>>();
 		AbstractResults abstractResult = new AbstractResults();
-		List<LgplaB> listLgplaBean = new ArrayList<LgplaB>(); 
+		List<LagpB> listLgplaBean = new ArrayList<LagpB>(); 
 		 
-		String INV_VW_LAGP = "SELECT LGNUM, LGTYP, LGPLA, LPTYP, SKZUA, SKZUE FROM INV_CIC_DB.dbo.INV_VW_LAGP WITH(NOLOCK) ";
+		String INV_VW_LAGP = "SELECT LGNUM, LGTYP, LGPLA, LPTYP, SKZUA, SKZUE,IMWM FROM INV_CIC_DB.dbo.INV_VW_LAGP WITH(NOLOCK) ";
 		
 		String condition = buildCondition(lgplaBean);
 		if(condition != null){
@@ -48,7 +48,7 @@ public class LgplaDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				lgplaBean = new LgplaB();
+				lgplaBean = new LagpB();
 				
 				lgplaBean.setLgNum(rs.getString(1));
 				lgplaBean.setLgTyp(rs.getString(2));
@@ -56,7 +56,7 @@ public class LgplaDao {
 				lgplaBean.setLpTyp(rs.getString(4));
 				lgplaBean.setSkzua(rs.getString(5));
 				lgplaBean.setSkzue(rs.getString(6));
-				
+				lgplaBean.setImwm(rs.getString(7));
 				listLgplaBean.add(lgplaBean);
 			}
 			
@@ -94,13 +94,14 @@ public class LgplaDao {
 		return res;
 	}
 	
-	private String buildCondition(LgplaB lgplaB){
+	private String buildCondition(LagpB lgplaB){
 		String lgNum = "";
 		String lgTyp = "";
 		String lgPla = "";
 		String lpTyp = "";
 		String skzua = "";
 		String skzue = "";
+		String imwm = "";
 		String condition = null;
 		
 		lgNum = (lgplaB.getLgNum() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGNUM = '" + lgplaB.getLgNum() +"' " : "";
@@ -115,7 +116,8 @@ public class LgplaDao {
 		condition+=skzua;
 		skzue = (lgplaB.getSkzue() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " SKZUE = '" + lgplaB.getSkzue() +"' " : "";
 		condition+=skzue;
-
+		imwm = (lgplaB.getImwm() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " IMWM = '" + lgplaB.getImwm() +"' " : "";
+		condition+=imwm;
 		return condition;
 	}
 

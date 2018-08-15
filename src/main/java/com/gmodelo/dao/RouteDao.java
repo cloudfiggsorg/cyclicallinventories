@@ -34,7 +34,7 @@ public class RouteDao {
 			CallableStatement cs = null;
 			String resultSP = null;
 			
-			final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?"; //The Store procedure to call
+			final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 			
 			log.log(Level.WARNING,"[addRoute] Preparing sentence...");
 			
@@ -63,6 +63,12 @@ public class RouteDao {
 				}
 				
 				cs.setString(5, createdBy);
+				
+				if(routeBean.getType() != null){
+					cs.setString(6, routeBean.getType());
+				}else{
+					cs.setNull(6, Types.INTEGER);
+				}
 				
 				log.log(Level.WARNING,"[addRoute] Executing query...");
 				
@@ -480,7 +486,7 @@ public class RouteDao {
 		AbstractResults abstractResult = new AbstractResults();
 		List<RouteB> listRoutesBean = new ArrayList<RouteB>(); 
 		 
-		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT ROUTE_ID, BUKRS, WERKS,  RDESC, STATUS,MODIFIED_BY, MODIFIED_DATE, CREATED_BY, CREATED_DATE, POSITION_ID, LGORT, LGTYP, ZONE_ID, SECUENCY  FROM [INV_CIC_DB].[dbo].[INV_VW_ROUTES_WITH_POSITIONS] WITH(NOLOCK) ";
+		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT ROUTE_ID, BUKRS, WERKS,  RDESC, STATUS,MODIFIED_BY, MODIFIED_DATE, CREATED_BY, CREATED_DATE, POSITION_ID, LGORT, LGTYP, ZONE_ID, SECUENCY, TYPE  FROM [INV_CIC_DB].[dbo].[INV_VW_ROUTES_WITH_POSITIONS] WITH(NOLOCK) ";
 		
 		String condition = buildCondition(routeBean);
 		if(condition != null){
@@ -512,7 +518,8 @@ public class RouteDao {
 				routeBean.setLgort(rs.getString(11));
 				routeBean.setLgtyp(rs.getString(12));
 				routeBean.setZoneId(rs.getString(13));
-				routeBean.setSecuency(rs.getString(13));
+				routeBean.setSecuency(rs.getString(14));
+				routeBean.setType(rs.getString(15));
 				
 				listRoutesBean.add(routeBean);
 			}
@@ -567,6 +574,7 @@ public class RouteDao {
 		String lgtyp="";
 		String zoneId="";
 		String secuency="";
+		String type = "";
 
 		String condition = null;
 		
@@ -598,7 +606,8 @@ public class RouteDao {
 		condition+=zoneId;
 		secuency = (routeB.getSecuency() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " SECUENCY = '" + routeB.getSecuency() +"' " : "";
 		condition+=secuency;
-		
+		type = (routeB.getType() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TYPE = '" + routeB.getType() +"' " : "";
+		condition+=type;
 		return condition;
 	}
 
