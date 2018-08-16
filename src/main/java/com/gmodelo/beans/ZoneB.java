@@ -12,7 +12,14 @@ public class ZoneB {
 	String lgtyp;
 	String lgpla;
 	String secuency;
+	String imwm;
 	
+	public String getImwm() {
+		return imwm;
+	}
+	public void setImwm(String imwm) {
+		this.imwm = imwm;
+	}
 	public String getZoneId() {
 		return zoneId;
 	}
@@ -84,7 +91,7 @@ public class ZoneB {
 		// TODO Auto-generated constructor stub
 	}
 	public ZoneB(String zoneId, String zdesc, String bukrs, String werks, String lgort, String created_by,
-			String created_date, String positionId, String lgtyp, String lgpla, String secuency) {
+			String created_date, String positionId, String lgtyp, String lgpla, String secuency, String imwm) {
 		super();
 		this.zoneId = zoneId;
 		this.zdesc = zdesc;
@@ -97,12 +104,15 @@ public class ZoneB {
 		this.lgtyp = lgtyp;
 		this.lgpla = lgpla;
 		this.secuency = secuency;
+		this.imwm = imwm;
 	}
 	@Override
 	public String toString() {
 		return "ZoneB [zoneId=" + zoneId + ", zdesc=" + zdesc + ", bukrs=" + bukrs + ", werks=" + werks + ", lgort="
 				+ lgort + ", created_by=" + created_by + ", created_date=" + created_date + ", positionId=" + positionId
-				+ ", lgtyp=" + lgtyp + ", lgpla=" + lgpla + ", secuency=" + secuency + "]";
+				+ ", lgtyp=" + lgtyp + ", lgpla=" + lgpla + ", secuency=" + secuency + ", imwm=" + imwm + "]";
 	}
+
+	
 	
 }

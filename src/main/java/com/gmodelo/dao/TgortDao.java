@@ -30,7 +30,7 @@ private Logger log = Logger.getLogger( TgortDao.class.getName());
 		AbstractResults abstractResult = new AbstractResults();
 		List<TgortB> listTgortBean = new ArrayList<TgortB>(); 
 		 
-		String INV_VW_TGORT_BY_NGORT = "SELECT WERKS,LGORT, LGNUM, LGTYP, LTYPT  FROM [INV_CIC_DB].[dbo].[INV_VW_TGORT_BY_NGORT] WITH(NOLOCK) ";
+		String INV_VW_TGORT_BY_NGORT = "SELECT WERKS,LGORT, LGNUM, LGTYP, LTYPT, IMWM  FROM [INV_CIC_DB].[dbo].[INV_VW_TGORT_BY_NGORT] WITH(NOLOCK) ";
 		
 		String condition = buildCondition(tgortBean);
 		if(condition != null){
@@ -54,7 +54,7 @@ private Logger log = Logger.getLogger( TgortDao.class.getName());
 				tgortBean.setLgNum(rs.getString(3));
 				tgortBean.setLgTyp(rs.getString(4));
 				tgortBean.setLtypt(rs.getString(5));
-				
+				tgortBean.setImwm(rs.getString(6));
 				listTgortBean.add(tgortBean);
 			}
 			
@@ -98,6 +98,7 @@ private Logger log = Logger.getLogger( TgortDao.class.getName());
 		String lgNum = "";
 		String lgTyp = "";
 		String ltypt = "";
+		String imwm = "";
 		String condition = null;
 		
 		werks = (tgortB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS = '"+ tgortB.getWerks() + "' "  : "";
@@ -110,7 +111,8 @@ private Logger log = Logger.getLogger( TgortDao.class.getName());
 		condition+= lgTyp;
 		ltypt = (tgortB.getLtypt() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LTYPT = '" + tgortB.getLtypt() +"' " : "";
 		condition+=ltypt;
-		
+		imwm = (tgortB.getImwm() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " IMWM = '" + tgortB.getImwm() +"' " : "";
+		condition+=imwm;
 		return condition;
 	}
 

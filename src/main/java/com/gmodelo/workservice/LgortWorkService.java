@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.LgortBean;
+import com.gmodelo.beans.NgortB;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.LgortDao;
@@ -36,6 +37,28 @@ public class LgortWorkService {
 		}
 		
 		return new LgortDao().getLgortByWerks(lgortBean);
+		
+	}
+	
+	public Response<List<NgortB>> getNgorts(Request request){
+		
+		log.log(Level.WARNING,"[NgortWorkService] "+request.toString());
+		NgortB ngortBean;
+		Response<List<NgortB>> res = new Response<List<NgortB>>();
+		
+		try {
+			ngortBean = new Gson().fromJson(request.getLsObject().toString(), NgortB.class);
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE,"[NgortWorkService] Error al pasar de Json a NgortBean");
+			ngortBean = null;
+			AbstractResults abstractResult = new AbstractResults();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		
+		return new LgortDao().getNgorts(ngortBean);
 		
 	}
 }

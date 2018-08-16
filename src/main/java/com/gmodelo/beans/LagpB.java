@@ -1,6 +1,6 @@
 package com.gmodelo.beans;
 
-public class LgplaB {
+public class LagpB {
 	
 	String lgNum;	//
 	String lgTyp;	//NUM DE TYPO
@@ -8,7 +8,14 @@ public class LgplaB {
 	String lpTyp;	
 	String skzua;
 	String skzue;
-
+	String imwm;
+	
+	public String getImwm() {
+		return imwm;
+	}
+	public void setImwm(String imwm) {
+		this.imwm = imwm;
+	}
 	public String getLgNum() {
 		return lgNum;
 	}
@@ -45,11 +52,12 @@ public class LgplaB {
 	public void setSkzue(String skzue) {
 		this.skzue = skzue;
 	}
-	public LgplaB() {
+	public LagpB() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public LgplaB(String lgNum, String lgTyp, String lgPla, String lpTyp, String skzua, String skzue) {
+	
+	public LagpB(String lgNum, String lgTyp, String lgPla, String lpTyp, String skzua, String skzue, String imwm) {
 		super();
 		this.lgNum = lgNum;
 		this.lgTyp = lgTyp;
@@ -57,11 +65,15 @@ public class LgplaB {
 		this.lpTyp = lpTyp;
 		this.skzua = skzua;
 		this.skzue = skzue;
+		this.imwm = imwm;
 	}
+	
 	@Override
 	public String toString() {
-		return "LgplaB [lgNum=" + lgNum + ", lgTyp=" + lgTyp + ", lgPla=" + lgPla + ", lpTyp=" + lpTyp + ", skzua="
-				+ skzua + ", skzue=" + skzue + "]";
+		return "LagpB [lgNum=" + lgNum + ", lgTyp=" + lgTyp + ", lgPla=" + lgPla + ", lpTyp=" + lpTyp + ", skzua="
+				+ skzua + ", skzue=" + skzue + ", imwm=" + imwm + "]";
 	}
+	
+	
 
 }

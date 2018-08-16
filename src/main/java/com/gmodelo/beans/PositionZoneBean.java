@@ -7,7 +7,14 @@ public class PositionZoneBean {
 	String lgtyp;		//Tipo de Almacen
 	String lgpla;		//Ubicacion
 	String secuency;	//secuencia
+	String imwm;
 	
+	public String getImwm() {
+		return imwm;
+	}
+	public void setImwm(String imwm) {
+		this.imwm = imwm;
+	}
 	public Integer getZoneId() {
 		return zoneId;
 	}
@@ -43,21 +50,23 @@ public class PositionZoneBean {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	
-	public PositionZoneBean(Integer zoneId, String positionId, String lgtyp, String lgpla, String secuency) {
+	public PositionZoneBean(Integer zoneId, String positionId, String lgtyp, String lgpla, String secuency,
+			String imwm) {
 		super();
 		this.zoneId = zoneId;
 		this.positionId = positionId;
 		this.lgtyp = lgtyp;
 		this.lgpla = lgpla;
 		this.secuency = secuency;
+		this.imwm = imwm;
 	}
-	
 	@Override
 	public String toString() {
 		return "PositionZoneBean [zoneId=" + zoneId + ", positionId=" + positionId + ", lgtyp=" + lgtyp + ", lgpla="
-				+ lgpla + ", secuency=" + secuency + "]";
+				+ lgpla + ", secuency=" + secuency + ", imwm=" + imwm + "]";
 	}
+	
+	
 	
 	
 
