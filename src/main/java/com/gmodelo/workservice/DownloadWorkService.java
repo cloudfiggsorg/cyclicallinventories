@@ -98,7 +98,7 @@ public class DownloadWorkService {
 			Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
 			PreparedStatement stm = null;
 			ResultSet rs = null;
-			Type listType = new TypeToken<ArrayList<RfcTablesBean>>(){}.getType();
+			Type listType = new TypeToken<ArrayList<RfcTablesBean>>(){}.getType(); //Codigo para Castear a Lista
 			List<RfcTablesBean<?>> responseList = new ArrayList<>();
 			List<RfcTablesBean> listOfTables = new Gson().fromJson(request.getLsObject().toString(), listType);
 			for (RfcTablesBean rfcBean : listOfTables) {
