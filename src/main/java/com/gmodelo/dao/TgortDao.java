@@ -18,7 +18,7 @@ import com.gmodelo.utils.ReturnValues;
 
 public class TgortDao {
 
-private Logger log = Logger.getLogger( TgortDao.class.getName());
+	private Logger log = Logger.getLogger( TgortDao.class.getName());
 	
 	public Response<List<TgortB>> getTgortWithNgort(TgortB tgortBean){
 		
