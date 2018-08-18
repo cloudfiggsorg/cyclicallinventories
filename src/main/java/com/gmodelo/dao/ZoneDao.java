@@ -565,6 +565,7 @@ public class ZoneDao {
 		condition+=secuency;
 		imwm = (zoneB.getImwm() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "IMWM = '"+ zoneB.getImwm() + "' ": "");
 		condition+=imwm;
+		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 

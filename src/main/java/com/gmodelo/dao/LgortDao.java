@@ -14,7 +14,6 @@ import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.LgortBean;
 import com.gmodelo.beans.NgortB;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.ZoneB;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -219,7 +218,7 @@ public class LgortDao {
 		String lgnum = "";
 		String lnumt = "";
 		String imwm = "";
-		String condition = null;
+		String condition = "";
 		
 		werks = (ngortB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '"		+ ngortB.getWerks() + "' ": "");
 		condition+=werks;
@@ -231,7 +230,7 @@ public class LgortDao {
 		condition+=lnumt;
 		imwm = (ngortB.getImwm() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "IMWM = '"+ ngortB.getImwm() + "' ": "");
 		condition+=imwm;
-			
+		condition = condition.isEmpty() ? null : condition;	
 		return condition;
 	}
 

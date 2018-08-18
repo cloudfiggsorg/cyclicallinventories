@@ -278,7 +278,7 @@ public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean){
 		condition+=tp;
 		tc = (toleranceBean.getTc() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "TC = '" + toleranceBean.getTc() + "' ": "");
 		condition+=tc;
-		condition = (condition.length() > 1 ? condition : null);
+		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 

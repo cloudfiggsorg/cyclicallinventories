@@ -17,9 +17,7 @@ import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.GroupToRouteBean;
 import com.gmodelo.beans.GroupToUserBean;
 import com.gmodelo.beans.GroupsB;
-import com.gmodelo.beans.MantrB;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.ZoneB;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -611,7 +609,7 @@ public class GroupDao {
 		String createBy = "";
 		String createdDate = "";
 		
-		String condition = null;
+		String condition = "";
 		//IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE
 		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP = '"+ groupB.getGroupId() + "' "  : "";
 		condition+=groupId;
@@ -623,6 +621,7 @@ public class GroupDao {
 		condition+=createBy;
 		createdDate = (groupB.getCreatedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATED_DATE = '" + groupB.getCreatedDate() +"' " : "";
 		condition+=createdDate;
+		condition = condition.isEmpty() ? null : condition;
 		
 		return condition;
 	}

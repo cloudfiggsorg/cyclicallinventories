@@ -608,7 +608,7 @@ public class RouteDao {
 		condition+=secuency;
 		type = (routeB.getType() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TYPE = '" + routeB.getType() +"' " : "";
 		condition+=type;
-		condition = (condition.length() > 1) ? condition : null;
+		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 

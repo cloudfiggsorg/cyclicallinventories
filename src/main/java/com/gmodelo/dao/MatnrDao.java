@@ -189,7 +189,7 @@ public class MatnrDao {
 		String matnr = "";
 		String maktx = "";
 		
-		String condition = null;
+		String condition = "";
 		
 		werks = (mantrB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS = '"+ mantrB.getWerks() + "' "  : "";
 		condition+=werks;
@@ -197,7 +197,7 @@ public class MatnrDao {
 		condition+=matnr;
 		maktx = (mantrB.getMaktx() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " MAKTX = '" + mantrB.getMaktx() +"' " : "";
 		condition+=maktx;
-		
+		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 

@@ -99,7 +99,7 @@ public class TgortDao {
 		String lgTyp = "";
 		String ltypt = "";
 		String imwm = "";
-		String condition = null;
+		String condition = "";
 		
 		werks = (tgortB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS = '"+ tgortB.getWerks() + "' "  : "";
 		condition+=werks;
@@ -113,6 +113,7 @@ public class TgortDao {
 		condition+=ltypt;
 		imwm = (tgortB.getImwm() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " IMWM = '" + tgortB.getImwm() +"' " : "";
 		condition+=imwm;
+		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 

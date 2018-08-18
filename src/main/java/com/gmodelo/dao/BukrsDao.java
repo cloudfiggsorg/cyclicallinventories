@@ -94,44 +94,21 @@ public class BukrsDao {
 	
 	private String buildCondition(BukrsBean bukrsBean){
 		
-		String bukrs = null;
-		String werks = null;
-		String werksDesc = null;
-		Boolean clause = false;
-		String condition = null;
+		String bukrs = "";
+		String werks = "";
+		String werksDesc = "";
+		String condition = "";
 		
-		if(bukrsBean.getBukrs() != null){
-			bukrs = "BUKRS = '" + bukrsBean.getBukrs()+"'";
-			clause = true;
-		}
-		if(bukrsBean.getWerks() != null){
-			werks = "WERKS = '" + bukrsBean.getWerks()+"'";
-			clause = true;
-		}
-		if(bukrsBean.getWerksDesc() != null){
-			werksDesc = "NAME1 = '" + bukrsBean.getWerksDesc()+"'";
-			clause = true;
-		}
+		bukrs = (bukrsBean.getBukrs() != null ? (condition.contains("WHERE") ? "AND " : "WHERE ") + "BUKRS = '" + bukrsBean.getBukrs()+"'" : "");
+		condition += bukrs;
 		
-		if(clause){
-			condition = "WHERE ";
-			if(bukrs != null){
-				condition += bukrs;
-				if(werks != null){
-					condition += " AND "+ werks;
-					if(werksDesc != null){
-						condition += " AND "+ werksDesc;
-					}
-				}
-			} else if(werks != null){
-						condition += werks;
-						if(werksDesc != null){
-							condition += " AND "+ werksDesc;
-						}
-				}else if(werksDesc != null){
-							condition += werksDesc;
-					}
-		}
+		werks = (bukrsBean.getWerks() != null ? (condition.contains("WHERE") ? "AND " : "WHERE ") + "WERKS = '" + bukrsBean.getWerks()+"'" : "");
+		condition += werks;
+		
+		werksDesc = (bukrsBean.getWerksDesc() != null ? (condition.contains("WHERE") ? "AND " : "WHERE ") + "NAME1 = '" + bukrsBean.getWerksDesc()+"'" : "");
+		condition += werksDesc;
+		
+		condition = (condition.isEmpty() ? null : condition);
 		
 		return condition;
 	}
