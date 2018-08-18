@@ -17,12 +17,13 @@ public class BukrsWorkService {
 
 	private Logger log = Logger.getLogger( BukrsWorkService.class.getName());
 	
-	public Response<List<BukrsBean>> getBukrsWerks(Request request){
+	public Response<List<BukrsBean>> getBukrsWerks(Request<BukrsBean> request){
 		log.log(Level.WARNING,"[BukrsWorkService] "+request.toString());
 		BukrsBean bukrsBean;
 		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();
 		try {
 			bukrsBean = new Gson().fromJson(request.getLsObject().toString(), BukrsBean.class) ;
+//			bukrsBean = (BukrsBean) request.getLsObject();
 			
 			log.log(Level.WARNING,request.getLsObject().toString());
 		} catch (JsonSyntaxException e) {

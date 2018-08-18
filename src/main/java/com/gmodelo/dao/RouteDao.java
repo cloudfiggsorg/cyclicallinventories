@@ -576,7 +576,7 @@ public class RouteDao {
 		String secuency="";
 		String type = "";
 
-		String condition = null;
+		String condition = "";
 		
 		routeId = (routeB.getRouteId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" ROUTE_ID = '"+ routeB.getRouteId() + "' "  : "";
 		condition+=routeId;
@@ -608,6 +608,7 @@ public class RouteDao {
 		condition+=secuency;
 		type = (routeB.getType() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TYPE = '" + routeB.getType() +"' " : "";
 		condition+=type;
+		condition = (condition.length() > 1) ? condition : null;
 		return condition;
 	}
 
