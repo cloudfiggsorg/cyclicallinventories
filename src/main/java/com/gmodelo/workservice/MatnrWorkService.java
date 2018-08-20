@@ -51,7 +51,7 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 			try {
 				searchFilter = new Gson().fromJson(request.getLsObject().toString(), String.class) ;
 				
-				log.log(Level.WARNING,request.getLsObject().toString());
+				log.log(Level.WARNING,searchFilter);
 			} catch (JsonSyntaxException e1) {
 				log.log(Level.SEVERE,"[getTmatnrWorkService] Error al parsear el Json");
 				tmatnrBean = null;

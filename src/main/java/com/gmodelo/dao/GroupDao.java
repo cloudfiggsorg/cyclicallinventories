@@ -530,7 +530,7 @@ public class GroupDao {
 		return res ;
 	}
 
-	public Response<List<GroupsB>> getGroups(GroupsB groupB){
+	public Response<List<GroupsB>> getGroups(GroupsB groupB, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
@@ -542,11 +542,20 @@ public class GroupDao {
 		 
 		String INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
 		
-		String condition = buildCondition(groupB);
-		if(condition != null){
-			INV_VW_GET_GROUPS += condition;
-			log.warning(INV_VW_GET_GROUPS);
-		}
+		if(searchFilter != null && !searchFilter.isEmpty()){
+			INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) WHERE IP_GROUP LIKE '%"+searchFilter+"%' OR GDESC LIKE '%"+searchFilter+"%'";
+		}else if(searchFilter != null && searchFilter.isEmpty()){
+			INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
+			
+			}else{
+				String condition = buildCondition(groupB);
+				if(condition != null){
+					INV_VW_GET_GROUPS += condition;
+					log.warning(INV_VW_GET_GROUPS);
+				}
+			}
+		
+		
 		log.log(Level.WARNING,"[getGroupsDao] Preparing sentence...");
 		try {
 			
