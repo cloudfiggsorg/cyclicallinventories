@@ -24,7 +24,7 @@ public class BukrsService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getBukrs")
-	public Response<List<BukrsBean>> getBukrs(Request<BukrsBean> request){
+	public Response<List<BukrsBean>> getBukrs(Request request){
 		return new BukrsWorkService().getBukrs(request);
 	}
 	

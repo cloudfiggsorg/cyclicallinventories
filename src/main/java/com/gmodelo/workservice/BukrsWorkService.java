@@ -19,7 +19,7 @@ public class BukrsWorkService {
 	private Logger log = Logger.getLogger( BukrsWorkService.class.getName());
 	
 	
-	public Response<List<BukrsBean>> getBukrs(Request<BukrsBean> request){
+	public Response<List<BukrsBean>> getBukrs(Request request){
 		log.log(Level.WARNING,"[BukrsWorkService] "+request.toString());
 		BukrsBean bukrsBean = null;
 		String searchFilter = null;
@@ -30,7 +30,7 @@ public class BukrsWorkService {
 			
 			try {
 				
-				bukrsBean = request.getLsObject();
+				bukrsBean = (BukrsBean) request.getLsObject();
 				log.log(Level.WARNING, "[BukrsWorkService] Fue Objeto: " + request.getLsObject().toString());
 				
 			}catch (JsonSyntaxException e1){
