@@ -164,32 +164,36 @@ public class GroupWorkService {
 
 	public Response<List<GroupsB>> getGroups(Request request){
 		log.log(Level.WARNING,"[GroupsWorkService] "+request.toString());
-		GroupsB groupsBean;
+		GroupsB groupsBean = null;
 		String searchFilter = null;
 		Response<List<GroupsB>> res = new Response<List<GroupsB>>();
-		try {
-			groupsBean = new Gson().fromJson(request.getLsObject().toString(), GroupsB.class) ;
-			
-			log.log(Level.WARNING,request.getLsObject().toString());
-		} catch (JsonSyntaxException e) {
-			groupsBean = new GroupsB();
+		
+		String req = request.getLsObject().toString().trim();
+		
+		if(!req.isEmpty()){
 			
 			try {
-				searchFilter = new Gson().fromJson(request.getLsObject().toString(), String.class) ;
 				
-				log.log(Level.WARNING,searchFilter);
+				groupsBean = new Gson().fromJson(request.getLsObject().toString(), GroupsB.class) ;
+				log.log(Level.WARNING, "Fue Objeto: " + request.getLsObject().toString());
+				
 			}catch (JsonSyntaxException e1){
+				
 				log.log(Level.SEVERE,"Error al pasar de Json a GroupsB");
 				groupsBean = null;
 				AbstractResults abstractResult = new AbstractResults();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
+				abstractResult.setResultMsgAbs(e1.getMessage());
 				res.setAbstractResult(abstractResult );
 				return res;
 			}
 			
+		}else{
 			
+			searchFilter = "";
+			log.log(Level.WARNING, "Fue String " +  searchFilter);
 		}
+		
 		return new GroupDao().getGroups(groupsBean, searchFilter);
 	}
 
