@@ -178,7 +178,7 @@ public class GroupWorkService {
 			}catch (JsonSyntaxException e1){
 				
 				log.log(Level.WARNING, "Intentando por String");
-				searchFilter = request.getLsObject().toString();
+				searchFilter = request.getLsObject().toString().trim();
 			}
 			
 		}else{

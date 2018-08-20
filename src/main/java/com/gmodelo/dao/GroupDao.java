@@ -552,7 +552,7 @@ public class GroupDao {
 			
 		}else{
 			
-			INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) WHERE IP_GROUP LIKE '%"+searchFilter+"%' OR GDESC LIKE '%"+searchFilter+"%'";
+			INV_VW_GET_GROUPS += "WHERE IP_GROUP LIKE '%"+searchFilter+"%' OR GDESC LIKE '%"+searchFilter+"%'";
 		}
 		
 		log.warning(INV_VW_GET_GROUPS);
