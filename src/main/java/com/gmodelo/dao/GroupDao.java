@@ -620,15 +620,15 @@ public class GroupDao {
 		
 		String condition = "";
 		//IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE
-		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP = '"+ groupB.getGroupId() + "' "  : "";
+		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP LIKE '"+ groupB.getGroupId() + "' "  : "";
 		condition+=groupId;
-		gdes = (groupB.getGdes() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC = '" + groupB.getGdes() +"' " : "";
+		gdes = (groupB.getGdes() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC LIKE '" + groupB.getGdes() +"' " : "";
 		condition+=gdes;
-		gtype = (groupB.getGtype() != null) 	? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GTYPE = '" + groupB.getGtype() +"' " : "";
+		gtype = (groupB.getGtype() != null) 	? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GTYPE LIKE '" + groupB.getGtype() +"' " : "";
 		condition+=gtype;
-		createBy = (groupB.getCreateBy() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATE_BY = '" + groupB.getCreateBy() +"' " : "";
+		createBy = (groupB.getCreateBy() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATE_BY LIEK '" + groupB.getCreateBy() +"' " : "";
 		condition+=createBy;
-		createdDate = (groupB.getCreatedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATED_DATE = '" + groupB.getCreatedDate() +"' " : "";
+		createdDate = (groupB.getCreatedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATED_DATE LIKE '" + groupB.getCreatedDate() +"' " : "";
 		condition+=createdDate;
 		condition = condition.isEmpty() ? null : condition;
 		
