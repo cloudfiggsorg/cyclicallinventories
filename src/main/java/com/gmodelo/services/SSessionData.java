@@ -43,11 +43,7 @@ public class SSessionData {
 		Response<List<Object>> resp = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
 		List<Object> listObject = new ArrayList<Object>();
-//		log.warn(request);
-		log.warn("SSessionData ...");
-		log.warn("id: "+httpRequest.getSession().getId());
-		log.warn("attribute user: "+httpRequest.getSession().getAttribute("user"));
-		log.warn("attribute roles: "+httpRequest.getSession().getAttribute("roles"));
+//		log.warn(request);		
 //		session = httpRequest.getSession();
 ////		 String newSession = (String) session.getAttribute("newSession");
 //		 
@@ -56,8 +52,12 @@ public class SSessionData {
 		ArrayList<String> roles = (ArrayList<String>) httpRequest.getSession().getAttribute("roles");
 		log.warn(roles);
 //		JSONObject job = new JSONObject();
-		
 		user.getAccInf().setPassword(null);
+		
+		log.warn("SSessionData ...");
+		log.warn("id: "+httpRequest.getSession().getId());
+		log.warn("attribute user: "+httpRequest.getSession().getAttribute("user"));
+		log.warn("attribute roles: "+httpRequest.getSession().getAttribute("roles"));
 		
 //		job.put("user",user);
 //		job.put("roles",roles);
