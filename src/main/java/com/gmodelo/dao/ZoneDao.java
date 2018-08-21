@@ -303,18 +303,23 @@ public class ZoneDao {
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
 		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "
-				+ "WHERE BUKRS = '"+zoneBean.getBukrs()+"' AND WERKS = '"+zoneBean.getWerks()+"' "+
-				"AND ( ZONE_ID LIKE '%"+zoneBean.getIdZone()+"%' OR ZON_DESC LIKE '%"+zoneBean.getZoneDesc()+"%' )";
-		 //query
+				+ "WHERE BUKRS = '"+zoneBean.getBukrs()+"' AND WERKS = '"+zoneBean.getWerks()+"' ";
 		
-		log.warning(INV_VW_ZONE_BY_LGORT);
+			String OR =	"AND ( ZONE_ID LIKE '%"+zoneBean.getIdZone()+"%' OR ZON_DESC LIKE '%"+zoneBean.getZoneDesc()+"%' )";
+		 //query
 		
 		String condition = buildCondition(zoneBean);
 		if(condition != null){
 			INV_VW_ZONE_BY_LGORT += condition;
 		}
 		
+		if(zoneBean.getIdZone() != null){
+			INV_VW_ZONE_BY_LGORT += OR;
+		}
+		
 		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS]";
+		
+		log.warning(INV_VW_ZONE_BY_LGORT);
 		
 		log.log(Level.WARNING,"[getZoneByLgortDao] Preparing sentence...");
 		
