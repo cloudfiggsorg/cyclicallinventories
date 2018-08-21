@@ -21,7 +21,7 @@ public class MatnrDao {
 	
 	private Logger log = Logger.getLogger( MatnrDao.class.getName());
 	
-	public Response<List<MantrB>> getMatnr(MantrB mantrBean){
+	public Response<List<MantrB>> getMatnr(MantrB mantrBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
@@ -33,11 +33,17 @@ public class MatnrDao {
 		 
 		String INV_VW_MATNR_BY_WERKS = "SELECT WERKS, MATNR, MAKTX  FROM [INV_CIC_DB].[dbo].[INV_VW_MATNR_BY_WERKS] WITH(NOLOCK) ";
 		
-		String condition = buildCondition(mantrBean);
-		if(condition != null){
-			INV_VW_MATNR_BY_WERKS += condition;
-			log.warning(INV_VW_MATNR_BY_WERKS);
+		if(searchFilter != null){
+			INV_VW_MATNR_BY_WERKS += " WHERE WERKS LIKE '%"+searchFilter+"%' OR MATNR LIKE '%"+searchFilter+"%' OR MAKTX LIKE '%"+searchFilter+"%' ";
+		}else{
+			String condition = buildCondition(mantrBean);
+			if(condition != null){
+				INV_VW_MATNR_BY_WERKS += condition;
+				
+			}
 		}
+		log.warning(INV_VW_MATNR_BY_WERKS);
+		
 		log.log(Level.WARNING,"[getMatnrDao] Preparing sentence...");
 		try {
 			
@@ -104,7 +110,7 @@ public class MatnrDao {
 		String INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, TYP_MAT, DEN_TYP_MAT FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) ";
 		
 		if(searchFilter != null){
-			INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, TYP_MAT, DEN_TYP_MAT FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) WHERE MATNR LIKE '%"+searchFilter+"%' OR TYP_MAT LIKE '%"+searchFilter+"%' OR DEN_TYP_MAT LIKE '%"+searchFilter+"%'";
+			INV_VW_TYPMATNR_BY_MATNR += "WHERE MATNR LIKE '%"+searchFilter+"%' OR TYP_MAT LIKE '%"+searchFilter+"%' OR DEN_TYP_MAT LIKE '%"+searchFilter+"%'";
 		}else{
 			String condition = buildCondition(tmatnrBean);
 			if(condition != null){

@@ -35,6 +35,14 @@ public class ZoneService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/validateZone")
+	public Response<List<ZoneBean>> validateZone(Request request){
+		return new ZoneWorkService().validateZone(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addZone")
 	public Response<Object> addZone(Request request){
 		User user = (User) httpRequest.getSession().getAttribute("user");

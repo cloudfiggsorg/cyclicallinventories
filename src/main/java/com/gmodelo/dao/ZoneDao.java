@@ -381,6 +381,94 @@ public class ZoneDao {
 		return res ;
 	}
 	
+	public Response<List<ZoneBean>> validateZone(ZoneBean zoneBean){
+		
+		Response<List<ZoneBean>> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
+		
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "
+				+ "WHERE BUKRS = '"+zoneBean.getBukrs()+"' AND WERKS = '"+zoneBean.getWerks()+"' ";
+		
+			String OR =	"AND ( ZONE_ID LIKE '%"+zoneBean.getIdZone()+"%' AND ZON_DESC LIKE '%"+zoneBean.getZoneDesc()+"%' )";
+		 //query
+		
+		String condition = buildCondition(zoneBean);
+		if(condition != null){
+			INV_VW_ZONE_BY_LGORT += condition;
+		}
+		
+		if(zoneBean.getIdZone() != null){
+			INV_VW_ZONE_BY_LGORT += OR;
+		}
+		 
+		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
+		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
+		
+		log.warning(INV_VW_ZONE_BY_LGORT);
+		
+		log.log(Level.WARNING,"[validateZoneDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
+			
+			log.log(Level.WARNING,"[validateZoneDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				
+				zoneBean = new ZoneBean();
+				
+				zoneBean.setLgort(rs.getString(1));
+				zoneBean.setLgobe(rs.getString(2));
+				zoneBean.setIdZone(rs.getInt(3));
+				zoneBean.setZoneDesc(rs.getString(4));
+				zoneBean.setBukrs(rs.getString(5));
+				zoneBean.setWerks(rs.getString(6));
+				
+				listZone.add(zoneBean);
+				
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.log(Level.WARNING,"[validateZoneDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[validateZoneDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_BY_LGORT, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[validateZoneDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listZone);
+		return res ;
+	}
+	
 	private String buildCondition(ZoneBean zoneBean){
 		String lgort = "";
 		String lgobe = "";
