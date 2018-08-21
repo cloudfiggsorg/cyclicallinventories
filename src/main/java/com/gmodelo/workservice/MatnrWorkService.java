@@ -49,10 +49,12 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 				log.log(Level.WARNING, "[getTmatnrWorkService] Fue Objeto: " + tmatnrBean);
 				
 			} catch (ClassCastException e) {
-				tmatnrBean = new TmatnrB();
 				searchFilter = request.getLsObject().toString().trim();
 				log.log(Level.WARNING, "[getTmatnrWorkService] Intentando por String");	
 				
+		}catch(JsonSyntaxException e){
+			searchFilter = request.getLsObject().toString().trim();
+			log.log(Level.WARNING, "[getTmatnrWorkService] jsyn Intentando por String ");
 		}
 		
 		}else{
