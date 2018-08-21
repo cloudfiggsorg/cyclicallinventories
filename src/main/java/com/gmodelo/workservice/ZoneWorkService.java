@@ -21,16 +21,16 @@ public class ZoneWorkService {
 
 	private Logger log = Logger.getLogger(ZoneWorkService.class.getName());
 	
-	public Response<List<ZoneBean>> getZoneByLgort(Request<?> request){
+	public Response<List<ZoneBean>> getZoneByLgort(Request request){
 			
 			log.log(Level.WARNING,"[getZoneByLgortWorkService] "+request.toString());
 			ZoneBean zoneBean;
 			Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
 			
 			try {
-				zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
+				zoneBean = (ZoneBean) request.getLsObject();
 			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[getZoneByLgort] Error al pasar de Json a ZoneBean");
+				log.log(Level.SEVERE,"[getZoneByLgort] Error al hacer casting a ZoneBean");
 				zoneBean = null;
 				AbstractResults abstractResult = new AbstractResults();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);

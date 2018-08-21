@@ -3,6 +3,7 @@ package com.gmodelo.beans;
 public class ZoneBean {
 	
 	String lgort; // almacen de la zona
+	String lgobe; // descripcion de almacen
 	Integer idZone; //id de la zona
 	String zoneDesc; //descripcion de la zona
 	String bukrs; //sociedad de la zona
@@ -13,6 +14,12 @@ public class ZoneBean {
 	}
 	public void setLgort(String lgort) {
 		this.lgort = lgort;
+	}
+	public String getLgobe() {
+		return lgobe;
+	}
+	public void setLgobe(String lgobe) {
+		this.lgobe = lgobe;
 	}
 	public Integer getIdZone() {
 		return idZone;
@@ -43,9 +50,11 @@ public class ZoneBean {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public ZoneBean(String lgort, Integer idZone, String zoneDesc, String bukrs, String werks) {
+	
+	public ZoneBean(String lgort, String lgobe, Integer idZone, String zoneDesc, String bukrs, String werks) {
 		super();
 		this.lgort = lgort;
+		this.lgobe = lgobe;
 		this.idZone = idZone;
 		this.zoneDesc = zoneDesc;
 		this.bukrs = bukrs;
@@ -53,11 +62,9 @@ public class ZoneBean {
 	}
 	@Override
 	public String toString() {
-		return "ZoneBean [lgort=" + lgort + ", idZone=" + idZone + ", zoneDesc=" + zoneDesc + ", bukrs=" + bukrs
-				+ ", werks=" + werks + "]";
+		return "ZoneBean [lgort=" + lgort + ", lgobe=" + lgobe + ", idZone=" + idZone + ", zoneDesc=" + zoneDesc
+				+ ", bukrs=" + bukrs + ", werks=" + werks + "]";
 	}
-	
-	
 	
 
 }
