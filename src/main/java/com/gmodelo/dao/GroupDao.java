@@ -17,9 +17,7 @@ import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.GroupToRouteBean;
 import com.gmodelo.beans.GroupToUserBean;
 import com.gmodelo.beans.GroupsB;
-import com.gmodelo.beans.MantrB;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.ZoneB;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -532,7 +530,7 @@ public class GroupDao {
 		return res ;
 	}
 
-	public Response<List<GroupsB>> getGroups(GroupsB groupB){
+	public Response<List<GroupsB>> getGroups(GroupsB groupB, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
@@ -544,11 +542,21 @@ public class GroupDao {
 		 
 		String INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
 		
-		String condition = buildCondition(groupB);
-		if(condition != null){
-			INV_VW_GET_GROUPS += condition;
-			log.warning(INV_VW_GET_GROUPS);
+		if(searchFilter ==  null){
+			
+			String condition = buildCondition(groupB);
+			if(condition != null){
+				
+				INV_VW_GET_GROUPS += condition;
+			}
+			
+		}else{
+			
+			INV_VW_GET_GROUPS += "WHERE IP_GROUP LIKE '%"+searchFilter+"%' OR GDESC LIKE '%"+searchFilter+"%'";
 		}
+		
+		log.warning(INV_VW_GET_GROUPS);
+						
 		log.log(Level.WARNING,"[getGroupsDao] Preparing sentence...");
 		try {
 			
@@ -611,18 +619,19 @@ public class GroupDao {
 		String createBy = "";
 		String createdDate = "";
 		
-		String condition = null;
+		String condition = "";
 		//IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE
-		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP = '"+ groupB.getGroupId() + "' "  : "";
+		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP LIKE '%"+ groupB.getGroupId() + "%' "  : "";
 		condition+=groupId;
-		gdes = (groupB.getGdes() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC = '" + groupB.getGdes() +"' " : "";
+		gdes = (groupB.getGdes() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC LIKE '%" + groupB.getGdes() +"%' " : "";
 		condition+=gdes;
-		gtype = (groupB.getGtype() != null) 	? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GTYPE = '" + groupB.getGtype() +"' " : "";
+		gtype = (groupB.getGtype() != null) 	? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GTYPE LIKE '%" + groupB.getGtype() +"%' " : "";
 		condition+=gtype;
 		createBy = (groupB.getCreateBy() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATE_BY = '" + groupB.getCreateBy() +"' " : "";
 		condition+=createBy;
 		createdDate = (groupB.getCreatedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATED_DATE = '" + groupB.getCreatedDate() +"' " : "";
 		condition+=createdDate;
+		condition = condition.isEmpty() ? null : condition;
 		
 		return condition;
 	}

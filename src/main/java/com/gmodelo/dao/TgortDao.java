@@ -18,7 +18,7 @@ import com.gmodelo.utils.ReturnValues;
 
 public class TgortDao {
 
-private Logger log = Logger.getLogger( TgortDao.class.getName());
+	private Logger log = Logger.getLogger( TgortDao.class.getName());
 	
 	public Response<List<TgortB>> getTgortWithNgort(TgortB tgortBean){
 		
@@ -99,7 +99,7 @@ private Logger log = Logger.getLogger( TgortDao.class.getName());
 		String lgTyp = "";
 		String ltypt = "";
 		String imwm = "";
-		String condition = null;
+		String condition = "";
 		
 		werks = (tgortB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS = '"+ tgortB.getWerks() + "' "  : "";
 		condition+=werks;
@@ -113,6 +113,7 @@ private Logger log = Logger.getLogger( TgortDao.class.getName());
 		condition+=ltypt;
 		imwm = (tgortB.getImwm() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " IMWM = '" + tgortB.getImwm() +"' " : "";
 		condition+=imwm;
+		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 

@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.BukrsBean;
 import com.gmodelo.beans.LagpB;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
@@ -102,7 +101,7 @@ public class LagpDao {
 		String skzua = "";
 		String skzue = "";
 		String imwm = "";
-		String condition = null;
+		String condition = "";
 		
 		lgNum = (lgplaB.getLgNum() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGNUM = '" + lgplaB.getLgNum() +"' " : "";
 		condition+=lgNum;
@@ -118,6 +117,7 @@ public class LagpDao {
 		condition+=skzue;
 		imwm = (lgplaB.getImwm() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " IMWM = '" + lgplaB.getImwm() +"' " : "";
 		condition+=imwm;
+		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 

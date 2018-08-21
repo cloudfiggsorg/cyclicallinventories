@@ -23,8 +23,16 @@ public class BukrsService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getBukrs")
+	public Response<List<BukrsBean>> getBukrs(Request request){
+		return new BukrsWorkService().getBukrs(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getBukrsAndWerks")
-	public Response<List<BukrsBean>> getBukrsAndWerks(Request request){
+	public Response<List<BukrsBean>> getBukrsAndWerks(Request<BukrsBean> request){
 		return new BukrsWorkService().getBukrsWerks(request);
 	}
 }

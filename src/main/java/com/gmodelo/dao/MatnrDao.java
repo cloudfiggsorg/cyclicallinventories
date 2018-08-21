@@ -172,15 +172,13 @@ public class MatnrDao {
 		String dtmat = "";
 		String condition = "";
 		
-		matnr = (tmatnrBean.getMatnr() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" MATNR = '"+ tmatnrBean.getMatnr() + "' "  : "";
+		matnr = (tmatnrBean.getMatnr() != null && !tmatnrBean.getMatnr().isEmpty()) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" MATNR LIKE '%"+ tmatnrBean.getMatnr() + "%'"  : "";
 		condition+=matnr;
-		tmat = (tmatnrBean.getTyp_mat() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TYP_MAT = '" + tmatnrBean.getTyp_mat() +"' " : "";
+		tmat = (tmatnrBean.getTyp_mat() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TYP_MAT LIKE '%" + tmatnrBean.getTyp_mat() +"%' " : "";
 		condition+=tmat;
-		dtmat = (tmatnrBean.getDen_typ_mat() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DEN_TYP_MAT = '" + tmatnrBean.getDen_typ_mat() +"' " : "";
+		dtmat = (tmatnrBean.getDen_typ_mat() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DEN_TYP_MAT LIKE '%" + tmatnrBean.getDen_typ_mat() +"%' " : "";
 		condition+=dtmat;
-		if(condition.length() <= 3){
-			condition = null;
-		}
+		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 	
@@ -189,15 +187,15 @@ public class MatnrDao {
 		String matnr = "";
 		String maktx = "";
 		
-		String condition = null;
+		String condition = "";
 		
-		werks = (mantrB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS = '"+ mantrB.getWerks() + "' "  : "";
+		werks = (mantrB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS LIKE '%"+ mantrB.getWerks() + "%' "  : "";
 		condition+=werks;
-		matnr = (mantrB.getMatnr() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " MATNR = '" + mantrB.getMatnr() +"' " : "";
+		matnr = (mantrB.getMatnr() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " MATNR LIKE '%" + mantrB.getMatnr() +"%' " : "";
 		condition+=matnr;
-		maktx = (mantrB.getMaktx() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " MAKTX = '" + mantrB.getMaktx() +"' " : "";
+		maktx = (mantrB.getMaktx() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " MAKTX LIKE '%" + mantrB.getMaktx() +"%' " : "";
 		condition+=maktx;
-		
+		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 
