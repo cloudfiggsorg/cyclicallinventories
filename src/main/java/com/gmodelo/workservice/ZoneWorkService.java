@@ -21,7 +21,7 @@ public class ZoneWorkService {
 
 	private Logger log = Logger.getLogger(ZoneWorkService.class.getName());
 	
-	public Response<List<ZoneBean>> getZoneByLgort(Request request){
+	public Response<List<ZoneBean>> getZoneByLgort(Request<ZoneBean> request){
 			
 			log.log(Level.WARNING,"[getZoneByLgortWorkService] "+request.toString());
 			ZoneBean zoneBean;

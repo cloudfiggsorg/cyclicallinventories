@@ -28,7 +28,7 @@ public class ZoneService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getZone")
-	public Response<List<ZoneBean>> getZone(Request request){
+	public Response<List<ZoneBean>> getZone(Request<ZoneBean> request){
 		return new ZoneWorkService().getZoneByLgort(request);
 	}
 	
