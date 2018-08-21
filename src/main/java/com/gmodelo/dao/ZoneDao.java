@@ -316,8 +316,9 @@ public class ZoneDao {
 		if(zoneBean.getIdZone() != null){
 			INV_VW_ZONE_BY_LGORT += OR;
 		}
-		
-		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS]";
+		 
+		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
+		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
 		
 		log.warning(INV_VW_ZONE_BY_LGORT);
 		
