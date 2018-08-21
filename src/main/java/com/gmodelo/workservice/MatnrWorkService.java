@@ -42,12 +42,13 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 		TmatnrB tmatnrBean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
+		
 		if(!req.isEmpty()){
 			try {
 				tmatnrBean = (TmatnrB) request.getLsObject();
 				log.log(Level.WARNING, "[getTmatnrWorkService] Fue Objeto: " + tmatnrBean);
 				
-			} catch (JsonSyntaxException e) {
+			} catch (ClassCastException e) {
 				tmatnrBean = new TmatnrB();
 				searchFilter = request.getLsObject().toString().trim();
 				log.log(Level.WARNING, "[getTmatnrWorkService] Intentando por String");	
