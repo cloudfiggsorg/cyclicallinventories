@@ -9,6 +9,7 @@ import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.TmatnrB;
 import com.gmodelo.beans.ZoneB;
 import com.gmodelo.beans.ZoneBean;
 import com.gmodelo.dao.RouteDao;
@@ -21,7 +22,7 @@ public class ZoneWorkService {
 
 	private Logger log = Logger.getLogger(ZoneWorkService.class.getName());
 	
-	public Response<List<ZoneBean>> getLgortByZone(Request<ZoneBean> request){
+	public Response<List<ZoneBean>> getLgortByZone(Request request){
 			
 			log.log(Level.WARNING,"[getZoneByLgortWorkService] "+request.toString());
 			ZoneBean zoneBean;
@@ -29,7 +30,7 @@ public class ZoneWorkService {
 			
 			try {
 //				aqui siempre se recibirá un objeto
-				zoneBean = (ZoneBean) request.getLsObject();
+				zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE,"[getZoneByLgort] Error al hacer casting a ZoneBean");
 				zoneBean = null;

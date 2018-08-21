@@ -45,7 +45,7 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 		
 		if(!req.isEmpty()){
 			try {
-				tmatnrBean = (TmatnrB) request.getLsObject();
+				tmatnrBean = new Gson().fromJson(request.getLsObject().toString(), TmatnrB.class);
 				log.log(Level.WARNING, "[getTmatnrWorkService] Fue Objeto: " + tmatnrBean);
 				
 			} catch (ClassCastException e) {
