@@ -29,7 +29,7 @@ public class ZoneService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getZone")
 	public Response<List<ZoneBean>> getZone(Request<ZoneBean> request){
-		return new ZoneWorkService().getZoneByLgort(request);
+		return new ZoneWorkService().getLgortByZone(request);
 	}
 	
 	@POST
