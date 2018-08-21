@@ -22,7 +22,7 @@ public class ZoneWorkService {
 
 	private Logger log = Logger.getLogger(ZoneWorkService.class.getName());
 	
-	public Response<List<ZoneBean>> getLgortByZone(Request request){
+	public Response<List<ZoneBean>> getLgortByZone(Request<String> request){
 			
 			log.log(Level.WARNING,"[getZoneByLgortWorkService] "+request.toString());
 			ZoneBean zoneBean;
@@ -30,9 +30,9 @@ public class ZoneWorkService {
 			
 			try {
 //				aqui siempre se recibirá un objeto
-				zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
+				zoneBean = new Gson().fromJson(request.getLsObject(), ZoneBean.class);
 			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[getZoneByLgort] Error al hacer casting a ZoneBean");
+				log.log(Level.SEVERE,"[getZoneByLgort] Error al convertir Object a ZoneBean");
 				zoneBean = null;
 				AbstractResults abstractResult = new AbstractResults();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
