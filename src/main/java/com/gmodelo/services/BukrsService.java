@@ -32,7 +32,7 @@ public class BukrsService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getBukrsAndWerks")
-	public Response<List<BukrsBean>> getBukrsAndWerks(Request<BukrsBean> request){
+	public Response<List<BukrsBean>> getBukrsAndWerks(Request request){
 		return new BukrsWorkService().getBukrsWerks(request);
 	}
 }

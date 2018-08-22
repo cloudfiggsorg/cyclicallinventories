@@ -178,7 +178,7 @@ public class MatnrDao {
 		String dtmat = "";
 		String condition = "";
 		
-		matnr = (tmatnrBean.getMatnr() != null && !tmatnrBean.getMatnr().isEmpty()) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" MATNR LIKE '%"+ tmatnrBean.getMatnr() + "%'"  : "";
+		matnr = (tmatnrBean.getMatnr() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" MATNR LIKE '%"+ tmatnrBean.getMatnr() + "%'"  : "";
 		condition+=matnr;
 		tmat = (tmatnrBean.getTyp_mat() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TYP_MAT LIKE '%" + tmatnrBean.getTyp_mat() +"%' " : "";
 		condition+=tmat;
