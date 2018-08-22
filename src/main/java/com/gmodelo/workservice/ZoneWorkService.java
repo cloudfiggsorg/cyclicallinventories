@@ -34,7 +34,7 @@ public class ZoneWorkService {
 //					aqui siempre se recibirá un objeto
 					zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
 				} catch (JsonSyntaxException e) {
-					log.log(Level.SEVERE,"[getZoneByLgort] Error al convertir Object a ZoneBean");
+					log.log(Level.SEVERE,"[getZoneByLgortWorkService] Error al convertir json a ZoneBean");
 					AbstractResults abstractResult = new AbstractResults();
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
 					abstractResult.setResultMsgAbs(e.getMessage());
@@ -43,13 +43,42 @@ public class ZoneWorkService {
 				}
 			}else{
 				searchFilter = "";
-				log.log(Level.WARNING, "[getTmatnrWorkService] Fue cadena vacía ");
+				log.log(Level.WARNING, "[getZoneByLgortWorkService] Fue cadena vacía ");
 			}
 			
 			
 			return new ZoneDao().getLgortByZone(zoneBean);
 			
 		}
+	
+	public Response<List<ZoneBean>> validateZone(Request request){
+		
+		log.log(Level.WARNING,"[validateZoneWorkService] "+request.toString());
+		ZoneBean zoneBean = null;
+		String searchFilter = null;
+		Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
+		String req = request.getLsObject().toString().trim();
+		if(!req.isEmpty()){
+			try {
+//				aqui siempre se recibirá un objeto
+				zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
+			} catch (JsonSyntaxException e) {
+				log.log(Level.SEVERE,"[validateZoneWorkService] Error al convertir json a ZoneBean");
+				AbstractResults abstractResult = new AbstractResults();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}else{
+			searchFilter = "";
+			log.log(Level.WARNING, "[validateZoneWorkService] Fue cadena vacía ");
+		}
+		
+		
+		return new ZoneDao().validateZone(zoneBean);
+		
+	}
 	
 	public Response<Object> addZone(Request<?> request, User user){
 		

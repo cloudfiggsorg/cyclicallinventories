@@ -19,22 +19,31 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 	
 	public Response<List<MantrB>> getMatnr(Request request){
 		log.log(Level.WARNING,"[getMatnrWorkService] "+request.toString());
-		MantrB mantrBean;
+		MantrB mantrBean  = null;
+		String searchFilter = null;
 		Response<List<MantrB>> res = new Response<List<MantrB>>();
-		try {
-			mantrBean = new Gson().fromJson(request.getLsObject().toString(), MantrB.class) ;
-			
-			log.log(Level.WARNING,request.getLsObject().toString());
-		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE,"[getMatnrWorkService] Error al pasar de Json a MantrB");
-			mantrBean = null;
-			AbstractResults abstractResult = new AbstractResults();
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult );
-			return res;
+		String req = request.getLsObject().toString().trim();
+		
+		if(!req.isEmpty()){
+			try {
+				mantrBean = new Gson().fromJson(request.getLsObject().toString(), MantrB.class) ;
+				
+				log.log(Level.WARNING,request.getLsObject().toString());
+			} catch (JsonSyntaxException e) {
+				log.log(Level.SEVERE,"[getMatnrWorkService] Error al pasar de Json a MantrB");
+				mantrBean = null;
+				AbstractResults abstractResult = new AbstractResults();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}else{
+			searchFilter = "";
+			log.log(Level.WARNING, "[getMatnrWorkService] Fue cadena vacía ");
 		}
-		return new MatnrDao().getMatnr(mantrBean);
+		
+		return new MatnrDao().getMatnr(mantrBean, searchFilter);
 	}
 	
 	public Response<List<TmatnrB>> getTmatnr(Request request){
@@ -48,11 +57,7 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 				tmatnrBean = new Gson().fromJson(request.getLsObject().toString(), TmatnrB.class);
 				log.log(Level.WARNING, "[getTmatnrWorkService] Fue Objeto: " + tmatnrBean);
 				
-			} catch (ClassCastException e) {
-				searchFilter = request.getLsObject().toString().trim();
-				log.log(Level.WARNING, "[getTmatnrWorkService] Intentando por String");	
-				
-		}catch(JsonSyntaxException e){
+			}catch(JsonSyntaxException e){
 			searchFilter = request.getLsObject().toString().trim();
 			log.log(Level.WARNING, "[getTmatnrWorkService] jsyn Intentando por String ");
 		}
@@ -61,6 +66,9 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 			searchFilter = "";
 			log.log(Level.WARNING, "[getTmatnrWorkService] Fue cadena vacía ");
 		}
+		
+			
+		
 		return new MatnrDao().getTmatnrWithMatnr(tmatnrBean,searchFilter);
 	}
 

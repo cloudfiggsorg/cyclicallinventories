@@ -24,13 +24,12 @@ public class BukrsWorkService {
 		BukrsBean bukrsBean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
-//		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();
 		
 		if(!req.isEmpty()){
 			
 			try {
 				
-				bukrsBean = (BukrsBean) request.getLsObject();
+				bukrsBean = new Gson().fromJson(request.getLsObject().toString(),BukrsBean.class);
 				log.log(Level.WARNING, "[BukrsWorkService] Fue Objeto: " + request.getLsObject().toString());
 				
 			}catch (JsonSyntaxException e1){
@@ -48,19 +47,17 @@ public class BukrsWorkService {
 		return new BukrsDao().getBukrs(bukrsBean, searchFilter);
 	}
 	
-	public Response<List<BukrsBean>> getBukrsWerks(Request<BukrsBean> request){
+	public Response<List<BukrsBean>> getBukrsWerks(Request request){
 		log.log(Level.WARNING,"[getBukrsWerksWorkService] "+request.toString());
 		BukrsBean bukrsBean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
-//		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();
 		
 		if(!req.isEmpty()){
 			
 			try {
 				
-//				bukrsBean = new Gson().fromJson(request.getLsObject(), BukrsBean.class);
-				bukrsBean = request.getLsObject();
+				bukrsBean = new Gson().fromJson(request.getLsObject().toString(), BukrsBean.class);
 				log.log(Level.WARNING, "[getBukrsWerksWorkService] Fue Objeto: " + bukrsBean.toString());
 				
 			}catch (JsonSyntaxException e1){

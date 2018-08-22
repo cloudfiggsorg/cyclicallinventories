@@ -18,7 +18,7 @@ public class DocInvWorkService {
 	
 	private Logger log = Logger.getLogger(DocInvWorkService.class.getName());
 	
-	public Response<Object> addDocInv(Request<?> request, User user){
+	public Response<Object> addDocInv(Request request, User user){
 	
 		log.log(Level.WARNING,"[addDocInvWS] "+request.toString());
 		DocInvB docInvBean;
