@@ -20,7 +20,7 @@ public class LagpDao {
 
 	private Logger log = Logger.getLogger( BukrsDao.class.getName());
 	
-	public Response<List<LagpB>> getLagp(LagpB lgplaBean){
+	public Response<List<LagpB>> getLagp(LagpB lgplaBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
@@ -30,13 +30,20 @@ public class LagpDao {
 		AbstractResults abstractResult = new AbstractResults();
 		List<LagpB> listLgplaBean = new ArrayList<LagpB>(); 
 		 
-		String INV_VW_LAGP = "SELECT LGNUM, LGTYP, LGPLA, LPTYP, SKZUA, SKZUE,IMWM FROM INV_CIC_DB.dbo.INV_VW_LAGP WITH(NOLOCK) ";
+		String INV_VW_LAGP = "SELECT LGNUM, LGTYP, LGPLA, LPTYP, SKZUA, SKZUE, IMWM FROM INV_CIC_DB.dbo.INV_VW_LAGP WITH(NOLOCK) ";
 		
-		String condition = buildCondition(lgplaBean);
-		if(condition != null){
-			INV_VW_LAGP += condition;
-			log.warning(INV_VW_LAGP);
+		if(searchFilter != null){
+			INV_VW_LAGP += "WHERE LGNUM LIKE '%"+searchFilter+"%' OR LGTYP LIKE '%"+searchFilter+"%' OR LGPLA LIKE '%"+searchFilter
+					+"%' OR LPTYP LIKE '%"+searchFilter+"%' OR SKZUA LIKE '%"+searchFilter+"%' OR SKZUE LIKE '%"+searchFilter+"%' ";
+		}else{
+			String condition = buildCondition(lgplaBean);
+			if(condition != null){
+				INV_VW_LAGP += condition;
+			}
 		}
+		
+
+		log.warning(INV_VW_LAGP);
 		log.log(Level.WARNING,"[getLagp] Preparing sentence...");
 		try {
 			

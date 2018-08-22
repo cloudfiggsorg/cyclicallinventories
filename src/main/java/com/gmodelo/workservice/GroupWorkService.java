@@ -21,7 +21,7 @@ public class GroupWorkService {
 
 	private Logger log = Logger.getLogger(GroupWorkService.class.getName());
 	
-	public Response<Object> addGroup(Request<?> request, User user){
+	public Response<Object> addGroup(Request request, User user){
 		
 		log.log(Level.WARNING,"[addGroupWS] "+request.toString());
 		GroupBean groupBean;
@@ -43,7 +43,7 @@ public class GroupWorkService {
 		
 	}
 	
-	public Response<Object> assignGroupToUser(Request<?> request,  User user){
+	public Response<Object> assignGroupToUser(Request request,  User user){
 		
 		log.log(Level.WARNING,"[assignGroupToUserWS] "+request.toString());
 		GroupToUserBean groupToUserBean;
@@ -65,7 +65,7 @@ public class GroupWorkService {
 	
 	}
 	
-	public Response<Object> unassignGroupToUser(Request<?> request){
+	public Response<Object> unassignGroupToUser(Request request){
 		
 		log.log(Level.WARNING,"[unassignGroupToUserWS] "+request.toString());
 		GroupToUserBean groupToUserBean;
@@ -87,7 +87,7 @@ public class GroupWorkService {
 	
 	}
 
-	public Response<Object> assignGroupToRoute(Request<?> request){
+	public Response<Object> assignGroupToRoute(Request request){
 		
 		log.log(Level.WARNING,"[assignGroupToRouteWS] "+request.toString());
 		GroupToRouteBean groupToRouteBean;
@@ -109,7 +109,7 @@ public class GroupWorkService {
 	
 	}
 
-	public Response<Object> unassignGroupToRoute(Request<?> request){
+	public Response<Object> unassignGroupToRoute(Request request){
 		
 		log.log(Level.WARNING,"[unassignGroupToRouteWS] "+request.toString());
 		GroupToRouteBean groupToRouteBean;
@@ -131,7 +131,7 @@ public class GroupWorkService {
 	
 	}
 	
-	public Response<Object> deleteGroup(Request<?> request){
+	public Response<Object> deleteGroup(Request request){
 		
 		log.log(Level.WARNING,"[deleteGroupWS] "+request.toString());
 		String arrayIdGroups;

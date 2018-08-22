@@ -16,23 +16,26 @@ public class LagpWorkService {
 	private Logger log = Logger.getLogger( BukrsWorkService.class.getName());
 	
 	public Response<List<LagpB>> getLagp(Request request){
-		log.log(Level.WARNING,"[LagpWorkService] "+request.toString());
-		LagpB lgplaBean;
+		log.log(Level.WARNING,"[getLagpWorkService] "+request.toString());
+		LagpB lgplaBean = null;
+		String searchFilter = null;
 		Response<List<LagpB>> res = new Response<List<LagpB>>();
-		try {
-			lgplaBean = new Gson().fromJson(request.getLsObject().toString(), LagpB.class) ;
-			
-			log.log(Level.WARNING,request.getLsObject().toString());
-		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE,"Error al pasar de Json a LagpBean");
-			lgplaBean = null;
-			AbstractResults abstractResult = new AbstractResults();
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult );
-			return res;
+		String req = request.getLsObject().toString().trim();
+		if(!req.isEmpty()){
+			try {
+				lgplaBean = new Gson().fromJson(request.getLsObject().toString(), LagpB.class) ;
+				
+				log.log(Level.WARNING,request.getLsObject().toString());
+			} catch (JsonSyntaxException e) {
+				searchFilter = request.getLsObject().toString().trim();
+				log.log(Level.WARNING, "[getLagpWorkService] jsyn Intentando por String ");
+			}
+		}else{
+			searchFilter = "";
+			log.log(Level.WARNING, "[getLagpWorkService] Fue cadena vacía ");
 		}
-		return new LagpDao().getLagp(lgplaBean);
+		
+		return new LagpDao().getLagp(lgplaBean, searchFilter);
 	}
 
 }
