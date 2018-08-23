@@ -27,6 +27,7 @@ public class RfcTablesBean<V> {
 	Long lastUpdate;
 	Boolean device;
 	V storedValues;
+	RfcTableValues tableValues;
 
 	public String getTable_name() {
 		return table_name;
@@ -76,10 +77,22 @@ public class RfcTablesBean<V> {
 		this.storedValues = storedValues;
 	}
 
+	public RfcTableValues getTableValues() {
+		return tableValues;
+	}
+
+	public void setTableValues(RfcTableValues tableValues) {
+		this.tableValues = tableValues;
+	}
+
+	
+	
+	
 	@Override
 	public String toString() {
 		return "RfcTablesBean [table_name=" + table_name + ", table_value=" + table_value + ", table_sql=" + table_sql
-				+ ", lastUpdate=" + lastUpdate + ", device=" + device + "]";
+				+ ", lastUpdate=" + lastUpdate + ", device=" + device + ", storedValues=" + storedValues
+				+ ", tableValues=" + tableValues + "]";
 	}
 
 	public RfcTablesBean(String table_name, String table_value, String table_sql, Long lastUpdate, Boolean device) {

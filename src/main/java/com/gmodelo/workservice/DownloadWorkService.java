@@ -70,7 +70,7 @@ public class DownloadWorkService {
 			listToReturn = null;
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
-			
+
 		}
 		log.warning("Saliendo del Workservice");
 		response.setLsObject(listToReturn);
@@ -80,28 +80,32 @@ public class DownloadWorkService {
 		return new Gson().toJson(response);
 	}
 
-	
 	/*
-	 *	GetMasterDataWS 
-	 *	Expects a @Request with a @LoginBean with @List<RfcTablesBean> with the table names
-	 * 	The expected Result is a @Response<#Object>
-	 * 	where #Object will contain a List<RfcTablesBean<DataOfTable>>
-	 * 	@Param @List<RfcTablesBean> with #Table_name values to get info of the tables.
-	 * 	@Param @List<RfcTablesBean> with #Last_Request values to get info of the tables that are recently updated
-	 * 	Pending TODO change the dynamic query for the views, but the view needs to be
-	 * 	exact in names that table 
+	 * GetMasterDataWS Expects a @Request with a @LoginBean
+	 * with @List<RfcTablesBean> with the table names The expected Result is
+	 * a @Response<#Object> where #Object will contain a
+	 * List<RfcTablesBean<DataOfTable>>
+	 * 
+	 * @Param @List<RfcTablesBean> with #Table_name values to get info of the
+	 * tables.
+	 * 
+	 * @Param @List<RfcTablesBean> with #Last_Request values to get info of the
+	 * tables that are recently updated Pending TODO change the dynamic query
+	 * for the views, but the view needs to be exact in names that table
 	 */
-	 
+
 	@SuppressWarnings("unchecked")
-	public String GetMasterDataWS(Request request,  HttpServletRequest httpRequest) {
+	public String GetMasterDataWS(Request request, HttpServletRequest httpRequest) {
 		log.log(Level.WARNING, "Init... GetMasterDataWS(Request<LoginBean<?>> request)");
+		log.log(Level.WARNING, "Request Data" + request.toString());
 		Response<Object> response = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
 		try {
 			Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
 			PreparedStatement stm = null;
 			ResultSet rs = null;
-			Type listType = new TypeToken<ArrayList<RfcTablesBean>>(){}.getType(); //Codigo para Castear a Lista
+			Type listType = new TypeToken<ArrayList<RfcTablesBean>>() {
+			}.getType(); // Codigo para Castear a Lista
 			List<RfcTablesBean<?>> responseList = new ArrayList<>();
 			List<RfcTablesBean> listOfTables = new Gson().fromJson(request.getLsObject().toString(), listType);
 			for (RfcTablesBean rfcBean : listOfTables) {
@@ -111,10 +115,12 @@ public class DownloadWorkService {
 					queryValuesString = queryValuesString.substring(0, queryValuesString.length() - 1);
 
 					String executableQuery = "SELECT " + queryValuesString + " FROM " + rfcBean.getTable_name()
-							+ " WITH(NOLOCK) ";
+							+ " WITH(NOLOCK) ORDER BY " + queryValuesString + " OFFSET (" + rfcBean.getTableValues().getCurrent_row() + ") "
+							+ " ROWS FETCH NEXT (" + rfcBean.getTableValues().getRow_skips() +") ROWS ONLY";
 
 					if (rfcBean.getLastUpdate() != null) {
-						executableQuery += " WHERE CONVERT(DATE,LASTMODIFY) > '" + new SimpleDateFormat("yyyy-MM-dd").format(new Date(rfcBean.getLastUpdate()))  + "' ";
+						executableQuery += " WHERE CONVERT(DATE,LASTMODIFY) > '"
+								+ new SimpleDateFormat("yyyy-MM-dd").format(new Date(rfcBean.getLastUpdate())) + "' ";
 					}
 
 					stm = con.prepareStatement(executableQuery);
