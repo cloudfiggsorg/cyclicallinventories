@@ -74,6 +74,7 @@ public class DownloadWorkService {
 		response.setLsObject(listToReturn);
 		abstractResult.setStrCom1(httpRequest.getSession().getId());
 		abstractResult.setIntCom1(httpRequest.getSession().getMaxInactiveInterval());
+		log.warning(response.toString());
 		return new Gson().toJson(response);
 	}
 
