@@ -24,7 +24,7 @@ public class RfcTablesBean<V> {
 	String table_name;
 	String table_value;
 	String table_sql;
-	Date lastUpdate;
+	Long lastUpdate;
 	Boolean device;
 	V storedValues;
 
@@ -52,11 +52,11 @@ public class RfcTablesBean<V> {
 		this.table_sql = table_sql;
 	}
 
-	public Date getLastUpdate() {
+	public Long getLastUpdate() {
 		return lastUpdate;
 	}
 
-	public void setLastUpdate(Date lastUpdate) {
+	public void setLastUpdate(Long lastUpdate) {
 		this.lastUpdate = lastUpdate;
 	}
 
@@ -82,7 +82,7 @@ public class RfcTablesBean<V> {
 				+ ", lastUpdate=" + lastUpdate + ", device=" + device + "]";
 	}
 
-	public RfcTablesBean(String table_name, String table_value, String table_sql, Date lastUpdate, Boolean device) {
+	public RfcTablesBean(String table_name, String table_value, String table_sql, Long lastUpdate, Boolean device) {
 		super();
 		this.table_name = table_name;
 		this.table_value = table_value;
@@ -117,7 +117,7 @@ public class RfcTablesBean<V> {
 		}
 
 		try {
-			this.lastUpdate = rs.getDate("LAST_REQUEST");
+			this.lastUpdate = rs.getDate("LAST_REQUEST").getTime();
 		} catch (SQLException e) {
 			this.lastUpdate = null;
 		}
@@ -182,11 +182,10 @@ public class RfcTablesBean<V> {
 							multiFilter += " TABLE_NAME ='" + filter.getTable_name() + "' ";
 							hasFilters = Boolean.TRUE;
 						}
-						if (filter.getLastUpdate() != null) {
-							
-							multiFilter += hasFilters.equals(true)?" AND ":"" + " LAST_REQUEST >= '" + filter.getLastUpdate() + "' ";
-							hasFilters = Boolean.TRUE;
-						}
+						//if (filter.getLastUpdate() != null) {
+						//	multiFilter += hasFilters.equals(true)?" AND ":"" + " LAST_REQUEST >= '" + filter.getLastUpdate() + "' ";
+						//	hasFilters = Boolean.TRUE;
+						//}
 						if (filter.getDevice() != null) {
 							multiFilter += hasFilters.equals(true)?" AND ":"" + " DEVICE =  ";
 							hasFilters = Boolean.TRUE;

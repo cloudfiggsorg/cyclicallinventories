@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -103,6 +105,7 @@ public class DownloadWorkService {
 			List<RfcTablesBean<?>> responseList = new ArrayList<>();
 			List<RfcTablesBean> listOfTables = new Gson().fromJson(request.getLsObject().toString(), listType);
 			for (RfcTablesBean rfcBean : listOfTables) {
+				log.log(Level.WARNING, rfcBean.toString());
 				try {
 					String queryValuesString = rfcBean.getTable_value().replaceAll("\\|", "\\,");
 					queryValuesString = queryValuesString.substring(0, queryValuesString.length() - 1);
@@ -111,7 +114,7 @@ public class DownloadWorkService {
 							+ " WITH(NOLOCK) ";
 
 					if (rfcBean.getLastUpdate() != null) {
-						executableQuery += " WHERE LASTMODIFY > '" + rfcBean.getLastUpdate() + "' ";
+						executableQuery += " WHERE CONVERT(DATE,LASTMODIFY) > '" + new SimpleDateFormat("yyyy-MM-dd").format(new Date(rfcBean.getLastUpdate()))  + "' ";
 					}
 
 					stm = con.prepareStatement(executableQuery);
@@ -135,17 +138,22 @@ public class DownloadWorkService {
 				} catch (SQLException e) {
 					rfcBean.setStoredValues(null);
 				}
+				log.log(Level.WARNING, "Before Adding to List" + rfcBean.getTable_name());
 				responseList.add(rfcBean);
 			}
+			log.log(Level.WARNING, "Before Adding to ResponseList to LSOBJECT");
 			response.setLsObject(responseList);
+			abstractResult.setStrCom1(httpRequest.getSession().getId());
+			abstractResult.setIntCom1(httpRequest.getSession().getMaxInactiveInterval());
+			response.setAbstractResult(abstractResult);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Get Master Data WorkService Error: ", e);
 			e.printStackTrace();
 			response.setLsObject(null);
 			abstractResult.setStrCom1(httpRequest.getSession().getId());
 			abstractResult.setIntCom1(httpRequest.getSession().getMaxInactiveInterval());
-			
 		}
+		log.log(Level.WARNING, "Before Response" + response.getAbstractResult());
 		return new Gson().toJson(response);
 	}
 
