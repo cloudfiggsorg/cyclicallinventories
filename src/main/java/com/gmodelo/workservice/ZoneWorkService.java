@@ -157,22 +157,27 @@ public class ZoneWorkService {
 	public Response<List<ZoneB>> getZones(Request<?> request){
 		
 		log.log(Level.WARNING,"[getZonesWorkService] "+request.toString());
-		ZoneB zoneBean;
+		ZoneB zoneBean = null;
 		Response<List<ZoneB>> res = new Response<List<ZoneB>>();
-		
-		try {
-			zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneB.class);
-		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE,"[getZonesWorkService] Error al pasar de Json a ZoneB");
-			zoneBean = null;
-			AbstractResults abstractResult = new AbstractResults();
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
+		String searchFilter = null;
+		String req = request.getLsObject().toString().trim();
+		if(!req.isEmpty()){
+			try {
+				zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneB.class);
+			} catch (JsonSyntaxException e) {
+				log.log(Level.SEVERE,"[getZonesWorkService] Error al pasar de Json a ZoneB");
+				zoneBean = null;
+				AbstractResults abstractResult = new AbstractResults();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}else{
+			searchFilter = "";
+			log.log(Level.WARNING, "[getZonesWorkService] Fue cadena vacía ");
 		}
-		
-		return new ZoneDao().getZones(zoneBean);
+		return new ZoneDao().getZones(zoneBean,searchFilter);
 		
 	}
 }

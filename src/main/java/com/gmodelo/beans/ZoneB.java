@@ -1,24 +1,22 @@
 package com.gmodelo.beans;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class ZoneB {
 	String zoneId;
 	String zdesc;
 	String bukrs;
 	String werks;
 	String lgort;
-	String created_by;
-	String created_date;
-	String positionId;
-	String lgtyp;
-	String lgpla;
-	String secuency;
-	String imwm;
 	
-	public String getImwm() {
-		return imwm;
+	List<ZonePositionsB> positionsB;
+	
+	public List<ZonePositionsB> getPositionsB() {
+		return positionsB;
 	}
-	public void setImwm(String imwm) {
-		this.imwm = imwm;
+	public void setPositionsB(List<ZonePositionsB> positionsB) {
+		this.positionsB = positionsB;
 	}
 	public String getZoneId() {
 		return zoneId;
@@ -50,69 +48,26 @@ public class ZoneB {
 	public void setLgort(String lgort) {
 		this.lgort = lgort;
 	}
-	public String getCreated_by() {
-		return created_by;
-	}
-	public void setCreated_by(String created_by) {
-		this.created_by = created_by;
-	}
-	public String getCreated_date() {
-		return created_date;
-	}
-	public void setCreated_date(String created_date) {
-		this.created_date = created_date;
-	}
-	public String getPositionId() {
-		return positionId;
-	}
-	public void setPositionId(String positionId) {
-		this.positionId = positionId;
-	}
-	public String getLgtyp() {
-		return lgtyp;
-	}
-	public void setLgtyp(String lgtyp) {
-		this.lgtyp = lgtyp;
-	}
-	public String getLgpla() {
-		return lgpla;
-	}
-	public void setLgpla(String lgpla) {
-		this.lgpla = lgpla;
-	}
-	public String getSecuency() {
-		return secuency;
-	}
-	public void setSecuency(String secuency) {
-		this.secuency = secuency;
-	}
+
 	public ZoneB() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public ZoneB(String zoneId, String zdesc, String bukrs, String werks, String lgort, String created_by,
-			String created_date, String positionId, String lgtyp, String lgpla, String secuency, String imwm) {
+	public ZoneB(String zoneId, String zdesc, String bukrs, String werks, String lgort,
+			List<ZonePositionsB> positionsB) {
 		super();
 		this.zoneId = zoneId;
 		this.zdesc = zdesc;
 		this.bukrs = bukrs;
 		this.werks = werks;
 		this.lgort = lgort;
-		this.created_by = created_by;
-		this.created_date = created_date;
-		this.positionId = positionId;
-		this.lgtyp = lgtyp;
-		this.lgpla = lgpla;
-		this.secuency = secuency;
-		this.imwm = imwm;
+		this.positionsB = positionsB;
 	}
 	@Override
 	public String toString() {
 		return "ZoneB [zoneId=" + zoneId + ", zdesc=" + zdesc + ", bukrs=" + bukrs + ", werks=" + werks + ", lgort="
-				+ lgort + ", created_by=" + created_by + ", created_date=" + created_date + ", positionId=" + positionId
-				+ ", lgtyp=" + lgtyp + ", lgpla=" + lgpla + ", secuency=" + secuency + ", imwm=" + imwm + "]";
+				+ lgort + ", positionsB=" + positionsB + "]";
 	}
 
-	
 	
 }
