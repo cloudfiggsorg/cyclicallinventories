@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +18,8 @@ import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneB;
 import com.gmodelo.beans.ZoneBean;
+import com.gmodelo.beans.ZonePositionMaterialsB;
+import com.gmodelo.beans.ZonePositionsB;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -483,7 +486,7 @@ public class ZoneDao {
 		return condition;
 	}
 	
-	public Response<List<ZoneB>> getZones(ZoneB zoneBean){
+	public Response<List<ZoneB>> getZones(ZoneB zoneBean, String searchFilter){
 		
 		Response<List<ZoneB>> res = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
@@ -491,25 +494,25 @@ public class ZoneDao {
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		List<ZoneB> listZone = new ArrayList<ZoneB>();
-
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, CREATED_BY, CREATED_DATE, POSITION_ID, LGTYP, LGPLA, SECUENCY, IMWM FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_WITH_POSITIONS] "; //query
 		
-		String condition = buildConditionZones(zoneBean);
-		if(condition != null){
-			INV_VW_ZONE_WITH_POSITIONS += condition;
-			log.warning(INV_VW_ZONE_WITH_POSITIONS);
+		String INV_VW_ZONES = "SELECT ZONE_ID,ZDESC,BUKRS,WERKS,LGORT FROM dbo.INV_VW_ZONES";
+		if(searchFilter != null){
+			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%"+searchFilter+"%' OR ZDESC LIKE '%"+searchFilter+"%' OR BUKRS LIKE '%"+searchFilter+"%' OR WERKS LIKE '%"+searchFilter+ "%' OR LGORT LIKE '%"+ searchFilter+"%'";
+		}else{
+			String condition = buildConditionZones(zoneBean);
+			if(condition != null){
+				INV_VW_ZONES += condition;
+			}
 		}
+		log.warning(INV_VW_ZONES);
 		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
 		
 		try {
-			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
-			
+			stm = con.prepareCall(INV_VW_ZONES);
 			log.log(Level.WARNING,"[getZonesDao] Executing query...");
-			
 			ResultSet rs = stm.executeQuery();
-			
 			while (rs.next()){
-				
+					
 				zoneBean = new ZoneB();
 				
 				zoneBean.setZoneId(rs.getString(1));
@@ -517,14 +520,7 @@ public class ZoneDao {
 				zoneBean.setBukrs(rs.getString(3));
 				zoneBean.setWerks(rs.getString(4));
 				zoneBean.setLgort(rs.getString(5));
-				zoneBean.setCreated_by(rs.getString(6));
-				zoneBean.setCreated_date(rs.getString(7));
-				zoneBean.setPositionId(rs.getString(8));
-				zoneBean.setLgtyp(rs.getString(9));
-				zoneBean.setLgpla(rs.getString(10));
-				zoneBean.setSecuency(rs.getString(11));
-				zoneBean.setImwm(rs.getString(12));
-				
+				zoneBean.setPositionsB(this.getPositionsZone(rs.getString(1)));
 				listZone.add(zoneBean);
 				
 			}
@@ -543,7 +539,7 @@ public class ZoneDao {
 			log.log(Level.WARNING,"[getZonesDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_WITH_POSITIONS, e);
+			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONES, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -552,7 +548,7 @@ public class ZoneDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[getZoneByLgortDao] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to close the connection.", e);
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
@@ -563,6 +559,114 @@ public class ZoneDao {
 		res.setLsObject(listZone);
 		return res ;
 	}
+	
+	private List<ZonePositionsB> getPositionsZone(String zoneId){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		List<ZonePositionsB> listPositions = new ArrayList<ZonePositionsB>();
+		
+		String INV_VW_ZONE_WITH_POSITIONS = "SELECT POSITION_ID ,LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = '" + zoneId + "'";
+		
+		log.warning(INV_VW_ZONE_WITH_POSITIONS);
+		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
+			log.log(Level.WARNING,"[getZonesDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()){
+				
+				ZonePositionsB position = new ZonePositionsB();
+				
+				position.setPositionId(rs.getString(1));
+				position.setLgtyp(rs.getString(2));
+				position.setLgpla(rs.getString(3));
+				position.setSecuency(rs.getString(4));
+				position.setImwm(rs.getString(5));
+				position.setPositionMaterial(this.getPositionMaterials(zoneId, rs.getString(1)));
+				listPositions.add(position);
+				
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.log(Level.WARNING,"[getZonesDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_WITH_POSITIONS, e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		return listPositions ;
+	}
+	
+	private List<ZonePositionMaterialsB> getPositionMaterials(String zoneId, String position){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		List<ZonePositionMaterialsB> listMaterials = new ArrayList<ZonePositionMaterialsB>();
+		
+		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR ,TYP_MAT ,DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE ZONE_ID ='"+zoneId+"' AND POSITION_ID ='"+ position +"'";
+		
+		log.warning(INV_VW_ZONE_POSITIONS_MATERIALS);
+		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
+			log.log(Level.WARNING,"[getZonesDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()){
+				
+				ZonePositionMaterialsB material = new ZonePositionMaterialsB();
+				
+				material.setMatnr(rs.getString(1));
+				material.setTypMat(rs.getString(2));
+				material.setDescTM(rs.getString(3));
+				
+				listMaterials.add(material);
+				
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.log(Level.WARNING,"[getZonesDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_POSITIONS_MATERIALS, e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		return listMaterials ;
+	}
 
 	private String buildConditionZones(ZoneB zoneB){
 		String condition ="";
@@ -571,38 +675,18 @@ public class ZoneDao {
 		String bukrs ="";
 		String werks ="";
 		String lgort ="";
-		String created_by ="";
-		String created_date ="";
-		String positionId ="";
-		String lgtyp ="";
-		String lgpla ="";
-		String secuency ="";
-		String imwm = "";
 		
-		zoneId = (zoneB.getZoneId() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZONE_ID = '" 	+ zoneB.getZoneId() + "' " : "");
+		zoneId = (zoneB.getZoneId() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZONE_ID LIKE '%" 	+ zoneB.getZoneId() + "%' " : "");
 		condition+=zoneId;
-		zdesc = (zoneB.getZdesc() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZDESC = '" 	+ zoneB.getZdesc() + "' ": "");
+		zdesc = (zoneB.getZdesc() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZDESC LIKE '%" 	+ zoneB.getZdesc() + "%' ": "");
 		condition+=zdesc;
-		bukrs = (zoneB.getBukrs() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS = '" 	+ zoneB.getBukrs() + "' ": "");
+		bukrs = (zoneB.getBukrs() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS LIKE '%" 	+ zoneB.getBukrs() + "%' ": "");
 		condition+=bukrs;
-		werks = (zoneB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '"		+ zoneB.getWerks() + "' ": "");
+		werks = (zoneB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS LIKE '%"		+ zoneB.getWerks() + "%' ": "");
 		condition+=werks;
-		lgort = (zoneB.getLgort() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGORT = '"		+ zoneB.getLgort() + "' ": "");
+		lgort = (zoneB.getLgort() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGORT LIKE '%"		+ zoneB.getLgort() + "%' ": "");
 		condition+=lgort;
-		created_by = (zoneB.getCreated_by() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "CREATED_BY = '" + zoneB.getCreated_by() + "' ": "");
-		condition+=created_by;
-		created_date = (zoneB.getCreated_date() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "CREATED_DATE = '" + zoneB.getCreated_date() + "' ": "");
-		condition+=created_date;
-		positionId = (zoneB.getPositionId() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "POSITION_ID = '" + zoneB.getPositionId() + "' ": "");
-		condition+=positionId;
-		lgtyp = (zoneB.getLgtyp() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGTYP = '" + zoneB.getLgtyp() + "' ": "");
-		condition+=lgtyp;
-		lgpla = (zoneB.getLgpla() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGPLA = '" + zoneB.getLgpla() + "' ": "");
-		condition+=lgpla;
-		secuency = (zoneB.getSecuency() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "SECUENCY = '"+ zoneB.getSecuency() + "' ": "");
-		condition+=secuency;
-		imwm = (zoneB.getImwm() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "IMWM = '"+ zoneB.getImwm() + "' ": "");
-		condition+=imwm;
+
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
