@@ -13,11 +13,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.MaterialToRouteBean;
+import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteB;
 import com.gmodelo.beans.RouteBean;
+import com.gmodelo.beans.RouteGroupB;
+import com.gmodelo.beans.RoutePositionB;
 import com.gmodelo.beans.RoutePositionBean;
+import com.gmodelo.beans.UserB;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -234,189 +237,7 @@ public class RouteDao {
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
-	
-	public Response<Object> assignMaterialToRoute(MaterialToRouteBean materialToRouteBean){
-		
-		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
-		CallableStatement cs = null;
-		String resultSP = null;
-		
-		final String INV_SP_ASSIGN_MATERIAL_TO_ROUTE = "INV_SP_ASSIGN_MATERIAL_TO_ROUTE ?, ?, ?"; //The Store procedure to call
-		
-		log.log(Level.WARNING,"[assignMaterialToRouteDao] Preparing sentence...");
-		
-		try {
-			cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ROUTE);
-			
-			if(materialToRouteBean.getRouteId() != null){
-				cs.setString(1,materialToRouteBean.getRouteId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(materialToRouteBean.getPosition() != null){
-				cs.setString(2,materialToRouteBean.getPosition());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(materialToRouteBean.getMatnr() != null){
-				cs.setString(3,materialToRouteBean.getMatnr());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
-			
-			log.log(Level.WARNING,"[assignMaterialToRouteDao] Executing query...");
-			
-			ResultSet rs = cs.executeQuery();
-			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
-			//Retrive the warnings if there're
-			SQLWarning warning = cs.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING,"[assignMaterialToRouteDao] "+warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-			
-			//Free resources
-			rs.close();
-			cs.close();	
-			
-			log.log(Level.WARNING,"[assignMaterialToRouteDao] Sentence successfully executed.");
-			
-		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[assignMaterialToRouteDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_ASSIGN_MATERIAL_TO_ROUTE, e);
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		}finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[assignMaterialToRouteDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		}
-		abstractResult.setResultMsgAbs(resultSP);
-		res.setAbstractResult(abstractResult);
-		return res ;
-	}
 
-	public Response<Object> unassignMaterialToRoute(MaterialToRouteBean materialToRouteBean){
-		
-		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
-		CallableStatement cs = null;
-		String resultSP = null;
-		
-		final String INV_SP_DESASSIGN_MATERIAL_TO_ROUTE = "INV_SP_DESASSIGN_MATERIAL_TO_ROUTE ?, ?, ?"; //The Store procedure to call
-		
-		log.log(Level.WARNING,"[unassignMaterialToRouteDao] Preparing sentence...");
-		
-		try {
-			cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ROUTE);
-			
-			if(materialToRouteBean.getRouteId() != null){
-				cs.setString(1,materialToRouteBean.getRouteId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(materialToRouteBean.getPosition() != null){
-				cs.setString(2,materialToRouteBean.getPosition());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(materialToRouteBean.getMatnr() != null){
-				cs.setString(3,materialToRouteBean.getMatnr());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
-			
-			log.log(Level.WARNING,"[unassignMaterialToRouteDao] Executing query...");
-			
-			ResultSet rs = cs.executeQuery();
-			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
-			//Retrive the warnings if there're
-			SQLWarning warning = cs.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING,"[unassignMaterialToRouteDao] "+warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-			
-			//Free resources
-			rs.close();
-			cs.close();	
-			
-			log.log(Level.WARNING,"[unassignMaterialToRouteDao] Sentence successfully executed.");
-			
-		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[unassignMaterialToRouteDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_DESASSIGN_MATERIAL_TO_ROUTE, e);
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		}finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[unassignMaterialToRouteDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		}
-		abstractResult.setResultMsgAbs(resultSP);
-		res.setAbstractResult(abstractResult);
-		return res ;
-	}
-	
 	public Response<Object> deleteRoute(String arrayIdRoutes){
 			
 			Response<Object> res = new Response<>();
@@ -476,7 +297,7 @@ public class RouteDao {
 			return res ;
 		}
 	
-	public Response<List<RouteB>> getRoutes(RouteB routeBean){
+	public Response<List<RouteB>> getRoutesByUser(UserB userB){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
@@ -485,41 +306,29 @@ public class RouteDao {
 		Response<List<RouteB>> res = new Response<List<RouteB>>();
 		AbstractResults abstractResult = new AbstractResults();
 		List<RouteB> listRoutesBean = new ArrayList<RouteB>(); 
-		 
-		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT ROUTE_ID, BUKRS, WERKS,  RDESC, STATUS,MODIFIED_BY, MODIFIED_DATE, CREATED_BY, CREATED_DATE, POSITION_ID, LGORT, LGTYP, ZONE_ID, SECUENCY, TYPE  FROM [INV_CIC_DB].[dbo].[INV_VW_ROUTES_WITH_POSITIONS] WITH(NOLOCK) ";
+		String INV_VW_ROUTES = null;
 		
-		String condition = buildCondition(routeBean);
-		if(condition != null){
-			INV_VW_ROUTES_WITH_POSITIONS += condition;
-			log.warning(INV_VW_ROUTES_WITH_POSITIONS);
-		}
+		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
+		
+		log.warning(INV_VW_ROUTES);
 		log.log(Level.WARNING,"[getRoutesDao] Preparing sentence...");
 		try {
-			
-			stm = con.prepareStatement(INV_VW_ROUTES_WITH_POSITIONS);		
+			stm = con.prepareStatement(INV_VW_ROUTES);		
 			
 			log.log(Level.WARNING,"[getRoutesDao] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				routeBean = new RouteB();
+				RouteB routeBean = new RouteB();
 				
 				routeBean.setRouteId(rs.getString(1));
 				routeBean.setBukrs(rs.getString(2));
 				routeBean.setWerks(rs.getString(3));
 				routeBean.setRdesc(rs.getString(4));
-				routeBean.setStatus(rs.getString(5));
-				routeBean.setModifiedBy(rs.getString(6));
-				routeBean.setModifiedDate(rs.getString(7));
-				routeBean.setCreatedBy(rs.getString(8));
-				routeBean.setCreatedDate(rs.getString(9));
-				routeBean.setPositionId(rs.getString(10));
-				routeBean.setLgort(rs.getString(11));
-				routeBean.setLgtyp(rs.getString(12));
-				routeBean.setZoneId(rs.getString(13));
-				routeBean.setSecuency(rs.getString(14));
-				routeBean.setType(rs.getString(15));
+				routeBean.setType(rs.getString(5));
+				routeBean.setPositions(this.getPositions(rs.getString(1)));
+				routeBean.setGroups(this.getGroups(rs.getString(1)));
 				
 				listRoutesBean.add(routeBean);
 			}
@@ -536,7 +345,86 @@ public class RouteDao {
 			stm.close();
 			log.log(Level.WARNING,"[getRoutesDao] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to execute the query: "+INV_VW_ROUTES_WITH_POSITIONS, e);
+			log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to execute the query: "+INV_VW_ROUTES, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listRoutesBean);
+		return res;
+	}
+
+	
+	public Response<List<RouteB>> getRoutes(RouteB routeBean, String searchFilter){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		
+		Response<List<RouteB>> res = new Response<List<RouteB>>();
+		AbstractResults abstractResult = new AbstractResults();
+		List<RouteB> listRoutesBean = new ArrayList<RouteB>(); 
+		String INV_VW_ROUTES = null;
+		
+		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) ";
+		
+		if(searchFilter != null){
+			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%"+searchFilter+"%' OR BUKRS LIKE '%"+searchFilter+"%' OR WERKS LIKE '%"+searchFilter+"%' OR RDESC LIKE '%"+ searchFilter +"%' OR RTYPE LIKE '%"+ searchFilter +"%' ";
+		}else{
+			String condition = buildCondition(routeBean);
+			if(condition != null){
+				INV_VW_ROUTES += condition;
+			}
+		}
+		log.warning(INV_VW_ROUTES);
+		log.log(Level.WARNING,"[getRoutesDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_ROUTES);		
+			
+			log.log(Level.WARNING,"[getRoutesDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				routeBean = new RouteB();
+				
+				routeBean.setRouteId(rs.getString(1));
+				routeBean.setBukrs(rs.getString(2));
+				routeBean.setWerks(rs.getString(3));
+				routeBean.setRdesc(rs.getString(4));
+				routeBean.setType(rs.getString(5));
+				routeBean.setPositions(this.getPositions(rs.getString(1)));
+				routeBean.setGroups(this.getGroups(rs.getString(1)));
+				
+				listRoutesBean.add(routeBean);
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();
+			log.log(Level.WARNING,"[getRoutesDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to execute the query: "+INV_VW_ROUTES, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -558,24 +446,122 @@ public class RouteDao {
 		return res;
 	}
 	
-	private String buildCondition(RouteB routeB){
+	public List<RoutePositionB> getPositions(String idRoute){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		
+		List<RoutePositionB> listPositions = new ArrayList<RoutePositionB>(); 
+		 
+		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,LGTYP ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
+		
+		log.warning(INV_VW_ROUTES_WITH_POSITIONS);
+		log.log(Level.WARNING,"[getRoutesDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_ROUTES_WITH_POSITIONS);		
+			stm.setString(1, idRoute);
+			log.log(Level.WARNING,"[getRoutesDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				RoutePositionB position = new RoutePositionB();
+				
+				position.setPositionId(rs.getString(1));
+				position.setLgort(rs.getString(2));
+				position.setLgtyp(rs.getString(3));
+				position.setZoneId(rs.getString(4));
+				position.setSecuency(rs.getString(5));
+				position.setZdesc(rs.getString(6));
+				
+				listPositions.add(position);
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();
+			log.log(Level.WARNING,"[getRoutesDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to execute the query: "+INV_VW_ROUTES_WITH_POSITIONS, e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		
+		return listPositions;
+	}
 
+	public List<RouteGroupB> getGroups(String idRoute){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		
+		List<RouteGroupB> listGroups = new ArrayList<RouteGroupB>(); 
+		 
+		String INV_VW_ROUTE_GROUPS = "SELECT GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ? ";
+		
+		log.warning(INV_VW_ROUTE_GROUPS);
+		log.log(Level.WARNING,"[getRoutesDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_ROUTE_GROUPS);		
+			stm.setString(1, idRoute);
+			log.log(Level.WARNING,"[getRoutesDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				RouteGroupB group = new RouteGroupB();
+				
+				group.setGroupId(rs.getString(1));
+				group.setGdesc(rs.getString(2));
+				group.setCountNum(rs.getString(3));
+				
+				listGroups.add(group);
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();
+			log.log(Level.WARNING,"[getRoutesDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to execute the query: "+ INV_VW_ROUTE_GROUPS, e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getRoutesDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		
+		return listGroups;
+	}
+	
+	private String buildCondition(RouteB routeB){
 		String routeId="";
 		String bukrs="";
 		String werks="";
 		String rdesc="";
 		String status="";
-		String modifiedBy="";
-		String modifiedDate="";
-		String createdBy="";
-		String createdDate="";
-		String positionId="";
-		String lgort="";
-		String lgtyp="";
-		String zoneId="";
-		String secuency="";
 		String type = "";
-
 		String condition = "";
 		
 		routeId = (routeB.getRouteId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" ROUTE_ID = '"+ routeB.getRouteId() + "' "  : "";
@@ -586,26 +572,6 @@ public class RouteDao {
 		condition+=werks;
 		rdesc = (routeB.getRdesc() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" RDESC = '"+ routeB.getRdesc() + "' "  : "";
 		condition+=rdesc;
-		status = (routeB.getStatus() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" STATUS = '"+ routeB.getStatus() + "' "  : "";
-		condition+=status;
-		modifiedBy = (routeB.getModifiedBy() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" MODIFIED_BY = '"+ routeB.getModifiedBy() + "' "  : "";
-		condition+=modifiedBy;
-		modifiedDate = (routeB.getModifiedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" MODIFIED_DATE = '"+ routeB.getModifiedDate() + "' "  : "";
-		condition+=modifiedDate;
-		createdBy = (routeB.getCreatedBy() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" CREATED_BY = '"+ routeB.getCreatedBy() + "' "  : "";
-		condition+=createdBy;
-		createdDate = (routeB.getCreatedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" CREATED_DATE = '"+ routeB.getCreatedDate() + "' "  : "";
-		condition+=createdDate;
-		positionId = (routeB.getPositionId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" POSITION_ID = '"+ routeB.getPositionId() + "' "  : "";
-		condition+=positionId;		
-		lgort = (routeB.getLgort() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT = '" + routeB.getLgort() +"' " : "";
-		condition+=lgort;
-		lgtyp = (routeB.getLgtyp() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGTYP = '" + routeB.getLgtyp() +"' " : "";
-		condition+=lgtyp;
-		zoneId = (routeB.getZoneId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ZONE_ID = '" + routeB.getZoneId() +"' " : "";
-		condition+=zoneId;
-		secuency = (routeB.getSecuency() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " SECUENCY = '" + routeB.getSecuency() +"' " : "";
-		condition+=secuency;
 		type = (routeB.getType() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TYPE = '" + routeB.getType() +"' " : "";
 		condition+=type;
 		condition = condition.isEmpty() ? null : condition;
