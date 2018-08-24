@@ -72,5 +72,21 @@ public class ZoneService {
 	public Response<List<ZoneB>> getZones(Request request){
 		return new ZoneWorkService().getZones(request);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/assignMaterialToZone")
+	public Response<Object> assignMaterialToZone(Request request){
+		return new ZoneWorkService().assignMaterialToZone(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/unassignMaterialToZone")
+	public Response<Object> unassignMaterialToZone(Request request){
+		return new ZoneWorkService().unassignMaterialToZone(request);
+	}
 
 }

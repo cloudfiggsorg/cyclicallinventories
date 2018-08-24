@@ -51,22 +51,6 @@ public class RouteService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/assignMaterialToRoute")
-	public Response<Object> assignMaterialToRoute(Request request){
-		return new RouteWorkService().assignMaterialToRoute(request);
-	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/unassignMaterialToRoute")
-	public Response<Object> unassignMaterialToRoute(Request request){
-		return new RouteWorkService().unassignMaterialToRoute(request);
-	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/deleteRoute")
 	public Response<Object> deleteRoute(Request request){
 		return new RouteWorkService().deleteRoute(request);
@@ -80,5 +64,11 @@ public class RouteService {
 		return new RouteWorkService().getRoutes(request);
 	}
 
-	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getRoutesByUser")
+	public Response<List<RouteB>> getRoutesByUser(Request request){
+		return new RouteWorkService().getRoutesByUser(request);
+	}
 }
