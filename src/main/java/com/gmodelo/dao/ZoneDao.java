@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,69 +33,27 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		String resultSP = null;
 		
-		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addZone] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ADD_ZONE);
 			
-			if(zoneBean.getIdZone() != null){
-				cs.setInt(1,zoneBean.getIdZone());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(zoneBean.getZoneDesc() != null){
-				cs.setString(2,zoneBean.getZoneDesc());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(zoneBean.getBukrs() != null){
-				cs.setString(3,zoneBean.getBukrs());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
-			if(zoneBean.getWerks() != null){
-				cs.setString(4,zoneBean.getWerks());
-			}else{
-				cs.setNull(4, Types.INTEGER);
-			}
-			if(zoneBean.getLgort() != null){
-				cs.setString(5,zoneBean.getLgort());
-			}else{
-				cs.setNull(5, Types.INTEGER);
-			}
-			
+			cs.setInt(1,zoneBean.getIdZone());
+			cs.setString(2,zoneBean.getZoneDesc());
+			cs.setString(3,zoneBean.getBukrs());
+			cs.setString(4,zoneBean.getWerks());
+			cs.setString(5,zoneBean.getLgort());
 			cs.setString(6, createdBy);
-			
+			cs.registerOutParameter(7, Types.INTEGER);
 			
 			
 			log.log(Level.WARNING,"[addZone] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
-			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
+			cs.execute();
+			abstractResult.setResultId(cs.getInt(7));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -105,7 +62,6 @@ public class ZoneDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[addZone] Sentence successfully executed.");
@@ -126,7 +82,6 @@ public class ZoneDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
@@ -138,70 +93,27 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		String resultSP = null;
 		
-		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addPositionZone] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
 			
-			if(positionZoneBean.getZoneId() != null){
-				cs.setInt(1,positionZoneBean.getZoneId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(positionZoneBean.getPositionId() != null){
-				cs.setString(2,positionZoneBean.getPositionId());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(positionZoneBean.getLgtyp() != null){
-				cs.setString(3,positionZoneBean.getLgtyp());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
-			if(positionZoneBean.getLgpla() != null){
-				cs.setString(4,positionZoneBean.getLgpla());
-			}else{
-				cs.setNull(4, Types.INTEGER);
-			}
-			if(positionZoneBean.getSecuency() != null){
-				cs.setString(5,positionZoneBean.getSecuency());
-			}else{
-				cs.setNull(5, Types.INTEGER);
-			}
-			if(positionZoneBean.getImwm() != null){
-				cs.setString(6,positionZoneBean.getImwm());
-			}else{
-				cs.setNull(6, Types.INTEGER);
-			}
+			cs.setInt(1,positionZoneBean.getZoneId());
+			cs.setString(2,positionZoneBean.getPositionId());
+			cs.setString(3,positionZoneBean.getLgtyp());
+			cs.setString(4,positionZoneBean.getLgpla());
+			cs.setString(5,positionZoneBean.getSecuency());
+			cs.setString(6,positionZoneBean.getImwm());
+			cs.registerOutParameter(7, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[addPositionZone] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
+			abstractResult.setResultId(cs.getInt(7));
 			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -210,7 +122,6 @@ public class ZoneDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[addPositionZone] Sentence successfully executed.");
@@ -231,7 +142,6 @@ public class ZoneDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
@@ -251,15 +161,11 @@ public class ZoneDao {
 		try {
 			cs = con.prepareCall(INV_SP_DEL_ZONE);
 			
-			if(arrayIdZones != null && !arrayIdZones.isEmpty()){
-				cs.setString(1,arrayIdZones);
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
+			cs.setString(1,arrayIdZones);
 			
 			log.log(Level.WARNING,"[deleteZone] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -269,7 +175,6 @@ public class ZoneDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[deleteZone] Sentence successfully executed.");

@@ -32,68 +32,28 @@ public class RouteDao {
 			ConnectionManager iConnectionManager = new ConnectionManager();
 			Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 			CallableStatement cs = null;
-			String resultSP = null;
 			
-			final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+			final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 			
 			log.log(Level.WARNING,"[addRoute] Preparing sentence...");
 			
 			try {
 				cs = con.prepareCall(INV_SP_ADD_ROUTE);
 				
-				if(routeBean.getRouteId() != null){
-					cs.setString(1,routeBean.getRouteId());
-				}else{
-					cs.setNull(1, Types.INTEGER);
-				}
-				if(routeBean.getRouteDesc() != null){
-					cs.setString(2,routeBean.getRouteDesc());
-				}else{
-					cs.setNull(2, Types.INTEGER);
-				}
-				if(routeBean.getBukrs() != null){
-					cs.setString(3,routeBean.getBukrs());
-				}else{
-					cs.setNull(3, Types.INTEGER);
-				}
-				if(routeBean.getWerks() != null){
-					cs.setString(4,routeBean.getWerks());
-				}else{
-					cs.setNull(4, Types.INTEGER);
-				}
-				
+				cs.setString(1,routeBean.getRouteId());
+				cs.setString(2,routeBean.getRouteDesc());
+				cs.setString(3,routeBean.getBukrs());
+				cs.setString(4,routeBean.getWerks());
 				cs.setString(5, createdBy);
-				
-				if(routeBean.getType() != null){
-					cs.setString(6, routeBean.getType());
-				}else{
-					cs.setNull(6, Types.INTEGER);
-				}
+				cs.setString(6, routeBean.getType());
+				cs.registerOutParameter(7, Types.INTEGER);
 				
 				log.log(Level.WARNING,"[addRoute] Executing query...");
 				
-				ResultSet rs = cs.executeQuery();
+				cs.execute();
 				
-				while (rs.next()){
-					
-					resultSP = rs.getString(1);
-					
-				}
+				abstractResult.setResultId(cs.getInt(7));
 				
-				if(resultSP != null){
-					try {
-						
-						Integer.parseInt(resultSP);
-						
-					} catch (NumberFormatException e) {
-						
-						abstractResult.setResultId(ReturnValues.IEXCEPTION);
-						abstractResult.setResultMsgAbs(resultSP);
-						
-						res.setAbstractResult(abstractResult);
-						return res;
-					}
-				}
 				//Retrive the warnings if there're
 				SQLWarning warning = cs.getWarnings();
 				while (warning != null) {
@@ -102,7 +62,6 @@ public class RouteDao {
 				}
 				
 				//Free resources
-				rs.close();
 				cs.close();	
 				
 				log.log(Level.WARNING,"[addRoute] Sentence successfully executed.");
@@ -124,7 +83,6 @@ public class RouteDao {
 					return res;
 				}
 			}
-			abstractResult.setResultMsgAbs(resultSP);
 			res.setAbstractResult(abstractResult);
 			return res ;
 		}
@@ -136,70 +94,28 @@ public class RouteDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		String resultSP = null;
 		
-		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addRoutePosition] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ADD_ROUTE_POSITION);
 			
-			if(routePositionBean.getRouteId() != null){
-				cs.setString(1,routePositionBean.getRouteId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(routePositionBean.getPositionRouteId() != null){
-				cs.setString(2,routePositionBean.getPositionRouteId());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(routePositionBean.getLgort() != null){
-				cs.setString(3,routePositionBean.getLgort());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
-			if(routePositionBean.getLgtyp() != null){
-				cs.setString(4,routePositionBean.getLgtyp());
-			}else{
-				cs.setNull(4, Types.INTEGER);
-			}
-			if(routePositionBean.getZoneId() != null){
-				cs.setInt(5,routePositionBean.getZoneId());
-			}else{
-				cs.setNull(5, Types.INTEGER);
-			}
-			if(routePositionBean.getSecuency() != null){
-				cs.setString(6,routePositionBean.getSecuency());
-			}else{
-				cs.setNull(6, Types.INTEGER);
-			}
+			cs.setString(1,routePositionBean.getRouteId());
+			cs.setString(2,routePositionBean.getPositionRouteId());
+			cs.setString(3,routePositionBean.getLgort());
+			cs.setString(4,routePositionBean.getLgtyp());
+			cs.setInt(5,routePositionBean.getZoneId());
+			cs.setString(6,routePositionBean.getSecuency());
+			cs.registerOutParameter(7, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[addRoutePosition] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
 			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
+			abstractResult.setResultId(cs.getInt(7));
 			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -208,7 +124,6 @@ public class RouteDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[addRoutePosition] Sentence successfully executed.");
@@ -230,7 +145,6 @@ public class RouteDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
@@ -242,55 +156,23 @@ public class RouteDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		String resultSP = null;
 		
-		final String INV_SP_ASSIGN_MATERIAL_TO_ROUTE = "INV_SP_ASSIGN_MATERIAL_TO_ROUTE ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ASSIGN_MATERIAL_TO_ROUTE = "INV_SP_ASSIGN_MATERIAL_TO_ROUTE ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[assignMaterialToRouteDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ROUTE);
 			
-			if(materialToRouteBean.getRouteId() != null){
-				cs.setString(1,materialToRouteBean.getRouteId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(materialToRouteBean.getPosition() != null){
-				cs.setString(2,materialToRouteBean.getPosition());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(materialToRouteBean.getMatnr() != null){
-				cs.setString(3,materialToRouteBean.getMatnr());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
+			cs.setString(1,materialToRouteBean.getRouteId());
+			cs.setString(2,materialToRouteBean.getPosition());
+			cs.setString(3,materialToRouteBean.getMatnr());
+			cs.registerOutParameter(4, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[assignMaterialToRouteDao] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
-			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
+			cs.execute();
+			abstractResult.setResultId(cs.getInt(4));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -299,7 +181,6 @@ public class RouteDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[assignMaterialToRouteDao] Sentence successfully executed.");
@@ -321,7 +202,6 @@ public class RouteDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
@@ -333,55 +213,24 @@ public class RouteDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		String resultSP = null;
 		
-		final String INV_SP_DESASSIGN_MATERIAL_TO_ROUTE = "INV_SP_DESASSIGN_MATERIAL_TO_ROUTE ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_DESASSIGN_MATERIAL_TO_ROUTE = "INV_SP_DESASSIGN_MATERIAL_TO_ROUTE ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[unassignMaterialToRouteDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ROUTE);
 			
-			if(materialToRouteBean.getRouteId() != null){
-				cs.setString(1,materialToRouteBean.getRouteId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(materialToRouteBean.getPosition() != null){
-				cs.setString(2,materialToRouteBean.getPosition());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(materialToRouteBean.getMatnr() != null){
-				cs.setString(3,materialToRouteBean.getMatnr());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
+			cs.setString(1,materialToRouteBean.getRouteId());
+			cs.setString(2,materialToRouteBean.getPosition());
+			cs.setString(3,materialToRouteBean.getMatnr());
+			cs.registerOutParameter(4, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[unassignMaterialToRouteDao] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
+			abstractResult.setResultId(cs.getInt(4));
 			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -390,7 +239,6 @@ public class RouteDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[unassignMaterialToRouteDao] Sentence successfully executed.");
@@ -412,7 +260,6 @@ public class RouteDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
@@ -432,15 +279,11 @@ public class RouteDao {
 			try {
 				cs = con.prepareCall(INV_SP_DEL_ROUTES);
 				
-				if(arrayIdRoutes != null && !arrayIdRoutes.isEmpty()){
-					cs.setString(1,arrayIdRoutes);
-				}else{
-					cs.setNull(1, Types.INTEGER);
-				}
+				cs.setString(1,arrayIdRoutes);
 				
 				log.log(Level.WARNING,"[deleteRouteDao] Executing query...");
 				
-				ResultSet rs = cs.executeQuery();
+				cs.execute();
 				
 				//Retrive the warnings if there're
 				SQLWarning warning = cs.getWarnings();
@@ -450,7 +293,6 @@ public class RouteDao {
 				}
 				
 				//Free resources
-				rs.close();
 				cs.close();	
 				
 				log.log(Level.WARNING,"[deleteRouteDao] Sentence successfully executed.");

@@ -30,68 +30,28 @@ public class ToleranceDao {
 		
 		Response<Object> res = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
-		String resultSP = null;
 		
-		final String INV_SP_ADD_TOLERANCE = "INV_SP_ADD_TOLERANCE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_TOLERANCE = "INV_SP_ADD_TOLERANCE ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addToleranceDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ADD_TOLERANCE);
 			
-			if(toleranceBean.getToleranceId() != null){
-				cs.setInt(1, toleranceBean.getToleranceId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(toleranceBean.getMatkl() != null){
-				cs.setString(2, toleranceBean.getMatkl());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(toleranceBean.getDesc() != null){
-				cs.setString(3, toleranceBean.getDesc());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
-			if(toleranceBean.getTp() != null){
-				cs.setString(4, toleranceBean.getTp());
-			}else{
-				cs.setNull(4, Types.INTEGER);
-			}
-			if(toleranceBean.getTc() != null){
-				cs.setString(5, toleranceBean.getTc());
-			}else{
-				cs.setNull(5, Types.INTEGER);
-			}
-			
+			cs.setInt(1, toleranceBean.getToleranceId());
+			cs.setString(2, toleranceBean.getMatkl());
+			cs.setString(3, toleranceBean.getDesc());
+			cs.setString(4, toleranceBean.getTp());
+			cs.setString(5, toleranceBean.getTc());
 			cs.setString(6, createdBy);
+			cs.registerOutParameter(7, Types.INTEGER);
 			
 			
 			log.log(Level.WARNING,"[addToleranceDao] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
 			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
+			abstractResult.setResultId(cs.getInt(7));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -100,13 +60,12 @@ public class ToleranceDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[addToleranceDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[addToleranceDao] Some error occurred while was trying to execute the S.P.: INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?", e);
+			log.log(Level.SEVERE,"[addToleranceDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_ADD_TOLERANCE, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			res.setAbstractResult(abstractResult);
 			return res;
@@ -121,7 +80,6 @@ public class ToleranceDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
 		res.setAbstractResult(abstractResult);
 		
 		return res;
@@ -142,15 +100,11 @@ public class ToleranceDao {
 		try {
 			cs = con.prepareCall(INV_SP_DEL_TOLERANCE);
 			
-			if(arrayIdZones != null && !arrayIdZones.isEmpty()){
-				cs.setString(1,arrayIdZones);
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
+			cs.setString(1,arrayIdZones);
 			
 			log.log(Level.WARNING,"[deleteToleranceDao] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -160,7 +114,6 @@ public class ToleranceDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[deleteToleranceDao] Sentence successfully executed.");

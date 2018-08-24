@@ -19,6 +19,7 @@ import org.jboss.logging.Logger;
 import com.gmodelo.beans.AbstractResults;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.utils.ReturnValues;
 import com.gmodelo.workservice.LoginWorkService;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -161,7 +162,7 @@ public class FServices implements Filter {
 					@SuppressWarnings("rawtypes")
 					Response resp = new Response();
 					AbstractResults abstractResult = new AbstractResults();
-					abstractResult.setResultId(-1);
+					abstractResult.setResultId(ReturnValues.IUSERNOSESSION);
 					abstractResult.setResultMsgAbs("THERE ARE NOT AVAILABLE SESSIONS ");
 					resp.setAbstractResult(abstractResult);
 					

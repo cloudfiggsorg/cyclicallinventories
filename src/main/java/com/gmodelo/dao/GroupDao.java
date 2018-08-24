@@ -31,57 +31,30 @@ public class GroupDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		String resultSP = null;
+		int resultSP = -1;
 		
-		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addGroup] Preparing sentence...");
 
 		try {
 			cs = con.prepareCall(INV_SP_ADD_GROUP);
 			
-			if(groupBean.getGroupId() != null){
-				cs.setString(1,groupBean.getGroupId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(groupBean.getGroupDesc() != null){
-				cs.setString(2,groupBean.getGroupDesc());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(groupBean.getGroupType() != null){
-				cs.setString(3,groupBean.getGroupType());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
+			cs.setString(1,groupBean.getGroupId());
+			
+			cs.setString(2,groupBean.getGroupDesc());
+
+			cs.setString(3,groupBean.getGroupType());
 			
 			cs.setString(4, createdBy);
 			
+			cs.registerOutParameter(5, Types.INTEGER);
 			log.log(Level.WARNING,"[addGroup] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			 cs.execute();
 			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
+			 abstractResult.setResultId(cs.getInt(5));
 			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -90,7 +63,6 @@ public class GroupDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[addGroup] Sentence successfully executed.");
@@ -112,7 +84,7 @@ public class GroupDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
+	
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
@@ -125,50 +97,23 @@ public class GroupDao {
 		CallableStatement cs = null;
 		String resultSP = null;
 		
-		final String INV_SP_ASSIGN_GROUP_TO_USER = "INV_SP_ASSIGN_GROUP_TO_USER ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ASSIGN_GROUP_TO_USER = "INV_SP_ASSIGN_GROUP_TO_USER ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[assignGroupToUserDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ASSIGN_GROUP_TO_USER);
-			
-			if(groupToUserBean.getGroupId() != null){
-				cs.setString(1,groupToUserBean.getGroupId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(groupToUserBean.getUserId() != null){
-				cs.setString(2,groupToUserBean.getUserId());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			
+		
+			cs.setString(1,groupToUserBean.getGroupId());
+			cs.setString(2,groupToUserBean.getUserId());
 			cs.setString(3, createdBy);
+			cs.registerOutParameter(4, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[assignGroupToUserDao] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
+			abstractResult.setResultId(cs.getInt(4));
 			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -177,7 +122,6 @@ public class GroupDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[assignGroupToUserDao] Sentence successfully executed.");
@@ -195,7 +139,6 @@ public class GroupDao {
 				log.log(Level.SEVERE,"[assignGroupToUserDao] Some error occurred while was trying to close the connection.", e);
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
 				return res;
 			}
 		}
@@ -211,50 +154,25 @@ public class GroupDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		String resultSP = null;
 		
-		final String INV_SP_DESASSIGN_GROUP_TO_USER = "INV_SP_DESASSIGN_GROUP_TO_USER ?, ?"; //The Store procedure to call
+		final String INV_SP_DESASSIGN_GROUP_TO_USER = "INV_SP_DESASSIGN_GROUP_TO_USER ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[unassignGroupToUserDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_USER);
 			
-			if(groupToUserBean.getUserId() != null){
-				cs.setString(1,groupToUserBean.getUserId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(groupToUserBean.getGroupId() != null){
-				cs.setString(2,groupToUserBean.getGroupId());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
+			cs.setString(1,groupToUserBean.getUserId());
 			
+			cs.setString(2,groupToUserBean.getGroupId());
+			
+			cs.registerOutParameter(3, Types.INTEGER);
 			log.log(Level.WARNING,"[unassignGroupToUserDao] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
 			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
+			abstractResult.setResultId(cs.getInt(3));
 			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -263,7 +181,6 @@ public class GroupDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[unassignGroupToUserDao] Sentence successfully executed.");
@@ -285,7 +202,6 @@ public class GroupDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
@@ -305,46 +221,16 @@ public class GroupDao {
 		try {
 			cs = con.prepareCall(INV_SP_ASSIGN_GROUP_TO_ROUTE);
 			
-			if(groupToRouteBean.getRouteId() != null){
-				cs.setString(1,groupToRouteBean.getRouteId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(groupToRouteBean.getGroupId() != null){
-				cs.setString(2,groupToRouteBean.getGroupId());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(groupToRouteBean.getCountNum() != null){
-				cs.setString(3,groupToRouteBean.getCountNum());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
+			cs.setString(1,groupToRouteBean.getRouteId());
+			cs.setString(2,groupToRouteBean.getGroupId());
+			cs.setString(3,groupToRouteBean.getCountNum());
+			cs.registerOutParameter(4, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[assignGroupToRouteDao] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
 			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
+			abstractResult.setResultId(cs.getInt(4));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -353,7 +239,6 @@ public class GroupDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[assignGroupToRouteDao] Sentence successfully executed.");
@@ -375,7 +260,6 @@ public class GroupDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
@@ -387,55 +271,23 @@ public class GroupDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		String resultSP = null;
 	//INV_SP_DESASSIGN_GROUP_TO_ROUTE	ROUTE_ID, GROUP_ID, COUNT_NUM	ROUTE_ID OR  MESSAGE ERROR
 	
-		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[unassignGroupToRouteDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_ROUTE);
 			
-			if(groupToRouteBean.getRouteId() != null){
-				cs.setString(1,groupToRouteBean.getRouteId());
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
-			if(groupToRouteBean.getGroupId() != null){
-				cs.setString(2,groupToRouteBean.getGroupId());
-			}else{
-				cs.setNull(2, Types.INTEGER);
-			}
-			if(groupToRouteBean.getCountNum() != null){
-				cs.setString(3,groupToRouteBean.getCountNum());
-			}else{
-				cs.setNull(3, Types.INTEGER);
-			}
+			cs.setString(1,groupToRouteBean.getRouteId());
+			cs.setString(2,groupToRouteBean.getGroupId());
+			cs.setString(3,groupToRouteBean.getCountNum());
+			cs.registerOutParameter(4, Types.INTEGER);
 			log.log(Level.WARNING,"[unassignGroupToRouteDao] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
-			
-			while (rs.next()){
-				
-				resultSP = rs.getString(1);
-				
-			}
-			
-			if(resultSP != null){
-				try {
-					
-					Integer.parseInt(resultSP);
-					
-				} catch (NumberFormatException e) {
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(resultSP);
-					
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}
+			cs.execute();
+			abstractResult.setResultId(cs.getInt(4));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -444,7 +296,6 @@ public class GroupDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[unassignGroupToRouteDao] Sentence successfully executed.");
@@ -466,7 +317,6 @@ public class GroupDao {
 				return res;
 			}
 		}
-		abstractResult.setResultMsgAbs(resultSP);
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
@@ -486,15 +336,11 @@ public class GroupDao {
 		try {
 			cs = con.prepareCall(INV_SP_DEL_GROUP);
 			
-			if(arrayIdGroups != null && !arrayIdGroups.isEmpty()){
-				cs.setString(1,arrayIdGroups);
-			}else{
-				cs.setNull(1, Types.INTEGER);
-			}
+			cs.setString(1,arrayIdGroups);
 			
 			log.log(Level.WARNING,"[deleteGroupDao] Executing query...");
 			
-			ResultSet rs = cs.executeQuery();
+			cs.execute();
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -504,7 +350,6 @@ public class GroupDao {
 			}
 			
 			//Free resources
-			rs.close();
 			cs.close();	
 			
 			log.log(Level.WARNING,"[deleteGroupDao] Sentence successfully executed.");
