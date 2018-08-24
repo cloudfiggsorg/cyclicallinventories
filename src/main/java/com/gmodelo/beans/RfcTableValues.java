@@ -1,7 +1,13 @@
 package com.gmodelo.beans;
 
-public class RfcTableValues {
+import java.io.Serializable;
 
+public class RfcTableValues implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	Integer table_count;
 	Integer row_skips;
 	Integer current_row;

@@ -1,5 +1,8 @@
 package com.gmodelo.workservice;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,6 +11,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,15 +59,15 @@ public class DownloadWorkService {
 	 * 
 	 */
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	public String GetInfoTablesWS(Request request, HttpServletRequest httpRequest) {
 		log.warning("Entrando al Workservice");
 		log.warning(request.toString());
-		Response<List<RfcTablesBean<?>>> response = new Response<>();
+		Response<List<RfcTablesBean>> response = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
 		response.setAbstractResult(abstractResult);
 		// CaFigueroa - Pending Code
-		List<RfcTablesBean<?>> listToReturn = new ArrayList<>();
+		List<RfcTablesBean> listToReturn = new ArrayList<>();
 		try {
 			listToReturn = new RfcTablesBean().RfcTablesBeanData(request.getLsObject());
 		} catch (InvCicException e) {
@@ -94,11 +98,10 @@ public class DownloadWorkService {
 	 * for the views, but the view needs to be exact in names that table
 	 */
 
-	@SuppressWarnings("unchecked")
 	public String GetMasterDataWS(Request request, HttpServletRequest httpRequest) {
 		log.log(Level.WARNING, "Init... GetMasterDataWS(Request<LoginBean<?>> request)");
 		log.log(Level.WARNING, "Request Data" + request.toString());
-		Response<Object> response = new Response<>();
+		Response<String> response = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
 		try {
 			Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
@@ -106,7 +109,7 @@ public class DownloadWorkService {
 			ResultSet rs = null;
 			Type listType = new TypeToken<ArrayList<RfcTablesBean>>() {
 			}.getType(); // Codigo para Castear a Lista
-			List<RfcTablesBean<?>> responseList = new ArrayList<>();
+			List<RfcTablesBean> responseList = new ArrayList<>();
 			List<RfcTablesBean> listOfTables = new Gson().fromJson(request.getLsObject().toString(), listType);
 			for (RfcTablesBean rfcBean : listOfTables) {
 				log.log(Level.WARNING, rfcBean.toString());
@@ -115,9 +118,13 @@ public class DownloadWorkService {
 					queryValuesString = queryValuesString.substring(0, queryValuesString.length() - 1);
 
 					String executableQuery = "SELECT " + queryValuesString + " FROM " + rfcBean.getTable_name()
-							+ " WITH(NOLOCK) ORDER BY " + queryValuesString + " OFFSET (" + rfcBean.getTableValues().getCurrent_row() + ") "
-							+ " ROWS FETCH NEXT (" + rfcBean.getTableValues().getRow_skips() +") ROWS ONLY";
-
+							+ " WITH(NOLOCK) "
+					// + " ORDER BY " + queryValuesString + " OFFSET ("
+					// + rfcBean.getTableValues().getCurrent_row() + ") " + "
+					// ROWS FETCH NEXT ("
+					// + rfcBean.getTableValues().getRow_skips() + ") ROWS
+					// ONLY";
+					;
 					if (rfcBean.getLastUpdate() != null) {
 						executableQuery += " WHERE CONVERT(DATE,LASTMODIFY) > '"
 								+ new SimpleDateFormat("yyyy-MM-dd").format(new Date(rfcBean.getLastUpdate())) + "' ";
@@ -145,10 +152,24 @@ public class DownloadWorkService {
 					rfcBean.setStoredValues(null);
 				}
 				log.log(Level.WARNING, "Before Adding to List" + rfcBean.getTable_name());
-				responseList.add(rfcBean);
+
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ObjectOutputStream oos;
+
+				try {
+					oos = new ObjectOutputStream(baos);
+					oos.writeObject(rfcBean);
+					oos.close();
+					response.setLsObject(Base64.getEncoder().encodeToString(baos.toByteArray()));
+
+				} catch (IOException e) {
+					response.setLsObject(null);
+					// e.printStackTrace();
+					log.log(Level.SEVERE, "Before Adding to List" + e);
+				}
+
 			}
 			log.log(Level.WARNING, "Before Adding to ResponseList to LSOBJECT");
-			response.setLsObject(responseList);
 			abstractResult.setStrCom1(httpRequest.getSession().getId());
 			abstractResult.setIntCom1(httpRequest.getSession().getMaxInactiveInterval());
 			response.setAbstractResult(abstractResult);

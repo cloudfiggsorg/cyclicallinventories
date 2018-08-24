@@ -1,12 +1,13 @@
 package com.gmodelo.beans;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,14 +20,19 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 @XmlRootElement
-public class RfcTablesBean<V> {
+public class RfcTablesBean implements Serializable {
 
+	/**
+	 * 
+	 */
+	
+	private static final long serialVersionUID = 1L;
 	String table_name;
 	String table_value;
 	String table_sql;
 	Long lastUpdate;
 	Boolean device;
-	V storedValues;
+	List<HashMap<String, String>> storedValues;
 	RfcTableValues tableValues;
 
 	public String getTable_name() {
@@ -69,11 +75,11 @@ public class RfcTablesBean<V> {
 		this.device = device;
 	}
 
-	public V getStoredValues() {
+	public List<HashMap<String, String>> getStoredValues() {
 		return storedValues;
 	}
 
-	public void setStoredValues(V storedValues) {
+	public void setStoredValues(List<HashMap<String, String>> storedValues) {
 		this.storedValues = storedValues;
 	}
 
@@ -113,31 +119,31 @@ public class RfcTablesBean<V> {
 		super();
 		try {
 			this.table_name = rs.getString("TABLE_NAME");
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			this.table_name = null;
 		}
 
 		try {
 			this.table_value = rs.getString("TABLE_VALUES");
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			this.table_value = null;
 		}
 
 		try {
 			this.table_sql = rs.getString("TABLE_SQL_FILL");
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			this.table_sql = null;
 		}
 
 		try {
 			this.lastUpdate = rs.getDate("LAST_REQUEST").getTime();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			this.lastUpdate = null;
 		}
 
 		try {
 			this.device = rs.getBoolean("DEVICE");
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			this.device = null;
 		}
 	}
@@ -145,11 +151,11 @@ public class RfcTablesBean<V> {
 	private static final String GET_INFO_RFC_TABLES = "SELECT TABLE_NAME, TABLE_VALUES, TABLE_SQL_FILL, LAST_REQUEST, DEVICE FROM rfc_table_fill WITH(NOLOCK)";
 
 	@SuppressWarnings("resource")
-	public List<RfcTablesBean<?>> RfcTablesBeanData(Object rfcTableFilter) throws InvCicException {
+	public List<RfcTablesBean> RfcTablesBeanData(Object rfcTableFilter) throws InvCicException {
 
 		Logger log = Logger.getLogger(this.getClass().getName());
 		log.warning("Entre en RfcTablesBeanData");
-		List<RfcTablesBean<?>> rfcTablesBeans = new ArrayList<>();
+		List<RfcTablesBean> rfcTablesBeans = new ArrayList<>();
 		Connection con = null;
 		try {
 			con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
