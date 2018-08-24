@@ -14,12 +14,13 @@ import com.gmodelo.beans.LgnumBean;
 import com.gmodelo.beans.LgplaBean;
 import com.gmodelo.beans.LgtypBean;
 import com.gmodelo.beans.LoginBean;
-import com.gmodelo.beans.MaterialToRouteBean;
+import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteB;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RoutePositionBean;
+import com.gmodelo.beans.UserB;
 import com.gmodelo.beans.WerksBean;
 import com.gmodelo.dao.RouteDao;
 import com.gmodelo.utils.ReturnValues;
@@ -155,73 +156,6 @@ public Response<Object> addRoute(Request request, User user){
 	
 	}
 	
-	public Response<Object> assignMaterialToRoute(Request request){
-		
-		log.log(Level.WARNING,"[assignMaterialToRouteWS] "+request.toString());
-		MaterialToRouteBean materialToRouteBean;
-		Response<Object> res = new Response<Object>();
-		String req = request.getLsObject().toString().trim();
-		if(!req.isEmpty()){
-			try {
-				materialToRouteBean = new Gson().fromJson(request.getLsObject().toString(), MaterialToRouteBean.class);
-			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[assignMaterialToRouteWS] Error al pasar de Json a RoutePositionBean");
-				materialToRouteBean = null;
-				AbstractResults abstractResult = new AbstractResults();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		}else{
-			AbstractResults abstractResult = new AbstractResults();
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs("Error al pasar de Json a RoutePositionBean");
-			res.setAbstractResult(abstractResult);
-			log.log(Level.SEVERE,"[assignMaterialToRouteWS] "+abstractResult.getResultMsgAbs());
-			return res;
-		}
-		
-		
-	
-		return new RouteDao().assignMaterialToRoute(materialToRouteBean);
-	
-	}
-	
-	public Response<Object> unassignMaterialToRoute(Request request){
-			
-			log.log(Level.WARNING,"[unassignMaterialToRouteWS] "+request.toString());
-			MaterialToRouteBean materialToRouteBean;
-			Response<Object> res = new Response<Object>();
-			String req = request.getLsObject().toString().trim();
-			if(!req.isEmpty()){
-				try {
-					materialToRouteBean = new Gson().fromJson(request.getLsObject().toString(), MaterialToRouteBean.class);
-				} catch (JsonSyntaxException e) {
-					log.log(Level.SEVERE,"[unassignMaterialToRouteWS] Error al pasar de Json a RoutePositionBean");
-					materialToRouteBean = null;
-					AbstractResults abstractResult = new AbstractResults();
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(e.getMessage());
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-			}else{
-				materialToRouteBean = null;
-				AbstractResults abstractResult = new AbstractResults();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs("Error al pasar de Json a RoutePositionBean");
-				res.setAbstractResult(abstractResult);
-				log.log(Level.SEVERE,"[unassignMaterialToRouteWS] "+abstractResult.getResultMsgAbs());
-				return res;
-			}
-			
-			
-		
-			return new RouteDao().unassignMaterialToRoute(materialToRouteBean);
-		
-		}
-	
 	public Response<Object> deleteRoute(Request request){
 		
 		log.log(Level.WARNING,"[deleteRouteWS] "+request.toString());
@@ -288,7 +222,31 @@ public Response<Object> addRoute(Request request, User user){
 			searchFilter = "";
 		}
 		
-		return new RouteDao().getRoutes(routeBean);
+		return new RouteDao().getRoutes(routeBean,searchFilter);
 	}
 
+	public Response<List<RouteB>> getRoutesByUser(Request request){
+		log.log(Level.WARNING,"[getRoutesByUserService] "+request.toString());
+		UserB userBean = null;
+
+		Response<List<RouteB>> res = new Response<List<RouteB>>();
+		String req = request.getLsObject().toString().trim();
+		if(!req.isEmpty()){
+			try {
+				userBean = new Gson().fromJson(request.getLsObject().toString(), UserB.class) ;
+				
+				log.log(Level.WARNING,request.getLsObject().toString());
+			} catch (JsonSyntaxException e) {
+				log.log(Level.SEVERE,"Error al pasar de Json a UserB");
+				userBean = null;
+				AbstractResults abstractResult = new AbstractResults();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult );
+				return res;
+			}
+		}
+		
+		return new RouteDao().getRoutesByUser(userBean);
+	}
 }

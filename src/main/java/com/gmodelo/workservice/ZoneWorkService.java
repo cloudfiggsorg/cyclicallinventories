@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
@@ -180,4 +181,68 @@ public class ZoneWorkService {
 		return new ZoneDao().getZones(zoneBean,searchFilter);
 		
 	}
+
+	public Response<Object> assignMaterialToZone(Request request){
+		
+		log.log(Level.WARNING,"[assignMaterialToZoneWS] "+request.toString());
+		MaterialToZoneBean materialTozoneBean;
+		Response<Object> res = new Response<Object>();
+		String req = request.getLsObject().toString().trim();
+		if(!req.isEmpty()){
+			try {
+				materialTozoneBean = new Gson().fromJson(request.getLsObject().toString(), MaterialToZoneBean.class);
+			} catch (JsonSyntaxException e) {
+				log.log(Level.SEVERE,"[assignMaterialToZoneWS] Error al pasar de Json a MaterialToZoneBean");
+				materialTozoneBean = null;
+				AbstractResults abstractResult = new AbstractResults();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}else{
+			AbstractResults abstractResult = new AbstractResults();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs("Error al pasar de Json a MaterialToZoneBean");
+			res.setAbstractResult(abstractResult);
+			log.log(Level.SEVERE,"[assignMaterialToZoneWS] "+abstractResult.getResultMsgAbs());
+			return res;
+		}
+	
+		return new ZoneDao().assignMaterialToZone(materialTozoneBean);
+	
+	}
+	
+	public Response<Object> unassignMaterialToZone(Request request){
+			
+			log.log(Level.WARNING,"[unassignMaterialToZoneWS] "+request.toString());
+			MaterialToZoneBean materialToZoneBean;
+			Response<Object> res = new Response<Object>();
+			String req = request.getLsObject().toString().trim();
+			if(!req.isEmpty()){
+				try {
+					materialToZoneBean = new Gson().fromJson(request.getLsObject().toString(), MaterialToZoneBean.class);
+				} catch (JsonSyntaxException e) {
+					log.log(Level.SEVERE,"[unassignMaterialToRouteWS] Error al pasar de Json a MaterialToZoneBean");
+					materialToZoneBean = null;
+					AbstractResults abstractResult = new AbstractResults();
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs(e.getMessage());
+					res.setAbstractResult(abstractResult);
+					return res;
+				}
+			}else{
+				materialToZoneBean = null;
+				AbstractResults abstractResult = new AbstractResults();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("Error al pasar de Json a MaterialToZoneBean");
+				res.setAbstractResult(abstractResult);
+				log.log(Level.SEVERE,"[unassignMaterialToRouteWS] "+abstractResult.getResultMsgAbs());
+				return res;
+			}
+	
+			return new ZoneDao().unassignMaterialToZone(materialToZoneBean);
+		
+		}
+	
 }

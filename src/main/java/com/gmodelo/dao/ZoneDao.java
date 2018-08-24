@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneB;
@@ -596,4 +597,185 @@ public class ZoneDao {
 		return condition;
 	}
 
+	public Response<Object> assignMaterialToZone(MaterialToZoneBean materialToZoneBean){
+		
+		Response<Object> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		CallableStatement cs = null;
+		String resultSP = null;
+		
+		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?"; //The Store procedure to call
+		
+		log.log(Level.WARNING,"[assignMaterialToZoneDao] Preparing sentence...");
+		
+		try {
+			cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
+			
+			if(materialToZoneBean.getZoneId() != null){
+				cs.setString(1,materialToZoneBean.getZoneId());
+			}else{
+				cs.setNull(1, Types.INTEGER);
+			}
+			if(materialToZoneBean.getPosition() != null){
+				cs.setString(2,materialToZoneBean.getPosition());
+			}else{
+				cs.setNull(2, Types.INTEGER);
+			}
+			if(materialToZoneBean.getMatnr() != null){
+				cs.setString(3,materialToZoneBean.getMatnr());
+			}else{
+				cs.setNull(3, Types.INTEGER);
+			}
+			
+			log.log(Level.WARNING,"[assignMaterialToZoneDao] Executing query...");
+			
+			ResultSet rs = cs.executeQuery();
+			
+			while (rs.next()){
+				
+				resultSP = rs.getString(1);
+				
+			}
+			
+			if(resultSP != null){
+				try {
+					
+					Integer.parseInt(resultSP);
+					
+				} catch (NumberFormatException e) {
+					
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs(resultSP);
+					
+					res.setAbstractResult(abstractResult);
+					return res;
+				}
+			}
+			//Retrive the warnings if there're
+			SQLWarning warning = cs.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,"[assignMaterialToZoneDao] "+warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			cs.close();	
+			
+			log.log(Level.WARNING,"[assignMaterialToZoneDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[assignMaterialToZoneDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_ASSIGN_MATERIAL_TO_ZONE, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[assignMaterialToZoneDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		abstractResult.setResultMsgAbs(resultSP);
+		res.setAbstractResult(abstractResult);
+		return res ;
+	}
+
+	public Response<Object> unassignMaterialToZone(MaterialToZoneBean materialToZoneBean){
+		
+		Response<Object> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		CallableStatement cs = null;
+		String resultSP = null;
+		
+		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?, ?, ?"; //The Store procedure to call
+		
+		log.log(Level.WARNING,"[unassignMaterialToZoneDao] Preparing sentence...");
+		
+		try {
+			cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ZONE);
+			
+			if(materialToZoneBean.getZoneId() != null){
+				cs.setString(1,materialToZoneBean.getZoneId());
+			}else{
+				cs.setNull(1, Types.INTEGER);
+			}
+			if(materialToZoneBean.getPosition() != null){
+				cs.setString(2,materialToZoneBean.getPosition());
+			}else{
+				cs.setNull(2, Types.INTEGER);
+			}
+			if(materialToZoneBean.getMatnr() != null){
+				cs.setString(3,materialToZoneBean.getMatnr());
+			}else{
+				cs.setNull(3, Types.INTEGER);
+			}
+			
+			log.log(Level.WARNING,"[unassignMaterialToZoneDao] Executing query...");
+			
+			ResultSet rs = cs.executeQuery();
+			
+			while (rs.next()){
+				
+				resultSP = rs.getString(1);
+				
+			}
+			
+			if(resultSP != null){
+				try {
+					
+					Integer.parseInt(resultSP);
+					
+				} catch (NumberFormatException e) {
+					
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs(resultSP);
+					
+					res.setAbstractResult(abstractResult);
+					return res;
+				}
+			}
+			//Retrive the warnings if there're
+			SQLWarning warning = cs.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,"[unassignMaterialToZoneDao] "+warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			cs.close();	
+			
+			log.log(Level.WARNING,"[unassignMaterialToZoneDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[unassignMaterialToZoneDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_DESASSIGN_MATERIAL_TO_ZONE, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[unassignMaterialToZoneDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		abstractResult.setResultMsgAbs(resultSP);
+		res.setAbstractResult(abstractResult);
+		return res ;
+	}
 }
