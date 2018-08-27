@@ -31,7 +31,7 @@ public class ToleranceDao {
 		Response<Object> res = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
 		
-		final String INV_SP_ADD_TOLERANCE = "INV_SP_ADD_TOLERANCE ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_TOLERANCE = "INV_SP_ADD_TOLERANCE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addToleranceDao] Preparing sentence...");
 		
@@ -44,14 +44,14 @@ public class ToleranceDao {
 			cs.setString(4, toleranceBean.getTp());
 			cs.setString(5, toleranceBean.getTc());
 			cs.setString(6, createdBy);
-			cs.registerOutParameter(7, Types.INTEGER);
+			cs.registerOutParameter(1, Types.INTEGER);
 			
 			
 			log.log(Level.WARNING,"[addToleranceDao] Executing query...");
 			
 			cs.execute();
 			
-			abstractResult.setResultId(cs.getInt(7));
+			abstractResult.setResultId(cs.getInt(1));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -93,7 +93,7 @@ public class ToleranceDao {
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
 		
-		final String INV_SP_DEL_TOLERANCE = "INV_SP_DEL_TOLERANCE ?"; //The Store procedure to call
+		final String INV_SP_DEL_TOLERANCE = "INV_SP_DEL_TOLERANCE ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[deleteToleranceDao] Preparing sentence...");
 		
@@ -101,10 +101,13 @@ public class ToleranceDao {
 			cs = con.prepareCall(INV_SP_DEL_TOLERANCE);
 			
 			cs.setString(1,arrayIdZones);
+			cs.registerOutParameter(2, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[deleteToleranceDao] Executing query...");
 			
 			cs.execute();
+			
+			abstractResult.setResultId(cs.getInt(2));
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
