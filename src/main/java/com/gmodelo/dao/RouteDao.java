@@ -36,7 +36,7 @@ public class RouteDao {
 			Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 			CallableStatement cs = null;
 			
-			final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+			final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 			
 			log.log(Level.WARNING,"[addRoute] Preparing sentence...");
 			
@@ -49,13 +49,17 @@ public class RouteDao {
 				cs.setString(4,routeBean.getWerks());
 				cs.setString(5, createdBy);
 				cs.setString(6, routeBean.getType());
-				cs.registerOutParameter(7, Types.INTEGER);
+				cs.registerOutParameter(1, Types.VARCHAR);
+				
 				
 				log.log(Level.WARNING,"[addRoute] Executing query...");
 				
 				cs.execute();
 				
-				abstractResult.setResultId(cs.getInt(7));
+				
+				abstractResult.setResultMsgAbs(cs.getString(1));
+				
+				
 				
 				//Retrive the warnings if there're
 				SQLWarning warning = cs.getWarnings();
@@ -98,7 +102,7 @@ public class RouteDao {
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
 		
-		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addRoutePosition] Preparing sentence...");
 		
@@ -111,13 +115,13 @@ public class RouteDao {
 			cs.setString(4,routePositionBean.getLgtyp());
 			cs.setInt(5,routePositionBean.getZoneId());
 			cs.setString(6,routePositionBean.getSecuency());
-			cs.registerOutParameter(7, Types.INTEGER);
+			cs.registerOutParameter(1, Types.VARCHAR);
 			
 			log.log(Level.WARNING,"[addRoutePosition] Executing query...");
 			
 			cs.execute();
 			
-			abstractResult.setResultId(cs.getInt(7));
+			abstractResult.setResultMsgAbs(cs.getString(1));
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -160,7 +164,7 @@ public class RouteDao {
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
 		
-		final String INV_SP_ASSIGN_MATERIAL_TO_ROUTE = "INV_SP_ASSIGN_MATERIAL_TO_ROUTE ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ASSIGN_MATERIAL_TO_ROUTE = "INV_SP_ASSIGN_MATERIAL_TO_ROUTE ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[assignMaterialToRouteDao] Preparing sentence...");
 		
@@ -170,12 +174,12 @@ public class RouteDao {
 			cs.setString(1,materialToRouteBean.getRouteId());
 			cs.setString(2,materialToRouteBean.getPosition());
 			cs.setString(3,materialToRouteBean.getMatnr());
-			cs.registerOutParameter(4, Types.INTEGER);
+			cs.registerOutParameter(1, Types.VARCHAR);
 			
 			log.log(Level.WARNING,"[assignMaterialToRouteDao] Executing query...");
 			
 			cs.execute();
-			abstractResult.setResultId(cs.getInt(4));
+			abstractResult.setResultMsgAbs(cs.getString(1));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -275,7 +279,7 @@ public class RouteDao {
 			Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 			CallableStatement cs = null;
 			
-			final String INV_SP_DEL_ROUTES = "INV_SP_DEL_ROUTES ?"; //The Store procedure to call
+			final String INV_SP_DEL_ROUTES = "INV_SP_DEL_ROUTES ?, ?"; //The Store procedure to call
 			
 			log.log(Level.WARNING,"[deleteRouteDao] Preparing sentence...");
 			
@@ -283,10 +287,12 @@ public class RouteDao {
 				cs = con.prepareCall(INV_SP_DEL_ROUTES);
 				
 				cs.setString(1,arrayIdRoutes);
-				
+				cs.registerOutParameter(2, Types.INTEGER);
 				log.log(Level.WARNING,"[deleteRouteDao] Executing query...");
 				
 				cs.execute();
+				
+				abstractResult.setResultId(cs.getInt(2));
 				
 				//Retrive the warnings if there're
 				SQLWarning warning = cs.getWarnings();
@@ -584,7 +590,7 @@ public class RouteDao {
 		String bukrs="";
 		String werks="";
 		String rdesc="";
-		String status="";
+//		String status="";
 		String type = "";
 		String condition = "";
 		
