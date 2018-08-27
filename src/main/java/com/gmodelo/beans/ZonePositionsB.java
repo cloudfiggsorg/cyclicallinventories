@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ZonePositionsB {
+	String pkAsgId;
 	String zoneId;
 	String positionId;
 	String lgtyp;
@@ -17,10 +18,18 @@ public class ZonePositionsB {
 		// TODO Auto-generated constructor stub
 	}
 	
+	public String getPkAsgId() {
+		return pkAsgId;
+	}
+
+	public void setPkAsgId(String pkAsgId) {
+		this.pkAsgId = pkAsgId;
+	}
+
 	public List< ZonePositionMaterialsB> getPositionMaterial() {
 		return positionMaterial;
 	}
-
+	
 	public void setPositionMaterial(List<ZonePositionMaterialsB> positionMaterial) {
 		this.positionMaterial = positionMaterial;
 	}
@@ -62,9 +71,10 @@ public class ZonePositionsB {
 		this.imwm = imwm;
 	}
 
-	public ZonePositionsB(String zoneId, String positionId, String lgtyp, String lgpla, String secuency, String imwm,
-			List< ZonePositionMaterialsB> positionMaterial) {
+	public ZonePositionsB(String pkAsgId, String zoneId, String positionId, String lgtyp, String lgpla, String secuency,
+			String imwm, List<ZonePositionMaterialsB> positionMaterial) {
 		super();
+		this.pkAsgId = pkAsgId;
 		this.zoneId = zoneId;
 		this.positionId = positionId;
 		this.lgtyp = lgtyp;
@@ -76,11 +86,10 @@ public class ZonePositionsB {
 
 	@Override
 	public String toString() {
-		return "ZonePositionsB [zoneId=" + zoneId + ", positionId=" + positionId + ", lgtyp=" + lgtyp + ", lgpla="
-				+ lgpla + ", secuency=" + secuency + ", imwm=" + imwm + ", positionMaterial=" + positionMaterial + "]";
+		return "ZonePositionsB [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", positionId=" + positionId + ", lgtyp="
+				+ lgtyp + ", lgpla=" + lgpla + ", secuency=" + secuency + ", imwm=" + imwm + ", positionMaterial="
+				+ positionMaterial + "]";
 	}
-	public String toKey(String zoneId) {
-		return zoneId + this.positionId;
-	}
+	
 
 }

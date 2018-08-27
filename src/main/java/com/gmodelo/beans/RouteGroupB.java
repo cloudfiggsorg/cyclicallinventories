@@ -1,18 +1,29 @@
 package com.gmodelo.beans;
 
 public class RouteGroupB {
+	
+	String pkRouteGroup;
 	String groupId;
 	String gdesc;
 	String countNum;
+	
 	public RouteGroupB() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public RouteGroupB(String groupId, String gdesc, String countNum) {
+	public RouteGroupB(String pkRouteGroup, String groupId, String gdesc, String countNum) {
 		super();
+		this.pkRouteGroup = pkRouteGroup;
 		this.groupId = groupId;
 		this.gdesc = gdesc;
 		this.countNum = countNum;
+	}
+	
+	public String getPkRouteGroup() {
+		return pkRouteGroup;
+	}
+	public void setPkRouteGroup(String pkRouteGroup) {
+		this.pkRouteGroup = pkRouteGroup;
 	}
 	public String getGroupId() {
 		return groupId;
@@ -34,8 +45,8 @@ public class RouteGroupB {
 	}
 	@Override
 	public String toString() {
-		return "RouteGroupB [groupId=" + groupId + ", gdesc=" + gdesc + ", countNum=" + countNum + "]";
+		return "RouteGroupB [pkRouteGroup=" + pkRouteGroup + ", groupId=" + groupId + ", gdesc=" + gdesc + ", countNum="
+				+ countNum + "]";
 	}
-		      
-
+	
 }

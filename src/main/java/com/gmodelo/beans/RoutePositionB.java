@@ -1,6 +1,7 @@
 package com.gmodelo.beans;
 
 public class RoutePositionB {
+	String pkRoutePos;
 	String positionId;
 	String lgort;
 	String lgtyp;
@@ -8,6 +9,12 @@ public class RoutePositionB {
 	String secuency;
 	String zdesc;
 	
+	public String getPkRoutePos() {
+		return pkRoutePos;
+	}
+	public void setPkRoutePos(String pkRoutePos) {
+		this.pkRoutePos = pkRoutePos;
+	}
 	public String getZdesc() {
 		return zdesc;
 	}
@@ -48,8 +55,10 @@ public class RoutePositionB {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public RoutePositionB(String positionId, String lgort, String lgtyp, String zoneId, String secuency, String zdesc) {
+	public RoutePositionB(String pkRoutePos, String positionId, String lgort, String lgtyp, String zoneId,
+			String secuency, String zdesc) {
 		super();
+		this.pkRoutePos = pkRoutePos;
 		this.positionId = positionId;
 		this.lgort = lgort;
 		this.lgtyp = lgtyp;
@@ -59,8 +68,8 @@ public class RoutePositionB {
 	}
 	@Override
 	public String toString() {
-		return "RoutePositionB [positionId=" + positionId + ", lgort=" + lgort + ", lgtyp=" + lgtyp + ", zoneId="
-				+ zoneId + ", secuency=" + secuency + ", zdesc=" + zdesc + "]";
+		return "RoutePositionB [pkRoutePos=" + pkRoutePos + ", positionId=" + positionId + ", lgort=" + lgort
+				+ ", lgtyp=" + lgtyp + ", zoneId=" + zoneId + ", secuency=" + secuency + ", zdesc=" + zdesc + "]";
 	}
 	
 

@@ -484,7 +484,7 @@ public class RouteDao {
 		
 		List<RoutePositionB> listPositions = new ArrayList<RoutePositionB>(); 
 		 
-		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,LGTYP ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
+		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT PK_ROUTE_POSITION, POSITION_ID ,LGORT ,LGTYP ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 		
 		log.warning(INV_VW_ROUTES_WITH_POSITIONS);
 		log.log(Level.WARNING,"[getRoutesDao] Preparing sentence...");
@@ -497,13 +497,13 @@ public class RouteDao {
 			
 			while (rs.next()){
 				RoutePositionB position = new RoutePositionB();
-				
-				position.setPositionId(rs.getString(1));
-				position.setLgort(rs.getString(2));
-				position.setLgtyp(rs.getString(3));
-				position.setZoneId(rs.getString(4));
-				position.setSecuency(rs.getString(5));
-				position.setZdesc(rs.getString(6));
+				position.setPkRoutePos(rs.getString(1));
+				position.setPositionId(rs.getString(2));
+				position.setLgort(rs.getString(3));
+				position.setLgtyp(rs.getString(4));
+				position.setZoneId(rs.getString(5));
+				position.setSecuency(rs.getString(6));
+				position.setZdesc(rs.getString(7));
 				
 				listPositions.add(position);
 			}
@@ -540,7 +540,7 @@ public class RouteDao {
 		
 		List<RouteGroupB> listGroups = new ArrayList<RouteGroupB>(); 
 		 
-		String INV_VW_ROUTE_GROUPS = "SELECT GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ? ";
+		String INV_VW_ROUTE_GROUPS = "SELECT PK_ASG_ID, GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ? ";
 		
 		log.warning(INV_VW_ROUTE_GROUPS);
 		log.log(Level.WARNING,"[getRoutesDao] Preparing sentence...");
@@ -553,10 +553,10 @@ public class RouteDao {
 			
 			while (rs.next()){
 				RouteGroupB group = new RouteGroupB();
-				
-				group.setGroupId(rs.getString(1));
-				group.setGdesc(rs.getString(2));
-				group.setCountNum(rs.getString(3));
+				group.setPkRouteGroup(rs.getString(1));
+				group.setGroupId(rs.getString(2));
+				group.setGdesc(rs.getString(3));
+				group.setCountNum(rs.getString(4));
 				
 				listGroups.add(group);
 			}

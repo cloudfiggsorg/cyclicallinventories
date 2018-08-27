@@ -473,25 +473,26 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZonePositionsB> listPositions = new ArrayList<ZonePositionsB>();
 		
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT POSITION_ID ,LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = '" + zoneId + "'";
+		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, POSITION_ID ,LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
 		
 		log.warning(INV_VW_ZONE_WITH_POSITIONS);
 		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
 		
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
+			stm.setString(1, zoneId);
 			log.log(Level.WARNING,"[getZonesDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 				
 				ZonePositionsB position = new ZonePositionsB();
-				
-				position.setPositionId(rs.getString(1));
-				position.setLgtyp(rs.getString(2));
-				position.setLgpla(rs.getString(3));
-				position.setSecuency(rs.getString(4));
-				position.setImwm(rs.getString(5));
-				position.setPositionMaterial(this.getPositionMaterials(zoneId, rs.getString(1)));
+				position.setPkAsgId(rs.getString(1));
+				position.setPositionId(rs.getString(2));
+				position.setLgtyp(rs.getString(3));
+				position.setLgpla(rs.getString(4));
+				position.setSecuency(rs.getString(5));
+				position.setImwm(rs.getString(6));
+				position.setPositionMaterial(this.getPositionMaterials(rs.getString(1)));
 				listPositions.add(position);
 				
 			}
@@ -521,29 +522,31 @@ public class ZoneDao {
 		return listPositions ;
 	}
 	
-	private List<ZonePositionMaterialsB> getPositionMaterials(String zoneId, String position){
+	private List<ZonePositionMaterialsB> getPositionMaterials(String pkAsgId){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		List<ZonePositionMaterialsB> listMaterials = new ArrayList<ZonePositionMaterialsB>();
 		
-		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR ,TYP_MAT ,DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE ZONE_ID ='"+zoneId+"' AND POSITION_ID ='"+ position +"'";
+		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT PK_POS_MAT, MATNR ,TYP_MAT ,DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE PK_ZONPOS_MAT = ?";
 		
 		log.warning(INV_VW_ZONE_POSITIONS_MATERIALS);
 		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
 		
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
+			stm.setString(1,pkAsgId );
 			log.log(Level.WARNING,"[getZonesDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 				
 				ZonePositionMaterialsB material = new ZonePositionMaterialsB();
 				
-				material.setMatnr(rs.getString(1));
-				material.setTypMat(rs.getString(2));
-				material.setDescTM(rs.getString(3));
+				material.setPkPosMat(rs.getString(1));
+				material.setMatnr(rs.getString(2));
+				material.setTypMat(rs.getString(3));
+				material.setDescTM(rs.getString(4));
 				
 				listMaterials.add(material);
 				
