@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.gmodelo.utils.ReturnValues;
 
 @XmlRootElement
-public class AbstractResults {
+public class AbstractResultsBean {
 
 	Integer resultId;
 	String resultMsgGen;
@@ -125,7 +125,7 @@ public class AbstractResults {
 		this.booleanResult = booleanResult;
 	}
 
-	public AbstractResults(Integer resultId, String resultMsgAbs) {
+	public AbstractResultsBean(Integer resultId, String resultMsgAbs) {
 		super();
 		this.resultId = resultId;
 		this.resultMsgAbs = resultMsgAbs;
@@ -140,14 +140,14 @@ public class AbstractResults {
 				+ "]";
 	}
 
-	public AbstractResults() {
+	public AbstractResultsBean() {
 		
 		super();
 		this.resultId = ReturnValues.ISUCCESS;		
 		// TODO Auto-generated constructor stub
 	}
 
-	public AbstractResults(Integer resultId, String resultMsgGen, String resultMsgAbs, String resultMsgCom,
+	public AbstractResultsBean(Integer resultId, String resultMsgGen, String resultMsgAbs, String resultMsgCom,
 			Float floatResult, Double doubleResult, Boolean booleanResult, Integer intCom1, Integer intCom2,
 			Integer intCom3, String strCom1, String strCom2, String strCom3) {
 		super();

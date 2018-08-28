@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TgortB;
 import com.gmodelo.utils.ConnectionManager;
@@ -27,7 +27,7 @@ public class TgortDao {
 		PreparedStatement stm = null;
 		
 		Response<List<TgortB>> res = new Response<List<TgortB>>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TgortB> listTgortBean = new ArrayList<TgortB>(); 
 		 
 		String INV_VW_TGORT_BY_NGORT = "SELECT WERKS,LGORT, LGNUM, LGTYP, LTYPT, IMWM  FROM [INV_CIC_DB].[dbo].[INV_VW_TGORT_BY_NGORT] WITH(NOLOCK) ";

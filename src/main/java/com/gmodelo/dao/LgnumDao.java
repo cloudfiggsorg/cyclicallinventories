@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Lgnum;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
@@ -23,7 +23,7 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 	public Response<List<Lgnum>> getLgnumByLgort(Lgnum lgnum){
 		
 		Response<List<Lgnum>> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
@@ -49,9 +49,7 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 			
 			while (rs.next()){
 				
-				lgnum = new Lgnum();
-				
-				lgnum.setWerks(rs.getString(1));
+				lgnum = new Lgnum();				
 				lgnum.setLgort(rs.getString(2));
 				lgnum.setLgnum(rs.getString(3));
 				lgnum.setLnumt(rs.getString(4));
@@ -103,10 +101,6 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 			Boolean clause = false;
 			String condition = null;
 			
-			if(lgnumO.getWerks() != null){
-				werks = "WERKS = '" + lgnumO.getWerks()+"'";
-				clause = true;
-			}
 			if(lgnumO.getLgort()!= null){
 				lgort = "LGORT = '" + lgnumO.getLgort()+"'";
 				clause = true;

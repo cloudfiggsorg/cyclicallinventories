@@ -14,7 +14,7 @@ import org.jboss.logging.Logger;
 import org.json.JSONObject;
 
 import com.bmore.ume001.beans.User;
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.google.gson.Gson;
@@ -41,7 +41,7 @@ public class SSessionData {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response<List<Object>> getSessionData() {
 		Response<List<Object>> resp = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<Object> listObject = new ArrayList<Object>();
 //		log.warn(request);		
 //		session = httpRequest.getSession();

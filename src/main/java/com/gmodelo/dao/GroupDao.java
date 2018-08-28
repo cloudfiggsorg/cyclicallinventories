@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.GroupToRouteBean;
 import com.gmodelo.beans.GroupToUserBean;
-import com.gmodelo.beans.GroupsB;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -27,7 +26,7 @@ public class GroupDao {
 	public Response<Object> addGroup(GroupBean groupBean, String createdBy){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -43,8 +42,6 @@ public class GroupDao {
 			cs.setString(1,groupBean.getGroupId());
 			
 			cs.setString(2,groupBean.getGroupDesc());
-
-			cs.setString(3,groupBean.getGroupType());
 			
 			cs.setString(4, createdBy);
 			
@@ -91,7 +88,7 @@ public class GroupDao {
 
 	public Response<Object> assignGroupToUser(GroupToUserBean groupToUserBean, String createdBy){
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -150,7 +147,7 @@ public class GroupDao {
 	public Response<Object> unassignGroupToUser(GroupToUserBean groupToUserBean){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -208,7 +205,7 @@ public class GroupDao {
 	
 	public Response<Object> assignGroupToRoute(GroupToRouteBean groupToRouteBean){
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -267,7 +264,7 @@ public class GroupDao {
 	public Response<Object> unassignGroupToRoute(GroupToRouteBean groupToRouteBean){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -324,7 +321,7 @@ public class GroupDao {
 	public Response<Object> deleteGroup(String arrayIdGroups){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -375,15 +372,15 @@ public class GroupDao {
 		return res ;
 	}
 
-	public Response<List<GroupsB>> getGroups(GroupsB groupB, String searchFilter){
+	public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		
-		Response<List<GroupsB>> res = new Response<List<GroupsB>>();
-		AbstractResults abstractResult = new AbstractResults();
-		List<GroupsB> listGroupsBean = new ArrayList<GroupsB>(); 
+		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<GroupBean> listGroupsBean = new ArrayList<GroupBean>(); 
 		 
 		String INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
 		
@@ -412,14 +409,9 @@ public class GroupDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				groupB = new GroupsB();
-				
+				groupB = new GroupBean();				
 				groupB.setGroupId(rs.getString(1));
-				groupB.setGdes(rs.getString(2));
-				groupB.setGtype(rs.getString(3));
-				groupB.setCreateBy(rs.getString(4));
-				groupB.setCreatedDate(rs.getString(5));
-				
+				groupB.setGroupDesc(rs.getString(2));				
 				listGroupsBean.add(groupB);
 			}
 			
@@ -457,7 +449,7 @@ public class GroupDao {
 		return res;
 	}
 	
-	private String buildCondition(GroupsB groupB){
+	private String buildCondition(GroupBean groupB){
 		String groupId = "";
 		String gdes = "";
 		String gtype = "";
@@ -468,14 +460,8 @@ public class GroupDao {
 		//IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE
 		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP LIKE '%"+ groupB.getGroupId() + "%' "  : "";
 		condition+=groupId;
-		gdes = (groupB.getGdes() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC LIKE '%" + groupB.getGdes() +"%' " : "";
-		condition+=gdes;
-		gtype = (groupB.getGtype() != null) 	? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GTYPE LIKE '%" + groupB.getGtype() +"%' " : "";
-		condition+=gtype;
-		createBy = (groupB.getCreateBy() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATE_BY = '" + groupB.getCreateBy() +"' " : "";
-		condition+=createBy;
-		createdDate = (groupB.getCreatedDate() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CREATED_DATE = '" + groupB.getCreatedDate() +"' " : "";
-		condition+=createdDate;
+		gdes = (groupB.getGroupDesc() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC LIKE '%" + groupB.getGroupDesc() +"%' " : "";
+		condition+=gdes;		
 		condition = condition.isEmpty() ? null : condition;
 		
 		return condition;

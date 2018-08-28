@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TmatnrB;
-import com.gmodelo.beans.MantrB;
+import com.gmodelo.beans.MatnrBeanView;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -21,15 +21,15 @@ public class MatnrDao {
 	
 	private Logger log = Logger.getLogger( MatnrDao.class.getName());
 	
-	public Response<List<MantrB>> getMatnr(MantrB mantrBean, String searchFilter){
+	public Response<List<MatnrBeanView>> getMatnr(MatnrBeanView mantrBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		
-		Response<List<MantrB>> res = new Response<List<MantrB>>();
-		AbstractResults abstractResult = new AbstractResults();
-		List<MantrB> listMantrBean = new ArrayList<MantrB>(); 
+		Response<List<MatnrBeanView>> res = new Response<List<MatnrBeanView>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<MatnrBeanView> listMantrBean = new ArrayList<MatnrBeanView>(); 
 		 
 		String INV_VW_MATNR_BY_WERKS = "SELECT WERKS, MATNR, MAKTX  FROM [INV_CIC_DB].[dbo].[INV_VW_MATNR_BY_WERKS] WITH(NOLOCK) ";
 		
@@ -54,7 +54,7 @@ public class MatnrDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				mantrBean = new MantrB();
+				mantrBean = new MatnrBeanView();
 				
 				mantrBean.setWerks(rs.getString(1));
 				mantrBean.setMatnr(rs.getString(2));
@@ -104,7 +104,7 @@ public class MatnrDao {
 		PreparedStatement stm = null;
 		
 		Response<List<TmatnrB>> res = new Response<List<TmatnrB>>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TmatnrB> listTmatnrBean = new ArrayList<TmatnrB>(); 
 		 
 		String INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, TYP_MAT, DEN_TYP_MAT FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) ";
@@ -188,7 +188,7 @@ public class MatnrDao {
 		return condition;
 	}
 	
-	private String buildCondition(MantrB mantrB){
+	private String buildCondition(MatnrBeanView mantrB){
 		String werks = "";
 		String matnr = "";
 		String maktx = "";

@@ -10,7 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import com.gmodelo.beans.MantrB;
+import com.gmodelo.beans.MatnrBeanView;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TmatnrB;
@@ -25,7 +25,7 @@ public class MatnrService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getMatnr")
-	public Response<List<MantrB>> getMantr(Request request){
+	public Response<List<MatnrBeanView>> getMantr(Request request){
 		return new MatnrWorkService().getMatnr(request);
 	}
 	

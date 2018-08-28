@@ -1,9 +1,8 @@
 package com.gmodelo.beans;
 
-import java.util.HashMap;
 import java.util.List;
 
-public class ZonePositionsB {
+public class ZonePositionsBean {
 	String pkAsgId;
 	String zoneId;
 	String positionId;
@@ -13,7 +12,7 @@ public class ZonePositionsB {
 	String imwm;
 	List<ZonePositionMaterialsB> positionMaterial;
 	
-	public ZonePositionsB() {
+	public ZonePositionsBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -71,7 +70,7 @@ public class ZonePositionsB {
 		this.imwm = imwm;
 	}
 
-	public ZonePositionsB(String pkAsgId, String zoneId, String positionId, String lgtyp, String lgpla, String secuency,
+	public ZonePositionsBean(String pkAsgId, String zoneId, String positionId, String lgtyp, String lgpla, String secuency,
 			String imwm, List<ZonePositionMaterialsB> positionMaterial) {
 		super();
 		this.pkAsgId = pkAsgId;

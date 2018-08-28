@@ -5,11 +5,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.bmore.ume001.beans.User;
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.GroupToRouteBean;
 import com.gmodelo.beans.GroupToUserBean;
-import com.gmodelo.beans.GroupsB;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.GroupDao;
@@ -32,7 +31,7 @@ public class GroupWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[addGroupWS] Error al pasar de Json a GroupBean");
 			groupBean = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -54,7 +53,7 @@ public class GroupWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[assignGroupToUserWS] Error al pasar de Json a GroupToUserBean");
 			groupToUserBean = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -76,7 +75,7 @@ public class GroupWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[unassignGroupToUserWS] Error al pasar de Json a GroupToUserBean");
 			groupToUserBean = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -98,7 +97,7 @@ public class GroupWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[assignGroupToRouteWS] Error al pasar de Json a GroupToUserBean");
 			groupToRouteBean = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -120,7 +119,7 @@ public class GroupWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[unassignGroupToRouteWS] Error al pasar de Json a GroupToRouteBean");
 			groupToRouteBean = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -137,7 +136,7 @@ public class GroupWorkService {
 		String arrayIdGroups;
 		StringBuilder stringGroups = new StringBuilder();
 		Response<Object> res = new Response<Object>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		
 		try {
 			arrayIdGroups = request.getLsObject().toString();
@@ -162,9 +161,9 @@ public class GroupWorkService {
 	
 	}
 
-	public Response<List<GroupsB>> getGroups(Request request){
+	public Response<List<GroupBean>> getGroups(Request request){
 		log.log(Level.WARNING,"[GroupsWorkService] "+request.toString());
-		GroupsB groupsBean = null;
+		GroupBean groupsBean = null;
 		String searchFilter = null;		
 		String req = request.getLsObject().toString().trim();
 		
@@ -172,7 +171,7 @@ public class GroupWorkService {
 			
 			try {
 				
-				groupsBean = new Gson().fromJson(request.getLsObject().toString(), GroupsB.class) ;
+				groupsBean = new Gson().fromJson(request.getLsObject().toString(), GroupBean.class) ;
 				log.log(Level.WARNING, "Fue Objeto: " + request.getLsObject().toString());
 				
 			}catch (JsonSyntaxException e1){

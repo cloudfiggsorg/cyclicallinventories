@@ -33,7 +33,6 @@ public class RfcTablesBean implements Serializable {
 	Long lastUpdate;
 	Boolean device;
 	List<HashMap<String, String>> storedValues;
-	RfcTableValues tableValues;
 
 	public String getTable_name() {
 		return table_name;
@@ -82,15 +81,6 @@ public class RfcTablesBean implements Serializable {
 	public void setStoredValues(List<HashMap<String, String>> storedValues) {
 		this.storedValues = storedValues;
 	}
-
-	public RfcTableValues getTableValues() {
-		return tableValues;
-	}
-
-	public void setTableValues(RfcTableValues tableValues) {
-		this.tableValues = tableValues;
-	}
-
 	
 	
 	
@@ -98,7 +88,7 @@ public class RfcTablesBean implements Serializable {
 	public String toString() {
 		return "RfcTablesBean [table_name=" + table_name + ", table_value=" + table_value + ", table_sql=" + table_sql
 				+ ", lastUpdate=" + lastUpdate + ", device=" + device + ", storedValues=" + storedValues
-				+ ", tableValues=" + tableValues + "]";
+				+ "]";
 	}
 
 	public RfcTablesBean(String table_name, String table_value, String table_sql, Long lastUpdate, Boolean device) {

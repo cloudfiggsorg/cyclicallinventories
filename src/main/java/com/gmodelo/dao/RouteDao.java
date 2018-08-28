@@ -12,10 +12,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.MaterialToRouteBean;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.RouteB;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteGroupB;
 import com.gmodelo.beans.RoutePositionB;
@@ -31,7 +30,7 @@ public class RouteDao {
 	public Response<Object> addRoute(RouteBean routeBean, String createdBy){
 			
 			Response<Object> res = new Response<>();
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			ConnectionManager iConnectionManager = new ConnectionManager();
 			Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 			CallableStatement cs = null;
@@ -44,7 +43,7 @@ public class RouteDao {
 				cs = con.prepareCall(INV_SP_ADD_ROUTE);
 				
 				cs.setString(1,routeBean.getRouteId());
-				cs.setString(2,routeBean.getRouteDesc());
+				cs.setString(2,routeBean.getRdesc());
 				cs.setString(3,routeBean.getBukrs());
 				cs.setString(4,routeBean.getWerks());
 				cs.setString(5, createdBy);
@@ -97,7 +96,7 @@ public class RouteDao {
 	public Response<Object> addRoutePosition(RoutePositionBean routePositionBean){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -159,7 +158,7 @@ public class RouteDao {
 	public Response<Object> assignMaterialToRoute(MaterialToRouteBean materialToRouteBean){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -216,7 +215,7 @@ public class RouteDao {
 	public Response<Object> unassignMaterialToRoute(MaterialToRouteBean materialToRouteBean){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -274,7 +273,7 @@ public class RouteDao {
 	public Response<Object> deleteRoute(String arrayIdRoutes){
 			
 			Response<Object> res = new Response<>();
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			ConnectionManager iConnectionManager = new ConnectionManager();
 			Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 			CallableStatement cs = null;
@@ -327,15 +326,15 @@ public class RouteDao {
 			return res ;
 		}
 	
-	public Response<List<RouteB>> getRoutesByUser(UserB userB){
+	public Response<List<RouteBean>> getRoutesByUser(UserB userB){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		
-		Response<List<RouteB>> res = new Response<List<RouteB>>();
-		AbstractResults abstractResult = new AbstractResults();
-		List<RouteB> listRoutesBean = new ArrayList<RouteB>(); 
+		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>(); 
 		String INV_VW_ROUTES = null;
 		
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
@@ -350,7 +349,7 @@ public class RouteDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				RouteB routeBean = new RouteB();
+				RouteBean routeBean = new RouteBean();
 				
 				routeBean.setRouteId(rs.getString(1));
 				routeBean.setBukrs(rs.getString(2));
@@ -398,15 +397,15 @@ public class RouteDao {
 	}
 
 	
-	public Response<List<RouteB>> getRoutes(RouteB routeBean, String searchFilter){
+	public Response<List<RouteBean>> getRoutes(RouteBean routeBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		
-		Response<List<RouteB>> res = new Response<List<RouteB>>();
-		AbstractResults abstractResult = new AbstractResults();
-		List<RouteB> listRoutesBean = new ArrayList<RouteB>(); 
+		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>(); 
 		String INV_VW_ROUTES = null;
 		
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) ";
@@ -429,7 +428,7 @@ public class RouteDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				routeBean = new RouteB();
+				routeBean = new RouteBean();
 				
 				routeBean.setRouteId(rs.getString(1));
 				routeBean.setBukrs(rs.getString(2));
@@ -585,7 +584,7 @@ public class RouteDao {
 		return listGroups;
 	}
 	
-	private String buildCondition(RouteB routeB){
+	private String buildCondition(RouteBean routeB){
 		String routeId="";
 		String bukrs="";
 		String werks="";

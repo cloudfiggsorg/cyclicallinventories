@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 import com.gmodelo.Exception.InvCicException;
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RfcTablesBean;
@@ -64,7 +64,7 @@ public class DownloadWorkService {
 		log.warning("Entrando al Workservice");
 		log.warning(request.toString());
 		Response<List<RfcTablesBean>> response = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		response.setAbstractResult(abstractResult);
 		// CaFigueroa - Pending Code
 		List<RfcTablesBean> listToReturn = new ArrayList<>();
@@ -102,7 +102,7 @@ public class DownloadWorkService {
 		log.log(Level.WARNING, "Init... GetMasterDataWS(Request<LoginBean<?>> request)");
 		log.log(Level.WARNING, "Request Data" + request.toString());
 		Response<String> response = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		try {
 			Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
 			PreparedStatement stm = null;

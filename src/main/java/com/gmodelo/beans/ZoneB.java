@@ -10,12 +10,12 @@ public class ZoneB {
 	String werks;
 	String lgort;
 	
-	List<ZonePositionsB> positionsB;
+	List<ZonePositionsBean> positionsB;
 	
-	public List<ZonePositionsB> getPositionsB() {
+	public List<ZonePositionsBean> getPositionsB() {
 		return positionsB;
 	}
-	public void setPositionsB(List<ZonePositionsB> positionsB) {
+	public void setPositionsB(List<ZonePositionsBean> positionsB) {
 		this.positionsB = positionsB;
 	}
 	public String getZoneId() {
@@ -54,7 +54,7 @@ public class ZoneB {
 		// TODO Auto-generated constructor stub
 	}
 	public ZoneB(String zoneId, String zdesc, String bukrs, String werks, String lgort,
-			List<ZonePositionsB> positionsB) {
+			List<ZonePositionsBean> positionsB) {
 		super();
 		this.zoneId = zoneId;
 		this.zdesc = zdesc;

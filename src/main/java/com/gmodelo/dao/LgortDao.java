@@ -9,10 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.LgortBean;
-import com.gmodelo.beans.NgortB;
+import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.LgortBeanView;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -21,14 +19,14 @@ public class LgortDao {
 	
 	private Logger log = Logger.getLogger( LgortDao.class.getName());
 	
-	public Response<List<LgortBean>> getLgortByWerks(LgortBean lgortBean){
+	public Response<List<LgortBeanView>> getLgortByWerks(LgortBeanView lgortBean){
 		
-		Response<List<LgortBean>> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		Response<List<LgortBeanView>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
-		List<LgortBean> listLgort = new ArrayList<LgortBean>();
+		List<LgortBeanView> listLgort = new ArrayList<LgortBeanView>();
 		
 		String INV_VW_GORS_BY_WERKS = "SELECT [WERKS], [LGORT], [LGOBE] FROM [INV_CIC_DB].[dbo].[INV_VW_GORS_BY_WERKS] "; //Query
 		String condition = buildCondition(lgortBean);
@@ -49,7 +47,7 @@ public class LgortDao {
 			
 			while (rs.next()){
 				
-				lgortBean = new LgortBean();
+				lgortBean = new LgortBeanView();
 				
 				lgortBean.setWerks(rs.getString(1));
 				lgortBean.setLgort(rs.getString(2));
@@ -94,7 +92,7 @@ public class LgortDao {
 		
 	}
 	
-	private String buildCondition(LgortBean lgortBean){
+	private String buildCondition(LgortBeanView lgortBean){
 			
 			String werks = null;
 			String lgort = null;
@@ -138,17 +136,17 @@ public class LgortDao {
 			return condition;
 		}
 
-	public Response<List<NgortB>> getNgorts(NgortB ngortBean){
+	public Response<List<LgortBeanView>> getNgorts(LgortBeanView lgortBeanView){
 		
-		Response<List<NgortB>> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		Response<List<LgortBeanView>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
-		List<NgortB> listNgort = new ArrayList<NgortB>();
+		List<LgortBeanView> listNgort = new ArrayList<LgortBeanView>();
 		
 		String INV_VW_NGORT_WITH_GORT = "SELECT WERKS, LGORT, LGNUM, LNUMT,IMWM FROM [INV_CIC_DB].[dbo].[INV_VW_NGORT_WITH_GORT] "; //Query
-		String condition = buildConditionNgort(ngortBean);
+		String condition = buildConditionNgort(lgortBeanView);
 		
 		if(condition != null){
 			INV_VW_NGORT_WITH_GORT += condition;
@@ -166,14 +164,13 @@ public class LgortDao {
 			
 			while (rs.next()){
 				
-				ngortBean = new NgortB();
+				lgortBeanView = new LgortBeanView();
 				
-				ngortBean.setWerks(rs.getString(1));
-				ngortBean.setLgort(rs.getString(2));
-				ngortBean.setLgnum(rs.getString(3));
-				ngortBean.setImwm(rs.getString(4));
+				lgortBeanView.setWerks(rs.getString(1));
+				lgortBeanView.setLgort(rs.getString(2));
+				lgortBeanView.setImwm(rs.getString(4));
 				
-				listNgort.add(ngortBean);
+				listNgort.add(lgortBeanView);
 				
 			}
 			
@@ -212,23 +209,20 @@ public class LgortDao {
 		
 	}
 
-	private String buildConditionNgort(NgortB ngortB){
+	private String buildConditionNgort(LgortBeanView lgortBeanView){
 		String werks = "";
 		String lgort = "";
-		String lgnum = "";
 		String lnumt = "";
 		String imwm = "";
 		String condition = "";
 		
-		werks = (ngortB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '"		+ ngortB.getWerks() + "' ": "");
+		werks = (lgortBeanView.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '"		+ lgortBeanView.getWerks() + "' ": "");
 		condition+=werks;
-		lgort = (ngortB.getLgort() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGORT = '"		+ ngortB.getLgort() + "' ": "");
+		lgort = (lgortBeanView.getLgort() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGORT = '"		+ lgortBeanView.getLgort() + "' ": "");
 		condition+=lgort;
-		lgnum = (ngortB.getLgnum() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGNUM = '" 	+ ngortB.getLgnum() + "' " : "");
-		condition+=lgnum;
-		lnumt = (ngortB.getLnumt() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LNUMT = '" 	+ ngortB.getLnumt() + "' " : "");
+		lnumt = (lgortBeanView.getLnumt() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LNUMT = '" 	+ lgortBeanView.getLnumt() + "' " : "");
 		condition+=lnumt;
-		imwm = (ngortB.getImwm() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "IMWM = '"+ ngortB.getImwm() + "' ": "");
+		imwm = (lgortBeanView.getImwm() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "IMWM = '"+ lgortBeanView.getImwm() + "' ": "");
 		condition+=imwm;
 		condition = condition.isEmpty() ? null : condition;	
 		return condition;

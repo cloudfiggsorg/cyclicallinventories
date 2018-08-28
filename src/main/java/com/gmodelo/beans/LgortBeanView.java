@@ -1,11 +1,25 @@
 package com.gmodelo.beans;
 
-public class LgortBean {
+public class LgortBeanView {
 	
 	String werks; //centro
 	String lgort; //almacen
 	String lgobe; // denominacion almacen
+	String lnumt; // Descripción del no. De almacén
+	String imwm; // Tipo de almacén
 	
+	public String getLnumt() {
+		return lnumt;
+	}
+	public void setLnumt(String lnumt) {
+		this.lnumt = lnumt;
+	}
+	public String getImwm() {
+		return imwm;
+	}
+	public void setImwm(String imwm) {
+		this.imwm = imwm;
+	}
 	public String getWerks() {
 		return werks;
 	}
@@ -25,21 +39,25 @@ public class LgortBean {
 		this.lgobe = lgobe;
 	}
 	
-	public LgortBean() {
+	public LgortBeanView() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public LgortBean(String werks, String lgort, String lgobe) {
+	
+	public LgortBeanView(String werks, String lgort, String lgobe, String lnumt, String imwm) {
 		super();
 		this.werks = werks;
 		this.lgort = lgort;
 		this.lgobe = lgobe;
+		this.lnumt = lnumt;
+		this.imwm = imwm;
 	}
+	
 	@Override
 	public String toString() {
-		return "LgortBean [werks=" + werks + ", lgort=" + lgort + ", lgobe=" + lgobe + "]";
+		return "LgortBeanView [werks=" + werks + ", lgort=" + lgort + ", lgobe=" + lgobe + ", lnumt=" + lnumt
+				+ ", imwm=" + imwm + "]";
 	}
-	
-	
+		
 
 }

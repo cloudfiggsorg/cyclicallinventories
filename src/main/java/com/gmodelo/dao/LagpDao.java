@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.LagpB;
+import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.LagpEntity;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -20,15 +20,15 @@ public class LagpDao {
 
 	private Logger log = Logger.getLogger( BukrsDao.class.getName());
 	
-	public Response<List<LagpB>> getLagp(LagpB lgplaBean, String searchFilter){
+	public Response<List<LagpEntity>> getLagp(LagpEntity lgplaBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		
-		Response<List<LagpB>> res = new Response<List<LagpB>>();
-		AbstractResults abstractResult = new AbstractResults();
-		List<LagpB> listLgplaBean = new ArrayList<LagpB>(); 
+		Response<List<LagpEntity>> res = new Response<List<LagpEntity>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<LagpEntity> listLgplaBean = new ArrayList<LagpEntity>(); 
 		 
 		String INV_VW_LAGP = "SELECT LGNUM, LGTYP, LGPLA, LPTYP, SKZUA, SKZUE, IMWM FROM INV_CIC_DB.dbo.INV_VW_LAGP WITH(NOLOCK) ";
 		
@@ -54,7 +54,7 @@ public class LagpDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				lgplaBean = new LagpB();
+				lgplaBean = new LagpEntity();
 				
 				lgplaBean.setLgNum(rs.getString(1));
 				lgplaBean.setLgTyp(rs.getString(2));
@@ -100,7 +100,7 @@ public class LagpDao {
 		return res;
 	}
 	
-	private String buildCondition(LagpB lgplaB){
+	private String buildCondition(LagpEntity lgplaB){
 		String lgNum = "";
 		String lgTyp = "";
 		String lgPla = "";

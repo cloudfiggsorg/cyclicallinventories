@@ -7,7 +7,6 @@ import java.sql.SQLException;
 
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.LoginBean;
-import com.gmodelo.beans.RecoveryBean;
 import com.gmodelo.utils.Utilities;
 
 public class LoginDAO {
@@ -46,20 +45,7 @@ public class LoginDAO {
 		} catch (SQLException e) {
 			throw new InvCicException(e);
 		}
-	}
-
-	public RecoveryBean RecoverStoredToken(LoginBean login, Connection con) throws InvCicException {
-		RecoveryBean recovery = null;
-		try {
-			PreparedStatement stm = con.prepareStatement(GET_VALID_TOKEN_ID);
-			stm.setString(1, login.getRelationUUID());
-			ResultSet rs = stm.executeQuery();
-			recovery = new RecoveryBean(rs);
-		} catch (SQLException e) {
-			throw new InvCicException(e);
-		}
-		return recovery;
-	}
+	}	
 
 	public Integer ValidateToken(LoginBean login, Connection con) throws InvCicException {
 		try {

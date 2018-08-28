@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.bmore.ume001.beans.User;
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ToleranceBean;
@@ -29,7 +29,7 @@ public class ToleranceWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[addToleranceWS] Error al pasar de Json a ToleranceBean",e);
 			toleranceBean = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -45,7 +45,7 @@ public class ToleranceWorkService {
 		log.log(Level.WARNING,"[deleteToleranceWS] "+request.toString());
 		String arrayIdTolerances;
 		Response<Object> res = new Response<Object>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		
 		try {
 			arrayIdTolerances = request.getLsObject().toString();
@@ -81,7 +81,7 @@ public class ToleranceWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[getTolerancesWS] Error al pasar de Json a ZoneB");
 			tb = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
