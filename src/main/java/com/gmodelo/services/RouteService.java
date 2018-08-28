@@ -22,14 +22,6 @@ import com.gmodelo.workservice.RouteWorkService;
 public class RouteService {
 	@Context
 	private HttpServletRequest httpRequest;
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/GetRoute")
-	public String GetRoute(Request<LoginBean<?>> request) {
-		return new RouteWorkService().GetRouteService(request);
-	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

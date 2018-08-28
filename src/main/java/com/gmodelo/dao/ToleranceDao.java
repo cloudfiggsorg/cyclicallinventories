@@ -22,6 +22,76 @@ public class ToleranceDao {
 	
 	private Logger log = Logger.getLogger( ToleranceDao.class.getName());
 	
+	public Response<List<ToleranceBean>> getMATKL(ToleranceBean toleranceBean, String searchFilter){
+		
+		Response<List<ToleranceBean>> res = new Response<>();
+		AbstractResults abstractResult = new AbstractResults();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		List<ToleranceBean> listMATKL = new ArrayList<ToleranceBean>();
+		//verificar si es necesario agregar mas campos al select para agregarlos al ToleranceBean
+		String INV_VW_MATKL = "SELECT MATKL, WGBEZ FROM [INV_CIC_DB].[dbo].[INV_VW_MATKL] "; //query
+		
+		if(searchFilter != null){
+			INV_VW_MATKL += "WHERE MATKL LIKE '%"+searchFilter+"%' OR WGBEZ LIKE '%"+searchFilter+"%'";
+		}
+		
+		log.log(Level.WARNING,"[getMATKLDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_MATKL);
+			
+			log.log(Level.WARNING,"[getMATKLDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				
+				toleranceBean = new ToleranceBean();
+				
+				toleranceBean.setMatkl(rs.getString(1));
+				toleranceBean.setDesc(rs.getString(2));
+				
+				listMATKL.add(toleranceBean);
+				
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.log(Level.WARNING,"[getMATKLDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getMATKLDao] Some error occurred while was trying to execute the query: "+INV_VW_MATKL, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getMATKLDao] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listMATKL);
+		return res ;
+	}
+	
 	public Response<Object> addTolerance(ToleranceBean toleranceBean, String createdBy){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -142,7 +212,7 @@ public class ToleranceDao {
 		return res ;
 	}
 	
-public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean){
+public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean, String searchFilter){
 		
 		Response<List<ToleranceBean>> res = new Response<>();
 		AbstractResults abstractResult = new AbstractResults();
@@ -153,11 +223,17 @@ public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean){
 		//verificar si es necesario agregar mas campos al select para agregarlos al ToleranceBean
 		String INV_VW_TOLERANCES = "SELECT TOLERANCE_ID, MATKL, TDESC, TP, TC FROM [INV_CIC_DB].[dbo].[INV_VW_TOLERANCES] "; //query
 		
-		String condition = buildCondition(toleranceBean);
-		if(condition != null){
-			INV_VW_TOLERANCES += condition;
-			log.warning(INV_VW_TOLERANCES);
+		if(searchFilter != null){
+			INV_VW_TOLERANCES += "WHERE TOLERANCE_ID LIKE '%"+searchFilter+"%' OR MATKL LIKE '%"+searchFilter+"%' OR TDESC LIKE '%"+searchFilter+"%'";
+		}else{
+			String condition = buildCondition(toleranceBean);
+			if(condition != null){
+				INV_VW_TOLERANCES += condition;
+				
+			}
 		}
+		
+		log.warning(INV_VW_TOLERANCES);
 		log.log(Level.WARNING,"[getTolerancesDao] Preparing sentence...");
 		
 		try {

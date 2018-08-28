@@ -25,6 +25,14 @@ public class ToleranceService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getMATKL")
+	public Response<List<ToleranceBean>> getMATKL(Request request){
+		return new ToleranceWorkService().getMATKL(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addTolerance")
 	public Response<Object> addTolerance(Request request){
 		User user = (User) httpRequest.getSession().getAttribute("user");
