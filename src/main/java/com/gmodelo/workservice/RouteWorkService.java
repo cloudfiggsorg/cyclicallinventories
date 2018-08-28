@@ -20,7 +20,6 @@ public class RouteWorkService {
 
 	private Logger log = Logger.getLogger(RouteWorkService.class.getName());
 		
-	
 	public Response<Object> addRoute(Request request, User user){
 		
 		log.log(Level.WARNING,"[addRouteWS] "+request.toString());
@@ -51,7 +50,6 @@ public class RouteWorkService {
 		return new RouteDao().addRoute(routeBean, user.getEntity().getIdentyId());
 		
 	}
-
 	public Response<Object> deleteRoute(Request request){
 		
 		log.log(Level.WARNING,"[deleteRouteWS] "+request.toString());
