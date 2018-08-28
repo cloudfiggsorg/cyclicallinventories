@@ -1,10 +1,11 @@
 package com.gmodelo.beans;
 
-public class TmatnrB {
+public class TmatnrBean {
 	
 	String matnr;
 	String typ_mat;
 	String den_typ_mat;
+	
 	public String getMatnr() {
 		return matnr;
 	}
@@ -23,11 +24,11 @@ public class TmatnrB {
 	public void setDen_typ_mat(String den_typ_mat) {
 		this.den_typ_mat = den_typ_mat;
 	}
-	public TmatnrB() {
+	public TmatnrBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public TmatnrB(String matnr, String typ_mat, String den_typ_mat) {
+	public TmatnrBean(String matnr, String typ_mat, String den_typ_mat) {
 		super();
 		this.matnr = matnr;
 		this.typ_mat = typ_mat;

@@ -1,6 +1,7 @@
 package com.gmodelo.beans;
 
-public class TgortB {
+public class TgortB {//Pending
+	
 	String werks;
 	String lgort;
 	String lgNum;

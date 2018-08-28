@@ -8,7 +8,7 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.MatnrBeanView;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.TmatnrB;
+import com.gmodelo.beans.TmatnrBean;
 import com.gmodelo.dao.MatnrDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -46,15 +46,15 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 		return new MatnrDao().getMatnr(mantrBean, searchFilter);
 	}
 	
-	public Response<List<TmatnrB>> getTmatnr(Request request){
+	public Response<List<TmatnrBean>> getTmatnr(Request request){
 		log.log(Level.WARNING,"[getTmatnrWorkService] "+request.toString());
-		TmatnrB tmatnrBean = null;
+		TmatnrBean tmatnrBean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
 		
 		if(!req.isEmpty()){
 			try {
-				tmatnrBean = new Gson().fromJson(request.getLsObject().toString(), TmatnrB.class);
+				tmatnrBean = new Gson().fromJson(request.getLsObject().toString(), TmatnrBean.class);
 				log.log(Level.WARNING, "[getTmatnrWorkService] Fue Objeto: " + tmatnrBean);
 				
 			}catch(JsonSyntaxException e){

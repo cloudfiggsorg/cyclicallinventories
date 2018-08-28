@@ -1,13 +1,14 @@
 package com.gmodelo.beans;
 
 public class RoutePositionBean {
-
-	String routeId;			//Id de ruta
-	String positionRouteId;	//Id de ruta de posicion
-	String lgort;			//Almacen
-	String lgtyp;			//Tipo de almacen
-	Integer zoneId;			//Id de zona
-	String secuency;		//secuencia
+	
+	String routeId;
+	String positionId;
+	String lgort;
+	String lgtyp;
+	String zoneId;
+	String secuency;
+	String zdesc;
 	
 	public String getRouteId() {
 		return routeId;
@@ -15,11 +16,17 @@ public class RoutePositionBean {
 	public void setRouteId(String routeId) {
 		this.routeId = routeId;
 	}
-	public String getPositionRouteId() {
-		return positionRouteId;
+	public String getZdesc() {
+		return zdesc;
 	}
-	public void setPositionRouteId(String positionRouteId) {
-		this.positionRouteId = positionRouteId;
+	public void setZdesc(String zdesc) {
+		this.zdesc = zdesc;
+	}
+	public String getPositionId() {
+		return positionId;
+	}
+	public void setPositionId(String positionId) {
+		this.positionId = positionId;
 	}
 	public String getLgort() {
 		return lgort;
@@ -33,10 +40,10 @@ public class RoutePositionBean {
 	public void setLgtyp(String lgtyp) {
 		this.lgtyp = lgtyp;
 	}
-	public Integer getZoneId() {
+	public String getZoneId() {
 		return zoneId;
 	}
-	public void setZoneId(Integer zoneId) {
+	public void setZoneId(String zoneId) {
 		this.zoneId = zoneId;
 	}
 	public String getSecuency() {
@@ -45,17 +52,36 @@ public class RoutePositionBean {
 	public void setSecuency(String secuency) {
 		this.secuency = secuency;
 	}
-	
 	public RoutePositionBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	public RoutePositionBean(String routeId, String positionId, String lgort, String lgtyp,
+			String zoneId, String secuency, String zdesc) {
+		super();
+		
+		this.routeId = routeId;
+		this.positionId = positionId;
+		this.lgort = lgort;
+		this.lgtyp = lgtyp;
+		this.zoneId = zoneId;
+		this.secuency = secuency;
+		this.zdesc = zdesc;
+	}
 	
-	public RoutePositionBean(String routeId, String positionRouteId, String lgort, String lgtyp, Integer zoneId,
-			String secuency) {
+	public RoutePositionBean(String routeId, String lgort, String lgtyp,
+			String zoneId, String secuency) {
 		super();
 		this.routeId = routeId;
-		this.positionRouteId = positionRouteId;
+		this.lgort = lgort;
+		this.lgtyp = lgtyp;
+		this.zoneId = zoneId;
+		this.secuency = secuency;
+	}
+	
+	public RoutePositionBean(String lgort, String lgtyp,
+			String zoneId, String secuency) {
+		super();
 		this.lgort = lgort;
 		this.lgtyp = lgtyp;
 		this.zoneId = zoneId;
@@ -64,10 +90,9 @@ public class RoutePositionBean {
 	
 	@Override
 	public String toString() {
-		return "RoutePositionBean [routeId=" + routeId + ", positionRouteId=" + positionRouteId + ", lgort=" + lgort
-				+ ", lgtyp=" + lgtyp + ", zoneId=" + zoneId + ", secuency=" + secuency + "]";
+		return "RoutePositionB [routeId=" + routeId + ", positionId=" + positionId
+				+ ", lgort=" + lgort + ", lgtyp=" + lgtyp + ", zoneId=" + zoneId + ", secuency=" + secuency + ", zdesc="
+				+ zdesc + "]";
 	}
-	
-	
-	
+
 }

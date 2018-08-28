@@ -14,9 +14,8 @@ import java.util.logging.Logger;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.ZoneB;
 import com.gmodelo.beans.ZoneBean;
-import com.gmodelo.beans.ZonePositionMaterialsB;
+import com.gmodelo.beans.ZonePositionMaterialsBean;
 import com.gmodelo.beans.ZonePositionsBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -40,8 +39,8 @@ public class ZoneDao {
 		try {
 			cs = con.prepareCall(INV_SP_ADD_ZONE);
 			
-			cs.setInt(1,zoneBean.getIdZone());
-			cs.setString(2,zoneBean.getZoneDesc());
+			cs.setString(1,zoneBean.getZoneId());
+			cs.setString(2,zoneBean.getZdesc());
 			cs.setString(3,zoneBean.getBukrs());
 			cs.setString(4,zoneBean.getWerks());
 			cs.setString(5,zoneBean.getLgort());
@@ -93,7 +92,7 @@ public class ZoneDao {
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
 		
-		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addPositionZone] Preparing sentence...");
 		
@@ -101,17 +100,16 @@ public class ZoneDao {
 			cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
 			
 			cs.setString(1,zonePositionsBean.getZoneId());
-			cs.setString(2,zonePositionsBean.getPositionId());
-			cs.setString(3,zonePositionsBean.getLgtyp());
-			cs.setString(4,zonePositionsBean.getLgpla());
-			cs.setString(5,zonePositionsBean.getSecuency());
-			cs.setString(6,zonePositionsBean.getImwm());
-			cs.registerOutParameter(7, Types.INTEGER);
+			cs.setString(2,zonePositionsBean.getLgtyp());
+			cs.setString(3,zonePositionsBean.getLgpla());
+			cs.setString(4,zonePositionsBean.getSecuency());
+			cs.setString(5,zonePositionsBean.getImwm());
+			cs.registerOutParameter(6, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[addPositionZone] Executing query...");
 			
 			cs.execute();
-			abstractResult.setResultId(cs.getInt(7));
+			abstractResult.setResultId(cs.getInt(6));
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -209,10 +207,10 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
-		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "
 				+ "WHERE BUKRS = '"+zoneBean.getBukrs()+"' AND WERKS = '"+zoneBean.getWerks()+"' ";
 		
-			String OR =	"AND ( ZONE_ID LIKE '%"+zoneBean.getIdZone()+"%' OR ZON_DESC LIKE '%"+zoneBean.getZoneDesc()+"%' )";
+			String OR =	"AND ( ZONE_ID LIKE '%"+zoneBean.getZoneId()+"%' OR ZON_DESC LIKE '%"+zoneBean.getZdesc()+"%' )";
 		 //query
 		
 		String condition = buildCondition(zoneBean);
@@ -220,11 +218,11 @@ public class ZoneDao {
 			INV_VW_ZONE_BY_LGORT += condition;
 		}
 		
-		if(zoneBean.getIdZone() != null){
+		if(zoneBean.getZoneId() != null){
 			INV_VW_ZONE_BY_LGORT += OR;
 		}
 		 
-		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
+		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
 		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
 		
 		log.warning(INV_VW_ZONE_BY_LGORT);
@@ -242,12 +240,11 @@ public class ZoneDao {
 				
 				zoneBean = new ZoneBean();
 				
-				zoneBean.setLgort(rs.getString(1));
-				zoneBean.setLgobe(rs.getString(2));
-				zoneBean.setIdZone(rs.getInt(3));
-				zoneBean.setZoneDesc(rs.getString(4));
-				zoneBean.setBukrs(rs.getString(5));
-				zoneBean.setWerks(rs.getString(6));
+				zoneBean.setLgort(rs.getString("LGORT"));
+				zoneBean.setZoneId(rs.getString("ZONE_ID"));
+				zoneBean.setZdesc(rs.getString("ZON_DESC"));
+				zoneBean.setBukrs(rs.getString("BUKRS"));
+				zoneBean.setWerks(rs.getString("WERKS"));
 				
 				listZone.add(zoneBean);
 				
@@ -297,10 +294,10 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
-		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "
 				+ "WHERE BUKRS = '"+zoneBean.getBukrs()+"' AND WERKS = '"+zoneBean.getWerks()+"' ";
 		
-			String OR =	"AND ( ZONE_ID LIKE '%"+zoneBean.getIdZone()+"%' AND ZON_DESC LIKE '%"+zoneBean.getZoneDesc()+"%' )";
+			String OR =	"AND ( ZONE_ID LIKE '%"+zoneBean.getZoneId()+"%' AND ZON_DESC LIKE '%"+zoneBean.getZdesc()+"%' )";
 		 //query
 		
 		String condition = buildCondition(zoneBean);
@@ -308,11 +305,11 @@ public class ZoneDao {
 			INV_VW_ZONE_BY_LGORT += condition;
 		}
 		
-		if(zoneBean.getIdZone() != null){
+		if(zoneBean.getZoneId() != null){
 			INV_VW_ZONE_BY_LGORT += OR;
 		}
 		 
-		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
+		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
 		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
 		
 		log.warning(INV_VW_ZONE_BY_LGORT);
@@ -331,11 +328,10 @@ public class ZoneDao {
 				zoneBean = new ZoneBean();
 				
 				zoneBean.setLgort(rs.getString(1));
-				zoneBean.setLgobe(rs.getString(2));
-				zoneBean.setIdZone(rs.getInt(3));
-				zoneBean.setZoneDesc(rs.getString(4));
-				zoneBean.setBukrs(rs.getString(5));
-				zoneBean.setWerks(rs.getString(6));
+				zoneBean.setZoneId(rs.getString(2));
+				zoneBean.setZdesc(rs.getString(3));
+				zoneBean.setBukrs(rs.getString(4));
+				zoneBean.setWerks(rs.getString(5));
 				
 				listZone.add(zoneBean);
 				
@@ -378,26 +374,23 @@ public class ZoneDao {
 	
 	private String buildCondition(ZoneBean zoneBean){
 		String lgort = "";
-		String lgobe = "";
 		String condition = "";
 	
 		lgort = (zoneBean.getLgort() != null ? "AND " + zoneBean.getLgort()+"%'" :"");
 		condition += lgort;
-		lgobe = (zoneBean.getLgobe() != null ? "AND " +"ZON_DESC LIKE '%" + zoneBean.getLgobe()+"%'" : "");
-		condition += lgobe;
 		condition = condition.isEmpty() ? null : condition;
 		
 		return condition;
 	}
 	
-	public Response<List<ZoneB>> getZones(ZoneB zoneBean, String searchFilter){
+	public Response<List<ZoneBean>> getZones(ZoneBean zoneBean, String searchFilter){
 		
-		Response<List<ZoneB>> res = new Response<>();
+		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
-		List<ZoneB> listZone = new ArrayList<ZoneB>();
+		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
 		String INV_VW_ZONES = "SELECT ZONE_ID,ZDESC,BUKRS,WERKS,LGORT FROM dbo.INV_VW_ZONES";
 		if(searchFilter != null){
@@ -417,7 +410,7 @@ public class ZoneDao {
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 					
-				zoneBean = new ZoneB();
+				zoneBean = new ZoneBean();
 				
 				zoneBean.setZoneId(rs.getString(1));
 				zoneBean.setZdesc(rs.getString(2));
@@ -471,7 +464,7 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
 		
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, POSITION_ID ,LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
+		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
 		
 		log.warning(INV_VW_ZONE_WITH_POSITIONS);
 		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
@@ -485,11 +478,10 @@ public class ZoneDao {
 				
 				ZonePositionsBean position = new ZonePositionsBean();
 				position.setPkAsgId(rs.getString(1));
-				position.setPositionId(rs.getString(2));
-				position.setLgtyp(rs.getString(3));
-				position.setLgpla(rs.getString(4));
-				position.setSecuency(rs.getString(5));
-				position.setImwm(rs.getString(6));
+				position.setLgtyp(rs.getString(2));
+				position.setLgpla(rs.getString(3));
+				position.setSecuency(rs.getString(4));
+				position.setImwm(rs.getString(5));
 				position.setPositionMaterial(this.getPositionMaterials(rs.getString(1)));
 				listPositions.add(position);
 				
@@ -520,12 +512,12 @@ public class ZoneDao {
 		return listPositions ;
 	}
 	
-	private List<ZonePositionMaterialsB> getPositionMaterials(String pkAsgId){
+	private List<ZonePositionMaterialsBean> getPositionMaterials(String pkAsgId){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
-		List<ZonePositionMaterialsB> listMaterials = new ArrayList<ZonePositionMaterialsB>();
+		List<ZonePositionMaterialsBean> listMaterials = new ArrayList<ZonePositionMaterialsBean>();
 		
 		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT PK_POS_MAT, MATNR ,TYP_MAT ,DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE PK_ZONPOS_MAT = ?";
 		
@@ -539,7 +531,7 @@ public class ZoneDao {
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 				
-				ZonePositionMaterialsB material = new ZonePositionMaterialsB();
+				ZonePositionMaterialsBean material = new ZonePositionMaterialsBean();
 				
 				material.setPkPosMat(rs.getString(1));
 				material.setMatnr(rs.getString(2));
@@ -575,7 +567,7 @@ public class ZoneDao {
 		return listMaterials ;
 	}
 
-	private String buildConditionZones(ZoneB zoneB){
+	private String buildConditionZones(ZoneBean zoneB){
 		String condition ="";
 		String zoneId ="";
 		String zdesc ="";

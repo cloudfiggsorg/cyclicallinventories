@@ -1,16 +1,17 @@
 package com.gmodelo.beans;
 
-public class ZonePositionMaterialsB {
-	String pkPosMat;
+public class ZonePositionMaterialsBean {
+	
+	String posMat;
 	String matnr;
 	String typMat;
 	String descTM;
 	
 	public String getPkPosMat() {
-		return pkPosMat;
+		return posMat;
 	}
 	public void setPkPosMat(String pkPosMat) {
-		this.pkPosMat = pkPosMat;
+		this.posMat = pkPosMat;
 	}
 	public String getMatnr() {
 		return matnr;
@@ -30,20 +31,20 @@ public class ZonePositionMaterialsB {
 	public void setDescTM(String descTM) {
 		this.descTM = descTM;
 	}
-	public ZonePositionMaterialsB() {
+	public ZonePositionMaterialsBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public ZonePositionMaterialsB(String pkPosMat, String matnr, String typMat, String descTM) {
+	public ZonePositionMaterialsBean(String pkPosMat, String matnr, String typMat, String descTM) {
 		super();
-		this.pkPosMat = pkPosMat;
+		this.posMat = pkPosMat;
 		this.matnr = matnr;
 		this.typMat = typMat;
 		this.descTM = descTM;
 	}
 	@Override
 	public String toString() {
-		return "ZonePositionMaterialsB [pkPosMat=" + pkPosMat + ", matnr=" + matnr + ", typMat=" + typMat + ", descTM="
+		return "ZonePositionMaterialsB [pkPosMat=" + posMat + ", matnr=" + matnr + ", typMat=" + typMat + ", descTM="
 				+ descTM + "]";
 	}
 	

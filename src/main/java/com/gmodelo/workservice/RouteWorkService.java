@@ -3,13 +3,11 @@ package com.gmodelo.workservice;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
-import com.gmodelo.beans.UserB;
 import com.gmodelo.dao.RouteDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -119,28 +117,10 @@ public class RouteWorkService {
 		return new RouteDao().getRoutes(routeBean,searchFilter);
 	}
 
-	public Response<List<RouteBean>> getRoutesByUser(Request request){
-		log.log(Level.WARNING,"[getRoutesByUserService] "+request.toString());
-		UserB userBean = null;
-
-		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
-		String req = request.getLsObject().toString().trim();
-		if(!req.isEmpty()){
-			try {
-				userBean = new Gson().fromJson(request.getLsObject().toString(), UserB.class) ;
-				
-				log.log(Level.WARNING,request.getLsObject().toString());
-			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"Error al pasar de Json a UserB");
-				userBean = null;
-				AbstractResultsBean abstractResult = new AbstractResultsBean();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult );
-				return res;
-			}
-		}
+	public Response<List<RouteBean>> getRoutesByUser(User user){
 		
-		return new RouteDao().getRoutesByUser(userBean);
+		log.log(Level.WARNING,"[getRoutesByUserService] ");
+
+		return new RouteDao().getRoutesByUser(user);
 	}
 }

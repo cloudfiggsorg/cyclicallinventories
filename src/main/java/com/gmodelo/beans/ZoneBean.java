@@ -1,37 +1,33 @@
 package com.gmodelo.beans;
 
+import java.util.List;
+
 public class ZoneBean {
+	String zoneId;
+	String zdesc;
+	String bukrs;
+	String werks;
+	String lgort;
 	
-	String lgort; // almacen de la zona
-	String lgobe; // descripcion de almacen
-	Integer idZone; //id de la zona
-	String zoneDesc; //descripcion de la zona
-	String bukrs; //sociedad de la zona
-	String werks; //centro de la zona
+	List<ZonePositionsBean> positionsB;
 	
-	public String getLgort() {
-		return lgort;
+	public List<ZonePositionsBean> getPositionsB() {
+		return positionsB;
 	}
-	public void setLgort(String lgort) {
-		this.lgort = lgort;
+	public void setPositionsB(List<ZonePositionsBean> positionsB) {
+		this.positionsB = positionsB;
 	}
-	public String getLgobe() {
-		return lgobe;
+	public String getZoneId() {
+		return zoneId;
 	}
-	public void setLgobe(String lgobe) {
-		this.lgobe = lgobe;
+	public void setZoneId(String zoneId) {
+		this.zoneId = zoneId;
 	}
-	public Integer getIdZone() {
-		return idZone;
+	public String getZdesc() {
+		return zdesc;
 	}
-	public void setIdZone(Integer idZone) {
-		this.idZone = idZone;
-	}
-	public String getZoneDesc() {
-		return zoneDesc;
-	}
-	public void setZoneDesc(String zoneDesc) {
-		this.zoneDesc = zoneDesc;
+	public void setZdesc(String zdesc) {
+		this.zdesc = zdesc;
 	}
 	public String getBukrs() {
 		return bukrs;
@@ -45,26 +41,32 @@ public class ZoneBean {
 	public void setWerks(String werks) {
 		this.werks = werks;
 	}
-	
+	public String getLgort() {
+		return lgort;
+	}
+	public void setLgort(String lgort) {
+		this.lgort = lgort;
+	}
+
 	public ZoneBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	
-	public ZoneBean(String lgort, String lgobe, Integer idZone, String zoneDesc, String bukrs, String werks) {
+	public ZoneBean(String zoneId, String zdesc, String bukrs, String werks, String lgort,
+			List<ZonePositionsBean> positionsB) {
 		super();
-		this.lgort = lgort;
-		this.lgobe = lgobe;
-		this.idZone = idZone;
-		this.zoneDesc = zoneDesc;
+		this.zoneId = zoneId;
+		this.zdesc = zdesc;
 		this.bukrs = bukrs;
 		this.werks = werks;
+		this.lgort = lgort;
+		this.positionsB = positionsB;
 	}
 	@Override
 	public String toString() {
-		return "ZoneBean [lgort=" + lgort + ", lgobe=" + lgobe + ", idZone=" + idZone + ", zoneDesc=" + zoneDesc
-				+ ", bukrs=" + bukrs + ", werks=" + werks + "]";
+		return "ZoneB [zoneId=" + zoneId + ", zdesc=" + zdesc + ", bukrs=" + bukrs + ", werks=" + werks + ", lgort="
+				+ lgort + ", positionsB=" + positionsB + "]";
 	}
-	
 
+	
 }

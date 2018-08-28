@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.TmatnrB;
+import com.gmodelo.beans.TmatnrBean;
 import com.gmodelo.beans.MatnrBeanView;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -97,15 +97,15 @@ public class MatnrDao {
 		return res;
 	}
 	
-	public Response<List<TmatnrB>> getTmatnrWithMatnr(TmatnrB tmatnrBean, String searchFilter){
+	public Response<List<TmatnrBean>> getTmatnrWithMatnr(TmatnrBean tmatnrBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		
-		Response<List<TmatnrB>> res = new Response<List<TmatnrB>>();
+		Response<List<TmatnrBean>> res = new Response<List<TmatnrBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<TmatnrB> listTmatnrBean = new ArrayList<TmatnrB>(); 
+		List<TmatnrBean> listTmatnrBean = new ArrayList<TmatnrBean>(); 
 		 
 		String INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, TYP_MAT, DEN_TYP_MAT FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) ";
 		
@@ -129,7 +129,7 @@ public class MatnrDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				tmatnrBean = new TmatnrB();
+				tmatnrBean = new TmatnrBean();
 				
 				tmatnrBean.setMatnr(rs.getString(1));
 				tmatnrBean.setTyp_mat(rs.getString(2));
@@ -172,7 +172,7 @@ public class MatnrDao {
 		return res;
 	}
 	
-	private String buildCondition(TmatnrB tmatnrBean){
+	private String buildCondition(TmatnrBean tmatnrBean){
 		String matnr = "";
 		String tmat = "";
 		String dtmat = "";

@@ -1,17 +1,17 @@
 package com.gmodelo.beans;
 
-public class RouteGroupB {
+public class RouteGroupBean {
 	
 	String routeGroup;
 	String groupId;
 	String gdesc;
 	String countNum;
 	
-	public RouteGroupB() {
+	public RouteGroupBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public RouteGroupB(String pkRouteGroup, String groupId, String gdesc, String countNum) {
+	public RouteGroupBean(String pkRouteGroup, String groupId, String gdesc, String countNum) {
 		super();
 		this.routeGroup = pkRouteGroup;
 		this.groupId = groupId;

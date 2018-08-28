@@ -5,12 +5,11 @@ import java.util.List;
 public class ZonePositionsBean {
 	String pkAsgId;
 	String zoneId;
-	String positionId;
 	String lgtyp;
 	String lgpla;
 	String secuency;
 	String imwm;
-	List<ZonePositionMaterialsB> positionMaterial;
+	List<ZonePositionMaterialsBean> positionMaterial;
 	
 	public ZonePositionsBean() {
 		super();
@@ -25,11 +24,11 @@ public class ZonePositionsBean {
 		this.pkAsgId = pkAsgId;
 	}
 
-	public List< ZonePositionMaterialsB> getPositionMaterial() {
+	public List< ZonePositionMaterialsBean> getPositionMaterial() {
 		return positionMaterial;
 	}
 	
-	public void setPositionMaterial(List<ZonePositionMaterialsB> positionMaterial) {
+	public void setPositionMaterial(List<ZonePositionMaterialsBean> positionMaterial) {
 		this.positionMaterial = positionMaterial;
 	}
 
@@ -38,12 +37,6 @@ public class ZonePositionsBean {
 	}
 	public void setZoneId(String zoneId) {
 		this.zoneId = zoneId;
-	}
-	public String getPositionId() {
-		return positionId;
-	}
-	public void setPositionId(String positionId) {
-		this.positionId = positionId;
 	}
 	public String getLgtyp() {
 		return lgtyp;
@@ -70,12 +63,11 @@ public class ZonePositionsBean {
 		this.imwm = imwm;
 	}
 
-	public ZonePositionsBean(String pkAsgId, String zoneId, String positionId, String lgtyp, String lgpla, String secuency,
-			String imwm, List<ZonePositionMaterialsB> positionMaterial) {
+	public ZonePositionsBean(String pkAsgId, String zoneId, String lgtyp, String lgpla, String secuency,
+			String imwm, List<ZonePositionMaterialsBean> positionMaterial) {
 		super();
 		this.pkAsgId = pkAsgId;
 		this.zoneId = zoneId;
-		this.positionId = positionId;
 		this.lgtyp = lgtyp;
 		this.lgpla = lgpla;
 		this.secuency = secuency;
@@ -85,7 +77,7 @@ public class ZonePositionsBean {
 
 	@Override
 	public String toString() {
-		return "ZonePositionsB [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", positionId=" + positionId + ", lgtyp="
+		return "ZonePositionsB [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", lgtyp="
 				+ lgtyp + ", lgpla=" + lgpla + ", secuency=" + secuency + ", imwm=" + imwm + ", positionMaterial="
 				+ positionMaterial + "]";
 	}

@@ -12,14 +12,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.MaterialToRouteBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
-import com.gmodelo.beans.RouteGroupB;
-import com.gmodelo.beans.RoutePositionB;
+import com.gmodelo.beans.RouteGroupBean;
 import com.gmodelo.beans.RoutePositionBean;
-import com.gmodelo.beans.UserB;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -104,7 +103,7 @@ public class RouteDao {
 			return res ;
 		}
 
-	public String addRoutePosition(RoutePositionB routePositionBean) throws SQLException {
+	public String addRoutePosition(RoutePositionBean routePositionBean) throws SQLException {
 		
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -316,7 +315,7 @@ public class RouteDao {
 			return res ;
 		}
 	
-	public Response<List<RouteBean>> getRoutesByUser(UserB userB){
+	public Response<List<RouteBean>> getRoutesByUser(User user){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
@@ -328,11 +327,15 @@ public class RouteDao {
 		String INV_VW_ROUTES = null;
 		
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
+
 		
 		log.warning(INV_VW_ROUTES);
 		log.log(Level.WARNING,"[getRoutesDao] Preparing sentence...");
+		
 		try {
-			stm = con.prepareStatement(INV_VW_ROUTES);		
+			stm = con.prepareStatement(INV_VW_ROUTES);
+			
+			stm.setString(1, user.getEntity().getIdentyId());
 			
 			log.log(Level.WARNING,"[getRoutesDao] Executing query...");
 			
@@ -465,13 +468,13 @@ public class RouteDao {
 		return res;
 	}
 	
-	public List<RoutePositionB> getPositions(String idRoute){
+	public List<RoutePositionBean> getPositions(String idRoute){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		
-		List<RoutePositionB> listPositions = new ArrayList<RoutePositionB>(); 
+		List<RoutePositionBean> listPositions = new ArrayList<RoutePositionBean>(); 
 		 
 		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,LGTYP ,ZONE_ID ,SECUENCY ,ZDESC, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 		
@@ -485,7 +488,7 @@ public class RouteDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				RoutePositionB position = new RoutePositionB();
+				RoutePositionBean position = new RoutePositionBean();
 				position.setPositionId(rs.getString(1));
 				position.setLgort(rs.getString(2));
 				position.setLgtyp(rs.getString(3));
@@ -520,13 +523,13 @@ public class RouteDao {
 		return listPositions;
 	}
 
-	public List<RouteGroupB> getGroups(String idRoute){
+	public List<RouteGroupBean> getGroups(String idRoute){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		
-		List<RouteGroupB> listGroups = new ArrayList<RouteGroupB>(); 
+		List<RouteGroupBean> listGroups = new ArrayList<RouteGroupBean>(); 
 		 
 		String INV_VW_ROUTE_GROUPS = "SELECT PK_ASG_ID, GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ? ";
 		
@@ -540,7 +543,7 @@ public class RouteDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				RouteGroupB group = new RouteGroupB();
+				RouteGroupBean group = new RouteGroupBean();
 				group.setPkRouteGroup(rs.getString(1));
 				group.setGroupId(rs.getString(2));
 				group.setGdesc(rs.getString(3));
@@ -599,9 +602,9 @@ public class RouteDao {
 	public static void main(String[] args) {
 		System.out.println("Hello, World!");
 		//@ROUTE_ID='000001',@LGTYP='001',@LGORT='0088', @SECUENCY='' ,@ZONE_ID='1'
-		RoutePositionB p = new RoutePositionB("001","0088","1","1");
-		RoutePositionB p1 = new RoutePositionB("002","0088","1","1");
-		List<RoutePositionB> positions = new ArrayList<RoutePositionB>();
+		RoutePositionBean p = new RoutePositionBean("001","0088","1","1");
+		RoutePositionBean p1 = new RoutePositionBean("002","0088","1","1");
+		List<RoutePositionBean> positions = new ArrayList<RoutePositionBean>();
 		positions.add(p);
 		positions.add(p1);
 		//EXEC INV_SP_ADD_ROUTE @DESC = 'RUTA 14.1', @BUKRS = '0001', @WERKS ='0001',  @CREATED_BY ='0001', @TYPE='1'

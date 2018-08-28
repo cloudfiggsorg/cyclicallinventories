@@ -8,19 +8,19 @@ public class RouteBean {
 	String werks;
 	String rdesc;
 	String type;
-	List<RoutePositionB> positions;
-	List<RouteGroupB> groups;
+	List<RoutePositionBean> positions;
+	List<RouteGroupBean> groups;
 	
-	public List<RouteGroupB> getGroups() {
+	public List<RouteGroupBean> getGroups() {
 		return groups;
 	}
-	public void setGroups(List<RouteGroupB> groups) {
+	public void setGroups(List<RouteGroupBean> groups) {
 		this.groups = groups;
 	}
-	public List<RoutePositionB> getPositions() {
+	public List<RoutePositionBean> getPositions() {
 		return positions;
 	}
-	public void setPositions(List<RoutePositionB> positions) {
+	public void setPositions(List<RoutePositionBean> positions) {
 		this.positions = positions;
 	}
 	public String getType() {
@@ -58,8 +58,8 @@ public class RouteBean {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public RouteBean(String routeId, String bukrs, String werks, String rdesc, String type, List<RoutePositionB> positions,
-			List<RouteGroupB> groups) {
+	public RouteBean(String routeId, String bukrs, String werks, String rdesc, String type, List<RoutePositionBean> positions,
+			List<RouteGroupBean> groups) {
 		super();
 		this.routeId = routeId;
 		this.bukrs = bukrs;
