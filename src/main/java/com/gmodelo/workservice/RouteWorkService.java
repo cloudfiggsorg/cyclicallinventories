@@ -100,15 +100,10 @@ public class RouteWorkService {
 			try {
 				routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteBean.class) ;
 				
-				log.log(Level.WARNING,request.getLsObject().toString());
+				log.log(Level.WARNING,"Fue objeto");
 			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"Error al pasar de Json a RouteB");
-				routeBean = null;
-				AbstractResultsBean abstractResult = new AbstractResultsBean();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult );
-				return res;
+				searchFilter = request.getLsObject().toString();
+				log.log(Level.WARNING,"Fue cadena");
 			}
 		}else{
 			searchFilter = "";
