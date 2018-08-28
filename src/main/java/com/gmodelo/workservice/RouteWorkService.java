@@ -93,15 +93,15 @@ public class RouteWorkService {
 		return new Gson().toJson(response);
 	}
 	
-public Response<Object> addRoute(Request request, User user){
+	public Response<Object> addRoute(Request request, User user){
 		
 		log.log(Level.WARNING,"[addRouteWS] "+request.toString());
-		RouteBean routeBean;
+		RouteB routeBean;
 		Response<Object> res = new Response<Object>();
 		String req = request.getLsObject().toString().trim();
 		if(!req.isEmpty()){
 			try {
-				routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteBean.class);
+				routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteB.class);
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE,"[addRouteWS] Error al pasar de Json a ZoneBean");
 				routeBean = null;
@@ -122,38 +122,6 @@ public Response<Object> addRoute(Request request, User user){
 		
 		return new RouteDao().addRoute(routeBean, user.getEntity().getIdentyId());
 		
-	}
-
-	public Response<Object> addRoutePosition(Request request){
-	
-		log.log(Level.WARNING,"[addRoutePositionWS] "+request.toString());
-		RoutePositionBean routePositionBean;
-		Response<Object> res = new Response<Object>();
-		String req = request.getLsObject().toString().trim();
-		if(!req.isEmpty()){
-			try {
-				routePositionBean = new Gson().fromJson(request.getLsObject().toString(), RoutePositionBean.class);
-			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[addRoutePositionWS] Error al pasar de Json a RoutePositionBean");
-				routePositionBean = null;
-				AbstractResults abstractResult = new AbstractResults();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		}else{
-			AbstractResults abstractResult = new AbstractResults();
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs("Error al pasar de Json a RoutePositionBean");
-			res.setAbstractResult(abstractResult);
-
-			log.log(Level.SEVERE,"[addRoutePositionWS] "+abstractResult.getResultMsgAbs());
-			return res;
-		}
-	
-		return new RouteDao().addRoutePosition(routePositionBean);
-	
 	}
 	
 	public Response<Object> deleteRoute(Request request){

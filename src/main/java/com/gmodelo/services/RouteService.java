@@ -43,14 +43,6 @@ public class RouteService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/addRoutePosition")
-	public Response<Object> addRoutePosition(Request request){
-		return new RouteWorkService().addRoutePosition(request);
-	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/deleteRoute")
 	public Response<Object> deleteRoute(Request request){
 		return new RouteWorkService().deleteRoute(request);
