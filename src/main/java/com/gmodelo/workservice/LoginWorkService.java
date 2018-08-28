@@ -13,7 +13,7 @@ import org.jboss.logging.Logger;
 import com.bmore.ume001.beans.Role;
 import com.bmore.ume001.beans.User;
 import com.gmodelo.Exception.InvCicException;
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LdapUser;
 import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Response;
@@ -83,7 +83,7 @@ public class LoginWorkService {
 //		} 
 
 		Response<LoginBean> resp = new Response<LoginBean>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		// LoginBean loginBean = gson.fromJson(login, LoginBean.class);
 
@@ -213,7 +213,7 @@ public class LoginWorkService {
 	public Response<?> logout(HttpServletRequest request){
 
 		Response<?> resp = new Response();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		if (request.getSession().getAttribute("user") != null) {
 			
 			request.getSession(false).invalidate();

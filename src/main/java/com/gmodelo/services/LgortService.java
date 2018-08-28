@@ -9,9 +9,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-
-import com.gmodelo.beans.LgortBean;
-import com.gmodelo.beans.NgortB;
+import com.gmodelo.beans.LgortBeanView;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.workservice.LgortWorkService;
@@ -26,7 +24,7 @@ public class LgortService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getLgortAndWerks")
-	public Response<List<LgortBean>> getBukrsAndWerks(Request request){
+	public Response<List<LgortBeanView>> getBukrsAndWerks(Request request){
 		return new LgortWorkService().getLgortByWerks(request);
 	}
 	
@@ -34,7 +32,7 @@ public class LgortService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getNgorts")
-	public Response<List<NgortB>> getNgorts(Request request){
+	public Response<List<LgortBeanView>> getNgorts(Request request){
 		return new LgortWorkService().getNgorts(request);
 	}
 }

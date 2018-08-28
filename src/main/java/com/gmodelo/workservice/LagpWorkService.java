@@ -3,8 +3,8 @@ package com.gmodelo.workservice;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.LagpB;
+import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.LagpEntity;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.LagpDao;
@@ -15,15 +15,15 @@ import com.google.gson.JsonSyntaxException;
 public class LagpWorkService {
 	private Logger log = Logger.getLogger( BukrsWorkService.class.getName());
 	
-	public Response<List<LagpB>> getLagp(Request request){
+	public Response<List<LagpEntity>> getLagp(Request request){
 		log.log(Level.WARNING,"[getLagpWorkService] "+request.toString());
-		LagpB lgplaBean = null;
+		LagpEntity lgplaBean = null;
 		String searchFilter = null;
-		Response<List<LagpB>> res = new Response<List<LagpB>>();
+		Response<List<LagpEntity>> res = new Response<List<LagpEntity>>();
 		String req = request.getLsObject().toString().trim();
 		if(!req.isEmpty()){
 			try {
-				lgplaBean = new Gson().fromJson(request.getLsObject().toString(), LagpB.class) ;
+				lgplaBean = new Gson().fromJson(request.getLsObject().toString(), LagpEntity.class) ;
 				
 				log.log(Level.WARNING,request.getLsObject().toString());
 			} catch (JsonSyntaxException e) {

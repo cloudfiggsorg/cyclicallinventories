@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.MantrB;
+import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.MatnrBeanView;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TmatnrB;
@@ -17,22 +17,22 @@ import com.google.gson.JsonSyntaxException;
 public class MatnrWorkService {
 private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 	
-	public Response<List<MantrB>> getMatnr(Request request){
+	public Response<List<MatnrBeanView>> getMatnr(Request request){
 		log.log(Level.WARNING,"[getMatnrWorkService] "+request.toString());
-		MantrB mantrBean  = null;
+		MatnrBeanView mantrBean  = null;
 		String searchFilter = null;
-		Response<List<MantrB>> res = new Response<List<MantrB>>();
+		Response<List<MatnrBeanView>> res = new Response<List<MatnrBeanView>>();
 		String req = request.getLsObject().toString().trim();
 		
 		if(!req.isEmpty()){
 			try {
-				mantrBean = new Gson().fromJson(request.getLsObject().toString(), MantrB.class) ;
+				mantrBean = new Gson().fromJson(request.getLsObject().toString(), MatnrBeanView.class) ;
 				
 				log.log(Level.WARNING,request.getLsObject().toString());
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE,"[getMatnrWorkService] Error al pasar de Json a MantrB");
 				mantrBean = null;
-				AbstractResults abstractResult = new AbstractResults();
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);

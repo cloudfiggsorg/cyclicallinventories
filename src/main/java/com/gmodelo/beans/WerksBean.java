@@ -6,7 +6,7 @@ public class WerksBean {
 
 	String werks;
 	String werksDesc;
-	List<LgnumBean> lgnumList;
+	List<Lgnum> lgnumList;
 
 	public String getWerks() {
 		return werks;
@@ -24,11 +24,11 @@ public class WerksBean {
 		this.werksDesc = werksDesc;
 	}
 
-	public List<LgnumBean> getLgnumList() {
+	public List<Lgnum> getLgnumList() {
 		return lgnumList;
 	}
 
-	public void setLgnumList(List<LgnumBean> lgnumList) {
+	public void setLgnumList(List<Lgnum> lgnumList) {
 		this.lgnumList = lgnumList;
 	}
 
@@ -37,7 +37,7 @@ public class WerksBean {
 		return "WerksBean [werks=" + werks + ", werksDesc=" + werksDesc + ", lgnumList=" + lgnumList + "]";
 	}
 
-	public WerksBean(String werks, String werksDesc, List<LgnumBean> lgnumList) {
+	public WerksBean(String werks, String werksDesc, List<Lgnum> lgnumList) {
 		super();
 		this.werks = werks;
 		this.werksDesc = werksDesc;

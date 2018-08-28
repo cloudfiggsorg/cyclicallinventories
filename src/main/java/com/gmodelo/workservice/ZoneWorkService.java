@@ -5,15 +5,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.bmore.ume001.beans.User;
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.MaterialToZoneBean;
-import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.TmatnrB;
 import com.gmodelo.beans.ZoneB;
 import com.gmodelo.beans.ZoneBean;
-import com.gmodelo.dao.RouteDao;
+import com.gmodelo.beans.ZonePositionsBean;
 import com.gmodelo.dao.ZoneDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -36,7 +34,7 @@ public class ZoneWorkService {
 					zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
 				} catch (JsonSyntaxException e) {
 					log.log(Level.SEVERE,"[getZoneByLgortWorkService] Error al convertir json a ZoneBean");
-					AbstractResults abstractResult = new AbstractResults();
+					AbstractResultsBean abstractResult = new AbstractResultsBean();
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
 					abstractResult.setResultMsgAbs(e.getMessage());
 					res.setAbstractResult(abstractResult);
@@ -65,7 +63,7 @@ public class ZoneWorkService {
 				zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE,"[validateZoneWorkService] Error al convertir json a ZoneBean");
-				AbstractResults abstractResult = new AbstractResults();
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
@@ -92,7 +90,7 @@ public class ZoneWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[addZone] Error al pasar de Json a ZoneBean");
 			zoneBean = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -106,22 +104,22 @@ public class ZoneWorkService {
 	public Response<Object> addPositionZone(Request<?> request){
 		
 		log.log(Level.WARNING,"[addPositionZone] "+request.toString());
-		PositionZoneBean positionZoneBean;
+		ZonePositionsBean zonePositionsBean;
 		Response<Object> res = new Response<Object>();
 		
 		try {
-			positionZoneBean = new Gson().fromJson(request.getLsObject().toString(), PositionZoneBean.class);
+			zonePositionsBean = new Gson().fromJson(request.getLsObject().toString(), ZonePositionsBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[addPositionZone] Error al pasar de Json a PositionZoneBean");
-			positionZoneBean = null;
-			AbstractResults abstractResult = new AbstractResults();
+			zonePositionsBean = null;
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
 		
-		return new ZoneDao().addPositionZone(positionZoneBean);
+		return new ZoneDao().addPositionZone(zonePositionsBean);
 		
 	}
 	
@@ -130,7 +128,7 @@ public class ZoneWorkService {
 			log.log(Level.WARNING,"[deleteZoneWS] "+request.toString());
 			String arrayIdZones;
 			Response<Object> res = new Response<Object>();
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			
 			try {
 				arrayIdZones = request.getLsObject().toString();
@@ -168,7 +166,7 @@ public class ZoneWorkService {
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE,"[getZonesWorkService] Error al pasar de Json a ZoneB");
 				zoneBean = null;
-				AbstractResults abstractResult = new AbstractResults();
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
@@ -194,14 +192,14 @@ public class ZoneWorkService {
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE,"[assignMaterialToZoneWS] Error al pasar de Json a MaterialToZoneBean");
 				materialTozoneBean = null;
-				AbstractResults abstractResult = new AbstractResults();
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
 				return res;
 			}
 		}else{
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs("Error al pasar de Json a MaterialToZoneBean");
 			res.setAbstractResult(abstractResult);
@@ -225,7 +223,7 @@ public class ZoneWorkService {
 				} catch (JsonSyntaxException e) {
 					log.log(Level.SEVERE,"[unassignMaterialToRouteWS] Error al pasar de Json a MaterialToZoneBean");
 					materialToZoneBean = null;
-					AbstractResults abstractResult = new AbstractResults();
+					AbstractResultsBean abstractResult = new AbstractResultsBean();
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
 					abstractResult.setResultMsgAbs(e.getMessage());
 					res.setAbstractResult(abstractResult);
@@ -233,7 +231,7 @@ public class ZoneWorkService {
 				}
 			}else{
 				materialToZoneBean = null;
-				AbstractResults abstractResult = new AbstractResults();
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs("Error al pasar de Json a MaterialToZoneBean");
 				res.setAbstractResult(abstractResult);

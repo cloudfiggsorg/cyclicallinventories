@@ -2,17 +2,17 @@ package com.gmodelo.beans;
 
 public class Response<K> {
 
-	private AbstractResults abstractResult;
+	private AbstractResultsBean abstractResult;
 	private K lsObject;
 
 	public Response() {
 	}
 
-	public AbstractResults getAbstractResult() {
+	public AbstractResultsBean getAbstractResult() {
 		return abstractResult;
 	}
 
-	public void setAbstractResult(AbstractResults abstractResult) {
+	public void setAbstractResult(AbstractResultsBean abstractResult) {
 		this.abstractResult = abstractResult;
 	}
 
@@ -24,7 +24,7 @@ public class Response<K> {
 		this.lsObject = lsObject;
 	}
 
-	public Response(AbstractResults abstractResult, K lsObject) {
+	public Response(AbstractResultsBean abstractResult, K lsObject) {
 		super();
 		this.abstractResult = abstractResult;
 		this.lsObject = lsObject;

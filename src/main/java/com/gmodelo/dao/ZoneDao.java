@@ -11,15 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.MaterialToZoneBean;
-import com.gmodelo.beans.PositionZoneBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneB;
 import com.gmodelo.beans.ZoneBean;
 import com.gmodelo.beans.ZonePositionMaterialsB;
-import com.gmodelo.beans.ZonePositionsB;
+import com.gmodelo.beans.ZonePositionsBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -30,7 +28,7 @@ public class ZoneDao {
 	public Response<Object> addZone(ZoneBean zoneBean, String createdBy){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -87,10 +85,10 @@ public class ZoneDao {
 		return res ;
 	}
 	
-	public Response<Object> addPositionZone(PositionZoneBean positionZoneBean){
+	public Response<Object> addPositionZone(ZonePositionsBean zonePositionsBean){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -102,12 +100,12 @@ public class ZoneDao {
 		try {
 			cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
 			
-			cs.setInt(1,positionZoneBean.getZoneId());
-			cs.setString(2,positionZoneBean.getPositionId());
-			cs.setString(3,positionZoneBean.getLgtyp());
-			cs.setString(4,positionZoneBean.getLgpla());
-			cs.setString(5,positionZoneBean.getSecuency());
-			cs.setString(6,positionZoneBean.getImwm());
+			cs.setString(1,zonePositionsBean.getZoneId());
+			cs.setString(2,zonePositionsBean.getPositionId());
+			cs.setString(3,zonePositionsBean.getLgtyp());
+			cs.setString(4,zonePositionsBean.getLgpla());
+			cs.setString(5,zonePositionsBean.getSecuency());
+			cs.setString(6,zonePositionsBean.getImwm());
 			cs.registerOutParameter(7, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[addPositionZone] Executing query...");
@@ -150,7 +148,7 @@ public class ZoneDao {
 	public Response<Object> deleteZone(String arrayIdZones){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -205,7 +203,7 @@ public class ZoneDao {
 	public Response<List<ZoneBean>> getLgortByZone(ZoneBean zoneBean){
 		
 		Response<List<ZoneBean>> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
@@ -293,7 +291,7 @@ public class ZoneDao {
 	public Response<List<ZoneBean>> validateZone(ZoneBean zoneBean){
 		
 		Response<List<ZoneBean>> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
@@ -395,7 +393,7 @@ public class ZoneDao {
 	public Response<List<ZoneB>> getZones(ZoneB zoneBean, String searchFilter){
 		
 		Response<List<ZoneB>> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
@@ -466,12 +464,12 @@ public class ZoneDao {
 		return res ;
 	}
 	
-	private List<ZonePositionsB> getPositionsZone(String zoneId){
+	private List<ZonePositionsBean> getPositionsZone(String zoneId){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
-		List<ZonePositionsB> listPositions = new ArrayList<ZonePositionsB>();
+		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
 		
 		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, POSITION_ID ,LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
 		
@@ -485,7 +483,7 @@ public class ZoneDao {
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 				
-				ZonePositionsB position = new ZonePositionsB();
+				ZonePositionsBean position = new ZonePositionsBean();
 				position.setPkAsgId(rs.getString(1));
 				position.setPositionId(rs.getString(2));
 				position.setLgtyp(rs.getString(3));
@@ -603,7 +601,7 @@ public class ZoneDao {
 	public Response<Object> assignMaterialToZone(MaterialToZoneBean materialToZoneBean){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -694,7 +692,7 @@ public class ZoneDao {
 	public Response<Object> unassignMaterialToZone(MaterialToZoneBean materialToZoneBean){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;

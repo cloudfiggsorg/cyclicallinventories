@@ -1,7 +1,7 @@
 package com.gmodelo.beans;
 
 public class RoutePositionB {
-	String pkRoutePos;
+	String routeId;
 	String positionId;
 	String lgort;
 	String lgtyp;
@@ -9,11 +9,11 @@ public class RoutePositionB {
 	String secuency;
 	String zdesc;
 	
-	public String getPkRoutePos() {
-		return pkRoutePos;
+	public String getRouteId() {
+		return routeId;
 	}
-	public void setPkRoutePos(String pkRoutePos) {
-		this.pkRoutePos = pkRoutePos;
+	public void setRouteId(String routeId) {
+		this.routeId = routeId;
 	}
 	public String getZdesc() {
 		return zdesc;
@@ -55,10 +55,11 @@ public class RoutePositionB {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public RoutePositionB(String pkRoutePos, String positionId, String lgort, String lgtyp, String zoneId,
-			String secuency, String zdesc) {
+	public RoutePositionB(String routeId, String positionId, String lgort, String lgtyp,
+			String zoneId, String secuency, String zdesc) {
 		super();
-		this.pkRoutePos = pkRoutePos;
+		
+		this.routeId = routeId;
 		this.positionId = positionId;
 		this.lgort = lgort;
 		this.lgtyp = lgtyp;
@@ -66,11 +67,31 @@ public class RoutePositionB {
 		this.secuency = secuency;
 		this.zdesc = zdesc;
 	}
-	@Override
-	public String toString() {
-		return "RoutePositionB [pkRoutePos=" + pkRoutePos + ", positionId=" + positionId + ", lgort=" + lgort
-				+ ", lgtyp=" + lgtyp + ", zoneId=" + zoneId + ", secuency=" + secuency + ", zdesc=" + zdesc + "]";
+	
+	public RoutePositionB(String routeId, String lgort, String lgtyp,
+			String zoneId, String secuency) {
+		super();
+		this.routeId = routeId;
+		this.lgort = lgort;
+		this.lgtyp = lgtyp;
+		this.zoneId = zoneId;
+		this.secuency = secuency;
 	}
 	
+	public RoutePositionB(String lgort, String lgtyp,
+			String zoneId, String secuency) {
+		super();
+		this.lgort = lgort;
+		this.lgtyp = lgtyp;
+		this.zoneId = zoneId;
+		this.secuency = secuency;
+	}
+	
+	@Override
+	public String toString() {
+		return "RoutePositionB [routeId=" + routeId + ", positionId=" + positionId
+				+ ", lgort=" + lgort + ", lgtyp=" + lgtyp + ", zoneId=" + zoneId + ", secuency=" + secuency + ", zdesc="
+				+ zdesc + "]";
+	}
 
 }

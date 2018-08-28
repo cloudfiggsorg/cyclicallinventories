@@ -11,11 +11,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.bmore.ume001.beans.User;
-import com.gmodelo.beans.GroupsB;
+import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.workservice.GroupWorkService;
-import com.gmodelo.workservice.RouteWorkService;
 
 @Path("/services/GroupService")
 public class GroupService {
@@ -77,7 +76,7 @@ public class GroupService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getGroups")
-	public Response<List<GroupsB>> getGroups(Request request){
+	public Response<List<GroupBean>> getGroups(Request request){
 		return new GroupWorkService().getGroups(request);
 	}
 }

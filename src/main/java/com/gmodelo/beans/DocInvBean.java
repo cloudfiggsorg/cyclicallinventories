@@ -1,17 +1,17 @@
 package com.gmodelo.beans;
 
-public class DocInvB {
+public class DocInvBean {
 	String routeId;
 	String bukrs;
 	String type;
 	String createdBy;
 	String justification;
 	String docInvId;
-	public DocInvB() {
+	public DocInvBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public DocInvB(String routeId, String bukrs, String type, String createdBy, String justification, String docInvId) {
+	public DocInvBean(String routeId, String bukrs, String type, String createdBy, String justification, String docInvId) {
 		super();
 		this.routeId = routeId;
 		this.bukrs = bukrs;

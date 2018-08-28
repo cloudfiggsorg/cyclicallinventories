@@ -1,6 +1,6 @@
 package com.gmodelo.beans;
 
-public class LagpB {
+public class LagpEntity {
 	
 	String lgNum;	//
 	String lgTyp;	//NUM DE TYPO
@@ -52,12 +52,12 @@ public class LagpB {
 	public void setSkzue(String skzue) {
 		this.skzue = skzue;
 	}
-	public LagpB() {
+	public LagpEntity() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	
-	public LagpB(String lgNum, String lgTyp, String lgPla, String lpTyp, String skzua, String skzue, String imwm) {
+	public LagpEntity(String lgNum, String lgTyp, String lgPla, String lpTyp, String skzua, String skzue, String imwm) {
 		super();
 		this.lgNum = lgNum;
 		this.lgTyp = lgTyp;

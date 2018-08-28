@@ -5,7 +5,6 @@ public class Lgnum {
 	String lgnum; //Num almacen
 	String lgort; //Almacen
 	String lnumt; //denominacion num Almacen
-	String werks; //centro
 	
 	public String getLgnum() {
 		return lgnum;
@@ -25,12 +24,6 @@ public class Lgnum {
 	public void setLnumt(String lnumt) {
 		this.lnumt = lnumt;
 	}
-	public String getWerks() {
-		return werks;
-	}
-	public void setWerks(String werks) {
-		this.werks = werks;
-	}
 	
 	public Lgnum() {
 		super();
@@ -42,12 +35,11 @@ public class Lgnum {
 		this.lgnum = lgnum;
 		this.lgort = lgort;
 		this.lnumt = lnumt;
-		this.werks = werks;
 	}
 	
 	@Override
 	public String toString() {
-		return "Lgnum [lgnum=" + lgnum + ", lgort=" + lgort + ", lnumt=" + lnumt + ", werks=" + werks + "]";
+		return "Lgnum [lgnum=" + lgnum + ", lgort=" + lgort + ", lnumt=" + lnumt + "]";
 	}
 	
 	

@@ -16,7 +16,7 @@ import javax.ws.rs.core.Context;
 
 import org.jboss.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ReturnValues;
@@ -57,7 +57,7 @@ public class FServices implements Filter {
 				log.error("Error trying to access information service without POST method. Anulating request...");
 				@SuppressWarnings("rawtypes")
 				Response resp = new Response();
-				AbstractResults abstractResult = new AbstractResults();
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(-1);
 				abstractResult.setResultMsgAbs("'GET' METHOD NOT ALLOWED");
 				resp.setAbstractResult(abstractResult);
@@ -101,7 +101,7 @@ public class FServices implements Filter {
 					}else{
 						@SuppressWarnings("rawtypes")
 						Response resp = new Response();
-						AbstractResults abstractResult = new AbstractResults();
+						AbstractResultsBean abstractResult = new AbstractResultsBean();
 						abstractResult.setResultId(-1);
 						abstractResult.setResultMsgAbs("SOME PROBLEM WHILE AUTHENTICATING");
 						resp.setAbstractResult(abstractResult);
@@ -125,7 +125,7 @@ public class FServices implements Filter {
 						}else{
 							@SuppressWarnings("rawtypes")
 							Response resp = new Response();
-							AbstractResults abstractResult = new AbstractResults();
+							AbstractResultsBean abstractResult = new AbstractResultsBean();
 							abstractResult.setResultId(-1);
 							abstractResult.setResultMsgAbs("INVALID TOKEN");
 							resp.setAbstractResult(abstractResult);
@@ -142,7 +142,7 @@ public class FServices implements Filter {
 							
 							@SuppressWarnings("rawtypes")
 							Response resp = new Response();
-							AbstractResults abstractResult = new AbstractResults();
+							AbstractResultsBean abstractResult = new AbstractResultsBean();
 							abstractResult.setResultId(-1);
 							abstractResult.setResultMsgAbs("NO SESSION FOR USER CONSOLE WITH PARAM");
 							resp.setAbstractResult(abstractResult);
@@ -161,7 +161,7 @@ public class FServices implements Filter {
 				}else{
 					@SuppressWarnings("rawtypes")
 					Response resp = new Response();
-					AbstractResults abstractResult = new AbstractResults();
+					AbstractResultsBean abstractResult = new AbstractResultsBean();
 					abstractResult.setResultId(ReturnValues.IUSERNOSESSION);
 					abstractResult.setResultMsgAbs("THERE ARE NOT AVAILABLE SESSIONS ");
 					resp.setAbstractResult(abstractResult);
@@ -179,7 +179,7 @@ public class FServices implements Filter {
 				
 				@SuppressWarnings("rawtypes")
 				Response resp = new Response();
-				AbstractResults abstractResult = new AbstractResults();
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(-1);
 				abstractResult.setResultMsgAbs("NO SESSION FOR USER CONSOLE");
 				resp.setAbstractResult(abstractResult);

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
 
 public class Test {

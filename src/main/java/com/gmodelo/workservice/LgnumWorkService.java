@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Lgnum;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
@@ -28,7 +28,7 @@ public class LgnumWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[getLgnumByLgort] Error al pasar de Json a LgortBean");
 			lgnum = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);

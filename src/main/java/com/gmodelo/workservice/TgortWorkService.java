@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TgortB;
@@ -27,7 +27,7 @@ public class TgortWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"Error al pasar de Json a TgortBean");
 			tgortBean = null;
-			AbstractResults abstractResult = new AbstractResults();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult );

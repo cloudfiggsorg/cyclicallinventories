@@ -1,9 +1,11 @@
 package com.gmodelo.beans;
 
-public class MantrB {
+public class MatnrBeanView {
+	
 	String werks;
 	String matnr;
 	String maktx;
+	
 	public String getWerks() {
 		return werks;
 	}
@@ -22,11 +24,11 @@ public class MantrB {
 	public void setMaktx(String maktx) {
 		this.maktx = maktx;
 	}
-	public MantrB() {
+	public MatnrBeanView() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public MantrB(String werks, String matnr, String maktx) {
+	public MatnrBeanView(String werks, String matnr, String maktx) {
 		super();
 		this.werks = werks;
 		this.matnr = matnr;

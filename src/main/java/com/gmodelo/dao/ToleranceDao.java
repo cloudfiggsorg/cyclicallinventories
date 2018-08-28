@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ToleranceBean;
 import com.gmodelo.utils.ConnectionManager;
@@ -25,7 +25,7 @@ public class ToleranceDao {
 	public Response<List<ToleranceBean>> getMATKL(ToleranceBean toleranceBean, String searchFilter){
 		
 		Response<List<ToleranceBean>> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
@@ -99,7 +99,7 @@ public class ToleranceDao {
 		CallableStatement cs = null;
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		
 		final String INV_SP_ADD_TOLERANCE = "INV_SP_ADD_TOLERANCE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
@@ -158,7 +158,7 @@ public class ToleranceDao {
 	public Response<Object> deleteTolerance(String arrayIdZones){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -215,7 +215,7 @@ public class ToleranceDao {
 public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean, String searchFilter){
 		
 		Response<List<ToleranceBean>> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;

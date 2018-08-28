@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.BukrsBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
@@ -28,7 +28,7 @@ public class BukrsDao {
 		PreparedStatement stm = null;
 		
 		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<BukrsBean> listBukrsBean = new ArrayList<BukrsBean>(); 
 		 
 		String INV_VW_BUKRS = "SELECT [BUKRS], [BUTXT] FROM [INV_CIC_DB].[dbo].[INV_VW_BUKRS] WITH(NOLOCK) ";
@@ -103,7 +103,7 @@ public class BukrsDao {
 		PreparedStatement stm = null;
 		
 		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<BukrsBean> listBukrsBean = new ArrayList<BukrsBean>(); 
 		 
 		String INV_VW_WERKS_BY_BUKRS = "SELECT [BUKRS], [WERKS], [NAME1] FROM [INV_CIC_DB].[dbo].[INV_VW_WERKS_BY_BUKRS] WITH(NOLOCK) ";

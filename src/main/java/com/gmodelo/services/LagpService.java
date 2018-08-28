@@ -9,7 +9,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import com.gmodelo.beans.LagpB;
+import com.gmodelo.beans.LagpEntity;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.workservice.LagpWorkService;
@@ -23,7 +23,7 @@ public class LagpService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getLagp")
-	public Response<List<LagpB>> getLagp(Request request){
+	public Response<List<LagpEntity>> getLagp(Request request){
 		return new LagpWorkService().getLagp(request);
 	}
 

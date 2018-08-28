@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import com.gmodelo.Exception.InvCicException;
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LoginBean;
 
 public class Utilities {
@@ -17,8 +17,8 @@ public class Utilities {
 	public static final String GETLANGBYKEY = "SELECT LANG_VALUE FROM INV_CIC_LNG_VAL WITH(NOLOCK) WHERE LANG_KEY = ? and LANG = ?";
 	public static final String GETREPVALUEBYKEY = "SELECT STORED_VALUE, STORED_ENCODED from  INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY  = ?";
 
-	public AbstractResults GetLangByKey(Connection con, String key, String lang) throws InvCicException {
-		AbstractResults result = new AbstractResults();
+	public AbstractResultsBean GetLangByKey(Connection con, String key, String lang) throws InvCicException {
+		AbstractResultsBean result = new AbstractResultsBean();
 		try {
 			PreparedStatement stm = con.prepareStatement(GETLANGBYKEY);
 			stm.setString(1, key);
@@ -37,8 +37,8 @@ public class Utilities {
 		return result;
 	}
 
-	public AbstractResults GetValueRepByKey(Connection con, String key) throws InvCicException {
-		AbstractResults result = new AbstractResults();
+	public AbstractResultsBean GetValueRepByKey(Connection con, String key) throws InvCicException {
+		AbstractResultsBean result = new AbstractResultsBean();
 		try {
 			PreparedStatement stm = con.prepareStatement(GETREPVALUEBYKEY);
 			stm.setString(1, key);

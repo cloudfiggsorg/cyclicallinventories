@@ -2,7 +2,7 @@ package com.gmodelo.beans;
 
 public class RouteGroupB {
 	
-	String pkRouteGroup;
+	String routeGroup;
 	String groupId;
 	String gdesc;
 	String countNum;
@@ -13,17 +13,17 @@ public class RouteGroupB {
 	}
 	public RouteGroupB(String pkRouteGroup, String groupId, String gdesc, String countNum) {
 		super();
-		this.pkRouteGroup = pkRouteGroup;
+		this.routeGroup = pkRouteGroup;
 		this.groupId = groupId;
 		this.gdesc = gdesc;
 		this.countNum = countNum;
 	}
 	
 	public String getPkRouteGroup() {
-		return pkRouteGroup;
+		return routeGroup;
 	}
 	public void setPkRouteGroup(String pkRouteGroup) {
-		this.pkRouteGroup = pkRouteGroup;
+		this.routeGroup = pkRouteGroup;
 	}
 	public String getGroupId() {
 		return groupId;
@@ -45,7 +45,7 @@ public class RouteGroupB {
 	}
 	@Override
 	public String toString() {
-		return "RouteGroupB [pkRouteGroup=" + pkRouteGroup + ", groupId=" + groupId + ", gdesc=" + gdesc + ", countNum="
+		return "RouteGroupB [pkRouteGroup=" + routeGroup + ", groupId=" + groupId + ", gdesc=" + gdesc + ", countNum="
 				+ countNum + "]";
 	}
 	

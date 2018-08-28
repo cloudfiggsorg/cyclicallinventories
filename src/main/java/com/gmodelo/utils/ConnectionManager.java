@@ -14,7 +14,7 @@ import javax.naming.directory.InitialDirContext;
 import javax.sql.DataSource;
 
 import com.gmodelo.Exception.InvCicException;
-import com.gmodelo.beans.AbstractResults;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConnectionBean;
 import com.gmodelo.beans.LoginBean;
 
@@ -34,8 +34,8 @@ public class ConnectionManager {
 	}
 	static DirContext ldapContext;
 
-	public AbstractResults ValidateLDAPLogin(LoginBean login, Connection con) throws InvCicException {
-		AbstractResults result = new AbstractResults();
+	public AbstractResultsBean ValidateLDAPLogin(LoginBean login, Connection con) throws InvCicException {
+		AbstractResultsBean result = new AbstractResultsBean();
 		Utilities iUtilities = new Utilities();
 		try {
 			Hashtable<String, String> ldapEnv = new Hashtable<String, String>(11);

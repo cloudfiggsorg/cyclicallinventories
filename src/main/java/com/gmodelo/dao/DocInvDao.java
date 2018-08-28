@@ -9,8 +9,8 @@ import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.gmodelo.beans.AbstractResults;
-import com.gmodelo.beans.DocInvB;
+import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -18,10 +18,10 @@ import com.gmodelo.utils.ReturnValues;
 public class DocInvDao {
 	private Logger log = Logger.getLogger( DocInvDao.class.getName());
 	
-	public Response<Object> addDocInv(DocInvB docInvBean, String createdBy){
+	public Response<Object> addDocInv(DocInvBean docInvBean, String createdBy){
 		
 		Response<Object> res = new Response<>();
-		AbstractResults abstractResult = new AbstractResults();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
