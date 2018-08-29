@@ -380,7 +380,7 @@ public class RouteDao {
 
 		List<RoutePositionBean> listPositions = new ArrayList<RoutePositionBean>();
 
-		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDESC ,ZONE_ID ,SECUENCY ,ZDESC, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
+		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY ,ZDESC, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 
 		log.warning(INV_VW_ROUTES_WITH_POSITIONS);
 		log.log(Level.WARNING, "[getRoutesDao] Preparing sentence...");
@@ -491,4 +491,5 @@ public class RouteDao {
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
+	
 }
