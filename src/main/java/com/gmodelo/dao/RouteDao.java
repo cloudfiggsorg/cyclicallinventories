@@ -131,7 +131,7 @@ public class RouteDao {
 		} catch (SQLException e) {
 			try {
 				//deshace todos los cambios realizados en los datos
-				System.out.println("Se hara rollback DE ROUTE");
+				log.log(Level.WARNING,"[addRoute] Execute rollback");
 				con.rollback();
 			} catch (SQLException e1) {
 				log.log(Level.SEVERE,"[addRoute] Not rollback .", e);
@@ -302,7 +302,7 @@ public class RouteDao {
 		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
 		String INV_VW_ROUTES = null;
 
-		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
+		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
 			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilter + "%' OR RDESC LIKE '%" + searchFilter
@@ -323,13 +323,16 @@ public class RouteDao {
 			ResultSet rs = stm.executeQuery();
 
 			while (rs.next()) {
+				
 				routeBean = new RouteBean();
-
-				routeBean.setRouteId(rs.getString(1));
+				routeBean.setRouteId(String.format("%08d",Integer.parseInt(rs.getString(1))));
 				routeBean.setBukrs(rs.getString(2));
 				routeBean.setWerks(rs.getString(3));
 				routeBean.setRdesc(rs.getString(4));
 				routeBean.setType(rs.getString(5));
+				routeBean.setBdesc(rs.getString(6));
+				routeBean.setWdesc(rs.getString(7));
+				
 				routeBean.setPositions(this.getPositions(rs.getString(1)));
 				routeBean.setGroups(this.getGroups(rs.getString(1)));
 

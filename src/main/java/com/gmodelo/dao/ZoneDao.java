@@ -24,19 +24,23 @@ public class ZoneDao {
 	
 	private Logger log = Logger.getLogger( ZoneDao.class.getName());
 	
-	public Response<Object> addZone(ZoneBean zoneBean, String createdBy){
+	public Response<ZoneBean> addZone(ZoneBean zoneBean, String createdBy){
 		
-		Response<Object> res = new Response<>();
+		Response<ZoneBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
+		
+		String zoneId = zoneBean.getZoneId() == null ? null : zoneBean.getZoneId().replaceFirst ("^0*", "");
 		
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addZone] Preparing sentence...");
 		
 		try {
+			con.setAutoCommit(false);
+			
 			cs = con.prepareCall(INV_SP_ADD_ZONE);
 			
 			cs.setString(1,zoneBean.getZoneId());
@@ -45,26 +49,39 @@ public class ZoneDao {
 			cs.setString(4,zoneBean.getWerks());
 			cs.setString(5,zoneBean.getLgort());
 			cs.setString(6, createdBy);
+		
 			cs.registerOutParameter(7, Types.INTEGER);
-			
 			
 			log.log(Level.WARNING,"[addZone] Executing query...");
 			
 			cs.execute();
-			abstractResult.setResultId(cs.getInt(7));
+			
+			zoneId = cs.getString(1);
+			zoneBean.setZoneId(String.format("%08d",Integer.parseInt(zoneId))); //addZeros
+			
+			
+
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
 				log.log(Level.WARNING,warning.getMessage());
 				warning = warning.getNextWarning();
 			}
-			
+			con.commit();
 			//Free resources
 			cs.close();	
 			
 			log.log(Level.WARNING,"[addZone] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
+			try {
+				//deshace todos los cambios realizados en los datos
+				log.log(Level.WARNING,"[addZone] Execute rollback");
+				con.rollback();
+			} catch (SQLException e1) {
+				log.log(Level.SEVERE,"[addZone] Not rollback .", e);
+			}
+			
 			log.log(Level.SEVERE,"[addZone] Some error occurred while was trying to execute the S.P.: INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?", e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			res.setAbstractResult(abstractResult);

@@ -8,9 +8,24 @@ public class RouteBean {
 	String werks;
 	String rdesc;
 	String type;
+	String bdesc;
+	String wdesc;
+	
 	List<RoutePositionBean> positions;
 	List<RouteGroupBean> groups;
 	
+	public String getBdesc() {
+		return bdesc;
+	}
+	public void setBdesc(String bdesc) {
+		this.bdesc = bdesc;
+	}
+	public String getWdesc() {
+		return wdesc;
+	}
+	public void setWdesc(String wdesc) {
+		this.wdesc = wdesc;
+	}
 	public List<RouteGroupBean> getGroups() {
 		return groups;
 	}
@@ -58,24 +73,23 @@ public class RouteBean {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public RouteBean(String routeId, String bukrs, String werks, String rdesc, String type, List<RoutePositionBean> positions,
-			List<RouteGroupBean> groups) {
+	public RouteBean(String routeId, String bukrs, String werks, String rdesc, String type, String bdesc, String wdesc,
+			List<RoutePositionBean> positions, List<RouteGroupBean> groups) {
 		super();
 		this.routeId = routeId;
 		this.bukrs = bukrs;
 		this.werks = werks;
 		this.rdesc = rdesc;
 		this.type = type;
+		this.bdesc = bdesc;
+		this.wdesc = wdesc;
 		this.positions = positions;
 		this.groups = groups;
 	}
 	@Override
 	public String toString() {
-		return "RouteB [routeId=" + routeId + ", bukrs=" + bukrs + ", werks=" + werks + ", rdesc=" + rdesc + ", type="
-				+ type + ", positions=" + positions + ", groups=" + groups + "]";
-	}
-	
-	
-	
-		
+		return "RouteBean [routeId=" + routeId + ", bukrs=" + bukrs + ", werks=" + werks + ", rdesc=" + rdesc
+				+ ", type=" + type + ", bdesc=" + bdesc + ", wdesc=" + wdesc + ", positions=" + positions + ", groups="
+				+ groups + "]";
+	}	
 }
