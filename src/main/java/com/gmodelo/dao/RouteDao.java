@@ -515,11 +515,11 @@ public class RouteDao {
 		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,LGTYP ,ZONE_ID ,SECUENCY ,ZDESC, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 
 		log.warning(INV_VW_ROUTES_WITH_POSITIONS);
-		log.log(Level.WARNING, "[getRoutesDao] Preparing sentence...");
+		log.log(Level.WARNING, "[getPositionsDao] Preparing sentence...");
 
 		stm = con.prepareStatement(INV_VW_ROUTES_WITH_POSITIONS);
 		stm.setString(1, idRoute);
-		log.log(Level.WARNING, "[getRoutesDao] Executing query...");
+		log.log(Level.WARNING, "[getPositionsDao] Executing query...");
 
 		ResultSet rs = stm.executeQuery();
 
@@ -545,7 +545,7 @@ public class RouteDao {
 		// Free resources
 		rs.close();
 		stm.close();
-		log.log(Level.WARNING, "[getRoutesDao] Sentence successfully executed.");
+		log.log(Level.WARNING, "[getPositionsDao] Sentence successfully executed.");
 		con.close();
 
 		return listPositions;
