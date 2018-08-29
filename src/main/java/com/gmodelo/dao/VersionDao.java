@@ -79,11 +79,4 @@ public class VersionDao {
 		return res;
 	}
 
-	public static void main(String[] args) {
-		VersionDao d = new VersionDao();
-		Response<Object> x = d.getVersion();
-		x.getAbstractResult().getIntCom1();
-		x.getAbstractResult().getStrCom1();
-	}
-
 }
