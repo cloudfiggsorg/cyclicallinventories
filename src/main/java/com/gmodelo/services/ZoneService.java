@@ -44,7 +44,7 @@ public class ZoneService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addZone")
-	public Response<Object> addZone(Request request){
+	public Response<ZoneBean> addZone(Request request){
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new ZoneWorkService().addZone(request, user);
 	}

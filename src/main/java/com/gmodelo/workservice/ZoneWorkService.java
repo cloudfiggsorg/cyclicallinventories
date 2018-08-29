@@ -79,11 +79,11 @@ public class ZoneWorkService {
 		
 	}
 	
-	public Response<Object> addZone(Request<?> request, User user){
+	public Response<ZoneBean> addZone(Request<?> request, User user){
 		
 		log.log(Level.WARNING,"[addZone] "+request.toString());
 		ZoneBean zoneBean;
-		Response<Object> res = new Response<Object>();
+		Response<ZoneBean> res = new Response<ZoneBean>();
 		
 		try {
 			zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
