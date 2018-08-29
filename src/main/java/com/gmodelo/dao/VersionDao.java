@@ -5,14 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.VersionBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -20,6 +17,7 @@ import com.gmodelo.utils.ReturnValues;
 public class VersionDao {
 	
 	private Logger log = Logger.getLogger( VersionDao.class.getName());
+	public static final String INV_VW_VERSION_APP = "SELECT VERSION, NAME FROM dbo.INV_VW_VERSION_APP WITH(NOLOCK) ";
 	
 	public Response<Object> getVersion() {
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -28,7 +26,6 @@ public class VersionDao {
 
 		Response<Object> res = new Response<Object>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		String INV_VW_VERSION_APP = "SELECT VERSION, NAME FROM dbo.INV_VW_VERSION_APP WITH(NOLOCK) ";
 
 		log.warning(INV_VW_VERSION_APP);
 		log.log(Level.WARNING, "[getVersionDao] Preparing sentence...");
@@ -42,8 +39,8 @@ public class VersionDao {
 			VersionBean versionBean = new VersionBean();
 			
 			while (rs.next()) {
-				versionBean.setVersion(rs.getInt(1));
-				versionBean.setName(rs.getString(2));
+				versionBean.setVersion(rs.getInt("VERSION"));
+				versionBean.setName(rs.getString("NAME"));
 			}
 	
 			abstractResult.setIntCom1(versionBean.getVersion());
