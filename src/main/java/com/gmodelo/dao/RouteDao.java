@@ -11,11 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.GroupToRouteBean;
-import com.gmodelo.beans.MaterialToRouteBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteGroupBean;
@@ -313,11 +310,20 @@ public class RouteDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
 		String INV_VW_ROUTES = null;
+		int aux;		
+		
+		try {
+			aux = Integer.parseInt(searchFilter);
+			searchFilter ="";
+			searchFilter += aux;
+		} catch (Exception e) {
+			log.warning("Trying to convert String to Int");
+		}		
 
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
-			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilter + "%' OR RDESC LIKE '%" + searchFilter + "%'";
+			INV_VW_ROUTES += "WHERE ROUTE_ID = " + searchFilter + " OR RDESC LIKE '%" + searchFilter + "%'";
 		} else {
 			String condition = buildCondition(routeBean);
 			if (condition != null) {
