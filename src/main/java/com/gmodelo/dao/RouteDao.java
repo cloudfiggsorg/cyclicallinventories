@@ -311,19 +311,20 @@ public class RouteDao {
 		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
 		String INV_VW_ROUTES = null;
 		int aux;		
+		String searchFilterNumber = "";
 		
 		try {
-			aux = Integer.parseInt(searchFilter);
-			searchFilter ="";
-			searchFilter += aux;
+			aux = Integer.parseInt(searchFilter); 
+			searchFilterNumber += aux;
 		} catch (Exception e) {
+			searchFilterNumber = searchFilter;
 			log.warning("Trying to convert String to Int");
 		}		
 
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
-			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilter + "%' OR RDESC LIKE '%" + searchFilter + "%'";
+			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter + "%'";
 		} else {
 			String condition = buildCondition(routeBean);
 			if (condition != null) {
