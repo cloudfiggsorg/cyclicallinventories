@@ -203,64 +203,6 @@ public class GroupDao {
 		return res ;
 	}
 	
-	public Response<Object> assignGroupToRoute(GroupToRouteBean groupToRouteBean){
-		Response<Object> res = new Response<>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
-		CallableStatement cs = null;
-		String resultSP = null;
-
-		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?"; //The Store procedure to call
-		
-		log.log(Level.WARNING,"[assignGroupToRouteDao] Preparing sentence...");
-		
-		try {
-			cs = con.prepareCall(INV_SP_ASSIGN_GROUP_TO_ROUTE);
-			
-			cs.setString(1,groupToRouteBean.getRouteId());
-			cs.setString(2,groupToRouteBean.getGroupId());
-			cs.setString(3,groupToRouteBean.getCountNum());
-			cs.registerOutParameter(4, Types.INTEGER);
-			
-			log.log(Level.WARNING,"[assignGroupToRouteDao] Executing query...");
-			
-			cs.execute();
-			
-			abstractResult.setResultId(cs.getInt(4));
-			//Retrive the warnings if there're
-			SQLWarning warning = cs.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING,"[assignGroupToRouteDao] "+warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-			
-			//Free resources
-			cs.close();	
-			
-			log.log(Level.WARNING,"[assignGroupToRouteDao] Sentence successfully executed.");
-			
-		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[assignGroupToRouteDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_ASSIGN_GROUP_TO_ROUTE, e);
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		}finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[assignGroupToRouteDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		}
-		res.setAbstractResult(abstractResult);
-		return res ;
-	}
-
 	public Response<Object> unassignGroupToRoute(GroupToRouteBean groupToRouteBean){
 		
 		Response<Object> res = new Response<>();

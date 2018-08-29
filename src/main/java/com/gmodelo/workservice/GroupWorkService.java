@@ -86,28 +86,6 @@ public class GroupWorkService {
 	
 	}
 
-	public Response<Object> assignGroupToRoute(Request request){
-		
-		log.log(Level.WARNING,"[assignGroupToRouteWS] "+request.toString());
-		GroupToRouteBean groupToRouteBean;
-		Response<Object> res = new Response<Object>();
-		
-		try {
-			groupToRouteBean = new Gson().fromJson(request.getLsObject().toString(), GroupToRouteBean.class);
-		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE,"[assignGroupToRouteWS] Error al pasar de Json a GroupToUserBean");
-			groupToRouteBean = null;
-			AbstractResultsBean abstractResult = new AbstractResultsBean();
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		}
-	
-		return new GroupDao().assignGroupToRoute(groupToRouteBean );
-	
-	}
-
 	public Response<Object> unassignGroupToRoute(Request request){
 		
 		log.log(Level.WARNING,"[unassignGroupToRouteWS] "+request.toString());

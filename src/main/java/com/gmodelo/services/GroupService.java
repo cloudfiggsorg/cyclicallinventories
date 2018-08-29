@@ -47,14 +47,6 @@ public class GroupService {
 	public Response<Object> unassignGroupToUser(Request request){
 		return new GroupWorkService().unassignGroupToUser(request);
 	}
-
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/assignGroupToRoute")
-	public Response<Object> assignGroupToRoute(Request request){
-		return new GroupWorkService().assignGroupToRoute(request);
-	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

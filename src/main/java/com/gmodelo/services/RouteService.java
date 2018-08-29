@@ -25,7 +25,7 @@ public class RouteService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addRoute")
-	public Response<Object> addRoute(Request request){
+	public Response<RouteBean> addRoute(Request request){
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new RouteWorkService().addRoute(request, user);
 	}
@@ -43,7 +43,6 @@ public class RouteService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getRoutes")
 	public Response<List<RouteBean>> getRoutes(Request request){
-		
 		return new RouteWorkService().getRoutes(request);
 	}
 
@@ -52,7 +51,6 @@ public class RouteService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getRoutesByUser")
 	public Response<List<RouteBean>> getRoutesByUser(){
-		
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new RouteWorkService().getRoutesByUser(user);
 	}

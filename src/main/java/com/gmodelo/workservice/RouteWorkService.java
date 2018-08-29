@@ -17,17 +17,17 @@ public class RouteWorkService {
 
 	private Logger log = Logger.getLogger(RouteWorkService.class.getName());
 
-	public Response<Object> addRoute(Request request, User user){
+	public Response<RouteBean> addRoute(Request request, User user){
 		
 		log.log(Level.WARNING,"[addRouteWS] "+request.toString());
 		RouteBean routeBean;
-		Response<Object> res = new Response<Object>();
+		Response<RouteBean> res = new Response<RouteBean>();
 		String req = request.getLsObject().toString().trim();
 		if(!req.isEmpty()){
 			try {
 				routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteBean.class);
 			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[addRouteWS] Error al pasar de Json a ZoneBean");
+				log.log(Level.SEVERE,"[addRouteWS] Error al pasar de Json a RouteBean");
 				routeBean = null;
 				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
