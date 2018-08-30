@@ -101,19 +101,22 @@ public class ToleranceDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		
-		final String INV_SP_ADD_TOLERANCE = "INV_SP_ADD_TOLERANCE ?, ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_TOLERANCE = "INV_SP_ADD_TOLERANCE ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addToleranceDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ADD_TOLERANCE);
+			if(toleranceBean.getToleranceId() != null){
+				cs.setInt(1, toleranceBean.getToleranceId());
+			}else{
+				cs.setNull(1, Types.INTEGER);
+			}
 			
-			cs.setInt(1, toleranceBean.getToleranceId());
 			cs.setString(2, toleranceBean.getMatkl());
-			cs.setString(3, toleranceBean.getDesc());
-			cs.setString(4, toleranceBean.getTp());
-			cs.setString(5, toleranceBean.getTc());
-			cs.setString(6, createdBy);
+			cs.setString(3, toleranceBean.getTp());
+			cs.setString(4, toleranceBean.getTc());
+			cs.setString(5, createdBy);
 			cs.registerOutParameter(1, Types.INTEGER);
 			
 			
@@ -221,10 +224,10 @@ public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean, 
 		PreparedStatement stm = null;
 		List<ToleranceBean> listTolerance = new ArrayList<ToleranceBean>();
 		//verificar si es necesario agregar mas campos al select para agregarlos al ToleranceBean
-		String INV_VW_TOLERANCES = "SELECT TOLERANCE_ID, MATKL, TDESC, TP, TC FROM [INV_CIC_DB].[dbo].[INV_VW_TOLERANCES] "; //query
+		String INV_VW_TOLERANCES = "SELECT TOLERANCE_ID, MATKL, TP, TC FROM [INV_CIC_DB].[dbo].[INV_VW_TOLERANCES] "; //query
 		
 		if(searchFilter != null){
-			INV_VW_TOLERANCES += "WHERE TOLERANCE_ID LIKE '%"+searchFilter+"%' OR MATKL LIKE '%"+searchFilter+"%' OR TDESC LIKE '%"+searchFilter+"%'";
+			INV_VW_TOLERANCES += "WHERE TOLERANCE_ID LIKE '%"+searchFilter+"%' OR MATKL LIKE '%"+searchFilter+"%'";
 		}else{
 			String condition = buildCondition(toleranceBean);
 			if(condition != null){
@@ -249,9 +252,8 @@ public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean, 
 				
 				toleranceBean.setToleranceId(rs.getInt(1));
 				toleranceBean.setMatkl(rs.getString(2));
-				toleranceBean.setDesc(rs.getString(3));
-				toleranceBean.setTp(rs.getString(4));
-				toleranceBean.setTc(rs.getString(5));
+				toleranceBean.setTp(rs.getString(3));
+				toleranceBean.setTc(rs.getString(4));
 				
 				listTolerance.add(toleranceBean);
 				
