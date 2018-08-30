@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.bmore.ume001.beans.Entity;
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
@@ -20,7 +22,7 @@ import com.gmodelo.beans.RoutePositionBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
-public class RouteDao {
+public class RouteDao{
 
 	private Logger log = Logger.getLogger(RouteDao.class.getName());
 
@@ -32,22 +34,10 @@ public class RouteDao {
 		int idPosition = 0;
 		int idRouteGroup = 0;
 
-		final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?,?"; // The
-																			// Store
-																			// procedure
-																			// to
-																			// call
-		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?, ?, ?, ?"; // The
-																									// Store
-																									// procedure
-																									// to
-																									// call
-		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?"; // The
-																									// Store
-																									// procedure
-																									// to
-																									// call
-
+		final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?,?"; 
+		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?";
+		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -237,28 +227,30 @@ public class RouteDao {
 		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
 		String INV_VW_ROUTES = null;
 
-		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
+		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
 
 		log.warning(INV_VW_ROUTES);
-		log.log(Level.WARNING, "[getRoutesDao] Preparing sentence...");
+		log.log(Level.WARNING, "[getRoutesDaoByUser] Preparing sentence...");
 
 		try {
 			stm = con.prepareStatement(INV_VW_ROUTES);
 
 			stm.setString(1, user.getEntity().getIdentyId());
 
-			log.log(Level.WARNING, "[getRoutesDao] Executing query...");
+			log.log(Level.WARNING, "[getRoutesDaoByUser] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
 
 			while (rs.next()) {
 				RouteBean routeBean = new RouteBean();
 
-				routeBean.setRouteId(rs.getString(1));
+				routeBean.setRouteId(String.format("%08d",Integer.parseInt(rs.getString(1))));
 				routeBean.setBukrs(rs.getString(2));
 				routeBean.setWerks(rs.getString(3));
 				routeBean.setRdesc(rs.getString(4));
 				routeBean.setType(rs.getString(5));
+				routeBean.setBdesc(rs.getString(6));
+				routeBean.setWdesc(rs.getString(7));
 				routeBean.setPositions(this.getPositions(rs.getString(1)));
 				routeBean.setGroups(this.getGroups(rs.getString(1)));
 
@@ -275,7 +267,7 @@ public class RouteDao {
 			// Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING, "[getRoutesDao] Sentence successfully executed.");
+			log.log(Level.WARNING, "[getRoutesDaoByUser] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
 					"[getRoutesDao] Some error occurred while was trying to execute the query: " + INV_VW_ROUTES, e);
@@ -287,7 +279,7 @@ public class RouteDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[getRoutesDao] Some error occurred while was trying to close the connection.",
+				log.log(Level.SEVERE, "[getRoutesDaoByUser] Some error occurred while was trying to close the connection.",
 						e);
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
@@ -466,7 +458,7 @@ public class RouteDao {
 			group.setGroupId(rs.getString(2));
 			group.setGdesc(rs.getString(3));
 			group.setCountNum(rs.getString(4));
-
+			group.setRouteId(idRoute);
 			listGroups.add(group);
 		}
 
@@ -494,9 +486,10 @@ public class RouteDao {
 		String rdesc = "";
 		String type = "";
 		String condition = "";
-
+		String aux = "";
+		
 		routeId = (routeB.getRouteId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + routeB.getRouteId() + "' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + routeB.getRouteId().replaceFirst("^0*", "") + "' "
 				: "";
 		condition += routeId;
 		bukrs = (routeB.getBukrs() != null)
@@ -514,5 +507,6 @@ public class RouteDao {
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
+
 	
 }
