@@ -8,9 +8,30 @@ public class ZoneBean {
 	String bukrs;
 	String werks;
 	String lgort;
+	String bDesc;
+	String wDesc;
+	String gDesc;
 	
 	List<ZonePositionsBean> positionsB;
 	
+	public String getbDesc() {
+		return bDesc;
+	}
+	public void setbDesc(String bDesc) {
+		this.bDesc = bDesc;
+	}
+	public String getwDesc() {
+		return wDesc;
+	}
+	public void setwDesc(String wDesc) {
+		this.wDesc = wDesc;
+	}
+	public String getgDesc() {
+		return gDesc;
+	}
+	public void setgDesc(String gDesc) {
+		this.gDesc = gDesc;
+	}
 	public List<ZonePositionsBean> getPositionsB() {
 		return positionsB;
 	}
@@ -52,21 +73,39 @@ public class ZoneBean {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public ZoneBean(String zoneId, String zdesc, String bukrs, String werks, String lgort,
+	
+	public ZoneBean( String zdesc, String bukrs, String werks, String lgort,
 			List<ZonePositionsBean> positionsB) {
 		super();
-		this.zoneId = zoneId;
 		this.zdesc = zdesc;
 		this.bukrs = bukrs;
 		this.werks = werks;
 		this.lgort = lgort;
 		this.positionsB = positionsB;
 	}
+	
+	public ZoneBean(String zoneId, String zdesc, String bukrs, String werks, String lgort, String bDesc, String wDesc,
+			String gDesc, List<ZonePositionsBean> positionsB) {
+		super();
+		this.zoneId = zoneId;
+		this.zdesc = zdesc;
+		this.bukrs = bukrs;
+		this.werks = werks;
+		this.lgort = lgort;
+		this.bDesc = bDesc;
+		this.wDesc = wDesc;
+		this.gDesc = gDesc;
+		this.positionsB = positionsB;
+	}
+	
 	@Override
 	public String toString() {
-		return "ZoneB [zoneId=" + zoneId + ", zdesc=" + zdesc + ", bukrs=" + bukrs + ", werks=" + werks + ", lgort="
-				+ lgort + ", positionsB=" + positionsB + "]";
+		return "ZoneBean [zoneId=" + zoneId + ", zdesc=" + zdesc + ", bukrs=" + bukrs + ", werks=" + werks + ", lgort="
+				+ lgort + ", bDesc=" + bDesc + ", wDesc=" + wDesc + ", gDesc=" + gDesc + ", positionsB=" + positionsB
+				+ "]";
 	}
+	
+	
 
 	
 }

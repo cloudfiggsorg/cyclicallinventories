@@ -14,6 +14,7 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
+import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.workservice.RouteWorkService;
 
 @Path("/services/RouteService")
@@ -50,7 +51,7 @@ public class RouteService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getRoutesByUser")
-	public Response<List<RouteBean>> getRoutesByUser(){
+	public Response<List<RouteUserBean>> getRoutesByUser(){
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new RouteWorkService().getRoutesByUser(user);
 	}

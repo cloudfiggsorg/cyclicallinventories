@@ -101,28 +101,6 @@ public class ZoneWorkService {
 		
 	}
 	
-	public Response<Object> addPositionZone(Request<?> request){
-		
-		log.log(Level.WARNING,"[addPositionZone] "+request.toString());
-		ZonePositionsBean zonePositionsBean;
-		Response<Object> res = new Response<Object>();
-		
-		try {
-			zonePositionsBean = new Gson().fromJson(request.getLsObject().toString(), ZonePositionsBean.class);
-		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE,"[addPositionZone] Error al pasar de Json a PositionZoneBean");
-			zonePositionsBean = null;
-			AbstractResultsBean abstractResult = new AbstractResultsBean();
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		}
-		
-		return new ZoneDao().addPositionZone(zonePositionsBean);
-		
-	}
-	
 	public Response<Object> deleteZone(Request<?> request){
 			
 			log.log(Level.WARNING,"[deleteZoneWS] "+request.toString());
@@ -178,37 +156,6 @@ public class ZoneWorkService {
 		}
 		return new ZoneDao().getZones(zoneBean,searchFilter);
 		
-	}
-
-	public Response<Object> assignMaterialToZone(Request request){
-		
-		log.log(Level.WARNING,"[assignMaterialToZoneWS] "+request.toString());
-		MaterialToZoneBean materialTozoneBean;
-		Response<Object> res = new Response<Object>();
-		String req = request.getLsObject().toString().trim();
-		if(!req.isEmpty()){
-			try {
-				materialTozoneBean = new Gson().fromJson(request.getLsObject().toString(), MaterialToZoneBean.class);
-			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[assignMaterialToZoneWS] Error al pasar de Json a MaterialToZoneBean");
-				materialTozoneBean = null;
-				AbstractResultsBean abstractResult = new AbstractResultsBean();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		}else{
-			AbstractResultsBean abstractResult = new AbstractResultsBean();
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs("Error al pasar de Json a MaterialToZoneBean");
-			res.setAbstractResult(abstractResult);
-			log.log(Level.SEVERE,"[assignMaterialToZoneWS] "+abstractResult.getResultMsgAbs());
-			return res;
-		}
-	
-		return new ZoneDao().assignMaterialToZone(materialTozoneBean);
-	
 	}
 	
 	public Response<Object> unassignMaterialToZone(Request request){
