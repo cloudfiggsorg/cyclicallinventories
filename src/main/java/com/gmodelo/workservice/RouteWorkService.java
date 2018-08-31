@@ -8,7 +8,9 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
+import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.dao.RouteDao;
+import com.gmodelo.dao.RouteUserDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -112,10 +114,10 @@ public class RouteWorkService {
 		return new RouteDao().getRoutes(routeBean,searchFilter);
 	}
 
-	public Response<List<RouteBean>> getRoutesByUser(User user){
+	public Response<List<RouteUserBean>> getRoutesByUser(User user){
 		
 		log.log(Level.WARNING,"[getRoutesByUserService] ");
 
-		return new RouteDao().getRoutesByUser(user);
+		return new RouteUserDao().getRoutesByUser(user);
 	}
 }

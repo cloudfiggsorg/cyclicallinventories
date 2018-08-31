@@ -34,10 +34,10 @@ public class RouteUserPositionBean {
 	public void setGdesc(String gdesc) {
 		this.gdesc = gdesc;
 	}
-	public ZoneUserBean getZoneId() {
+	public ZoneUserBean getZone() {
 		return zone;
 	}
-	public void setZoneId(ZoneUserBean zone) {
+	public void setZone(ZoneUserBean zone) {
 		this.zone = zone;
 	}
 	public String getSecuency() {

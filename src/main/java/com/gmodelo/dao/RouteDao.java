@@ -19,6 +19,7 @@ import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteGroupBean;
 import com.gmodelo.beans.RoutePositionBean;
+import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -213,83 +214,6 @@ public class RouteDao{
 			}
 		}
 		res.setAbstractResult(abstractResult);
-		return res;
-	}
-
-	public Response<List<RouteBean>> getRoutesByUser(User user) {
-
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
-		PreparedStatement stm = null;
-
-		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
-		String INV_VW_ROUTES = null;
-
-		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
-
-		log.warning(INV_VW_ROUTES);
-		log.log(Level.WARNING, "[getRoutesDaoByUser] Preparing sentence...");
-
-		try {
-			stm = con.prepareStatement(INV_VW_ROUTES);
-
-			stm.setString(1, user.getEntity().getIdentyId());
-
-			log.log(Level.WARNING, "[getRoutesDaoByUser] Executing query...");
-
-			ResultSet rs = stm.executeQuery();
-
-			while (rs.next()) {
-				RouteBean routeBean = new RouteBean();
-
-				routeBean.setRouteId(String.format("%08d",Integer.parseInt(rs.getString(1))));
-				routeBean.setBukrs(rs.getString(2));
-				routeBean.setWerks(rs.getString(3));
-				routeBean.setRdesc(rs.getString(4));
-				routeBean.setType(rs.getString(5));
-				routeBean.setBdesc(rs.getString(6));
-				routeBean.setWdesc(rs.getString(7));
-				routeBean.setPositions(this.getPositions(rs.getString(1)));
-				routeBean.setGroups(this.getGroups(rs.getString(1)));
-
-				listRoutesBean.add(routeBean);
-			}
-
-			// Retrive the warnings if there're
-			SQLWarning warning = stm.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING, warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-
-			// Free resources
-			rs.close();
-			stm.close();
-			log.log(Level.WARNING, "[getRoutesDaoByUser] Sentence successfully executed.");
-		} catch (SQLException e) {
-			log.log(Level.SEVERE,
-					"[getRoutesDao] Some error occurred while was trying to execute the query: " + INV_VW_ROUTES, e);
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[getRoutesDaoByUser] Some error occurred while was trying to close the connection.",
-						e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		}
-
-		res.setAbstractResult(abstractResult);
-		res.setLsObject(listRoutesBean);
 		return res;
 	}
 
@@ -508,25 +432,5 @@ public class RouteDao{
 		return condition;
 	}
 
-	public static void main(String[] args) {
-		
-		
-		User user = new User(); 
-		user.getEntity().getIdentyId();
-		Entity entity = new Entity();
-		entity.setIdentyId("1");
-		user.setEntity(entity);
-		RouteDao d = new RouteDao(); 
-		Response<List<RouteBean>> x = d.getRoutesByUser(user);
-		
-	
-		System.out.println("lista:"+x.getLsObject().size());
-		for(int i=0;i < x.getLsObject().size();i++){
-			System.out.println("lista:"+x.getLsObject().get(i).toString());
-		}
-		
-		
-		
-	}
 	
 }

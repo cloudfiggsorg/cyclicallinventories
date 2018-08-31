@@ -120,7 +120,7 @@ public class LgplaValuesBean {
 				+ totalConverted + ", iCantidad=" + iCantidad + ", locked=" + locked + "]";
 	}
 
-	public String toKey(String lgpla) {
-		return lgpla + this.matnr + this.sec;
+	public String toKey(String pkAsgId) {
+		return pkAsgId + this.matnr;
 	}
 }
