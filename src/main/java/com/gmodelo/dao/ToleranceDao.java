@@ -124,7 +124,8 @@ public class ToleranceDao {
 			
 			cs.execute();
 			
-			abstractResult.setResultId(cs.getInt(1));
+			abstractResult.setResultId(ReturnValues.ISUCCESS);
+			abstractResult.setResultMsgAbs("Tolerance id: "+ cs.getInt(1));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
