@@ -2,15 +2,28 @@ package com.gmodelo.beans;
 
 public class ZonePositionMaterialsBean {
 	
-	String posMat;
+	int zoneId;
+	int posMat;
 	String matnr;
 	String typMat;
 	String descTM;
 	
-	public String getPkPosMat() {
+	public int getZoneId() {
+		return zoneId;
+	}
+	public void setZoneId(int zoneId) {
+		this.zoneId = zoneId;
+	}
+	public int getPosMat() {
 		return posMat;
 	}
-	public void setPkPosMat(String pkPosMat) {
+	public void setPosMat(int posMat) {
+		this.posMat = posMat;
+	}
+	public int getPkPosMat() {
+		return posMat;
+	}
+	public void setPkPosMat(int pkPosMat) {
 		this.posMat = pkPosMat;
 	}
 	public String getMatnr() {
@@ -35,17 +48,19 @@ public class ZonePositionMaterialsBean {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public ZonePositionMaterialsBean(String pkPosMat, String matnr, String typMat, String descTM) {
+	public ZonePositionMaterialsBean(int zoneId, int posMat, String matnr, String typMat, String descTM) {
 		super();
-		this.posMat = pkPosMat;
+		this.zoneId = zoneId;
+		this.posMat = posMat;
 		this.matnr = matnr;
 		this.typMat = typMat;
 		this.descTM = descTM;
 	}
+	
 	@Override
 	public String toString() {
-		return "ZonePositionMaterialsB [pkPosMat=" + posMat + ", matnr=" + matnr + ", typMat=" + typMat + ", descTM="
-				+ descTM + "]";
+		return "ZonePositionMaterialsBean [zoneId=" + zoneId + ", posMat=" + posMat + ", matnr=" + matnr + ", typMat="
+				+ typMat + ", descTM=" + descTM + "]";
 	}
 	
 }

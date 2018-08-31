@@ -52,14 +52,6 @@ public class ZoneService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/addPositionZone")
-	public Response<Object> addPositionZone(Request request){
-		return new ZoneWorkService().addPositionZone(request);
-	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/deleteZone")
 	public Response<Object> deleteZone(Request request){
 		return new ZoneWorkService().deleteZone(request);
@@ -71,14 +63,6 @@ public class ZoneService {
 	@Path("/getZones")
 	public Response<List<ZoneBean>> getZones(Request request){
 		return new ZoneWorkService().getZones(request);
-	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/assignMaterialToZone")
-	public Response<Object> assignMaterialToZone(Request request){
-		return new ZoneWorkService().assignMaterialToZone(request);
 	}
 	
 	@POST

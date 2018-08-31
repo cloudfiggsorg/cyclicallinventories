@@ -3,7 +3,7 @@ package com.gmodelo.beans;
 import java.util.List;
 
 public class ZonePositionsBean {
-	String pkAsgId;
+	int pkAsgId;
 	String zoneId;
 	String lgtyp;
 	String lgpla;
@@ -16,11 +16,11 @@ public class ZonePositionsBean {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public String getPkAsgId() {
+	public int getPkAsgId() {
 		return pkAsgId;
 	}
 
-	public void setPkAsgId(String pkAsgId) {
+	public void setPkAsgId(int pkAsgId) {
 		this.pkAsgId = pkAsgId;
 	}
 
@@ -63,11 +63,21 @@ public class ZonePositionsBean {
 		this.imwm = imwm;
 	}
 
-	public ZonePositionsBean(String pkAsgId, String zoneId, String lgtyp, String lgpla, String secuency,
+	public ZonePositionsBean(int pkAsgId, String zoneId, String lgtyp, String lgpla, String secuency,
 			String imwm, List<ZonePositionMaterialsBean> positionMaterial) {
 		super();
 		this.pkAsgId = pkAsgId;
 		this.zoneId = zoneId;
+		this.lgtyp = lgtyp;
+		this.lgpla = lgpla;
+		this.secuency = secuency;
+		this.imwm = imwm;
+		this.positionMaterial = positionMaterial;
+	}
+	
+	public ZonePositionsBean(String lgtyp, String lgpla, String secuency,
+			String imwm, List<ZonePositionMaterialsBean> positionMaterial) {
+		super();
 		this.lgtyp = lgtyp;
 		this.lgpla = lgpla;
 		this.secuency = secuency;
