@@ -3,7 +3,7 @@ package com.gmodelo.beans;
 import java.util.HashMap;
 import java.util.List;
 
-public class ZonePositionsBean {
+public class ZoneUserPositionsBean {
 	int pkAsgId;
 	String zoneId;
 	String lgtyp;
@@ -11,9 +11,9 @@ public class ZonePositionsBean {
 	String secuency;
 	String imwm;
 	
-	List<ZonePositionMaterialsBean> positionMaterial;
+	HashMap<String, LgplaValuesBean> lgplaValues;
 	
-	public ZonePositionsBean() {
+	public ZoneUserPositionsBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -25,13 +25,13 @@ public class ZonePositionsBean {
 	public void setPkAsgId(int pkAsgId) {
 		this.pkAsgId = pkAsgId;
 	}
-
-	public List< ZonePositionMaterialsBean> getPositionMaterial() {
-		return positionMaterial;
-	}
 	
-	public void setPositionMaterial(List<ZonePositionMaterialsBean> positionMaterial) {
-		this.positionMaterial = positionMaterial;
+	public HashMap<String, LgplaValuesBean> getLgplaValues() {
+		return lgplaValues;
+	}
+
+	public void setLgplaValues(HashMap<String, LgplaValuesBean> lgplaValues) {
+		this.lgplaValues = lgplaValues;
 	}
 
 	public String getZoneId() {
@@ -65,8 +65,8 @@ public class ZonePositionsBean {
 		this.imwm = imwm;
 	}
 
-	public ZonePositionsBean(int pkAsgId, String zoneId, String lgtyp, String lgpla, String secuency,
-			String imwm, List<ZonePositionMaterialsBean> positionMaterial) {
+	public ZoneUserPositionsBean(int pkAsgId, String zoneId, String lgtyp, String lgpla, String secuency, String imwm,
+			HashMap<String, LgplaValuesBean> lgplaValues) {
 		super();
 		this.pkAsgId = pkAsgId;
 		this.zoneId = zoneId;
@@ -74,25 +74,14 @@ public class ZonePositionsBean {
 		this.lgpla = lgpla;
 		this.secuency = secuency;
 		this.imwm = imwm;
-		this.positionMaterial = positionMaterial;
-	}
-	
-	public ZonePositionsBean(String lgtyp, String lgpla, String secuency,
-			String imwm, List<ZonePositionMaterialsBean> positionMaterial) {
-		super();
-		this.lgtyp = lgtyp;
-		this.lgpla = lgpla;
-		this.secuency = secuency;
-		this.imwm = imwm;
-		this.positionMaterial = positionMaterial;
+		this.lgplaValues = lgplaValues;
 	}
 
 	@Override
 	public String toString() {
-		return "ZonePositionsB [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", lgtyp="
-				+ lgtyp + ", lgpla=" + lgpla + ", secuency=" + secuency + ", imwm=" + imwm + ", positionMaterial="
-				+ positionMaterial + "]";
+		return "ZoneUserPositionsBean [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", lgtyp=" + lgtyp + ", lgpla="
+				+ lgpla + ", secuency=" + secuency + ", imwm=" + imwm + ", lgplaValues=" + lgplaValues + "]";
 	}
 	
-
+	
 }

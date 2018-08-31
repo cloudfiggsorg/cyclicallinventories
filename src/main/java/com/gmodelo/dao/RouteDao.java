@@ -508,5 +508,25 @@ public class RouteDao{
 		return condition;
 	}
 
+	public static void main(String[] args) {
+		
+		
+		User user = new User(); 
+		user.getEntity().getIdentyId();
+		Entity entity = new Entity();
+		entity.setIdentyId("1");
+		user.setEntity(entity);
+		RouteDao d = new RouteDao(); 
+		Response<List<RouteBean>> x = d.getRoutesByUser(user);
+		
+	
+		System.out.println("lista:"+x.getLsObject().size());
+		for(int i=0;i < x.getLsObject().size();i++){
+			System.out.println("lista:"+x.getLsObject().get(i).toString());
+		}
+		
+		
+		
+	}
 	
 }
