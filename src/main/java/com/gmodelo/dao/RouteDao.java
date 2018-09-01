@@ -11,15 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.bmore.ume001.beans.Entity;
-import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteGroupBean;
 import com.gmodelo.beans.RoutePositionBean;
-import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -35,10 +31,12 @@ public class RouteDao{
 		int idPosition = 0;
 		int idRouteGroup = 0;
 
-		final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?,?"; 
+		final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?"; 		
+		final String INV_SP_DEL_ROUTE_POSITION = "INV_SP_DEL_ROUTE_POSITION ?, ?";				
 		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?, ?, ?, ?";
-		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?";
-		
+		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?, ?";
+		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?"; 
+
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -46,11 +44,12 @@ public class RouteDao{
 		log.log(Level.WARNING, "[addRoute] Preparing sentence...");
 
 		try {
+			
 			con.setAutoCommit(false);
 			// ADD ROUTE
 
 			cs = con.prepareCall(INV_SP_ADD_ROUTE);
-			cs.setString(1, routeId);
+			cs.setInt(1, Integer.parseInt(routeId));
 			cs.setString(2, routeBean.getRdesc());
 			cs.setString(3, routeBean.getBukrs());
 			cs.setString(4, routeBean.getWerks());
@@ -63,59 +62,73 @@ public class RouteDao{
 
 			routeId = cs.getString(1);
 			routeBean.setRouteId(String.format("%08d", Integer.parseInt(routeId))); // addZeros
-
-			if (routeId != null) {
-
-				// INSERTAR POSICIONES
-				for (int i = 0; i < routeBean.getPositions().size(); i++) {
-					routeBean.getPositions().get(i).setRouteId(routeId);
-
-					cs = null;
-					log.log(Level.WARNING, "[addRoutePosition] Preparing sentence...");
-					cs = con.prepareCall(INV_SP_ADD_ROUTE_POSITION);
-
-					cs.setString(1, routeBean.getPositions().get(i).getRouteId());
-					cs.setInt(2, routeBean.getPositions().get(i).getPositionId());
-					cs.setString(3, routeBean.getPositions().get(i).getZoneId());
-					cs.setString(4, routeBean.getPositions().get(i).getSecuency());
-					cs.registerOutParameter(2, Types.INTEGER);
-					cs.registerOutParameter(5, Types.VARCHAR);
-					cs.registerOutParameter(6, Types.VARCHAR);
-					cs.registerOutParameter(7, Types.VARCHAR);
-
-					log.log(Level.WARNING, "[addRoutePosition] Executing query...");
-					cs.execute();
-					idPosition = cs.getInt(2);
-					routeBean.getPositions().get(i).setPositionId(idPosition);
-					routeBean.getPositions().get(i).setLgort(cs.getString(5));
-					routeBean.getPositions().get(i).setGdesc(cs.getString(6));
-					routeBean.getPositions().get(i).setZdesc(cs.getString(7));
-				}
-
-				// INSERTAR GRUPOS Y CONTEOS
-				for (int i = 0; i < routeBean.getGroups().size(); i++) {
-					routeBean.getGroups().get(i).setRouteId(routeId);
-
-					cs = null;
-					cs = con.prepareCall(INV_SP_ASSIGN_GROUP_TO_ROUTE);
-
-					cs.setString(1, routeBean.getGroups().get(i).getRouteId());
-					cs.setString(2, routeBean.getGroups().get(i).getGroupId());
-					cs.setString(3, routeBean.getGroups().get(i).getCountNum());
-					cs.setString(4, createdBy);
-					cs.registerOutParameter(5, Types.INTEGER);
-
-					log.log(Level.WARNING, "[assignGroupToRouteDao] Executing query...");
-					cs.execute();
-					idRouteGroup = cs.getInt(5);
-					routeBean.getGroups().get(i).setRouteGroup(idRouteGroup);
-				}
-
-				log.log(Level.WARNING, "[addRoute] Sentence successfully executed.");
-
-			} else {
-				log.log(Level.WARNING, "[addRoute] Not created RouteId.");
+			
+			//Eliminar posiciones
+			String ids = "";
+			for (int i = 0; i < routeBean.getGroups().size(); i++) {
+				
+				ids += routeBean.getPositions().get(i).getPositionId() + ",";
 			}
+			
+			cs = null;
+			cs = con.prepareCall(INV_SP_DEL_ROUTE_POSITION);
+			cs.setInt(1, Integer.parseInt(routeId));
+			cs.setString(2, ids);
+			cs.execute();
+			
+			// INSERTAR POSICIONES
+			for (int i = 0; i < routeBean.getPositions().size(); i++) {
+				routeBean.getPositions().get(i).setRouteId(routeId);
+
+				cs = null;
+				log.log(Level.WARNING, "[addRoutePosition] Preparing sentence...");
+				cs = con.prepareCall(INV_SP_ADD_ROUTE_POSITION);
+
+				cs.setString(1, routeBean.getPositions().get(i).getRouteId());
+				cs.setInt(2, routeBean.getPositions().get(i).getPositionId());
+				cs.setString(3, routeBean.getPositions().get(i).getZoneId());
+				cs.setString(4, routeBean.getPositions().get(i).getSecuency());
+				cs.registerOutParameter(2, Types.INTEGER);
+
+				log.log(Level.WARNING, "[addRoutePosition] Executing query...");
+				cs.execute();
+				idPosition = cs.getInt(2);
+				routeBean.getPositions().get(i).setPositionId(idPosition);
+			}
+			
+			//Eliminar grupos
+			ids = "";
+			for (int i = 0; i < routeBean.getGroups().size(); i++) {
+				
+				ids += routeBean.getGroups().get(i).getRouteGroup() + ",";
+			}
+			
+			cs = null;
+			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_ROUTE);
+			cs.setInt(1, Integer.parseInt(routeId));
+			cs.setString(2, ids);
+			cs.execute();
+
+			// INSERTAR GRUPOS Y CONTEOS
+			for (int i = 0; i < routeBean.getGroups().size(); i++) {
+				routeBean.getGroups().get(i).setRouteId(routeId);
+
+				cs = null;
+				cs = con.prepareCall(INV_SP_ASSIGN_GROUP_TO_ROUTE);
+
+				cs.setString(1, routeBean.getGroups().get(i).getRouteId());
+				cs.setString(2, routeBean.getGroups().get(i).getGroupId());
+				cs.setString(3, routeBean.getGroups().get(i).getCountNum());
+				cs.setString(4, createdBy);
+				cs.registerOutParameter(5, Types.INTEGER);
+
+				log.log(Level.WARNING, "[assignGroupToRouteDao] Executing query...");
+				cs.execute();
+				idRouteGroup = cs.getInt(5);
+				routeBean.getGroups().get(i).setRouteGroup(idRouteGroup);
+			}
+			
+			log.log(Level.WARNING, "[addRoute] Sentence successfully executed.");
 
 			// Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
