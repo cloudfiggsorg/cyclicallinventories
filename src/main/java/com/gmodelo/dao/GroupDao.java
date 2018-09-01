@@ -324,7 +324,7 @@ public class GroupDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<GroupBean> listGroupsBean = new ArrayList<GroupBean>(); 
 		 
-		String INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
+		String INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
 		
 		if(searchFilter ==  null){
 			
