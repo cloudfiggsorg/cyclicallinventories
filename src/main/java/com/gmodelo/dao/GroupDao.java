@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bmore.ume001.beans.User;
+import com.bmore.ume001.beans.UserGenInfo;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.GroupToRouteBean;
@@ -314,7 +316,7 @@ public class GroupDao {
 		return res ;
 	}
 
-	public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter){
+public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
@@ -323,37 +325,41 @@ public class GroupDao {
 		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<GroupBean> listGroupsBean = new ArrayList<GroupBean>(); 
-		 
-		String INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, CREATE_BY, CREATED_DATE  FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
+		String INV_VW_GET_GROUPS = null;
 		
-		if(searchFilter ==  null){
-			
+		int aux;		
+		String searchFilterNumber = "";
+		
+		try {
+			aux = Integer.parseInt(searchFilter); 
+			searchFilterNumber += aux;
+		} catch (Exception e) {
+			searchFilterNumber = searchFilter;
+			log.warning("Trying to convert String to Int");
+		}		
+
+		INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
+		
+		if (searchFilter != null) {
+			INV_VW_GET_GROUPS += "WHERE IP_GROUP LIKE '%" + searchFilterNumber + "%' OR GDESC LIKE '%" + searchFilter + "%'";
+		} else {
 			String condition = buildCondition(groupB);
-			if(condition != null){
-				
+			if (condition != null) {
 				INV_VW_GET_GROUPS += condition;
 			}
-			
-		}else{
-			
-			INV_VW_GET_GROUPS += "WHERE IP_GROUP LIKE '%"+searchFilter+"%' OR GDESC LIKE '%"+searchFilter+"%'";
 		}
 		
 		log.warning(INV_VW_GET_GROUPS);
-						
 		log.log(Level.WARNING,"[getGroupsDao] Preparing sentence...");
 		try {
-			
 			stm = con.prepareStatement(INV_VW_GET_GROUPS);		
-			
 			log.log(Level.WARNING,"[getGroupsDao] Executing query...");
-			
 			ResultSet rs = stm.executeQuery();
-			
 			while (rs.next()){
 				groupB = new GroupBean();				
-				groupB.setGroupId(rs.getString(1));
-				groupB.setGroupDesc(rs.getString(2));				
+				groupB.setGroupId(rs.getString("IP_GROUP"));
+				groupB.setGroupDesc(rs.getString("GDESC"));
+				groupB.setUsers(this.groupUsers(rs.getString("IP_GROUP")));
 				listGroupsBean.add(groupB);
 			}
 			
@@ -390,16 +396,61 @@ public class GroupDao {
 		res.setLsObject(listGroupsBean);
 		return res;
 	}
+
+	public List<User> groupUsers(String groupId) throws SQLException{
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		List<User> listUser = new ArrayList<User>();
+		
+		String INV_VW_GROUPS_USER = "SELECT PK_GROUP_USER, GRU_USER_ID FROM INV_GROUPS_USER WHERE GRU_GROUP_ID = ? ";
+		log.warning(INV_VW_GROUPS_USER);
+		log.log(Level.WARNING,"[groupUsersDao] Preparing sentence...");
+		INV_VW_GROUPS_USER += " GROUP BY PK_GROUP_USER, GRU_USER_ID";
+		
+		stm = con.prepareCall(INV_VW_GROUPS_USER);
+		stm.setString(1, groupId);
+		log.log(Level.WARNING,"[groupUsersDao] Executing query...");
+		ResultSet rs = stm.executeQuery();
+		
+		UMEDaoE ume = new UMEDaoE();
+		while (rs.next()){
+			System.out.println(rs.getString("GRU_USER_ID"));
+			User userB = new User();
+			userB.getEntity().setIdentyId(rs.getString("GRU_USER_ID"));
+			UserGenInfo userInfo = ume.getUserInfo(rs.getString("GRU_USER_ID"));
+			userB.setGenInf(userInfo);
+			listUser.add(userB);
+		}
+	
+		//Retrive the warnings if there're
+		SQLWarning warning = stm.getWarnings();
+		while (warning != null) {
+			log.log(Level.WARNING,warning.getMessage());
+			warning = warning.getNextWarning();
+		}
+		
+		//Free resources
+		rs.close();
+		stm.close();	
+		con.close();	
+		log.log(Level.WARNING,"[groupUsersDao] Sentence successfully executed.");
+		return listUser;
+	}
+
+	public UserGenInfo getUsers(String idUser){
+		UMEDaoE ume = new UMEDaoE();
+		UserGenInfo user = ume.getUserInfo(idUser);
+		return user;
+	}
 	
 	private String buildCondition(GroupBean groupB){
 		String groupId = "";
 		String gdes = "";
-		String gtype = "";
-		String createBy = "";
-		String createdDate = "";
 		
 		String condition = "";
-		//IP_GROUP, GDESC, GTYPE, CREATE_BY, CREATED_DATE
+		
 		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP LIKE '%"+ groupB.getGroupId() + "%' "  : "";
 		condition+=groupId;
 		gdes = (groupB.getGroupDesc() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC LIKE '%" + groupB.getGroupDesc() +"%' " : "";
@@ -407,5 +458,17 @@ public class GroupDao {
 		condition = condition.isEmpty() ? null : condition;
 		
 		return condition;
+	}
+	
+	
+	public static void main(String[] args) {
+		GroupDao dao = new GroupDao();
+		String searchFilter = "";
+		GroupBean groupB = new GroupBean();
+		Response<List<GroupBean>> x = dao.getGroups(groupB, searchFilter);
+		
+		for(int i=0; i< x.getLsObject().size(); i++){
+			System.out.println(x.getLsObject().get(i).toString());
+		}
 	}
 }
