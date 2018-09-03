@@ -117,7 +117,7 @@ public class RouteWorkService {
 	public Response<RouteUserBean> getRoutesByUser(User user){
 		
 		log.log(Level.WARNING,"[getRoutesByUserService] ");
-
+		
 		return new RouteUserDao().getRoutesByUser(user);
 	}
 }

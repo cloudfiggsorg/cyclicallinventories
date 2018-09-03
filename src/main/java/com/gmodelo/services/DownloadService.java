@@ -1,6 +1,7 @@
 package com.gmodelo.services;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -11,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import org.jboss.logging.Logger;
 
 import com.gmodelo.beans.Request;
+import com.gmodelo.filters.HttpSessionCollector;
 import com.gmodelo.workservice.DownloadWorkService;
 
 @Path("/services/DownloadService")
@@ -25,8 +27,8 @@ public class DownloadService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/GetInfoTables")
 	public String GetInfoTables(Request request) {
-		
-		return new DownloadWorkService().GetInfoTablesWS(request, httpRequest);
+		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		return new DownloadWorkService().GetInfoTablesWS(request, s);
 	}
 	
 	@POST
@@ -34,8 +36,8 @@ public class DownloadService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/GetMasterData")
 	public String GetMasterData(Request request) {
-		
-		return new DownloadWorkService().GetMasterDataWS(request, httpRequest);
+		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		return new DownloadWorkService().GetMasterDataWS(request, s);
 	}
 
 

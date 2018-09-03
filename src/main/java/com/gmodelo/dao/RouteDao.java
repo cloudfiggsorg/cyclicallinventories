@@ -160,10 +160,6 @@ public class RouteDao{
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE, "[addRoute] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -220,10 +216,6 @@ public class RouteDao{
 			} catch (SQLException e) {
 				log.log(Level.SEVERE, "[deleteRouteDao] Some error occurred while was trying to close the connection.",
 						e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -310,10 +302,6 @@ public class RouteDao{
 			} catch (SQLException e) {
 				log.log(Level.SEVERE, "[getRoutesDao] Some error occurred while was trying to close the connection.",
 						e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 
