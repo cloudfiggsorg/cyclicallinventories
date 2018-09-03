@@ -26,38 +26,10 @@ import com.gmodelo.beans.ZoneUserPositionsBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
-public class RouteUserDao{
+public class RouteUserDao {
 
 	private Logger log = Logger.getLogger(RouteUserDao.class.getName());
 
-	public long updateDowloadTask(String idTask) throws SQLException{
-		
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
-		CallableStatement cs = null;
-		
-		final String INV_SP_UPDATE_DOWLOAD_TASK = "INV_SP_UPDATE_DOWLOAD_TASK ?, ?, ?";
-		long date=0;
-		
-		log.log(Level.WARNING,"[updateDowloadTaskDao] Preparing sentence...");
-		cs = con.prepareCall(INV_SP_UPDATE_DOWLOAD_TASK);
-		
-		cs.setString(1, idTask);
-		cs.registerOutParameter(2, Types.INTEGER);
-		cs.registerOutParameter(3, Types.DATE);
-		
-		log.log(Level.WARNING,"[updateDowloadTaskDao] Executing query...");
-		cs.execute();
-		
-		if(cs.getInt(2) == 1){
-			date = cs.getDate(3).getTime();
-		}else{
-			log.log(Level.WARNING,"[updateDowloadTaskDao] Task not update...");
-		}
-		
-		return date;
-	}
-	
 	public Response<RouteUserBean> getRoutesByUser(User user) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -66,7 +38,7 @@ public class RouteUserDao{
 
 		Response<RouteUserBean> res = new Response<RouteUserBean>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		RouteUserBean routeBean = new RouteUserBean();
+		RouteUserBean routeBean = null;
 		String INV_VW_ROUTES = null;
 
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
@@ -80,9 +52,10 @@ public class RouteUserDao{
 			log.log(Level.WARNING, "[getRoutesDaoByUser] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
-			int a=0;	
-			while (rs.next()) {
-				routeBean.setRouteId(String.format("%08d",Integer.parseInt(rs.getString("ROUTE_ID"))));
+
+			if (rs.next()) {
+				routeBean = new RouteUserBean();
+				routeBean.setRouteId(String.format("%08d", rs.getInt("ROUTE_ID")));
 				routeBean.setBukrs(rs.getString("BUKRS"));
 				routeBean.setWerks(rs.getString("WERKS"));
 				routeBean.setRdesc(rs.getString("RDESC"));
@@ -91,12 +64,13 @@ public class RouteUserDao{
 				routeBean.setWdesc(rs.getString("WDESC"));
 				routeBean.setDateIni(updateDowloadTask(rs.getString("TASK_ID")));
 				routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
-				routeBean.setGroups(this.getGroups(rs.getString("ROUTE_ID")));
-				a++;
+
+			} else {
+				abstractResult.setResultId(ReturnValues.IUSERNOTTASK);
+				abstractResult.setResultMsgAbs(
+						"EL usuario: " + user.getEntity().getIdentyId() + " no tiene asignada una tarea");
 			}
-			if(a == 0){
-				abstractResult.setResultId(0);
-			}
+
 			// Retrive the warnings if there're
 			SQLWarning warning = stm.getWarnings();
 			while (warning != null) {
@@ -119,8 +93,8 @@ public class RouteUserDao{
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[getRoutesDaoByUser] Some error occurred while was trying to close the connection.",
-						e);
+				log.log(Level.SEVERE,
+						"[getRoutesDaoByUser] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 
@@ -128,7 +102,35 @@ public class RouteUserDao{
 		res.setLsObject(routeBean);
 		return res;
 	}
-	
+
+	public long updateDowloadTask(String idTask) throws SQLException {
+
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		CallableStatement cs = null;
+
+		final String INV_SP_UPDATE_DOWLOAD_TASK = "INV_SP_UPDATE_DOWLOAD_TASK ?, ?, ?";
+		long date = 0;
+
+		log.log(Level.WARNING, "[updateDowloadTaskDao] Preparing sentence...");
+		cs = con.prepareCall(INV_SP_UPDATE_DOWLOAD_TASK);
+
+		cs.setString(1, idTask);
+		cs.registerOutParameter(2, Types.INTEGER);
+		cs.registerOutParameter(3, Types.DATE);
+
+		log.log(Level.WARNING, "[updateDowloadTaskDao] Executing query...");
+		cs.execute();
+
+		if (cs.getInt(2) == 1) {
+			date = cs.getDate(3).getTime();
+		} else {
+			log.log(Level.WARNING, "[updateDowloadTaskDao] Task not update...");
+		}
+
+		return date;
+	}
+
 	public List<RouteUserPositionBean> getPositions(String idRoute) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -174,65 +176,65 @@ public class RouteUserDao{
 
 		return listPositions;
 	}
-	
-	public ZoneUserBean getZoneByPosition(String zoneId) throws SQLException{
-		
+
+	public ZoneUserBean getZoneByPosition(String zoneId) throws SQLException {
+
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
-		
+
 		ZoneUserBean zoneBean = new ZoneUserBean();
-		
+
 		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES WHERE ZONE_ID = ?";
-		log.log(Level.WARNING,"[getRoutesUserZoneDao] Preparing sentence...");
-		
+		log.log(Level.WARNING, "[getRoutesUserZoneDao] Preparing sentence...");
+
 		stm = con.prepareCall(INV_VW_ZONES);
 		stm.setString(1, zoneId);
-		
-		log.log(Level.WARNING,"[getRoutesUserZoneDao] Executing query...");
+
+		log.log(Level.WARNING, "[getRoutesUserZoneDao] Executing query...");
 		ResultSet rs = stm.executeQuery();
-		
-		while (rs.next()){
-			zoneBean.setZoneId(String.format("%08d",Integer.parseInt(rs.getString("ZONE_ID"))));
+
+		while (rs.next()) {
+			zoneBean.setZoneId(String.format("%08d", Integer.parseInt(rs.getString("ZONE_ID"))));
 			zoneBean.setZdesc(rs.getString("ZDESC"));
 			zoneBean.setPositionsB(this.getPositionsZone(rs.getString("ZONE_ID")));
 		}
-		
-		//Retrive the warnings if there're
+
+		// Retrive the warnings if there're
 		SQLWarning warning = stm.getWarnings();
 		while (warning != null) {
-			log.log(Level.WARNING,warning.getMessage());
+			log.log(Level.WARNING, warning.getMessage());
 			warning = warning.getNextWarning();
 		}
-		
-		//Free resources
+
+		// Free resources
 		rs.close();
-		stm.close();	
+		stm.close();
 		con.close();
-		log.log(Level.WARNING,"[getRoutesUserZoneDao] Sentence successfully executed.");
-			
+		log.log(Level.WARNING, "[getRoutesUserZoneDao] Sentence successfully executed.");
+
 		return zoneBean;
 	}
-	
-	public List<ZoneUserPositionsBean> getPositionsZone(String zoneId){
-			
+
+	public List<ZoneUserPositionsBean> getPositionsZone(String zoneId) {
+
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		List<ZoneUserPositionsBean> listPositions = new ArrayList<ZoneUserPositionsBean>();
-		
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ? ";
-		
+
+		final String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ? "
+				+ "GROUP BY PK_ASG_ID,LGTYP,LGPLA,SECUENCY,IMWM ORDER BY SECUENCY ASC";
+
 		log.warning(INV_VW_ZONE_WITH_POSITIONS);
-		log.log(Level.WARNING,"[getRoutesUserZonePositionDao] Preparing sentence...");
-		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM ORDER BY SECUENCY ASC";
+		log.log(Level.WARNING, "[getRoutesUserZonePositionDao] Preparing sentence...");
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
-			log.log(Level.WARNING,"[getRoutesUserZonePositionDao] Executing query...");
+			log.log(Level.WARNING, "[getRoutesUserZonePositionDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
-			while (rs.next()){
-				
+			while (rs.next()) {
+
 				ZoneUserPositionsBean position = new ZoneUserPositionsBean();
 				position.setPkAsgId(rs.getInt("PK_ASG_ID"));
 				position.setLgtyp(rs.getString("LGTYP"));
@@ -242,88 +244,94 @@ public class RouteUserDao{
 				position.setZoneId(zoneId);
 				position.setLgplaValues(this.getPositionMaterials(rs.getString("PK_ASG_ID")));
 				listPositions.add(position);
-				
+
 			}
-			
-			//Retrive the warnings if there're
+
+			// Retrive the warnings if there're
 			SQLWarning warning = stm.getWarnings();
 			while (warning != null) {
-				log.log(Level.WARNING,warning.getMessage());
+				log.log(Level.WARNING, warning.getMessage());
 				warning = warning.getNextWarning();
 			}
-			
-			//Free resources
+
+			// Free resources
 			rs.close();
-			stm.close();	
-			
-			log.log(Level.WARNING,"[getRoutesUserZonePositionDao] Sentence successfully executed.");
-			
+			stm.close();
+
+			log.log(Level.WARNING, "[getRoutesUserZonePositionDao] Sentence successfully executed.");
+
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getRoutesUserZonePositionDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_WITH_POSITIONS, e);
-		}finally {
+			log.log(Level.SEVERE,
+					"[getRoutesUserZonePositionDao] Some error occurred while was trying to execute the query: "
+							+ INV_VW_ZONE_WITH_POSITIONS,
+					e);
+		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[getRoutesUserZonePositionDao] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE,
+						"[getRoutesUserZonePositionDao] Some error occurred while was trying to close the connection.",
+						e);
 			}
 		}
-		return listPositions ;
-		
+		return listPositions;
+
 	}
-	
-	private HashMap<String, LgplaValuesBean> getPositionMaterials(String pkAsgId){
-		
+
+	private HashMap<String, LgplaValuesBean> getPositionMaterials(String pkAsgId) {
+
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 		HashMap<String, LgplaValuesBean> listMaterials = new HashMap<String, LgplaValuesBean>();
-		
-		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR, DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ?";
-		
+
+		final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR, DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ? GROUP BY MATNR ,DEN_TYP_MAT";
+
 		log.warning(INV_VW_ZONE_POSITIONS_MATERIALS);
-		log.log(Level.WARNING,"[getPositionMaterialsDao] Preparing sentence...");
-		INV_VW_ZONE_POSITIONS_MATERIALS += " GROUP BY MATNR ,DEN_TYP_MAT";
-		
+		log.log(Level.WARNING, "[getPositionMaterialsDao] Preparing sentence...");
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
-			stm.setString(1,pkAsgId );
-			log.log(Level.WARNING,"[getPositionMaterialsDao] Executing query...");
+			stm.setString(1, pkAsgId);
+			log.log(Level.WARNING, "[getPositionMaterialsDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
-			while (rs.next()){
-				
+			while (rs.next()) {
+
 				LgplaValuesBean material = new LgplaValuesBean();
-				
-				material.setMatnr(rs.getString("MATNR").replaceFirst ("^0*", ""));
+
+				material.setMatnr(rs.getString("MATNR").replaceFirst("^0*", ""));
 				material.setMatkx(rs.getString("DEN_TYP_MAT"));
 				material.setLocked(true);
 				listMaterials.put(material.toKey(pkAsgId), material);
 			}
-			
-			//Retrive the warnings if there're
+
+			// Retrive the warnings if there're
 			SQLWarning warning = stm.getWarnings();
 			while (warning != null) {
-				log.log(Level.WARNING,warning.getMessage());
+				log.log(Level.WARNING, warning.getMessage());
 				warning = warning.getNextWarning();
 			}
-			
-			//Free resources
+
+			// Free resources
 			rs.close();
-			stm.close();	
-			
-			log.log(Level.WARNING,"[getPositionMaterialsDao] Sentence successfully executed.");
-			
+			stm.close();
+
+			log.log(Level.WARNING, "[getPositionMaterialsDao] Sentence successfully executed.");
+
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getPositionMaterialsDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_POSITIONS_MATERIALS, e);
-		}finally {
+			log.log(Level.SEVERE,
+					"[getPositionMaterialsDao] Some error occurred while was trying to execute the query: "
+							+ INV_VW_ZONE_POSITIONS_MATERIALS,
+					e);
+		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[getPositionMaterialsDao] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE,
+						"[getPositionMaterialsDao] Some error occurred while was trying to close the connection.", e);
 			}
 		}
-		return listMaterials ;
+		return listMaterials;
 	}
-
 
 	public List<RouteGroupBean> getGroups(String idRoute) throws SQLException {
 
@@ -345,7 +353,7 @@ public class RouteUserDao{
 		ResultSet rs = stm.executeQuery();
 
 		while (rs.next()) {
-			
+
 			RouteGroupBean group = new RouteGroupBean();
 			group.setRouteGroup(rs.getInt(1));
 			group.setGroupId(rs.getString(2));
@@ -371,5 +379,5 @@ public class RouteUserDao{
 
 		return listGroups;
 	}
-	
+
 }

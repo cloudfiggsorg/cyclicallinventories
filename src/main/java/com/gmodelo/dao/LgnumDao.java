@@ -81,10 +81,6 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getLgnumByLgort] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
