@@ -10,7 +10,8 @@ public class VersionWorkService {
 	
 	private Logger log = Logger.getLogger(VersionWorkService.class.getName());
 	
-	public Response<Object> getVersion(){
+	@SuppressWarnings("rawtypes")
+	public Response getVersion(){
 		log.log(Level.WARNING,"[getVersionWorkService] ");
 		return new VersionDao().getVersion();
 	}

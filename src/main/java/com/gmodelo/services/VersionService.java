@@ -12,11 +12,12 @@ import com.gmodelo.workservice.VersionWorkService;
 @Path("/VersionModule")
 public class VersionService {
 	
+	@SuppressWarnings("rawtypes")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getVersion")
-	public Response<Object> getVersion() {
+	public Response getVersion() {
 		return new VersionWorkService().getVersion();
 	}
 	
