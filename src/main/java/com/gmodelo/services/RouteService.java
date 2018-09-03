@@ -3,6 +3,7 @@ package com.gmodelo.services;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -15,6 +16,7 @@ import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteUserBean;
+import com.gmodelo.filters.HttpSessionCollector;
 import com.gmodelo.workservice.RouteWorkService;
 
 @Path("/services/RouteService")
@@ -51,8 +53,10 @@ public class RouteService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getRoutesByUser")
-	public Response<List<RouteUserBean>> getRoutesByUser(){
-		User user = (User) httpRequest.getSession().getAttribute("user");
+	public Response<List<RouteUserBean>> getRoutesByUser(Request request){
+		
+		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());		
+		User user = (User) session.getAttribute("user");
 		return new RouteWorkService().getRoutesByUser(user);
 	}
 }
