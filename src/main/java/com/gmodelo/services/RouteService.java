@@ -53,7 +53,7 @@ public class RouteService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getRoutesByUser")
-	public Response<List<RouteUserBean>> getRoutesByUser(Request request){
+	public Response<RouteUserBean> getRoutesByUser(Request request){
 		
 		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());		
 		User user = (User) session.getAttribute("user");

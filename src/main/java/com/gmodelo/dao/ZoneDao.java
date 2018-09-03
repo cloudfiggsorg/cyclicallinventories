@@ -564,7 +564,7 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZonePositionMaterialsBean> listMaterials = new ArrayList<ZonePositionMaterialsBean>();
 		
-		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT PK_POS_MAT, MATNR ,TYP_MAT ,DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE PK_POS_MAT = ?";
+		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT PK_POS_MAT, MATNR ,TYP_MAT ,DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ?";
 		
 		log.warning(INV_VW_ZONE_POSITIONS_MATERIALS);
 		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");

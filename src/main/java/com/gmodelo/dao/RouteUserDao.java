@@ -58,15 +58,15 @@ public class RouteUserDao{
 		return date;
 	}
 	
-	public Response<List<RouteUserBean>> getRoutesByUser(User user) {
+	public Response<RouteUserBean> getRoutesByUser(User user) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		PreparedStatement stm = null;
 
-		Response<List<RouteUserBean>> res = new Response<List<RouteUserBean>>();
+		Response<RouteUserBean> res = new Response<RouteUserBean>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<RouteUserBean> listRoutesBean = new ArrayList<RouteUserBean>();
+		RouteUserBean routeBean = new RouteUserBean();
 		String INV_VW_ROUTES = null;
 
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
@@ -76,16 +76,12 @@ public class RouteUserDao{
 
 		try {
 			stm = con.prepareStatement(INV_VW_ROUTES);
-
 			stm.setString(1, user.getEntity().getIdentyId());
-
 			log.log(Level.WARNING, "[getRoutesDaoByUser] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
-
+			int a=0;	
 			while (rs.next()) {
-				RouteUserBean routeBean = new RouteUserBean();
-
 				routeBean.setRouteId(String.format("%08d",Integer.parseInt(rs.getString("ROUTE_ID"))));
 				routeBean.setBukrs(rs.getString("BUKRS"));
 				routeBean.setWerks(rs.getString("WERKS"));
@@ -96,10 +92,11 @@ public class RouteUserDao{
 				routeBean.setDateIni(updateDowloadTask(rs.getString("TASK_ID")));
 				routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
 				routeBean.setGroups(this.getGroups(rs.getString("ROUTE_ID")));
-
-				listRoutesBean.add(routeBean);
+				a++;
 			}
-
+			if(a == 0){
+				abstractResult.setResultId(0);
+			}
 			// Retrive the warnings if there're
 			SQLWarning warning = stm.getWarnings();
 			while (warning != null) {
@@ -124,15 +121,11 @@ public class RouteUserDao{
 			} catch (SQLException e) {
 				log.log(Level.SEVERE, "[getRoutesDaoByUser] Some error occurred while was trying to close the connection.",
 						e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 
 		res.setAbstractResult(abstractResult);
-		res.setLsObject(listRoutesBean);
+		res.setLsObject(routeBean);
 		return res;
 	}
 	
@@ -285,7 +278,7 @@ public class RouteUserDao{
 		PreparedStatement stm = null;
 		HashMap<String, LgplaValuesBean> listMaterials = new HashMap<String, LgplaValuesBean>();
 		
-		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR, DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE PK_POS_MAT = ?";
+		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR, DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ?";
 		
 		log.warning(INV_VW_ZONE_POSITIONS_MATERIALS);
 		log.log(Level.WARNING,"[getPositionMaterialsDao] Preparing sentence...");
