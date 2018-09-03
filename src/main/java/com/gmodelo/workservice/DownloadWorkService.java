@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.AbstractResultsBean;
@@ -60,7 +61,7 @@ public class DownloadWorkService {
 	 */
 
 	@SuppressWarnings({ "rawtypes" })
-	public String GetInfoTablesWS(Request request, HttpServletRequest httpRequest) {
+	public String GetInfoTablesWS(Request request, HttpSession httpSession) {
 		log.warning("Entrando al Workservice");
 		log.warning(request.toString());
 		Response<List<RfcTablesBean>> response = new Response<>();
@@ -78,8 +79,8 @@ public class DownloadWorkService {
 		}
 		log.warning("Saliendo del Workservice");
 		response.setLsObject(listToReturn);
-		abstractResult.setStrCom1(httpRequest.getSession().getId());
-		abstractResult.setIntCom1(httpRequest.getSession().getMaxInactiveInterval());
+		abstractResult.setStrCom1(httpSession.getId());
+		abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
 		log.warning(response.toString());
 		return new Gson().toJson(response);
 	}
@@ -98,7 +99,7 @@ public class DownloadWorkService {
 	 * for the views, but the view needs to be exact in names that table
 	 */
 
-	public String GetMasterDataWS(Request request, HttpServletRequest httpRequest) {
+	public String GetMasterDataWS(Request request, HttpSession httpSession) {
 		log.log(Level.WARNING, "Init... GetMasterDataWS(Request<LoginBean<?>> request)");
 		log.log(Level.WARNING, "Request Data" + request.toString());
 		Response<String> response = new Response<>();
@@ -170,15 +171,15 @@ public class DownloadWorkService {
 
 			}
 			log.log(Level.WARNING, "Before Adding to ResponseList to LSOBJECT");
-			abstractResult.setStrCom1(httpRequest.getSession().getId());
-			abstractResult.setIntCom1(httpRequest.getSession().getMaxInactiveInterval());
+			abstractResult.setStrCom1(httpSession.getId());
+			abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
 			response.setAbstractResult(abstractResult);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Get Master Data WorkService Error: ", e);
 			e.printStackTrace();
 			response.setLsObject(null);
-			abstractResult.setStrCom1(httpRequest.getSession().getId());
-			abstractResult.setIntCom1(httpRequest.getSession().getMaxInactiveInterval());
+			abstractResult.setStrCom1(httpSession.getId());
+			abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
 		}
 		log.log(Level.WARNING, "Before Response" + response.getAbstractResult());
 		return new Gson().toJson(response);

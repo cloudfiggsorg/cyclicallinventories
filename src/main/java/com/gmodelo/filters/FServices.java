@@ -86,11 +86,11 @@ public class FServices implements Filter {
 //				log.warn(req);
 				
 				if(req.getTokenObject() != null && req.getTokenObject().getLoginId() != null && req.getTokenObject().getLoginPass() != null){
-					HttpSession androidSession = HttpSessionCollector.find(req.getTokenObject().getRelationUUID());
-					if(androidSession != null){
-						log.warn("[doFilter] Android. Invalidating session...");
-						androidSession.invalidate();
-					}
+//					HttpSession androidSession = HttpSessionCollector.find(req.getTokenObject().getRelationUUID());
+//					if(androidSession != null){
+//						log.warn("[doFilter] Android. Invalidating session...");
+//						androidSession.invalidate();
+//					}
 					
 					Response res = new LoginWorkService().login(req.getTokenObject(), (HttpServletRequest)sRequest, session);
 					log.warn(res);
