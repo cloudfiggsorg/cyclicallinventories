@@ -1,8 +1,13 @@
 package com.gmodelo.workservice;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.servlet.http.HttpSession;
+
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
@@ -11,6 +16,7 @@ import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.dao.RouteDao;
 import com.gmodelo.dao.RouteUserDao;
+import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -19,17 +25,17 @@ public class RouteWorkService {
 
 	private Logger log = Logger.getLogger(RouteWorkService.class.getName());
 
-	public Response<RouteBean> addRoute(Request request, User user){
-		
-		log.log(Level.WARNING,"[addRouteWS] "+request.toString());
+	public Response<RouteBean> addRoute(Request request, User user) {
+
+		log.log(Level.WARNING, "[addRouteWS] " + request.toString());
 		RouteBean routeBean;
 		Response<RouteBean> res = new Response<RouteBean>();
 		String req = request.getLsObject().toString().trim();
-		if(!req.isEmpty()){
+		if (!req.isEmpty()) {
 			try {
 				routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteBean.class);
 			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[addRouteWS] Error al pasar de Json a RouteBean");
+				log.log(Level.SEVERE, "[addRouteWS] Error al pasar de Json a RouteBean");
 				routeBean = null;
 				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -37,87 +43,104 @@ public class RouteWorkService {
 				res.setAbstractResult(abstractResult);
 				return res;
 			}
-		}else{
+		} else {
 			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs("El json de tipo RouteBean viene vacio o nulo");
 			res.setAbstractResult(abstractResult);
-			log.log(Level.SEVERE,"[addRouteWS]  "+abstractResult.getResultMsgAbs());
+			log.log(Level.SEVERE, "[addRouteWS]  " + abstractResult.getResultMsgAbs());
 			return res;
 		}
-		
+
 		return new RouteDao().addRoute(routeBean, user.getEntity().getIdentyId());
-		
+
 	}
-	public Response<Object> deleteRoute(Request request){
-		
-		log.log(Level.WARNING,"[deleteRouteWS] "+request.toString());
+
+	public Response<Object> deleteRoute(Request request) {
+
+		log.log(Level.WARNING, "[deleteRouteWS] " + request.toString());
 		String arrayIdRoutes;
 		StringBuilder stringRoutes = new StringBuilder();
 		Response<Object> res = new Response<Object>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		String req = request.getLsObject().toString().trim();
-		if(!req.isEmpty()){
+		if (!req.isEmpty()) {
 			try {
 				arrayIdRoutes = request.getLsObject().toString();
-				
-				if(arrayIdRoutes == null || arrayIdRoutes.isEmpty()){
+
+				if (arrayIdRoutes == null || arrayIdRoutes.isEmpty()) {
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
 					abstractResult.setResultMsgAbs("NULL OR EMPTY ARRAY");
 					res.setAbstractResult(abstractResult);
 					return res;
 				}
-				
+
 			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[deleteRouteWS] Error al pasar de Json a RoutePositionBean");
-				
+				log.log(Level.SEVERE, "[deleteRouteWS] Error al pasar de Json a RoutePositionBean");
+
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
 				return res;
 			}
-		}else{
-			
+		} else {
+
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs("Error al pasar de Json a RoutePositionBean");
 			res.setAbstractResult(abstractResult);
-			log.log(Level.SEVERE,"[deleteRouteWS] "+abstractResult.getResultMsgAbs());
-			
+			log.log(Level.SEVERE, "[deleteRouteWS] " + abstractResult.getResultMsgAbs());
+
 			return res;
 		}
-		
-		
-	
+
 		return new RouteDao().deleteRoute(stringRoutes.toString());
-	
+
 	}
 
-	public Response<List<RouteBean>> getRoutes(Request request){
-		log.log(Level.WARNING,"[getRoutesService] "+request.toString());
+	public Response<List<RouteBean>> getRoutes(Request request) {
+		log.log(Level.WARNING, "[getRoutesService] " + request.toString());
 		RouteBean routeBean = null;
 		String searchFilter = null;
 		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
 		String req = request.getLsObject().toString().trim();
-		if(!req.isEmpty()){
+		if (!req.isEmpty()) {
 			try {
-				routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteBean.class) ;
-				
-				log.log(Level.WARNING,"Fue objeto");
+				routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteBean.class);
+
+				log.log(Level.WARNING, "Fue objeto");
 			} catch (JsonSyntaxException e) {
 				searchFilter = request.getLsObject().toString();
-				log.log(Level.WARNING,"Fue cadena");
+				log.log(Level.WARNING, "Fue cadena");
 			}
-		}else{
+		} else {
 			searchFilter = "";
 		}
-		
-		return new RouteDao().getRoutes(routeBean,searchFilter);
+
+		return new RouteDao().getRoutes(routeBean, searchFilter);
 	}
 
-	public Response<RouteUserBean> getRoutesByUser(User user){
-		
-		log.log(Level.WARNING,"[getRoutesByUserService] ");
+	public String getRoutesByUser(User user, HttpSession userSession) {
 
-		return new RouteUserDao().getRoutesByUser(user);
+		Response<RouteUserDao> routeResponse = new Response<>();
+		RouteUserDao routeDao = new RouteUserDao();
+		AbstractResultsBean result = new AbstractResultsBean();
+		result.setIntCom1(userSession.getMaxInactiveInterval());
+		result.setStrCom1(userSession.getId());
+		routeResponse.setAbstractResult(result);
+		try {
+			RouteUserBean route = routeDao.getRoutesByUser(user);
+			if (route != null) {
+				route.setPositions(routeDao.getPositions(route.getRouteId()));
+				routeResponse.setLsObject(routeDao);
+			} else {
+				result.setResultId(ReturnValues.IUSERNOTTASK);
+				result.setResultMsgAbs("Tarea no encontrada para usuario: " + user.getEntity().getIdentyId());
+			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgGen(e.getMessage());
+		}
+		log.log(Level.WARNING, "[getRoutesByUserService] ");
+		return new Gson().toJson(routeResponse);
 	}
 }

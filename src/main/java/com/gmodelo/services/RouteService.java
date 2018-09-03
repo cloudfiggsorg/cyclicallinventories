@@ -23,29 +23,29 @@ import com.gmodelo.workservice.RouteWorkService;
 public class RouteService {
 	@Context
 	private HttpServletRequest httpRequest;
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addRoute")
-	public Response<RouteBean> addRoute(Request request){
+	public Response<RouteBean> addRoute(Request request) {
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new RouteWorkService().addRoute(request, user);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/deleteRoute")
-	public Response<Object> deleteRoute(Request request){
+	public Response<Object> deleteRoute(Request request) {
 		return new RouteWorkService().deleteRoute(request);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getRoutes")
-	public Response<List<RouteBean>> getRoutes(Request request){
+	public Response<List<RouteBean>> getRoutes(Request request) {
 		return new RouteWorkService().getRoutes(request);
 	}
 
@@ -53,10 +53,9 @@ public class RouteService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getRoutesByUser")
-	public Response<RouteUserBean> getRoutesByUser(Request request){
-		
-		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());		
+	public String getRoutesByUser(Request request) {
+		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
 		User user = (User) session.getAttribute("user");
-		return new RouteWorkService().getRoutesByUser(user);
+		return new RouteWorkService().getRoutesByUser(user, session);
 	}
 }
