@@ -22,6 +22,8 @@ public class ReturnValues {
 	public static final int IUSERNOSESSION = -106;
 	public static final String SUSERNOSESSION = "INV_CIC_USER_NOT_SESSION";
 	
+	public static final int IUSERNOTTASK = -107;
+	
 	public static final String SEXCEPTION = "";
 	public static final int ILANGKEYNOTFOUND = -404;
 	public static final String SLANGVALUE = "LANG_VALUE";
