@@ -302,7 +302,7 @@ public class RouteUserDao{
 				
 				material.setMatnr(rs.getString("MATNR").replaceFirst ("^0*", ""));
 				material.setMatkx(rs.getString("DEN_TYP_MAT"));
-				material.setLocked(false);
+				material.setLocked(true);
 				listMaterials.put(material.toKey(pkAsgId), material);
 			}
 			
