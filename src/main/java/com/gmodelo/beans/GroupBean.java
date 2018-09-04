@@ -15,7 +15,6 @@ public class GroupBean {
 		// TODO Auto-generated constructor stub
 	}
 	
-
 	public GroupBean(String groupId, String groupDesc, List<User> users) {
 		super();
 		this.groupId = groupId;
@@ -23,7 +22,6 @@ public class GroupBean {
 		this.users = users;
 	}
 	
-
 	public List<User> getUsers() {
 		return users;
 	}
