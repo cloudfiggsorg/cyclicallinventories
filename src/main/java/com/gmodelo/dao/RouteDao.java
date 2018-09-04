@@ -372,6 +372,8 @@ public class RouteDao{
 		log.log(Level.WARNING, "[getGroupsDao] Executing query...");
 
 		ResultSet rs = stm.executeQuery();
+		
+		GroupDao groupDAO = new GroupDao(); 
 
 		while (rs.next()) {
 			
@@ -380,6 +382,7 @@ public class RouteDao{
 			group.setGroupId(rs.getString(2));
 			group.setGdesc(rs.getString(3));
 			group.setCountNum(rs.getString(4));
+			group.setUsers(groupDAO.groupUsers(rs.getString(2)));
 			listGroups.add(group);
 		}
 
