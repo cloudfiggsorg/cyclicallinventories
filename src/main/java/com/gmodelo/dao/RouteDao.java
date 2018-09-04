@@ -78,13 +78,12 @@ public class RouteDao{
 			
 			// INSERTAR POSICIONES
 			for (int i = 0; i < routeBean.getPositions().size(); i++) {
-				routeBean.getPositions().get(i).setRouteId(routeId);
-
+				
 				cs = null;
 				log.log(Level.WARNING, "[addRoutePosition] Preparing sentence...");
 				cs = con.prepareCall(INV_SP_ADD_ROUTE_POSITION);
 
-				cs.setString(1, routeBean.getPositions().get(i).getRouteId());
+				cs.setString(1, routeBean.getRouteId());
 				cs.setInt(2, routeBean.getPositions().get(i).getPositionId());
 				cs.setString(3, routeBean.getPositions().get(i).getZoneId());
 				cs.setString(4, routeBean.getPositions().get(i).getSecuency());
@@ -111,12 +110,11 @@ public class RouteDao{
 
 			// INSERTAR GRUPOS Y CONTEOS
 			for (int i = 0; i < routeBean.getGroups().size(); i++) {
-				routeBean.getGroups().get(i).setRouteId(routeId);
 
 				cs = null;
 				cs = con.prepareCall(INV_SP_ASSIGN_GROUP_TO_ROUTE);
 
-				cs.setString(1, routeBean.getGroups().get(i).getRouteId());
+				cs.setString(1, routeBean.getRouteId());
 				cs.setString(2, routeBean.getGroups().get(i).getGroupId());
 				cs.setString(3, routeBean.getGroups().get(i).getCountNum());
 				cs.setString(4, createdBy);
@@ -318,7 +316,7 @@ public class RouteDao{
 
 		List<RoutePositionBean> listPositions = new ArrayList<RoutePositionBean>();
 
-		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY ,ZDESC, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
+		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 
 		log.warning(INV_VW_ROUTES_WITH_POSITIONS);
 		log.log(Level.WARNING, "[getRoutesDao] Preparing sentence...");
@@ -337,7 +335,6 @@ public class RouteDao{
 			position.setZoneId(rs.getString(4));
 			position.setSecuency(rs.getString(5));
 			position.setZdesc(rs.getString(6));
-			position.setRouteId(rs.getString(7));
 			listPositions.add(position);
 		}
 
@@ -383,7 +380,6 @@ public class RouteDao{
 			group.setGroupId(rs.getString(2));
 			group.setGdesc(rs.getString(3));
 			group.setCountNum(rs.getString(4));
-			group.setRouteId(idRoute);
 			listGroups.add(group);
 		}
 
@@ -411,7 +407,6 @@ public class RouteDao{
 		String rdesc = "";
 		String type = "";
 		String condition = "";
-		String aux = "";
 		
 		routeId = (routeB.getRouteId() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + routeB.getRouteId().replaceFirst("^0*", "") + "' "

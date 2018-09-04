@@ -2,7 +2,6 @@ package com.gmodelo.beans;
 
 public class RoutePositionBean {
 	
-	String routeId;
 	int positionId;
 	String lgort;
 	String gdesc;
@@ -10,12 +9,6 @@ public class RoutePositionBean {
 	String secuency;
 	String zdesc;
 	
-	public String getRouteId() {
-		return routeId;
-	}
-	public void setRouteId(String routeId) {
-		this.routeId = routeId;
-	}
 	public String getZdesc() {
 		return zdesc;
 	}
@@ -56,11 +49,10 @@ public class RoutePositionBean {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public RoutePositionBean(String routeId, int positionId, String lgort, String gdesc,
+	public RoutePositionBean(int positionId, String lgort, String gdesc,
 			String zoneId, String secuency, String zdesc) {
 		super();
 		
-		this.routeId = routeId;
 		this.positionId = positionId;
 		this.lgort = lgort;
 		this.gdesc = gdesc;
@@ -72,7 +64,6 @@ public class RoutePositionBean {
 	public RoutePositionBean(String routeId, String lgort, String gdesc,
 			String zoneId, String secuency) {
 		super();
-		this.routeId = routeId;
 		this.lgort = lgort;
 		this.gdesc = gdesc;
 		this.zoneId = zoneId;
@@ -97,7 +88,7 @@ public class RoutePositionBean {
 	
 	@Override
 	public String toString() {
-		return "RoutePositionB [routeId=" + routeId + ", positionId=" + positionId
+		return "RoutePositionB [positionId=" + positionId
 				+ ", lgort=" + lgort + ", gdesc=" + gdesc + ", zoneId=" + zoneId + ", secuency=" + secuency + ", zdesc="
 				+ zdesc + "]";
 	}
