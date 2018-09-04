@@ -459,16 +459,4 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 		
 		return condition;
 	}
-	
-	
-	public static void main(String[] args) {
-		GroupDao dao = new GroupDao();
-		String searchFilter = "";
-		GroupBean groupB = new GroupBean();
-		Response<List<GroupBean>> x = dao.getGroups(groupB, searchFilter);
-		
-		for(int i=0; i< x.getLsObject().size(); i++){
-			System.out.println(x.getLsObject().get(i).toString());
-		}
-	}
 }
