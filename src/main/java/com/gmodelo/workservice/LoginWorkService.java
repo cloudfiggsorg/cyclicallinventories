@@ -25,7 +25,7 @@ public class LoginWorkService {
 
 	
 
-	private Logger log = Logger.getLogger(LoginWorkService.class.getName());
+//	private Logger log = Logger.getLogger(LoginWorkService.class.getName());
 	private java.util.logging.Logger myLog = java.util.logging.Logger.getLogger( LoginWorkService.class.getName());
 
 //	public String validateLogin(String loginString) {
@@ -90,7 +90,7 @@ public class LoginWorkService {
 		if (loginBean.getLoginId() == null || loginBean.getLoginId().isEmpty() || loginBean.getLoginPass().isEmpty()
 				|| loginBean.getLoginPass() == null) {
 
-			log.error("[login] Missing data");
+			myLog.log(Level.SEVERE,"[login] Missing data");
 
 			abstractResult.setResultId(-1);
 			abstractResult.setResultMsgAbs("SOME ERROR OCCURED...");
@@ -107,7 +107,7 @@ public class LoginWorkService {
 //			apiUME.setConnectionData("35.172.127.238", "1433", "DBEntities", "ume_user", "Bmore2018.");
 			user.getEntity().setIdentyId(loginBean.getLoginId().trim());
 			user.getAccInf().setPassword(loginBean.getLoginPass().trim());
-			log.warn("Check if user exists on UME");
+			myLog.info("Check if user exists on UME");
 			try {
 				user = apiUME.checkUserUME(user);
 				
@@ -121,7 +121,7 @@ public class LoginWorkService {
 				abstractResult.setResultId(ReturnValues.ISUCCESS); 
 			}
 			else{// Check if user exists on LDAP
-				myLog.log(Level.WARNING,"[login] Check if user exists on LDAP");
+				myLog.info("[login] Check if user exists on LDAP");
 				user = new User();
 				user.getEntity().setIdentyId(loginBean.getLoginId().trim());
 				user.getAccInf().setPassword(loginBean.getLoginPass().trim());
@@ -170,8 +170,7 @@ public class LoginWorkService {
 						
 						return resp;
 					}
-					System.out.println("Va user abajo:");
-					System.out.println(user.getEntity().getIdentyId());
+					myLog.info(user.getEntity().getIdentyId());
 					session = request.getSession(true);
 //					user = new User();
 //					user.getAccInf().setPassword(null);
@@ -182,25 +181,25 @@ public class LoginWorkService {
 														// session
 					session.setAttribute("roles", lsRolesAux);
 					
-					myLog.log(Level.WARNING,"[login] Loggin success for: " + user.getEntity().getIdentyId());
+					myLog.info("[login] Loggin success for: " + user.getEntity().getIdentyId());
 //					session.setMaxInactiveInterval(ReturnValues.ACTIVE_INTERVAL);
 					abstractResult.setIntCom1(1*60);
 					loginBean.setActiveInterval(ReturnValues.ACTIVE_INTERVAL);
 					loginBean.setLoginId(null);
 					loginBean.setLoginPass(null);
 					loginBean.setRelationUUID(session.getId());
-					log.warn(loginBean.getRelationUUID());
+					myLog.info(loginBean.getRelationUUID());
 					loginBean.setLsObjectLB(new LdapUser<>());
 					resp.setLsObject(loginBean);
 				}
 
 			} else {
-				log.warn(abstractResult.getResultMsgAbs());
+				myLog.info(abstractResult.getResultMsgAbs());
 				//abstractResult.setResultId(ReturnValues.IPASSWORDNOTMATCH);
 				//abstractResult.setResultMsgAbs("USER OR PASSWORD INCORRECT");
 			}
 		} else {
-			log.warn("[login] Session already created");
+			myLog.info("[login] Session already created");
 			abstractResult.setResultId(ReturnValues.ISESSIONCREATED);
 			abstractResult.setResultMsgAbs("SESSION ALREADY CREATED");
 		}
@@ -218,10 +217,10 @@ public class LoginWorkService {
 			
 			request.getSession(false).invalidate();
 			
-			log.warn("[logout] Session closed!");			
+			myLog.info("[logout] Session closed!");			
 		}else{
 			
-			log.info("[logout] No session to close.");
+			myLog.info("[logout] No session to close.");
 			
 			abstractResult.setResultId(ReturnValues.IUSERNOSESSION);
 			abstractResult.setResultMsgAbs(ReturnValues.SUSERNOSESSION);
