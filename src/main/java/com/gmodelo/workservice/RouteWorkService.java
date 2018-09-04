@@ -121,7 +121,7 @@ public class RouteWorkService {
 
 	public String getRoutesByUser(User user, HttpSession userSession) {
 
-		Response<RouteUserDao> routeResponse = new Response<>();
+		Response<RouteUserBean> routeResponse = new Response<>();
 		RouteUserDao routeDao = new RouteUserDao();
 		AbstractResultsBean result = new AbstractResultsBean();
 		result.setIntCom1(userSession.getMaxInactiveInterval());
@@ -131,7 +131,7 @@ public class RouteWorkService {
 			RouteUserBean route = routeDao.getRoutesByUser(user);
 			if (route != null) {
 				route.setPositions(routeDao.getPositions(route.getRouteId()));
-				routeResponse.setLsObject(routeDao);
+				routeResponse.setLsObject(route);
 			} else {
 				result.setResultId(ReturnValues.IUSERNOTTASK);
 				result.setResultMsgAbs("Tarea no encontrada para usuario: " + user.getEntity().getIdentyId());

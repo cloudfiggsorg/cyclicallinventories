@@ -126,8 +126,8 @@ public class FServices implements Filter {
 							@SuppressWarnings("rawtypes")
 							Response resp = new Response();
 							AbstractResultsBean abstractResult = new AbstractResultsBean();
-							abstractResult.setResultId(-1);
-							abstractResult.setResultMsgAbs("INVALID TOKEN");
+							abstractResult.setResultId(ReturnValues.IINVALIDTOKEN);
+							abstractResult.setResultMsgAbs(ReturnValues.SINVALIDTOKEN);
 							resp.setAbstractResult(abstractResult);
 							
 							log.error(abstractResult.getResultMsgAbs());

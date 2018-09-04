@@ -22,6 +22,9 @@ public class ReturnValues {
 	public static final int IUSERNOSESSION = -106;
 	public static final String SUSERNOSESSION = "INV_CIC_USER_NOT_SESSION";
 	
+	public static final int IINVALIDTOKEN = -108;
+	public static final String SINVALIDTOKEN = "INVALID TOKEN";
+	
 	public static final int IUSERNOTTASK = -107;
 	
 	public static final String SEXCEPTION = "";
