@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.internal.Throwables;
-
 import com.bmore.ume001.beans.Entity;
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
