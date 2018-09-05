@@ -162,7 +162,7 @@ public class DeltasDao {
         try{
         	log.log(Level.WARNING, "[createDestinationDataFileDeltaDAO] Preparing sentence...");
             FileOutputStream fos = new FileOutputStream(destCfg, false);
-            connectProperties.store(fos, "for tests only !");
+            //connectProperties.store(fos, "for tests only !");
             fos.close();
         }catch (Exception e){
         	log.log(Level.SEVERE,"[createDestinationDataFileDeltaDAO] Some error occurred while was trying to createDestination: " + destinationName, e);
