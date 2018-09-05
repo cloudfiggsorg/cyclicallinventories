@@ -27,13 +27,18 @@ public class RouteDao{
 		Response<RouteBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
-		String routeId = routeBean.getRouteId() == null ? null : routeBean.getRouteId().replaceFirst("^0*", "");
-
 		final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?"; 		
 		final String INV_SP_DEL_ROUTE_POSITION = "INV_SP_DEL_ROUTE_POSITION ?, ?";				
 		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?";
 		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?, ?";
 		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?";
+		int routeId = 0;
+		
+		try {
+			routeId = Integer.parseInt(routeBean.getRouteId());
+		} catch (NumberFormatException e) {
+			// TODO: handle exception
+		}
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
@@ -45,9 +50,9 @@ public class RouteDao{
 			
 			con.setAutoCommit(false);
 			// ADD ROUTE
-
+			
 			cs = con.prepareCall(INV_SP_ADD_ROUTE);
-			cs.setInt(1, Integer.parseInt(routeId));
+			cs.setInt(1, routeId);
 			cs.setString(2, routeBean.getRdesc());
 			cs.setString(3, routeBean.getBukrs());
 			cs.setString(4, routeBean.getWerks());
@@ -57,9 +62,8 @@ public class RouteDao{
 
 			log.log(Level.WARNING, "[addRoute] Executing query...");
 			cs.execute();
-
-			routeId = cs.getString(1);
-			routeBean.setRouteId(String.format("%08d", Integer.parseInt(routeId))); // addZeros
+			
+			routeBean.setRouteId(String.format("%08d", cs.getInt(1))); // addZeros
 			
 			//Eliminar posiciones
 			String ids = "";
@@ -72,7 +76,7 @@ public class RouteDao{
 												
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_ROUTE_POSITION);
-			cs.setInt(1, Integer.parseInt(routeId));
+			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));
 			cs.setString(2, ids);
 			cs.execute();
 			
@@ -104,7 +108,7 @@ public class RouteDao{
 			
 			cs = null;
 			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_ROUTE);
-			cs.setInt(1, Integer.parseInt(routeId));
+			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));
 			cs.setString(2, ids);
 			cs.execute();
 
@@ -262,7 +266,7 @@ public class RouteDao{
 			while (rs.next()) {
 				
 				routeBean = new RouteBean();
-				routeBean.setRouteId(String.format("%08d",Integer.parseInt(rs.getString(1))));
+				routeBean.setRouteId(String.format("%08d",rs.getInt(1)));
 				routeBean.setBukrs(rs.getString(2));
 				routeBean.setWerks(rs.getString(3));
 				routeBean.setRdesc(rs.getString(4));
@@ -332,7 +336,7 @@ public class RouteDao{
 			position.setPositionId(rs.getInt(1));
 			position.setLgort(rs.getString(2));
 			position.setGdesc(rs.getString(3));
-			position.setZoneId(rs.getString(4));
+			position.setZoneId(String.format("%08d",rs.getInt(4)));
 			position.setSecuency(rs.getString(5));
 			position.setZdesc(rs.getString(6));
 			listPositions.add(position);
