@@ -85,6 +85,8 @@ public class FServices implements Filter {
 				}
 //				log.warn(req);
 				
+				System.out.println(req);
+				
 				if(req.getTokenObject() != null && req.getTokenObject().getLoginId() != null && req.getTokenObject().getLoginPass() != null){
 //					HttpSession androidSession = HttpSessionCollector.find(req.getTokenObject().getRelationUUID());
 //					if(androidSession != null){
