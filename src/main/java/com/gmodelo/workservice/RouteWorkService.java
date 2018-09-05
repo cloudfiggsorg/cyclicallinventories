@@ -22,14 +22,14 @@ public class RouteWorkService {
 	private Logger log = Logger.getLogger(RouteWorkService.class.getName());
 
 	public Response<RouteBean> addRoute(Request request, User user) {
-
+		
 		log.log(Level.WARNING, "[addRouteWS] " + request.toString());
 		RouteBean routeBean;
 		Response<RouteBean> res = new Response<RouteBean>();
 		String req = request.getLsObject().toString().trim();
 		Gson gson = new Gson();
 		if (!req.isEmpty()) {
-			try {				
+			try {								
 				routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteBean.class);
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE, "[addRouteWS] Error al pasar de Json a RouteBean");

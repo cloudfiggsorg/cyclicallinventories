@@ -33,8 +33,8 @@ public class RouteDao{
 		final String INV_SP_DEL_ROUTE_POSITION = "INV_SP_DEL_ROUTE_POSITION ?, ?";				
 		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?";
 		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?, ?";
-		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?"; 
-
+		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?";
+		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
@@ -63,13 +63,13 @@ public class RouteDao{
 			
 			//Eliminar posiciones
 			String ids = "";
-			for (int i = 0; i < routeBean.getGroups().size(); i++) {
-				
+			for (int i = 0; i < routeBean.getPositions().size(); i++) {
+								
 				if(routeBean.getPositions().get(i).getPositionId() > 0){
 					ids += routeBean.getPositions().get(i).getPositionId() + ",";
 				}				
 			}
-			
+												
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_ROUTE_POSITION);
 			cs.setInt(1, Integer.parseInt(routeId));
