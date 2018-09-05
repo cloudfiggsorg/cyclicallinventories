@@ -12,22 +12,18 @@ public class UMEDaoE extends UMEdao{
 	private final static String LDAPSecurityAuthentication  = "simple";
 	private final static String LDAPSecurityPrincipal  = "Modelo";
 	private final static String DS_UME = "USER_MANAGEMENT_DS";
-	
-
-	
-	public UMEDaoE() {
-		super();
-		super.setLDAPUser(this.LDAPUser);
-		super.setLDAPPassword(this.LDAPPassword);
-		super.setLDAPInitialContecxtFactory(this.LDAPInitialContextFactory);
-		super.setLDAPProviderURL(this.LDAPProviderURL);
-		super.setLDAPSearchBase(this.LDAPSearchBase);
-		super.setLDAPSecurityAuthentication(this.LDAPSecurityAuthentication);
-		super.setLDAPSecurityPrincipal(this.LDAPSecurityPrincipal);
 		
-		super.setDataSourceName(this.DS_UME);
+	public UMEDaoE() {
+		
+		super();
+		super.setLDAPUser(UMEDaoE.LDAPUser);
+		super.setLDAPPassword(UMEDaoE.LDAPPassword);
+		super.setLDAPInitialContecxtFactory(UMEDaoE.LDAPInitialContextFactory);
+		super.setLDAPProviderURL(UMEDaoE.LDAPProviderURL);
+		super.setLDAPSearchBase(UMEDaoE.LDAPSearchBase);
+		super.setLDAPSecurityAuthentication(UMEDaoE.LDAPSecurityAuthentication);
+		super.setLDAPSecurityPrincipal(UMEDaoE.LDAPSecurityPrincipal);		
+		super.setDataSourceName(UMEDaoE.DS_UME);
 	}
-	
-	
 
 }
