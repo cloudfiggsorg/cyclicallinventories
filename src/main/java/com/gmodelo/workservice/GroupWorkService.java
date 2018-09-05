@@ -178,13 +178,6 @@ public class GroupWorkService {
 		String req = request.getLsObject().toString().trim();
 		UMEDaoE UMEDao = new UMEDaoE();
 		
-		UMEDao.setLDAPUser("H0013974");
-		UMEDao.setLDAPPassword("Agosto2018.");
-		UMEDao.setLDAPInitialContecxtFactory("com.sun.jndi.ldap.LdapCtxFactory");
-		UMEDao.setLDAPProviderURL("ldap://10.88.1.209:389");
-		UMEDao.setLDAPSearchBase("DC=modelo,DC=gmodelo,DC=com,DC=mx");
-		UMEDao.setLDAPSecurityAuthentication("simple");
-		UMEDao.setLDAPSecurityPrincipal("Modelo");
 		Response<ArrayList<User>> res = new Response<ArrayList<User>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ArrayList<User> lista = null;

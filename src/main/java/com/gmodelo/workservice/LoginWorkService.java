@@ -11,7 +11,6 @@ import javax.servlet.http.HttpSession;
 import com.bmore.ume001.beans.Role;
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.LdapUser;
 import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.UMEDaoE;
@@ -99,23 +98,12 @@ public class LoginWorkService {
 			User user = new User();
 			// Check if user exists on UME or LDAP
 			UMEDaoE apiUME = new UMEDaoE();
-			// apiUME.setConnectionData("35.172.127.238", "1433", "DBEntities",
-			// "ume_user", "Bmore2018.");
-			// Check if user exists on LDAP
 			myLog.info("[login] Check if user exists on LDAP");
 			user.getEntity().setIdentyId(loginBean.getLoginId().trim());
 			user.getAccInf().setPassword(loginBean.getLoginPass().trim());
 
-			// ArrayList<User> lsUser = new ArrayList<User>();
-			// lsUser.add(user);
 			try {
-				apiUME.setLDAPUser("H0013974");
-				apiUME.setLDAPPassword("Agosto2018.");
-				apiUME.setLDAPInitialContecxtFactory("com.sun.jndi.ldap.LdapCtxFactory");
-				apiUME.setLDAPProviderURL("ldap://10.88.1.209:389");
-				apiUME.setLDAPSearchBase("DC=modelo,DC=gmodelo,DC=com,DC=mx");
-				apiUME.setLDAPSecurityAuthentication("simple");
-				apiUME.setLDAPSecurityPrincipal("Modelo");
+
 				user.getEntity().setIdentyId(loginBean.getLoginId());
 
 				user = apiUME.checkUserLDAP(user);
@@ -166,11 +154,6 @@ public class LoginWorkService {
 					}
 					myLog.info(user.getEntity().getIdentyId());
 					session = request.getSession(true);
-					// user = new User();
-					// user.getAccInf().setPassword(null);
-					// user.getEntity().setDescription(null);
-					// user.getEntity().setCreatedBy(null);
-					// user.setAccInf(null);
 					session.setAttribute("user", user);// Set the idUser on
 														// session
 					session.setAttribute("roles", lsRolesAux);
@@ -189,8 +172,6 @@ public class LoginWorkService {
 
 			} else {
 				myLog.info(abstractResult.getResultMsgAbs());
-				// abstractResult.setResultId(ReturnValues.IPASSWORDNOTMATCH);
-				// abstractResult.setResultMsgAbs("USER OR PASSWORD INCORRECT");
 			}
 		} else {
 			myLog.info("[login] Session already created");
