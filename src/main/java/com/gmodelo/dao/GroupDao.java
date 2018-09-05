@@ -43,7 +43,7 @@ public class GroupDao {
 			
 			cs.setString(1,groupBean.getGroupId());
 			
-			cs.setString(2,groupBean.getGroupDesc());
+			cs.setString(2,groupBean.getGdesc());
 			
 			cs.setString(4, createdBy);
 			
@@ -358,7 +358,7 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 			while (rs.next()){
 				groupB = new GroupBean();				
 				groupB.setGroupId(rs.getString("IP_GROUP"));
-				groupB.setGroupDesc(rs.getString("GDESC"));
+				groupB.setGdesc(rs.getString("GDESC"));
 				groupB.setUsers(this.groupUsers(rs.getString("IP_GROUP")));
 				listGroupsBean.add(groupB);
 			}
@@ -453,7 +453,7 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 		
 		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP LIKE '%"+ groupB.getGroupId() + "%' "  : "";
 		condition+=groupId;
-		gdes = (groupB.getGroupDesc() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC LIKE '%" + groupB.getGroupDesc() +"%' " : "";
+		gdes = (groupB.getGdesc() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC LIKE '%" + groupB.getGdesc() +"%' " : "";
 		condition+=gdes;		
 		condition = condition.isEmpty() ? null : condition;
 		
