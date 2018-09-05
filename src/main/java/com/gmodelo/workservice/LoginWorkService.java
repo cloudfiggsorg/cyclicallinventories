@@ -96,37 +96,50 @@ public class LoginWorkService {
 		if (request.getSession().getAttribute("user") == null) {
 
 			User user = new User();
-			// Check if user exists on UME or LDAP
 			UMEDaoE apiUME = new UMEDaoE();
-			myLog.info("[login] Check if user exists on LDAP");
+			
 			user.getEntity().setIdentyId(loginBean.getLoginId().trim());
 			user.getAccInf().setPassword(loginBean.getLoginPass().trim());
-
+			
+			myLog.info("[login] Check if user exists in UME");
+			// Check if user exists on UME or LDAP
 			try {
-
-				user.getEntity().setIdentyId(loginBean.getLoginId());
-
-				user = apiUME.checkUserLDAP(user);
+				user = apiUME.checkUserUME(user);
 				abstractResult.setResultId(ReturnValues.ISUCCESS);
-
-				// ConnectionManager iConnectionManager = new
-				// ConnectionManager();
-				//
-				// Connection con =
-				// iConnectionManager.createConnection(ConnectionManager.connectionBean);
-				// abstractResult =
-				// iConnectionManager.ValidateLDAPLogin(loginBean, con);
-				// iConnectionManager.CloseConnection(con);
-			} catch (NamingException e) {
+			} catch (Exception e1) {
 				user = null;
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				myLog.log(Level.SEVERE, "Error al verificar usuario en LDAP", e);
+				myLog.log(Level.SEVERE, "Error al verificar usuario en UME", e1);
 			}
-			// catch (InvCicException e) {
-			// myLog.log(Level.SEVERE,"[login] Error while tryng to retrive the
-			// user info from LDAP", e);
-			// abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			// }
+			if(user == null){
+				try {
+					myLog.info("[login] Check if user exists on LDAP");
+					user = new User();
+					user.getEntity().setIdentyId(loginBean.getLoginId().trim());
+					user.getAccInf().setPassword(loginBean.getLoginPass().trim());
+					user = apiUME.checkUserLDAP(user);
+					abstractResult.setResultId(ReturnValues.ISUCCESS);
+
+					// ConnectionManager iConnectionManager = new
+					// ConnectionManager();
+					//
+					// Connection con =
+					// iConnectionManager.createConnection(ConnectionManager.connectionBean);
+					// abstractResult =
+					// iConnectionManager.ValidateLDAPLogin(loginBean, con);
+					// iConnectionManager.CloseConnection(con);
+				} catch (NamingException e) {
+					user = null;
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					myLog.log(Level.SEVERE, "Error al verificar usuario en LDAP", e);
+				}
+				// catch (InvCicException e) {
+				// myLog.log(Level.SEVERE,"[login] Error while tryng to retrive the
+				// user info from LDAP", e);
+				// abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				// }
+			}
+			
 
 			if (user != null && abstractResult.getResultId() == ReturnValues.ISUCCESS) {
 
