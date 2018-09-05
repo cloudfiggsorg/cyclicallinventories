@@ -1,5 +1,6 @@
 package com.gmodelo.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,5 +55,13 @@ public class GroupService {
 	@Path("/getGroups")
 	public Response<List<GroupBean>> getGroups(Request request){
 		return new GroupWorkService().getGroups(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getUMEUsers")
+	public Response<ArrayList<User>> getUMEUsers(Request request){
+		return new GroupWorkService().getUMEUsers(request);
 	}
 }
