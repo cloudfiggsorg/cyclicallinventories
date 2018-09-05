@@ -175,25 +175,19 @@ public class GroupWorkService {
 	
 	//Metodo para obtener usuarios de la UME que se usan para GroupWorkService
 	public Response<ArrayList<User>> getUMEUsers(Request request){
+		log.info(request.toString());
 		String req = request.getLsObject().toString().trim();
 		UMEDaoE UMEDao = new UMEDaoE();
-		
 		Response<ArrayList<User>> res = new Response<ArrayList<User>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ArrayList<User> lista = null;
+		User user = new User();
 		if(!req.isEmpty()){
 			try {
-				
-				Type listType = new TypeToken<ArrayList<User>>() {
-				}.getType(); // Codigo para Castear a Lista
-				ArrayList<User> lsUsers = new Gson().fromJson(request.getLsObject().toString(),listType);
-				lista = UMEDao.getUsersLDAPByCredentials(lsUsers);
-			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[getUMEUsersWS] Error al pasar de Json a ArrayList<User>", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgGen(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
+				user.getEntity().setIdentyId(request.getLsObject().toString());
+				lista = new ArrayList<>();
+				lista.add(user);
+				lista = UMEDao.getUsersLDAPByCredentials(lista);
 			} catch (NamingException e) {
 				log.log(Level.SEVERE,"[getUMEUsersWS] NamingException ", e);
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -205,7 +199,7 @@ public class GroupWorkService {
 			log.info("Sin lista");
 			try {
 				lista = new ArrayList<>();
-				User user = new User();
+				user = new User();
 				lista.add(user);
 				lista = UMEDao.getUsersLDAPByCredentials(lista);
 			} catch (NamingException e) {
