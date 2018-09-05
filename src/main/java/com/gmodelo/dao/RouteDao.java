@@ -28,12 +28,10 @@ public class RouteDao{
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		String routeId = routeBean.getRouteId() == null ? null : routeBean.getRouteId().replaceFirst("^0*", "");
-		int idPosition = 0;
-		int idRouteGroup = 0;
 
 		final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?"; 		
 		final String INV_SP_DEL_ROUTE_POSITION = "INV_SP_DEL_ROUTE_POSITION ?, ?";				
-		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?";
 		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?, ?";
 		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?"; 
 
@@ -67,7 +65,9 @@ public class RouteDao{
 			String ids = "";
 			for (int i = 0; i < routeBean.getGroups().size(); i++) {
 				
-				ids += routeBean.getPositions().get(i).getPositionId() + ",";
+				if(routeBean.getPositions().get(i).getPositionId() > 0){
+					ids += routeBean.getPositions().get(i).getPositionId() + ",";
+				}				
 			}
 			
 			cs = null;
@@ -82,7 +82,6 @@ public class RouteDao{
 				cs = null;
 				log.log(Level.WARNING, "[addRoutePosition] Preparing sentence...");
 				cs = con.prepareCall(INV_SP_ADD_ROUTE_POSITION);
-
 				cs.setString(1, routeBean.getRouteId());
 				cs.setInt(2, routeBean.getPositions().get(i).getPositionId());
 				cs.setString(3, routeBean.getPositions().get(i).getZoneId());
@@ -90,16 +89,17 @@ public class RouteDao{
 				cs.registerOutParameter(2, Types.INTEGER);
 
 				log.log(Level.WARNING, "[addRoutePosition] Executing query...");
-				cs.execute();
-				idPosition = cs.getInt(2);
-				routeBean.getPositions().get(i).setPositionId(idPosition);
+				cs.execute(); 
+				routeBean.getPositions().get(i).setPositionId(cs.getInt(2));
 			}
 			
 			//Eliminar grupos
 			ids = "";
 			for (int i = 0; i < routeBean.getGroups().size(); i++) {
 				
-				ids += routeBean.getGroups().get(i).getRouteGroup() + ",";
+				if(routeBean.getGroups().get(i).getRouteGroup() > 0){
+					ids += routeBean.getGroups().get(i).getRouteGroup() + ",";
+				}
 			}
 			
 			cs = null;
@@ -118,12 +118,12 @@ public class RouteDao{
 				cs.setString(2, routeBean.getGroups().get(i).getGroupId());
 				cs.setString(3, routeBean.getGroups().get(i).getCountNum());
 				cs.setString(4, createdBy);
+				cs.setInt(5, routeBean.getGroups().get(i).getRouteGroup());
 				cs.registerOutParameter(5, Types.INTEGER);
 
 				log.log(Level.WARNING, "[assignGroupToRouteDao] Executing query...");
 				cs.execute();
-				idRouteGroup = cs.getInt(5);
-				routeBean.getGroups().get(i).setRouteGroup(idRouteGroup);
+				routeBean.getGroups().get(i).setRouteGroup(cs.getInt(5));
 			}
 			
 			log.log(Level.WARNING, "[addRoute] Sentence successfully executed.");
