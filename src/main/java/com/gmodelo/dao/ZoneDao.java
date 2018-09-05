@@ -416,7 +416,7 @@ public class ZoneDao {
 		String wDesc= "";
 		String gDesc= "";
 		String condition = "";
-		zoneId = (zoneBean.getZoneId() != null ? " AND ZONE_ID LIKE '%"+Integer.parseInt(zoneBean.getZoneId())+"%'" : "");
+		zoneId = (zoneBean.getZoneId() != null ? " AND ZONE_ID = "+Integer.parseInt(zoneBean.getZoneId()) : "");
 		condition += zoneId;
 		zdesc = (zoneBean.getZdesc() != null ? " AND ZON_DESC LIKE '%"+zoneBean.getZdesc()+"%'" : "");
 		condition += zdesc;
