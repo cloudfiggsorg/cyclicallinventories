@@ -37,36 +37,16 @@ public class DeltasDao {
 	public static final String REQUESTTABLECONFIG = "SELECT TABLE_NAME, TABLE_VALUES, TABLE_SQL_FILL FROM RFC_TABLE_FILL WITH(NOLOCK)";
 	public static final String REQUESTTABLECONFIGDELTA = "SELECT TABLE_NAME, TABLE_VALUES, TABLE_SQL_FILL, TABLE_REQUEST_FILTERS FROM RFC_TABLE_FILL WITH(NOLOCK) WHERE LAST_REQUEST IS NULL OR "
 			+ " CONVERT(date,getdate()) > CONVERT(date,dateadd(day,7,LAST_REQUEST))";
+	public static final String UPDATETABLEDATAMART = "UPDATE RFC_TABLE_FILL SET LAST_REQUEST = getdate() WHERE TABLE_NAME = ?";
 	
-	static
-    {
-        Properties connectProperties = new Properties();
-        connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, "10.90.3.44");
-        connectProperties.setProperty(DestinationDataProvider.JCO_SYSNR,  "00");
-        connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "400");
-        connectProperties.setProperty(DestinationDataProvider.JCO_USER,   "H0013678");
-        connectProperties.setProperty(DestinationDataProvider.JCO_PASSWD, "Victorita.2018");
-        connectProperties.setProperty(DestinationDataProvider.JCO_LANG,   "en");
-        createDestinationDataFile(RFC_DESTINATION, connectProperties);
-        connectProperties.setProperty(DestinationDataProvider.JCO_POOL_CAPACITY, "3");
-        connectProperties.setProperty(DestinationDataProvider.JCO_PEAK_LIMIT,    "10");
-        
-    }
+	private String HOST; 
+	private String USERHOST;
+    private String PASSWORDHOST;
+	final static String INV_CIC_REPOSITORY = "SELECT STORED_KEY, STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY IN('SAP_HOST','SAP_USER','SAP_PASSWORD') GROUP BY STORED_KEY, STORED_VALUE ORDER BY STORED_KEY ASC";
 	
-	static void createDestinationDataFile(String destinationName, Properties connectProperties)
-    {
-        File destCfg = new File(destinationName+".jcoDestination");
-        try
-        {
-            FileOutputStream fos = new FileOutputStream(destCfg, false);
-            connectProperties.store(fos, "for tests only !");
-            fos.close();
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Unable to create the destination files", e);
-        }
-    }
+	public DeltasDao(){
+		generatedProperties();
+	}
 	
 	public String getCronDelta(){
 		
@@ -111,12 +91,102 @@ public class DeltasDao {
 		}
 		return cron;
 	}
+
+	public void getDataConectionSAP(){
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		PreparedStatement stm = null;
+		
+		log.warning(INV_CIC_REPOSITORY);
+		log.log(Level.WARNING, "[getDataConectionSAPDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareStatement(INV_CIC_REPOSITORY);
+			log.log(Level.WARNING, "[getDataConectionSAPDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				if(rs.getString("STORED_KEY").equalsIgnoreCase("SAP_HOST")){
+					HOST = rs.getString("STORED_VALUE");
+				}
+				if(rs.getString("STORED_KEY").equalsIgnoreCase("SAP_USER")){
+					USERHOST = rs.getString("STORED_VALUE");
+				}
+				if(rs.getString("STORED_KEY").equalsIgnoreCase("SAP_PASSWORD")){
+					PASSWORDHOST = rs.getString("STORED_VALUE");
+				}
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.log(Level.WARNING, "[getDataConectionSAPDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getDataConectionSAPDao] Some error occurred while was trying to execute the query: " + INV_CIC_REPOSITORY, e);
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getDataConectionSAPDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+	}
 	
+	public void generatedProperties(){
+		getDataConectionSAP();
+		
+		log.log(Level.WARNING, "[generatedPropertiesDeltaDAO] Preparing sentence...");
+		Properties connectProperties = new Properties();
+        connectProperties.setProperty(DestinationDataProvider.JCO_ASHOST, HOST);
+        connectProperties.setProperty(DestinationDataProvider.JCO_SYSNR,  "00");
+        connectProperties.setProperty(DestinationDataProvider.JCO_CLIENT, "400");
+        connectProperties.setProperty(DestinationDataProvider.JCO_USER,   USERHOST);
+        connectProperties.setProperty(DestinationDataProvider.JCO_PASSWD, PASSWORDHOST);
+        connectProperties.setProperty(DestinationDataProvider.JCO_LANG,   "en");
+        
+        log.log(Level.WARNING, "[generatedPropertiesDeltaDAO] Call to createDestinationDataFile...");
+        createDestinationDataFile(RFC_DESTINATION, connectProperties);
+        connectProperties.setProperty(DestinationDataProvider.JCO_POOL_CAPACITY, "3");
+        connectProperties.setProperty(DestinationDataProvider.JCO_PEAK_LIMIT,    "10");
+	}
+	
+	public void createDestinationDataFile(String destinationName, Properties connectProperties){
+        File destCfg = new File(destinationName+".jcoDestination");
+        try{
+        	log.log(Level.WARNING, "[createDestinationDataFileDeltaDAO] Preparing sentence...");
+            FileOutputStream fos = new FileOutputStream(destCfg, false);
+            connectProperties.store(fos, "for tests only !");
+            fos.close();
+        }catch (Exception e){
+        	log.log(Level.SEVERE,"[createDestinationDataFileDeltaDAO] Some error occurred while was trying to createDestination: " + destinationName, e);
+        }
+    }
+	
+	public void connectDestination(){
+        JCoDestination destination = null;
+		try {
+			log.log(Level.WARNING, "[connectDestinationDeltaDAO] Preparing sentence...");
+			destination = JCoDestinationManager.getDestination(RFC_DESTINATION);
+			System.out.println("Attributes:");
+	        System.out.println(destination.getAttributes());
+	        System.out.println();
+		} catch (JCoException e) {
+			log.log(Level.SEVERE,"[connectDestinationDeltaDAO] Some error occurred while was connectDestination: " + destination, e);
+		}
+    }
 	
 	public void RequestFirstRun() {
 		Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
 		try {
 			PreparedStatement stm = con.prepareStatement(REQUESTTABLECONFIGDELTA);
+			System.out.println(REQUESTTABLECONFIGDELTA);
 			List<RFC_DATAMART> rfc_datamarts = new ArrayList<>();
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
@@ -124,12 +194,20 @@ public class DeltasDao {
 			}
 			if (rfc_datamarts.size() > 0) {
 				for (RFC_DATAMART datamart : rfc_datamarts) {
+					
 					datamart.setMaxRows(RequestCurretRows(datamart.getTablename()));
-					// datamart.setMaxRows(5000);
-					System.out.println("Inicia Extraccion Tabla " + datamart.getTablename() + " : " + new Date());
-					//RequestTableViaDatabase(datamart, con, masterRows, masterBeginRow);
-					System.out.println("Finalizo Extraccion Tabla " + datamart.getTablename() + " : " + new Date());
-					UpdateLastExcecute(con, datamart);
+					System.out.println("table: "+ datamart.getTablename()+ " sizetable: "+ datamart.getMaxRows());
+					
+					if(datamart.getMaxRows() <= 50000){
+						System.out.println("Cargar toda la tabla");
+						System.out.println("Inicia Extraccion Tabla " + datamart.getTablename() + " : " + new Date());
+						//RequestTableViaDatabase(datamart, con, masterRows, masterBeginRow);
+						System.out.println("Finalizo Extraccion Tabla " + datamart.getTablename() + " : " + new Date());
+					}else{
+						System.out.println("Cargar solo datos recientes");
+					}
+					
+					//UpdateLastExcecute(con, datamart);
 				}
 			} else {
 				System.out.println("NODATA");
@@ -148,8 +226,6 @@ public class DeltasDao {
 			}
 		}
 	}
-
-	public static final String UPDATETABLEDATAMART = "UPDATE RFC_TABLE_FILL SET LAST_REQUEST = getdate() WHERE TABLE_NAME = ?";
 
 	public void UpdateLastExcecute(Connection con, RFC_DATAMART datamart) {
 		try {
@@ -251,9 +327,19 @@ public class DeltasDao {
 	}
 	
 	public static void main(String[] args) {
-		JcoDao x = new JcoDao();
+		DeltasDao x = new DeltasDao();
 		
+		x.connectDestination();
 		x.RequestFirstRun();
+		/*
+		try {
+			x.Connect();
+		} catch (JCoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		//x.RequestFirstRun();
 	}
 
 }
