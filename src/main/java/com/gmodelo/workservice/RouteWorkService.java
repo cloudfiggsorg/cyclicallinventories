@@ -57,41 +57,8 @@ public class RouteWorkService {
 
 		log.log(Level.WARNING, "[deleteRouteWS] " + request.toString());
 		String arrayIdRoutes;
-		StringBuilder stringRoutes = new StringBuilder();
-		Response<Object> res = new Response<Object>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		String req = request.getLsObject().toString().trim();
-		if (!req.isEmpty()) {
-			try {
-				arrayIdRoutes = request.getLsObject().toString();
-
-				if (arrayIdRoutes == null || arrayIdRoutes.isEmpty()) {
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs("NULL OR EMPTY ARRAY");
-					res.setAbstractResult(abstractResult);
-					return res;
-				}
-
-			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE, "[deleteRouteWS] Error al pasar de Json a RoutePositionBean");
-
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		} else {
-
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs("Error al pasar de Json a RoutePositionBean");
-			res.setAbstractResult(abstractResult);
-			log.log(Level.SEVERE, "[deleteRouteWS] " + abstractResult.getResultMsgAbs());
-
-			return res;
-		}
-
-		return new RouteDao().deleteRoute(stringRoutes.toString());
-
+		arrayIdRoutes = request.getLsObject().toString();
+		return new RouteDao().deleteRoute(arrayIdRoutes);
 	}
 
 	public Response<List<RouteBean>> getRoutes(Request request) {
