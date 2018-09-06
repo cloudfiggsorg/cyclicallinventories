@@ -227,7 +227,7 @@ public class ZoneDao {
 	}
 
 	//vista se agrega LGOBE  y query se modifica para que siempre incluya AND de bukrs y werks y un OR de idZone y ZoneDesc
-	public Response<List<ZoneBean>> getLgortByZone(ZoneBean zoneBean){
+	public Response<List<ZoneBean>> getLgortByZone(ZoneBean zoneBean, String searchFilter){
 		
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -236,19 +236,24 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
-		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "
-				+ "WHERE BUKRS = '"+zoneBean.getBukrs()+"' AND WERKS = '"+zoneBean.getWerks()+"' ";
-		
-			String OR =	"AND ( ZONE_ID LIKE '%"+zoneBean.getZoneId()+"%' OR ZON_DESC LIKE '%"+zoneBean.getZdesc()+"%' )";
-		 //query
-		
-		String condition = buildCondition(zoneBean);
-		if(condition != null){
-			INV_VW_ZONE_BY_LGORT += condition;
-		}
-		
-		if(zoneBean.getZoneId() != null){
-			INV_VW_ZONE_BY_LGORT += OR;
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";
+				
+		if(searchFilter == null){
+			INV_VW_ZONE_BY_LGORT += "WHERE BUKRS = '"+zoneBean.getBukrs()+"' AND WERKS = '"+zoneBean.getWerks()+"' ";
+			String condition = buildCondition(zoneBean);
+			if(condition != null){
+				INV_VW_ZONE_BY_LGORT += condition;
+			}
+		}else{
+			String  searchFilterNumber = "";
+			try {
+				int aux = Integer.parseInt(searchFilter); 
+				searchFilterNumber  += aux;
+			} catch (Exception e) {
+				searchFilterNumber = searchFilter;
+				log.warning("Trying to convert String to Int");
+			}
+			INV_VW_ZONE_BY_LGORT += "WHERE  ZONE_ID LIKE '%"+searchFilterNumber+"%' OR ZON_DESC LIKE '%"+searchFilter+"%' ";
 		}
 		 
 		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
@@ -270,7 +275,7 @@ public class ZoneDao {
 				zoneBean = new ZoneBean();
 				
 				zoneBean.setLgort(rs.getString("LGORT"));
-				zoneBean.setZoneId(rs.getString("ZONE_ID"));
+				zoneBean.setZoneId(String.format("%08d",Integer.parseInt(rs.getString("ZONE_ID"))));
 				zoneBean.setZdesc(rs.getString("ZON_DESC"));
 				zoneBean.setBukrs(rs.getString("BUKRS"));
 				zoneBean.setWerks(rs.getString("WERKS"));
@@ -402,11 +407,21 @@ public class ZoneDao {
 	}
 	
 	private String buildCondition(ZoneBean zoneBean){
+		String zoneId = "";
+		String zdesc = "";
+		String bukrs = "";
+		String werks = "";
 		String lgort = "";
+		String bDesc = "";
+		String wDesc= "";
+		String gDesc= "";
 		String condition = "";
-	
-		lgort = (zoneBean.getLgort() != null ? "AND " + zoneBean.getLgort()+"%'" :"");
-		condition += lgort;
+		zoneId = (zoneBean.getZoneId() != null ? " AND ZONE_ID = "+Integer.parseInt(zoneBean.getZoneId()) : "");
+		condition += zoneId;
+		zdesc = (zoneBean.getZdesc() != null ? " AND ZON_DESC LIKE '%"+zoneBean.getZdesc()+"%'" : "");
+		condition += zdesc;
+//		lgort = (zoneBean.getLgort() != null ? "AND " + zoneBean.getLgort()+"%'" :"");
+//		condition += lgort;
 		condition = condition.isEmpty() ? null : condition;
 		
 		return condition;

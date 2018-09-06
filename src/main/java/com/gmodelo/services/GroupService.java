@@ -1,5 +1,6 @@
 package com.gmodelo.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,22 +40,6 @@ public class GroupService {
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new GroupWorkService().assignGroupToUser(request, user);
 	}
-
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/unassignGroupToUser")
-	public Response<Object> unassignGroupToUser(Request request){
-		return new GroupWorkService().unassignGroupToUser(request);
-	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/unassignGroupToRoute")
-	public Response<Object> unassignGroupToRoute(Request request){
-		return new GroupWorkService().unassignGroupToRoute(request);
-	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -70,5 +55,13 @@ public class GroupService {
 	@Path("/getGroups")
 	public Response<List<GroupBean>> getGroups(Request request){
 		return new GroupWorkService().getGroups(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getUMEUsers")
+	public Response<ArrayList<User>> getUMEUsers(Request request){
+		return new GroupWorkService().getUMEUsers(request);
 	}
 }

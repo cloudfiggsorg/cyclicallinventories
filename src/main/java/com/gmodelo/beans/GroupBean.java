@@ -6,7 +6,7 @@ import com.bmore.ume001.beans.User;
 
 public class GroupBean {
 	String groupId;
-	String groupDesc;
+	String gdesc;
 	List<User> users;
 	
 	public GroupBean() {
@@ -15,15 +15,13 @@ public class GroupBean {
 		// TODO Auto-generated constructor stub
 	}
 	
-
 	public GroupBean(String groupId, String groupDesc, List<User> users) {
 		super();
 		this.groupId = groupId;
-		this.groupDesc = groupDesc;
+		this.gdesc = groupDesc;
 		this.users = users;
 	}
 	
-
 	public List<User> getUsers() {
 		return users;
 	}
@@ -40,17 +38,17 @@ public class GroupBean {
 	public void setGroupId(String groupId) {
 		this.groupId = groupId;
 	}
-	public String getGroupDesc() {
-		return groupDesc;
+	public String getGdesc() {
+		return gdesc;
 	}
-	public void setGroupDesc(String groupDesc) {
-		this.groupDesc = groupDesc;
+	public void setGdesc(String groupDesc) {
+		this.gdesc = groupDesc;
 	}
 
 
 	@Override
 	public String toString() {
-		return "GroupBean [groupId=" + groupId + ", groupDesc=" + groupDesc + ", users=" + users + "]";
+		return "GroupBean [groupId=" + groupId + ", groupDesc=" + gdesc + ", users=" + users + "]";
 	}
 
 	

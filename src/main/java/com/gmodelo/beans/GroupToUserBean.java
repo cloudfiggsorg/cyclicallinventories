@@ -13,9 +13,9 @@ public class GroupToUserBean {
 	public String getGroupId() {
 		return groupId;
 	}
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
+//	public void setGroupId(String groupId) {
+//		this.groupId = groupId;
+//	}
 	public String getUserId() {
 		return userId;
 	}

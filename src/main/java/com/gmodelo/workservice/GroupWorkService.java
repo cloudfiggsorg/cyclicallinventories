@@ -1,8 +1,12 @@
 package com.gmodelo.workservice;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.naming.NamingException;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
@@ -12,9 +16,11 @@ import com.gmodelo.beans.GroupToUserBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.GroupDao;
+import com.gmodelo.dao.UMEDaoE;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 public class GroupWorkService {
 
@@ -22,12 +28,13 @@ public class GroupWorkService {
 	
 	public Response<Object> addGroup(Request request, User user){
 		
-		log.log(Level.WARNING,"[addGroupWS] "+request.toString());
+		log.info("[addGroupWS] "+request.toString());
+		Gson gson = new Gson();
 		GroupBean groupBean;
 		Response<Object> res = new Response<Object>();
 		
 		try {
-			groupBean = new Gson().fromJson(request.getLsObject().toString(), GroupBean.class);
+			groupBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[addGroupWS] Error al pasar de Json a GroupBean");
 			groupBean = null;
@@ -44,7 +51,7 @@ public class GroupWorkService {
 	
 	public Response<Object> assignGroupToUser(Request request,  User user){
 		
-		log.log(Level.WARNING,"[assignGroupToUserWS] "+request.toString());
+		log.info("[assignGroupToUserWS] "+request.toString());
 		GroupToUserBean groupToUserBean;
 		Response<Object> res = new Response<Object>();
 		
@@ -66,7 +73,7 @@ public class GroupWorkService {
 	
 	public Response<Object> unassignGroupToUser(Request request){
 		
-		log.log(Level.WARNING,"[unassignGroupToUserWS] "+request.toString());
+		log.info("[unassignGroupToUserWS] "+request.toString());
 		GroupToUserBean groupToUserBean;
 		Response<Object> res = new Response<Object>();
 		
@@ -88,7 +95,7 @@ public class GroupWorkService {
 
 	public Response<Object> unassignGroupToRoute(Request request){
 		
-		log.log(Level.WARNING,"[unassignGroupToRouteWS] "+request.toString());
+		log.info("[unassignGroupToRouteWS] "+request.toString());
 		GroupToRouteBean groupToRouteBean;
 		Response<Object> res = new Response<Object>();
 		
@@ -110,7 +117,7 @@ public class GroupWorkService {
 	
 	public Response<Object> deleteGroup(Request request){
 		
-		log.log(Level.WARNING,"[deleteGroupWS] "+request.toString());
+		log.info("[deleteGroupWS] "+request.toString());
 		String arrayIdGroups;
 		StringBuilder stringGroups = new StringBuilder();
 		Response<Object> res = new Response<Object>();
@@ -140,7 +147,7 @@ public class GroupWorkService {
 	}
 
 	public Response<List<GroupBean>> getGroups(Request request){
-		log.log(Level.WARNING,"[GroupsWorkService] "+request.toString());
+		log.info("[GroupsWorkService] "+request.toString());
 		GroupBean groupsBean = null;
 		String searchFilter = null;		
 		String req = request.getLsObject().toString().trim();
@@ -150,21 +157,67 @@ public class GroupWorkService {
 			try {
 				
 				groupsBean = new Gson().fromJson(request.getLsObject().toString(), GroupBean.class) ;
-				log.log(Level.WARNING, "Fue Objeto: " + request.getLsObject().toString());
+				log.info("Fue Objeto: " + request.getLsObject().toString());
 				
 			}catch (JsonSyntaxException e1){
 				
-				log.log(Level.WARNING, "Intentando por String");
+				log.info("Intentando por String");
 				searchFilter = request.getLsObject().toString().trim();
 			}
 			
 		}else{
 			
 			searchFilter = "";
-			log.log(Level.WARNING, "Fue cadena vacía ");
+			log.info("Fue cadena vacía ");
 		}
 		
 		return new GroupDao().getGroups(groupsBean, searchFilter);
+	}
+	
+	//Metodo para obtener usuarios de la UME que se usan para GroupWorkService
+	public Response<ArrayList<User>> getUMEUsers(Request request){
+		log.info(request.toString());
+		String req = request.getLsObject().toString().trim();
+		UMEDaoE UMEDao = new UMEDaoE();
+		Response<ArrayList<User>> res = new Response<ArrayList<User>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ArrayList<User> lista = null;
+		User user = new User();
+		if(!req.isEmpty()){
+			try {
+				user.getEntity().setIdentyId(request.getLsObject().toString());
+				lista = new ArrayList<>();
+				lista.add(user);
+				lista = UMEDao.getUsersLDAPByCredentials(lista);
+			} catch (NamingException e) {
+				log.log(Level.SEVERE,"[getUMEUsersWS] NamingException ", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgGen(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}else{
+			log.info("Sin lista");
+			try {
+				lista = new ArrayList<>();
+				user = new User();
+				lista.add(user);
+				lista = UMEDao.getUsersLDAPByCredentials(lista);
+			} catch (NamingException e) {
+				log.log(Level.SEVERE,"[getUMEUsersWS] NamingException ", e);
+				
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgGen(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		}
+	log.info("Tamanio lista "+lista.size());	
+	res.setLsObject(lista);	
+	abstractResult.setResultId(ReturnValues.ISUCCESS);
+	res.setAbstractResult(abstractResult);
+	return 	res;
+		
 	}
 
 }

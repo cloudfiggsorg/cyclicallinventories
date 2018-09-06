@@ -34,7 +34,7 @@ public class GroupDao {
 		CallableStatement cs = null;
 		int resultSP = -1;
 		
-		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addGroup] Preparing sentence...");
 
@@ -43,17 +43,17 @@ public class GroupDao {
 			
 			cs.setString(1,groupBean.getGroupId());
 			
-			cs.setString(2,groupBean.getGroupDesc());
+			cs.setString(2,groupBean.getGdesc());
 			
-			cs.setString(4, createdBy);
+			cs.setString(3, createdBy);
 			
-			cs.registerOutParameter(5, Types.INTEGER);
+			cs.registerOutParameter(1, Types.INTEGER);
 			log.log(Level.WARNING,"[addGroup] Executing query...");
 			
 			 cs.execute();
 			
-			 abstractResult.setResultId(cs.getInt(5));
-			
+			 abstractResult.setResultId(ReturnValues.ISUCCESS);
+			 abstractResult.setIntCom1(cs.getInt(1));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -111,7 +111,9 @@ public class GroupDao {
 			log.log(Level.WARNING,"[assignGroupToUserDao] Executing query...");
 			
 			cs.execute();
-			abstractResult.setResultId(cs.getInt(4));
+			
+			 abstractResult.setResultId(ReturnValues.ISUCCESS);
+			 abstractResult.setIntCom1(cs.getInt(4));
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -358,7 +360,7 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 			while (rs.next()){
 				groupB = new GroupBean();				
 				groupB.setGroupId(rs.getString("IP_GROUP"));
-				groupB.setGroupDesc(rs.getString("GDESC"));
+				groupB.setGdesc(rs.getString("GDESC"));
 				groupB.setUsers(this.groupUsers(rs.getString("IP_GROUP")));
 				listGroupsBean.add(groupB);
 			}
@@ -453,22 +455,10 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 		
 		groupId = (groupB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" IP_GROUP LIKE '%"+ groupB.getGroupId() + "%' "  : "";
 		condition+=groupId;
-		gdes = (groupB.getGroupDesc() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC LIKE '%" + groupB.getGroupDesc() +"%' " : "";
+		gdes = (groupB.getGdesc() != null) 		? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC LIKE '%" + groupB.getGdesc() +"%' " : "";
 		condition+=gdes;		
 		condition = condition.isEmpty() ? null : condition;
 		
 		return condition;
-	}
-	
-	
-	public static void main(String[] args) {
-		GroupDao dao = new GroupDao();
-		String searchFilter = "";
-		GroupBean groupB = new GroupBean();
-		Response<List<GroupBean>> x = dao.getGroups(groupB, searchFilter);
-		
-		for(int i=0; i< x.getLsObject().size(); i++){
-			System.out.println(x.getLsObject().get(i).toString());
-		}
 	}
 }

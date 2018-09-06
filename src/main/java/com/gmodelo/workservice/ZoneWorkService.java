@@ -27,18 +27,16 @@ public class ZoneWorkService {
 			ZoneBean zoneBean = null;
 			String searchFilter = null;
 			Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
+			Gson gson = new Gson();
 			String req = request.getLsObject().toString().trim();
 			if(!req.isEmpty()){
 				try {
-//					aqui siempre se recibirá un objeto
-					zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
+
+					//					aqui siempre se recibirá un objeto
+					zoneBean = gson .fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
 				} catch (JsonSyntaxException e) {
-					log.log(Level.SEVERE,"[getZoneByLgortWorkService] Error al convertir json a ZoneBean");
-					AbstractResultsBean abstractResult = new AbstractResultsBean();
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(e.getMessage());
-					res.setAbstractResult(abstractResult);
-					return res;
+					log.info("[getZoneByLgortWorkService] Probando string");
+					searchFilter = request.getLsObject().toString();
 				}
 			}else{
 				searchFilter = "";
@@ -46,7 +44,7 @@ public class ZoneWorkService {
 			}
 			
 			
-			return new ZoneDao().getLgortByZone(zoneBean);
+			return new ZoneDao().getLgortByZone(zoneBean, searchFilter);
 			
 		}
 	
