@@ -34,7 +34,7 @@ public class GroupDao {
 		CallableStatement cs = null;
 		int resultSP = -1;
 		
-		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?"; //The Store procedure to call
 		
 		log.log(Level.WARNING,"[addGroup] Preparing sentence...");
 
@@ -45,15 +45,15 @@ public class GroupDao {
 			
 			cs.setString(2,groupBean.getGdesc());
 			
-			cs.setString(4, createdBy);
+			cs.setString(3, createdBy);
 			
-			cs.registerOutParameter(5, Types.INTEGER);
+			cs.registerOutParameter(1, Types.INTEGER);
 			log.log(Level.WARNING,"[addGroup] Executing query...");
 			
 			 cs.execute();
 			
-			 abstractResult.setResultId(cs.getInt(5));
-			
+			 abstractResult.setResultId(ReturnValues.ISUCCESS);
+			 abstractResult.setIntCom1(cs.getInt(1));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -111,7 +111,9 @@ public class GroupDao {
 			log.log(Level.WARNING,"[assignGroupToUserDao] Executing query...");
 			
 			cs.execute();
-			abstractResult.setResultId(cs.getInt(4));
+			
+			 abstractResult.setResultId(ReturnValues.ISUCCESS);
+			 abstractResult.setIntCom1(cs.getInt(4));
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();

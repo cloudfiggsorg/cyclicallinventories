@@ -29,11 +29,12 @@ public class GroupWorkService {
 	public Response<Object> addGroup(Request request, User user){
 		
 		log.info("[addGroupWS] "+request.toString());
+		Gson gson = new Gson();
 		GroupBean groupBean;
 		Response<Object> res = new Response<Object>();
 		
 		try {
-			groupBean = new Gson().fromJson(request.getLsObject().toString(), GroupBean.class);
+			groupBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[addGroupWS] Error al pasar de Json a GroupBean");
 			groupBean = null;
