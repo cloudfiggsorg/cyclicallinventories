@@ -24,7 +24,7 @@ public class LgortDao {
 		Response<List<LgortBeanView>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<LgortBeanView> listLgort = new ArrayList<LgortBeanView>();
 		
@@ -141,7 +141,7 @@ public class LgortDao {
 		Response<List<LgortBeanView>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<LgortBeanView> listNgort = new ArrayList<LgortBeanView>();
 		

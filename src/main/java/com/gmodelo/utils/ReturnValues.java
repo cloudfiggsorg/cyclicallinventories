@@ -34,9 +34,12 @@ public class ReturnValues {
 	public static final int IREPKEYNOTFOUND = -405;
 	public static final String SREPVALUE = "STORED_VALUE";
 	public static final String SREPSECURED = "STORED_ENCODED";
-	public static final String REP_LDAP_BASE = "LDAP_BASE";
+	public static final String REP_LDAP_BASE = "LDAP_SEARCHBASE";
 	public static final String REP_LDAP_DOMAIN = "LDAP_DOMAIN";//LDAP_DOMAIN
-	public static final String REP_LDAP_RPOVIDER = "LDAP_PROVIDER_URL";//LDAP_PROVIDER_URL
+	public static final String REP_LDAP_PROVIDER_URL = "LDAP_PROVIDER_URL";//LDAP_PROVIDER_URL
+	public static final String REP_LDAP_USER = "LDAP_USER";//LDAP_USER
+	public static final String REP_LDAP_PASSWORD = "LDAP_PASSWORD";//LDAP_PASSWORD
+	public static final String REP_LDAP_SECURITY_AUTH = "LDAP_SECURITY_AUTH";//LDAP_SECURITY_AUTH
 	public static final int ACTIVE_INTERVAL = 3600;//ACTIVE_INTERVAL
 
 }

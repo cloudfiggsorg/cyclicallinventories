@@ -30,7 +30,7 @@ public class GroupDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		int resultSP = -1;
 		
@@ -92,7 +92,7 @@ public class GroupDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		String resultSP = null;
 		
@@ -153,7 +153,7 @@ public class GroupDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
 		final String INV_SP_DESASSIGN_GROUP_TO_USER = "INV_SP_DESASSIGN_GROUP_TO_USER ?, ?, ?"; //The Store procedure to call
@@ -212,7 +212,7 @@ public class GroupDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 	//INV_SP_DESASSIGN_GROUP_TO_ROUTE	ROUTE_ID, GROUP_ID, COUNT_NUM	ROUTE_ID OR  MESSAGE ERROR
 	
@@ -269,7 +269,7 @@ public class GroupDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
 		final String INV_SP_DEL_GROUP = "INV_SP_DEL_GROUP ?"; //The Store procedure to call
@@ -321,7 +321,7 @@ public class GroupDao {
 public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
 		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
@@ -402,7 +402,7 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 	public List<User> groupUsers(String groupId) throws SQLException{
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<User> listUser = new ArrayList<User>();
 		

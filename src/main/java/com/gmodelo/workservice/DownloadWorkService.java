@@ -105,7 +105,7 @@ public class DownloadWorkService {
 		Response<String> response = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		try {
-			Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
+			Connection con = new ConnectionManager().createConnection();
 			PreparedStatement stm = null;
 			ResultSet rs = null;
 			Type listType = new TypeToken<ArrayList<RfcTablesBean>>() {

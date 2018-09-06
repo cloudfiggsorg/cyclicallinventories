@@ -29,7 +29,7 @@ public class ZoneDao {
 		Response<ZoneBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
 		String zoneId = zoneBean.getZoneId() == null ? null : zoneBean.getZoneId().replaceFirst ("^0*", "");
@@ -177,7 +177,7 @@ public class ZoneDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
 		final String INV_SP_DEL_ZONE = "INV_SP_DEL_ZONE ?"; //The Store procedure to call
@@ -232,7 +232,7 @@ public class ZoneDao {
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
@@ -324,7 +324,7 @@ public class ZoneDao {
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
@@ -432,7 +432,7 @@ public class ZoneDao {
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
@@ -519,7 +519,7 @@ public class ZoneDao {
 	private List<ZonePositionsBean> getPositionsZone(String zoneId){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
 		
@@ -575,7 +575,7 @@ public class ZoneDao {
 	private List<ZonePositionMaterialsBean> getPositionMaterials(String pkAsgId){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZonePositionMaterialsBean> listMaterials = new ArrayList<ZonePositionMaterialsBean>();
 		
@@ -656,7 +656,7 @@ public class ZoneDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		String resultSP = null;
 		

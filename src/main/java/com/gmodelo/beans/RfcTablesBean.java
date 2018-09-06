@@ -148,7 +148,7 @@ public class RfcTablesBean implements Serializable {
 		List<RfcTablesBean> rfcTablesBeans = new ArrayList<>();
 		Connection con = null;
 		try {
-			con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
+			con = new ConnectionManager().createConnection();
 			PreparedStatement stm = null;
 			ResultSet rs = null;
 			if (rfcTableFilter == null) {

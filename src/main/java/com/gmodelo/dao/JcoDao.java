@@ -30,7 +30,7 @@ public class JcoDao {
 			+ " CONVERT(date,getdate()) > CONVERT(date,dateadd(day,7,LAST_REQUEST))";
 
 	public void RequestFirstRun() {
-		Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
+		Connection con = new ConnectionManager().createConnection();
 		try {
 			PreparedStatement stm = con.prepareStatement(REQUESTTABLECONFIGDELTA);
 			List<RFC_DATAMART> rfc_datamarts = new ArrayList<>();

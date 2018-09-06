@@ -25,7 +25,7 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 		Response<List<Lgnum>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<Lgnum> listLgnum = new ArrayList<Lgnum>();
 		

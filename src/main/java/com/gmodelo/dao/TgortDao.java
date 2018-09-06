@@ -23,7 +23,7 @@ public class TgortDao {
 	public Response<List<TgortB>> getTgortWithNgort(TgortB tgortBean){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
 		Response<List<TgortB>> res = new Response<List<TgortB>>();

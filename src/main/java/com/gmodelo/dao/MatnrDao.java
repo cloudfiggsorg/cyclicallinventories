@@ -24,7 +24,7 @@ public class MatnrDao {
 	public Response<List<MatnrBeanView>> getMatnr(MatnrBeanView mantrBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
 		Response<List<MatnrBeanView>> res = new Response<List<MatnrBeanView>>();
@@ -100,7 +100,7 @@ public class MatnrDao {
 	public Response<List<TmatnrBean>> getTmatnrWithMatnr(TmatnrBean tmatnrBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
 		Response<List<TmatnrBean>> res = new Response<List<TmatnrBean>>();
