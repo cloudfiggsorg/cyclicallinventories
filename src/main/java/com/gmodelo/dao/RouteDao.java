@@ -170,6 +170,8 @@ public class RouteDao{
 	}
 
 	public Response<Object> deleteRoute(String arrayIdRoutes) {
+		
+		System.out.println(arrayIdRoutes);
 
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -183,7 +185,6 @@ public class RouteDao{
 
 		try {
 			cs = con.prepareCall(INV_SP_DEL_ROUTES);
-
 			cs.setString(1, arrayIdRoutes);
 			cs.registerOutParameter(2, Types.INTEGER);
 			log.log(Level.WARNING, "[deleteRouteDao] Executing query...");
