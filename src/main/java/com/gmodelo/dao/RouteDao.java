@@ -44,7 +44,7 @@ public class RouteDao{
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 
-		log.log(Level.WARNING, "[addRoute] Preparing sentence...");
+		log.info("[addRoute] Preparing sentence...");
 
 		try {
 			
@@ -60,7 +60,7 @@ public class RouteDao{
 			cs.setString(6, routeBean.getType());
 			cs.registerOutParameter(1, Types.INTEGER);
 
-			log.log(Level.WARNING, "[addRoute] Executing query...");
+			log.info("[addRoute] Executing query...");
 			cs.execute();
 			
 			routeBean.setRouteId(String.format("%08d", cs.getInt(1))); // addZeros
@@ -84,7 +84,7 @@ public class RouteDao{
 			for (int i = 0; i < routeBean.getPositions().size(); i++) {
 				
 				cs = null;
-				log.log(Level.WARNING, "[addRoutePosition] Preparing sentence...");
+				log.info("[addRoutePosition] Preparing sentence...");
 				cs = con.prepareCall(INV_SP_ADD_ROUTE_POSITION);
 				cs.setString(1, routeBean.getRouteId());
 				cs.setInt(2, routeBean.getPositions().get(i).getPositionId());
@@ -92,7 +92,7 @@ public class RouteDao{
 				cs.setString(4, routeBean.getPositions().get(i).getSecuency());
 				cs.registerOutParameter(2, Types.INTEGER);
 
-				log.log(Level.WARNING, "[addRoutePosition] Executing query...");
+				log.info("[addRoutePosition] Executing query...");
 				cs.execute(); 
 				routeBean.getPositions().get(i).setPositionId(cs.getInt(2));
 			}
@@ -125,12 +125,12 @@ public class RouteDao{
 				cs.setInt(5, routeBean.getGroups().get(i).getRouteGroup());
 				cs.registerOutParameter(5, Types.INTEGER);
 
-				log.log(Level.WARNING, "[assignGroupToRouteDao] Executing query...");
+				log.info("[assignGroupToRouteDao] Executing query...");
 				cs.execute();
 				routeBean.getGroups().get(i).setRouteGroup(cs.getInt(5));
 			}
 			
-			log.log(Level.WARNING, "[addRoute] Sentence successfully executed.");
+			log.info("[addRoute] Sentence successfully executed.");
 
 			// Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -171,7 +171,7 @@ public class RouteDao{
 
 	public Response<Object> deleteRoute(String arrayIdRoutes) {
 		
-		System.out.println(arrayIdRoutes);
+		log.info("[deleteRouteDao] "+arrayIdRoutes);
 
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -181,13 +181,13 @@ public class RouteDao{
 
 		final String INV_SP_DEL_ROUTES = "INV_SP_DEL_ROUTES ?, ?";
 
-		log.log(Level.WARNING, "[deleteRouteDao] Preparing sentence...");
+		log.info("[deleteRouteDao] Preparing sentence...");
 
 		try {
 			cs = con.prepareCall(INV_SP_DEL_ROUTES);
 			cs.setString(1, arrayIdRoutes);
 			cs.registerOutParameter(2, Types.INTEGER);
-			log.log(Level.WARNING, "[deleteRouteDao] Executing query...");
+			log.info("[deleteRouteDao] Executing query...");
 
 			cs.execute();
 
@@ -203,7 +203,7 @@ public class RouteDao{
 			// Free resources
 			cs.close();
 
-			log.log(Level.WARNING, "[deleteRouteDao] Sentence successfully executed.");
+			log.info("[deleteRouteDao] Sentence successfully executed.");
 
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
@@ -242,7 +242,7 @@ public class RouteDao{
 			searchFilterNumber += aux;
 		} catch (Exception e) {
 			searchFilterNumber = searchFilter;
-			log.warning("Trying to convert String to Int");
+			log.info("[getRoutesDao] Trying to convert String to Int");
 		}		
 
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
@@ -255,12 +255,12 @@ public class RouteDao{
 				INV_VW_ROUTES += condition;
 			}
 		}
-		log.warning(INV_VW_ROUTES);
-		log.log(Level.WARNING, "[getRoutesDao] Preparing sentence...");
+		log.info(INV_VW_ROUTES);
+		log.info("[getRoutesDao] Preparing sentence...");
 		try {
 			stm = con.prepareStatement(INV_VW_ROUTES);
 
-			log.log(Level.WARNING, "[getRoutesDao] Executing query...");
+			log.info("[getRoutesDao] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
 
@@ -291,7 +291,7 @@ public class RouteDao{
 			// Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING, "[getRoutesDao] Sentence successfully executed.");
+			log.info("[getRoutesDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
 					"[getRoutesDao] Some error occurred while was trying to execute the query: " + INV_VW_ROUTES, e);
@@ -323,12 +323,12 @@ public class RouteDao{
 
 		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 
-		log.warning(INV_VW_ROUTES_WITH_POSITIONS);
-		log.log(Level.WARNING, "[getRoutesDao] Preparing sentence...");
+		log.info(INV_VW_ROUTES_WITH_POSITIONS);
+		log.info("[getPositionsDao] Preparing sentence...");
 
 		stm = con.prepareStatement(INV_VW_ROUTES_WITH_POSITIONS);
 		stm.setString(1, idRoute);
-		log.log(Level.WARNING, "[getRoutesDao] Executing query...");
+		log.info("[getPositionsDao] Executing query...");
 
 		ResultSet rs = stm.executeQuery();
 
@@ -353,7 +353,7 @@ public class RouteDao{
 		// Free resources
 		rs.close();
 		stm.close();
-		log.log(Level.WARNING, "[getRoutesDao] Sentence successfully executed.");
+		log.info("[getPositionsDao] Sentence successfully executed.");
 		con.close();
 
 		return listPositions;
@@ -369,41 +369,49 @@ public class RouteDao{
 
 		String INV_VW_ROUTE_GROUPS = "SELECT PK_ASG_ID, GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ? ";
 
-		log.warning(INV_VW_ROUTE_GROUPS);
-		log.log(Level.WARNING, "[getGroupsDao] Preparing sentence...");
+		log.info(INV_VW_ROUTE_GROUPS);
+		log.info("[getGroupsDao] Preparing sentence...");
 
 		stm = con.prepareStatement(INV_VW_ROUTE_GROUPS);
 		stm.setString(1, idRoute);
-		log.log(Level.WARNING, "[getGroupsDao] Executing query...");
+		log.info("[getGroupsDao] Executing query...");
 
-		ResultSet rs = stm.executeQuery();
-		
-		GroupDao groupDAO = new GroupDao(); 
-
-		while (rs.next()) {
+		try {
+			ResultSet rs = stm.executeQuery();
 			
-			RouteGroupBean group = new RouteGroupBean();
-			group.setRouteGroup(rs.getInt(1));
-			group.setGroupId(rs.getString(2));
-			group.setGdesc(rs.getString(3));
-			group.setCountNum(rs.getString(4));
-			group.setUsers(groupDAO.groupUsers(rs.getString(2)));
-			listGroups.add(group);
+			GroupDao groupDAO = new GroupDao(); 
+
+			while (rs.next()) {
+				
+				RouteGroupBean group = new RouteGroupBean();
+				group.setRouteGroup(rs.getInt(1));
+				group.setGroupId(rs.getString(2));
+				group.setGdesc(rs.getString(3));
+				group.setCountNum(rs.getString(4));
+				group.setUsers(groupDAO.groupUsers(rs.getString(2)));
+				listGroups.add(group);
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[getGroupsDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[getGroupsDao] Ocurrió un error", e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getGroupsDao] Some error occurred while was trying to close the connection.", e);
+			}
 		}
-
-		// Retrive the warnings if there're
-		SQLWarning warning = stm.getWarnings();
-		while (warning != null) {
-			log.log(Level.WARNING, warning.getMessage());
-			warning = warning.getNextWarning();
-		}
-
-		// Free resources
-		rs.close();
-		stm.close();
-		log.log(Level.WARNING, "[getGroupsDao] Sentence successfully executed.");
-
-		con.close();
 
 		return listGroups;
 	}

@@ -35,7 +35,7 @@ public class GroupDao {
 		
 		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[addGroup] Preparing sentence...");
+		log.info("[addGroup] Preparing sentence...");
 
 		try {
 			cs = con.prepareCall(INV_SP_ADD_GROUP);
@@ -45,7 +45,7 @@ public class GroupDao {
 			cs.setString(2,groupBean.getGdesc());
 			
 			cs.setString(3, createdBy);
-			log.log(Level.WARNING,"[addGroup] Executing query...");
+			log.info("[addGroup] Executing query...");
 			
 			 cs.execute();
 			
@@ -60,7 +60,7 @@ public class GroupDao {
 			//Free resources
 			cs.close();	
 			
-			log.log(Level.WARNING,"[addGroup] Sentence successfully executed.");
+			log.info("[addGroup] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[addGroup] Some error occurred while was trying to execute the S.P.: "+INV_SP_ADD_GROUP, e);
@@ -89,8 +89,7 @@ public class GroupDao {
 		String resultSP = null;
 		
 		final String INV_SP_ASSIGN_GROUP_TO_USER = "INV_SP_ASSIGN_GROUP_TO_USER ?, ?, ?"; //The Store procedure to call
-		log.info(groupToUserBean.toString());
-		log.log(Level.WARNING,"[assignGroupToUserDao] Preparing sentence...");
+		log.info("[assignGroupToUserDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ASSIGN_GROUP_TO_USER);
@@ -99,7 +98,7 @@ public class GroupDao {
 			cs.setString(2,groupToUserBean.getUserId());
 			cs.setString(3, createdBy);
 			
-			log.log(Level.WARNING,"[assignGroupToUserDao] Executing query...");
+			log.info("[assignGroupToUserDao] Executing query...");
 			
 			cs.execute();
 			
@@ -115,7 +114,7 @@ public class GroupDao {
 			//Free resources
 			cs.close();	
 			
-			log.log(Level.WARNING,"[assignGroupToUserDao] Sentence successfully executed.");
+			log.info("[assignGroupToUserDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[assignGroupToUserDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_ASSIGN_GROUP_TO_USER, e);
@@ -145,7 +144,7 @@ public class GroupDao {
 		
 		final String INV_SP_DESASSIGN_GROUP_TO_USER = "INV_SP_DESASSIGN_GROUP_TO_USER ?, ?, ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[unassignGroupToUserDao] Preparing sentence...");
+		log.info("[unassignGroupToUserDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_USER);
@@ -171,7 +170,7 @@ public class GroupDao {
 			//Free resources
 			cs.close();	
 			
-			log.log(Level.WARNING,"[unassignGroupToUserDao] Sentence successfully executed.");
+			log.info("[unassignGroupToUserDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[unassignGroupToUserDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_DESASSIGN_GROUP_TO_USER, e);
@@ -201,7 +200,7 @@ public class GroupDao {
 	
 		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[unassignGroupToRouteDao] Preparing sentence...");
+		log.info("[unassignGroupToRouteDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_ROUTE);
@@ -210,7 +209,7 @@ public class GroupDao {
 			cs.setString(2,groupToRouteBean.getGroupId());
 			cs.setString(3,groupToRouteBean.getCountNum());
 			cs.registerOutParameter(4, Types.INTEGER);
-			log.log(Level.WARNING,"[unassignGroupToRouteDao] Executing query...");
+			log.info("[unassignGroupToRouteDao] Executing query...");
 			
 			cs.execute();
 			abstractResult.setResultId(cs.getInt(4));
@@ -224,7 +223,7 @@ public class GroupDao {
 			//Free resources
 			cs.close();	
 			
-			log.log(Level.WARNING,"[unassignGroupToRouteDao] Sentence successfully executed.");
+			log.info("[unassignGroupToRouteDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[unassignGroupToRouteDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_DESASSIGN_GROUP_TO_ROUTE, e);
@@ -253,14 +252,14 @@ public class GroupDao {
 		
 		final String INV_SP_DEL_GROUP = "INV_SP_DEL_GROUP ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[deleteGroupDao] Preparing sentence...");
+		log.info("[deleteGroupDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_DEL_GROUP);
 			
 			cs.setString(1,arrayIdGroups);
 			
-			log.log(Level.WARNING,"[deleteGroupDao] Executing query...");
+			log.info("[deleteGroupDao] Executing query...");
 			
 			cs.execute();
 			
@@ -274,7 +273,7 @@ public class GroupDao {
 			//Free resources
 			cs.close();	
 			
-			log.log(Level.WARNING,"[deleteGroupDao] Sentence successfully executed.");
+			log.info("[deleteGroupDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[deleteGroupDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_DEL_GROUP, e);
@@ -312,7 +311,7 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 			searchFilterNumber += aux;
 		} catch (Exception e) {
 			searchFilterNumber = searchFilter;
-			log.warning("Trying to convert String to Int");
+			log.info("Trying to convert String to Int");
 		}		
 
 		INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
@@ -326,11 +325,11 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 			}
 		}
 		
-		log.warning(INV_VW_GET_GROUPS);
-		log.log(Level.WARNING,"[getGroupsDao] Preparing sentence...");
+		log.info(INV_VW_GET_GROUPS);
+		log.info("[getGroupsDao] Preparing sentence...");
 		try {
 			stm = con.prepareStatement(INV_VW_GET_GROUPS);		
-			log.log(Level.WARNING,"[getGroupsDao] Executing query...");
+			log.info("[getGroupsDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 				groupB = new GroupBean();				
@@ -350,7 +349,7 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 			//Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING,"[getGroupsDao] Sentence successfully executed.");
+			log.info("[getGroupsDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getGroupsDao] Some error occurred while was trying to execute the query: "+INV_VW_GET_GROUPS, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -378,18 +377,18 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 		List<User> listUser = new ArrayList<User>();
 		
 		String INV_VW_GROUPS_USER = "SELECT PK_GROUP_USER, GRU_USER_ID FROM INV_GROUPS_USER WHERE GRU_GROUP_ID = ? ";
-		log.warning(INV_VW_GROUPS_USER);
-		log.log(Level.WARNING,"[groupUsersDao] Preparing sentence...");
+		log.info(INV_VW_GROUPS_USER);
+		log.info("[groupUsersDao] Preparing sentence...");
 		INV_VW_GROUPS_USER += " GROUP BY PK_GROUP_USER, GRU_USER_ID";
 		
 		stm = con.prepareCall(INV_VW_GROUPS_USER);
 		stm.setString(1, groupId);
-		log.log(Level.WARNING,"[groupUsersDao] Executing query...");
+		log.info("[groupUsersDao] Executing query...");
 		ResultSet rs = stm.executeQuery();
 		
 		UMEDaoE ume = new UMEDaoE();
 		while (rs.next()){
-			System.out.println(rs.getString("GRU_USER_ID"));
+			log.info(rs.getString("GRU_USER_ID"));
 			User userB = new User();
 			userB.getEntity().setIdentyId(rs.getString("GRU_USER_ID"));
 			UserGenInfo userInfo = ume.getUserInfo(rs.getString("GRU_USER_ID"));
@@ -408,7 +407,7 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 		rs.close();
 		stm.close();	
 		con.close();	
-		log.log(Level.WARNING,"[groupUsersDao] Sentence successfully executed.");
+		log.info("[groupUsersDao] Sentence successfully executed.");
 		return listUser;
 	}
 

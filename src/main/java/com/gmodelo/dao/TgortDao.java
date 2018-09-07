@@ -35,14 +35,14 @@ public class TgortDao {
 		String condition = buildCondition(tgortBean);
 		if(condition != null){
 			INV_VW_TGORT_BY_NGORT += condition;
-			log.warning(INV_VW_TGORT_BY_NGORT);
+			log.info(INV_VW_TGORT_BY_NGORT);
 		}
-		log.log(Level.WARNING,"[getTgortWithNgortDao] Preparing sentence...");
+		log.info("[getTgortWithNgortDao] Preparing sentence...");
 		try {
 			
 			stm = con.prepareStatement(INV_VW_TGORT_BY_NGORT);		
 			
-			log.log(Level.WARNING,"[getTgortWithNgortDao] Executing query...");
+			log.info("[getTgortWithNgortDao] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -68,7 +68,7 @@ public class TgortDao {
 			//Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING,"[getTgortWithNgortDao] Sentence successfully executed.");
+			log.info("[getTgortWithNgortDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getTgortWithNgortDao] Some error occurred while was trying to execute the query: "+INV_VW_TGORT_BY_NGORT, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -80,10 +80,6 @@ public class TgortDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getTgortWithNgortDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		

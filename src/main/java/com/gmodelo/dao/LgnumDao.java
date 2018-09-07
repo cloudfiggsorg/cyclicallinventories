@@ -35,15 +35,15 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 		
 		if(condition != null){
 			INV_VW_NGORT_WITH_GORT += condition;
-			log.warning(INV_VW_NGORT_WITH_GORT);
+			log.info(INV_VW_NGORT_WITH_GORT);
 		}
 		
-		log.log(Level.WARNING,"[getLgnumByLgort] Preparing sentence...");
+		log.info("[getLgnumByLgort] Preparing sentence...");
 		
 		try {
 			stm = con.prepareCall(INV_VW_NGORT_WITH_GORT);
 			
-			log.log(Level.WARNING,"[getLgnumByLgort] Executing query...");
+			log.info("[getLgnumByLgort] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -69,7 +69,7 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 			rs.close();
 			stm.close();	
 			
-			log.log(Level.WARNING,"[getLgnumByLgort] Sentence successfully executed.");
+			log.info("[getLgnumByLgort] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getLgnumByLgort] Some error occurred while was trying to execute the query: "+INV_VW_NGORT_WITH_GORT, e);
@@ -90,51 +90,18 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 	
 	private String buildCondition(Lgnum lgnumO){
 			
-			String werks = null;
-			String lgort = null;
-			String lgnum = null;
-			String lnumt = null;
-			Boolean clause = false;
-			String condition = null;
+			String lgort = "";
+			String lgnum = "";
+			String lnumt = "";
+			String condition = "";
 			
-			if(lgnumO.getLgort()!= null){
-				lgort = "LGORT = '" + lgnumO.getLgort()+"'";
-				clause = true;
-			}
-			if(lgnumO.getLgnum() != null){
-				lgnum = "LGNUM = '" + lgnumO.getLgnum()+"'";
-				clause = true;
-			}
-			if(lgnumO.getLnumt() != null){
-				lnumt = "LNUMT = '" + lgnumO.getLnumt()+"'";
-				clause = true;
-			}
-			
-			if(clause){
-				condition = "WHERE ";
-				if(werks != null){
-					condition += werks;
-					if(lgort != null){
-						condition += " AND "+ lgort;
-						if(lgnum != null){
-							condition += " AND "+ lgnum;
-						}
-					}
-				} else if(lgort != null){
-							condition += lgort;
-							if(lgnum != null){
-								condition += " AND "+ lgnum;
-							}
-					}else if(lgnum != null){
-								condition += lgnum;
-								if(lnumt != null){
-									condition += " AND "+ lnumt;
-								}
-						}else if(lnumt != null){
-									condition += lnumt;
-							}
-			}
-			
+			lgnum = (lgnumO.getLgnum() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGNUM = '" + lgnumO.getLgnum() +"' " : "";
+			condition += lgnum;
+			lgort = (lgnumO.getLgort() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT = '" + lgnumO.getLgort() +"' " : "";
+			condition += lgort;		
+			lnumt = (lgnumO.getLnumt() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGNUMT = '" + lgnumO.getLnumt() +"' " : "";
+			condition += lnumt;
+			condition = (condition.isEmpty() ? null : condition);
 			return condition;
 		}
 

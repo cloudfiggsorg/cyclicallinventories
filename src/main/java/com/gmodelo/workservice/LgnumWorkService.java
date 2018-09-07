@@ -16,15 +16,16 @@ import com.google.gson.JsonSyntaxException;
 public class LgnumWorkService {
 	
 	private Logger log = Logger.getLogger(LgnumWorkService.class.getName());
+	Gson gson = new Gson();
 	
 	public Response<List<Lgnum>> getLgnumByLgort(Request request){
 		
-		log.log(Level.WARNING,"[getLgnumByLgort] "+request.toString());
+		log.info("[getLgnumByLgort] "+request.toString());
 		Lgnum lgnum;
 		Response<List<Lgnum>> res = new Response<List<Lgnum>>();
 		
 		try {
-			lgnum = new Gson().fromJson(request.getLsObject().toString(), Lgnum.class);
+			lgnum = gson.fromJson(gson.toJson(request.getLsObject()), Lgnum.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[getLgnumByLgort] Error al pasar de Json a LgortBean");
 			lgnum = null;

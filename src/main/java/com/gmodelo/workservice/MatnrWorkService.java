@@ -15,10 +15,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 public class MatnrWorkService {
-private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
+	private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
+	Gson gson = new Gson();
 	
 	public Response<List<MatnrBeanView>> getMatnr(Request request){
-		log.log(Level.WARNING,"[getMatnrWorkService] "+request.toString());
+		log.info("[getMatnrWorkService] "+request.toString());
 		MatnrBeanView mantrBean  = null;
 		String searchFilter = null;
 		Response<List<MatnrBeanView>> res = new Response<List<MatnrBeanView>>();
@@ -26,9 +27,7 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 		
 		if(!req.isEmpty()){
 			try {
-				mantrBean = new Gson().fromJson(request.getLsObject().toString(), MatnrBeanView.class) ;
-				
-				log.log(Level.WARNING,request.getLsObject().toString());
+				mantrBean = gson.fromJson(gson.toJson(request.getLsObject()), MatnrBeanView.class);
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE,"[getMatnrWorkService] Error al pasar de Json a MantrB");
 				mantrBean = null;
@@ -40,31 +39,31 @@ private Logger log = Logger.getLogger( MatnrWorkService.class.getName());
 			}
 		}else{
 			searchFilter = "";
-			log.log(Level.WARNING, "[getMatnrWorkService] Fue cadena vacía ");
+			log.info("[getMatnrWorkService] Fue cadena vacía ");
 		}
 		
 		return new MatnrDao().getMatnr(mantrBean, searchFilter);
 	}
 	
 	public Response<List<TmatnrBean>> getTmatnr(Request request){
-		log.log(Level.WARNING,"[getTmatnrWorkService] "+request.toString());
+		log.info("[getTmatnrWorkService] "+request.toString());
 		TmatnrBean tmatnrBean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
 		
 		if(!req.isEmpty()){
 			try {
-				tmatnrBean = new Gson().fromJson(request.getLsObject().toString(), TmatnrBean.class);
-				log.log(Level.WARNING, "[getTmatnrWorkService] Fue Objeto: " + tmatnrBean);
+				tmatnrBean = gson.fromJson(gson.toJson(request.getLsObject()), TmatnrBean.class);
+				log.info("[getTmatnrWorkService] Fue Objeto: " + tmatnrBean);
 				
 			}catch(JsonSyntaxException e){
 			searchFilter = request.getLsObject().toString().trim();
-			log.log(Level.WARNING, "[getTmatnrWorkService] jsyn Intentando por String ");
+			log.info("[getTmatnrWorkService] Intentando por String ");
 		}
 		
 		}else{
 			searchFilter = "";
-			log.log(Level.WARNING, "[getTmatnrWorkService] Fue cadena vacía ");
+			log.info("[getTmatnrWorkService] Fue cadena vacía ");
 		}
 		
 			

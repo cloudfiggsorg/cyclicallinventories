@@ -42,14 +42,14 @@ public class MatnrDao {
 				
 			}
 		}
-		log.warning(INV_VW_MATNR_BY_WERKS);
+		log.info(INV_VW_MATNR_BY_WERKS);
 		
-		log.log(Level.WARNING,"[getMatnrDao] Preparing sentence...");
+		log.info("[getMatnrDao] Preparing sentence...");
 		try {
 			
 			stm = con.prepareStatement(INV_VW_MATNR_BY_WERKS);		
 			
-			log.log(Level.WARNING,"[getMatnrDao] Executing query...");
+			log.info("[getMatnrDao] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -73,7 +73,7 @@ public class MatnrDao {
 			//Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING,"[getMatnrDao] Sentence successfully executed.");
+			log.info("[getMatnrDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getMatnrDao] Some error occurred while was trying to execute the query: "+INV_VW_MATNR_BY_WERKS, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -85,10 +85,6 @@ public class MatnrDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getMatnrDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		
@@ -115,16 +111,16 @@ public class MatnrDao {
 			String condition = buildCondition(tmatnrBean);
 			if(condition != null){
 				INV_VW_TYPMATNR_BY_MATNR += condition;
-				log.warning(INV_VW_TYPMATNR_BY_MATNR);
+				log.info(INV_VW_TYPMATNR_BY_MATNR);
 			}
 		}
 		
-		log.log(Level.WARNING,"[getTmatnrWithMatnrDao] Preparing sentence...");
+		log.info("[getTmatnrWithMatnrDao] Preparing sentence...");
 		try {
 			
 			stm = con.prepareStatement(INV_VW_TYPMATNR_BY_MATNR);		
 			
-			log.log(Level.WARNING,"[getTmatnrWithMatnrDao] Executing query...");
+			log.info("[getTmatnrWithMatnrDao] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -148,7 +144,7 @@ public class MatnrDao {
 			//Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING,"[getTmatnrWithMatnrDao] Sentence successfully executed.");
+			log.info("[getTmatnrWithMatnrDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getTmatnrWithMatnrDao] Some error occurred while was trying to execute the query: "+INV_VW_TYPMATNR_BY_MATNR, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -160,10 +156,6 @@ public class MatnrDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getTmatnrWithMatnrDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		

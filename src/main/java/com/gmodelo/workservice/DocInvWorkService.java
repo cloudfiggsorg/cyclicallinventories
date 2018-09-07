@@ -17,15 +17,16 @@ import com.google.gson.JsonSyntaxException;
 public class DocInvWorkService {
 	
 	private Logger log = Logger.getLogger(DocInvWorkService.class.getName());
+	Gson gson = new Gson();
 	
 	public Response<Object> addDocInv(Request request, User user){
 	
-		log.log(Level.WARNING,"[addDocInvWS] "+request.toString());
+		log.info("[addDocInvWS] "+request.toString());
 		DocInvBean docInvBean;
 		Response<Object> res = new Response<Object>();
 		
 		try {
-			docInvBean = new Gson().fromJson(request.getLsObject().toString(), DocInvBean.class);
+			docInvBean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[addDocInvWS] Error al pasar de Json a DocInvB");
 			docInvBean = null;

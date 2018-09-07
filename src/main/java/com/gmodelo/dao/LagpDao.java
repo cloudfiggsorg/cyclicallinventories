@@ -43,13 +43,13 @@ public class LagpDao {
 		}
 		
 
-		log.warning(INV_VW_LAGP);
-		log.log(Level.WARNING,"[getLagp] Preparing sentence...");
+		log.info(INV_VW_LAGP);
+		log.info("[getLagp] Preparing sentence...");
 		try {
 			
 			stm = con.prepareStatement(INV_VW_LAGP);		
 			
-			log.log(Level.WARNING,"[getLagp] Executing query...");
+			log.info("[getLagp] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -76,7 +76,7 @@ public class LagpDao {
 			//Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING,"[getLagp] Sentence successfully executed.");
+			log.info("[getLagp] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getLagp] Some error occurred while was trying to execute the query: "+INV_VW_LAGP, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -88,10 +88,6 @@ public class LagpDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getLagp] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		

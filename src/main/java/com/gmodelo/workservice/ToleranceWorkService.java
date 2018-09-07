@@ -1,6 +1,5 @@
 package com.gmodelo.workservice;
 
-import java.io.StringReader;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,15 +13,15 @@ import com.gmodelo.dao.ToleranceDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
 
 public class ToleranceWorkService {
 
 	private Logger log = Logger.getLogger(ToleranceWorkService.class.getName());
+	Gson gson = new Gson();
 
 	public Response<List<ToleranceBean>> getMATKL(Request request) {
 
-		log.log(Level.WARNING, "[getMATKLWS] " + request.toString());
+		log.info("[getMATKLWS] " + request.toString());
 		Response<List<ToleranceBean>> res = new Response<>();
 		ToleranceBean tb = null;
 		String searchFilter = null;
@@ -30,27 +29,27 @@ public class ToleranceWorkService {
 
 		if (!req.isEmpty()) {
 			try {
-				tb = new Gson().fromJson(request.getLsObject().toString(), ToleranceBean.class);
-				log.log(Level.WARNING, "[getMATKLWS] Fue Objeto: " + tb);
+				tb = gson.fromJson(gson.toJson(request.getLsObject()), ToleranceBean.class);
+				log.info("[getMATKLWS] Fue Objeto: ");
 			} catch (JsonSyntaxException e) {
 				searchFilter = request.getLsObject().toString().trim();
-				log.log(Level.WARNING, "[getMATKLWS] jsyn Intentando por String ");
+				log.info("[getMATKLWS] Intentando por String ");
 			}
 		} else {
 			searchFilter = "";
-			log.log(Level.WARNING, "[getMATKLWS] Fue cadena vacía ");
+			log.info("[getMATKLWS] Fue cadena vacía ");
 		}
 		return new ToleranceDao().getMATKL(tb, searchFilter);
 	}
 
 	public Response<Object> addTolerance(Request request, User user) {
 
-		log.log(Level.WARNING, "[addToleranceWorkService] " + request.toString());
+		log.info("[addToleranceWorkService] " + request.toString());
 		ToleranceBean toleranceBean = null;
 		Response<Object> res = new Response<Object>();
 
 		try {
-			toleranceBean = new Gson().fromJson(request.getLsObject().toString(), ToleranceBean.class);
+			toleranceBean = gson.fromJson(gson.toJson(request.getLsObject()), ToleranceBean.class);
 			log.log(Level.WARNING, "[addToleranceWS] ");
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE, "[addToleranceWS] Error al pasar de Json a ToleranceBean", e);
@@ -68,7 +67,7 @@ public class ToleranceWorkService {
 
 	public Response<Object> deleteTolerance(Request request) {
 
-		log.log(Level.WARNING, "[deleteToleranceWS] " + request.toString());
+		log.info("[deleteToleranceWS] " + request.toString());
 		String arrayIdTolerances;
 		Response<Object> res = new Response<Object>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -98,7 +97,7 @@ public class ToleranceWorkService {
 
 	public Response<List<ToleranceBean>> getTolerances(Request request) {
 
-		log.log(Level.WARNING, "getTolerancesWS] " + request.toString());
+		log.info("getTolerancesWS] " + request.toString());
 		ToleranceBean tb = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
@@ -106,18 +105,18 @@ public class ToleranceWorkService {
 
 		if (!req.isEmpty()) {
 			try {
-				tb = new Gson().fromJson(request.getLsObject().toString(), ToleranceBean.class);
-				log.log(Level.WARNING, "[getTolerancesWS] Fue Objeto: " + tb);
+				tb = gson.fromJson(gson.toJson(request.getLsObject()), ToleranceBean.class);
+				log.info("[getTolerancesWS] Fue Objeto: " + tb);
 			} catch (JsonSyntaxException e) {
 				searchFilter = request.getLsObject().toString().trim();
-				log.log(Level.WARNING, "[getTolerancesWS] jsyn Intentando por String ");
+				log.info("[getTolerancesWS] jsyn Intentando por String ");
 			}
 		} else {
 			searchFilter = "";
-			log.log(Level.WARNING, "[getTolerancesWS] Fue cadena vacía ");
+			log.info("[getTolerancesWS] Fue cadena vacía ");
 
 			try {
-				tb = new Gson().fromJson(request.getLsObject().toString(), ToleranceBean.class);
+				tb = gson.fromJson(gson.toJson(request.getLsObject()), ToleranceBean.class);
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE, "[getTolerancesWS] Error al pasar de Json a ZoneB");
 				tb = null;
@@ -126,9 +125,7 @@ public class ToleranceWorkService {
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
 				return res;
-
 			}
-
 			
 		}
 		return new ToleranceDao().getTolerances(tb, searchFilter);

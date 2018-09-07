@@ -44,12 +44,12 @@ public class BukrsDao {
 		
 		log.warning(INV_VW_BUKRS);
 		
-		log.log(Level.WARNING,"[getBukrsDao] Preparing sentence...");
+		log.info("[getBukrsDao] Preparing sentence...");
 		try {
 			
 			stm = con.prepareStatement(INV_VW_BUKRS);		
 			
-			log.log(Level.WARNING,"[getBukrsDao] Executing query...");
+			log.info("[getBukrsDao] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -72,7 +72,7 @@ public class BukrsDao {
 			//Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING,"[getBukrsDao] Sentence successfully executed.");
+			log.info("[getBukrsDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getBukrsDao] Some error occurred while was trying to execute the query: "+INV_VW_BUKRS, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -84,10 +84,6 @@ public class BukrsDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getBukrsDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		
@@ -117,13 +113,13 @@ public class BukrsDao {
 		}else{
 			INV_VW_WERKS_BY_BUKRS += "WHERE BUKRS LIKE '%"+searchFilter+"%' OR WERKS LIKE '%"+searchFilter+"%'" +"%' OR NAME1 LIKE '%"+searchFilter+"%'";
 		}
-		log.warning(INV_VW_WERKS_BY_BUKRS);
-		log.log(Level.WARNING,"[getBukrs] Preparing sentence...");
+		log.info(INV_VW_WERKS_BY_BUKRS);
+		log.info("[getBukrs] Preparing sentence...");
 		try {
 			
 			stm = con.prepareStatement(INV_VW_WERKS_BY_BUKRS);		
 			
-			log.log(Level.WARNING,"[getBukrs] Executing query...");
+			log.info("[getBukrs] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -148,7 +144,7 @@ public class BukrsDao {
 			//Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING,"[getBukrs] Sentence successfully executed.");
+			log.info("[getBukrs] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getBukrs] Some error occurred while was trying to execute the query: "+INV_VW_WERKS_BY_BUKRS, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -160,10 +156,6 @@ public class BukrsDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getBukrs] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		

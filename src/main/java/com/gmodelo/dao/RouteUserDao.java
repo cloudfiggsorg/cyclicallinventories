@@ -37,12 +37,12 @@ public class RouteUserDao {
 		PreparedStatement stm = null;
 		RouteUserBean routeBean = null;
 		final String INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
-		log.warning(INV_VW_ROUTES);
-		log.log(Level.WARNING, "[getRoutesDaoByUser] Preparing sentence...");
+		log.info(INV_VW_ROUTES);
+		log.info("[getRoutesByUserDao] Preparing sentence...");
 		try {
 			stm = con.prepareStatement(INV_VW_ROUTES);
 			stm.setString(1, user.getEntity().getIdentyId());
-			log.log(Level.WARNING, "[getRoutesDaoByUser] Executing query...");
+			log.info("[getRoutesByUserDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			if (rs.next()) {
 				routeBean = new RouteUserBean();
@@ -58,7 +58,7 @@ public class RouteUserDao {
 			}
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING, "[getRoutesDaoByUser] Sentence successfully executed.");
+			log.info("[getRoutesByUserDao] Sentence successfully executed.");
 		} finally {
 			con.close();
 		}
@@ -73,13 +73,13 @@ public class RouteUserDao {
 		final String INV_SP_UPDATE_DOWLOAD_TASK = "INV_SP_UPDATE_DOWLOAD_TASK ?, ?, ?";
 		long date = 0;
 
-		log.log(Level.WARNING, "[updateDowloadTaskDao] Preparing sentence...");
+		log.info("[updateDowloadTaskDao] Preparing sentence...");
 		try {
 			cs = con.prepareCall(INV_SP_UPDATE_DOWLOAD_TASK);
 			cs.setString(1, idTask);
 			cs.registerOutParameter(2, Types.INTEGER);
 			cs.registerOutParameter(3, Types.DATE);
-			log.log(Level.WARNING, "[updateDowloadTaskDao] Executing query...");
+			log.info("[updateDowloadTaskDao] Executing query...");
 			cs.execute();
 			date = cs.getDate(3).getTime();
 		} catch (SQLException e) {
@@ -106,11 +106,11 @@ public class RouteUserDao {
 		final String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? ORDER BY SECUENCY ASC";
 
 		try {
-			log.warning(INV_VW_ROUTES_WITH_POSITIONS);
-			log.log(Level.WARNING, "[getRoutesUserPositionDao] Preparing sentence...");
+			log.info(INV_VW_ROUTES_WITH_POSITIONS);
+			log.info("[getRoutesUserPositionDao] Preparing sentence...");
 			stm = con.prepareStatement(INV_VW_ROUTES_WITH_POSITIONS);
 			stm.setString(1, idRoute);
-			log.log(Level.WARNING, "[getRoutesUserPositionDao] Executing query...");
+			log.info("[getRoutesUserPositionDao] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
 
@@ -134,7 +134,7 @@ public class RouteUserDao {
 			// Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING, "[getRoutesUserPositionDao] Sentence successfully executed.");
+			log.info("[getRoutesUserPositionDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
 					"[getRoutesUserPositionDao] Some error occurred while was trying to execute the query: "
@@ -161,10 +161,10 @@ public class RouteUserDao {
 		final String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES WITH(NOLOCK) WHERE ZONE_ID = ?";
 		try {
 
-			log.log(Level.WARNING, "[getRoutesUserZoneDao] Preparing sentence...");
+			log.info("[getRoutesUserZoneDao] Preparing sentence...");
 			stm = con.prepareStatement(INV_VW_ZONES);
 			stm.setString(1, zoneId);
-			log.log(Level.WARNING, "[getRoutesUserZoneDao] Executing query...");
+			log.info("[getRoutesUserZoneDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				zoneBean.setZoneId(rs.getString("ZONE_ID"));
@@ -179,7 +179,7 @@ public class RouteUserDao {
 			}
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING, "[getRoutesUserZoneDao] Sentence successfully executed.");
+			log.info("[getRoutesUserZoneDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
 					"[getZoneByPosition] Some error occurred while was trying to execute the query: " + INV_VW_ZONES,
@@ -207,12 +207,12 @@ public class RouteUserDao {
 		final String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ? "
 				+ "GROUP BY PK_ASG_ID,LGTYP,LGPLA,SECUENCY,IMWM ORDER BY SECUENCY ASC";
 
-		log.warning(INV_VW_ZONE_WITH_POSITIONS);
-		log.log(Level.WARNING, "[getRoutesUserZonePositionDao] Preparing sentence...");
+		log.info(INV_VW_ZONE_WITH_POSITIONS);
+		log.info("[getPositionsZoneDao] Preparing sentence...");
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
-			log.log(Level.WARNING, "[getRoutesUserZonePositionDao] Executing query...");
+			log.info("[getPositionsZoneDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 
@@ -237,10 +237,10 @@ public class RouteUserDao {
 			// Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING, "[getRoutesUserZonePositionDao] Sentence successfully executed.");
+			log.info("[getPositionsZoneDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
-					"[getPositionMaterialsDao] Some error occurred while was trying to execute the query: "
+					"[getPositionsZoneDao] Some error occurred while was trying to execute the query: "
 							+ INV_VW_ZONE_WITH_POSITIONS,
 					e);
 			throw e;
@@ -249,7 +249,7 @@ public class RouteUserDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[getPositionsZone] Some error occurred while was trying to close the connection.", e);
+						"[getPositionsZoneDao] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 		return listPositions;
@@ -264,12 +264,12 @@ public class RouteUserDao {
 
 		final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR, DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ? GROUP BY MATNR ,DEN_TYP_MAT";
 
-		log.warning(INV_VW_ZONE_POSITIONS_MATERIALS);
-		log.log(Level.WARNING, "[getPositionMaterialsDao] Preparing sentence...");
+		log.info(INV_VW_ZONE_POSITIONS_MATERIALS);
+		log.info("[getPositionMaterialsDao] Preparing sentence...");
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
 			stm.setString(1, pkAsgId);
-			log.log(Level.WARNING, "[getPositionMaterialsDao] Executing query...");
+			log.info("[getPositionMaterialsDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 
@@ -292,7 +292,7 @@ public class RouteUserDao {
 			rs.close();
 			stm.close();
 
-			log.log(Level.WARNING, "[getPositionMaterialsDao] Sentence successfully executed.");
+			log.info("[getPositionMaterialsDao] Sentence successfully executed.");
 
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,

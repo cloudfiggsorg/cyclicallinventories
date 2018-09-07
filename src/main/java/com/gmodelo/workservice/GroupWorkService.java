@@ -1,6 +1,5 @@
 package com.gmodelo.workservice;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,16 +19,16 @@ import com.gmodelo.dao.UMEDaoE;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 
 public class GroupWorkService {
 
 	private Logger log = Logger.getLogger(GroupWorkService.class.getName());
+	Gson gson = new Gson();
 	
 	public Response<Object> addGroup(Request request, User user){
 		
 		log.info("[addGroupWS] "+request.toString());
-		Gson gson = new Gson();
+		
 		GroupBean groupBean;
 		Response<Object> res = new Response<Object>();
 		
@@ -56,7 +55,7 @@ public class GroupWorkService {
 		Response<Object> res = new Response<Object>();
 		
 		try {
-			groupToUserBean = new Gson().fromJson(request.getLsObject().toString(), GroupToUserBean.class);
+			groupToUserBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupToUserBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[assignGroupToUserWS] Error al pasar de Json a GroupToUserBean");
 			groupToUserBean = null;
@@ -78,7 +77,7 @@ public class GroupWorkService {
 		Response<Object> res = new Response<Object>();
 		
 		try {
-			groupToUserBean = new Gson().fromJson(request.getLsObject().toString(), GroupToUserBean.class);
+			groupToUserBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupToUserBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[unassignGroupToUserWS] Error al pasar de Json a GroupToUserBean");
 			groupToUserBean = null;
@@ -100,7 +99,7 @@ public class GroupWorkService {
 		Response<Object> res = new Response<Object>();
 		
 		try {
-			groupToRouteBean = new Gson().fromJson(request.getLsObject().toString(), GroupToRouteBean.class);
+			groupToRouteBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupToRouteBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[unassignGroupToRouteWS] Error al pasar de Json a GroupToRouteBean");
 			groupToRouteBean = null;
@@ -156,7 +155,7 @@ public class GroupWorkService {
 			
 			try {
 				
-				groupsBean = new Gson().fromJson(request.getLsObject().toString(), GroupBean.class) ;
+				groupsBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupBean.class) ;
 				log.info("Fue Objeto: " + request.getLsObject().toString());
 				
 			}catch (JsonSyntaxException e1){

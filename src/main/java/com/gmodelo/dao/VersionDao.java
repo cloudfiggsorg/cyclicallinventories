@@ -25,12 +25,12 @@ public class VersionDao {
 		Response res = new Response();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
-		log.warning(INV_VW_VERSION_APP);
-		log.log(Level.WARNING, "[getVersionDao] Preparing sentence...");
+		log.info(INV_VW_VERSION_APP);
+		log.info("[getVersionDao] Preparing sentence...");
 		try {
 			stm = con.prepareStatement(INV_VW_VERSION_APP);
 
-			log.log(Level.WARNING, "[getVersionDao] Executing query...");
+			log.info("[getVersionDao] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
 
@@ -49,7 +49,7 @@ public class VersionDao {
 			// Free resources
 			rs.close();
 			stm.close();
-			log.log(Level.WARNING, "[getVersionDao] Sentence successfully executed.");
+			log.info("[getVersionDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
 					"[getVersionDao] Some error occurred while was trying to execute the query: " + INV_VW_VERSION_APP,

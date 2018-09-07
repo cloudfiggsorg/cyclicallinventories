@@ -40,7 +40,7 @@ public class ZoneDao {
 		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?,?,?";
 		
-		log.log(Level.WARNING,"[addZone] Preparing sentence...");
+		log.info("[addZone] Preparing sentence...");
 		
 		try {
 			con.setAutoCommit(false);
@@ -58,7 +58,7 @@ public class ZoneDao {
 			cs.registerOutParameter(7, Types.VARCHAR);
 			cs.registerOutParameter(8, Types.VARCHAR);
 			cs.registerOutParameter(9, Types.VARCHAR);
-			log.log(Level.WARNING,"[addZone] Executing query...");
+			log.info("[addZone] Executing query...");
 			
 			cs.execute();
 			
@@ -86,7 +86,7 @@ public class ZoneDao {
 						cs.setString(5,zoneBean.getPositions().get(i).getImwm());
 						cs.registerOutParameter(6, Types.INTEGER);
 						
-						log.log(Level.WARNING,"[addPositionZone] Executing query...");
+						log.info("[addPositionZone] Executing query...");
 						
 						cs.execute();
 						idPosition = cs.getInt(6);
@@ -110,7 +110,7 @@ public class ZoneDao {
 									cs.registerOutParameter(4, Types.VARCHAR);
 									cs.registerOutParameter(5, Types.VARCHAR);
 									
-									log.log(Level.WARNING,"[assignMaterialToZoneDao] Executing query...");
+									log.info("[assignMaterialToZoneDao] Executing query...");
 									cs.execute();
 									
 									idPosMat = cs.getInt(3);
@@ -143,7 +143,7 @@ public class ZoneDao {
 			//Free resources
 			cs.close();	
 			
-			log.log(Level.WARNING,"[addZone] Sentence successfully executed.");
+			log.info("[addZone] Sentence successfully executed.");
 	
 		} catch (SQLException e) {
 			try {
@@ -162,10 +162,6 @@ public class ZoneDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[addZone] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -182,14 +178,14 @@ public class ZoneDao {
 		
 		final String INV_SP_DEL_ZONE = "INV_SP_DEL_ZONE ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[deleteZone] Preparing sentence...");
+		log.info("[deleteZone] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_DEL_ZONE);
 			
 			cs.setString(1,arrayIdZones);
 			
-			log.log(Level.WARNING,"[deleteZone] Executing query...");
+			log.info("[deleteZone] Executing query...");
 			
 			cs.execute();
 			
@@ -203,7 +199,7 @@ public class ZoneDao {
 			//Free resources
 			cs.close();	
 			
-			log.log(Level.WARNING,"[deleteZone] Sentence successfully executed.");
+			log.info("[deleteZone] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[deleteZone] Some error occurred while was trying to execute the S.P.: "+INV_SP_DEL_ZONE, e);
@@ -216,10 +212,6 @@ public class ZoneDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[deleteZone] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -251,7 +243,7 @@ public class ZoneDao {
 				searchFilterNumber  += aux;
 			} catch (Exception e) {
 				searchFilterNumber = searchFilter;
-				log.warning("Trying to convert String to Int");
+				log.info("Trying to convert String to Int");
 			}
 			INV_VW_ZONE_BY_LGORT += "WHERE  ZONE_ID LIKE '%"+searchFilterNumber+"%' OR ZON_DESC LIKE '%"+searchFilter+"%' ";
 		}
@@ -259,14 +251,14 @@ public class ZoneDao {
 		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
 		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
 		
-		log.warning(INV_VW_ZONE_BY_LGORT);
+		log.info(INV_VW_ZONE_BY_LGORT);
 		
-		log.log(Level.WARNING,"[getZoneByLgortDao] Preparing sentence...");
+		log.info("[getZoneByLgortDao] Preparing sentence...");
 		
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
 			
-			log.log(Level.WARNING,"[getZoneByLgortDao] Executing query...");
+			log.info("[getZoneByLgortDao] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -295,7 +287,7 @@ public class ZoneDao {
 			rs.close();
 			stm.close();	
 			
-			log.log(Level.WARNING,"[getZoneByLgortDao] Sentence successfully executed.");
+			log.info("[getZoneByLgortDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getZoneByLgortDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_BY_LGORT, e);
@@ -308,10 +300,6 @@ public class ZoneDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getZoneByLgortDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -346,9 +334,9 @@ public class ZoneDao {
 		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
 		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
 		
-		log.warning(INV_VW_ZONE_BY_LGORT);
+		log.info(INV_VW_ZONE_BY_LGORT);
 		
-		log.log(Level.WARNING,"[validateZoneDao] Preparing sentence...");
+		log.info("[validateZoneDao] Preparing sentence...");
 		
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
@@ -382,7 +370,7 @@ public class ZoneDao {
 			rs.close();
 			stm.close();	
 			
-			log.log(Level.WARNING,"[validateZoneDao] Sentence successfully executed.");
+			log.info("[validateZoneDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[validateZoneDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_BY_LGORT, e);
@@ -395,10 +383,6 @@ public class ZoneDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[validateZoneDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -420,8 +404,13 @@ public class ZoneDao {
 		condition += zoneId;
 		zdesc = (zoneBean.getZdesc() != null ? " AND ZON_DESC LIKE '%"+zoneBean.getZdesc()+"%'" : "");
 		condition += zdesc;
-//		lgort = (zoneBean.getLgort() != null ? "AND " + zoneBean.getLgort()+"%'" :"");
-//		condition += lgort;
+		bukrs = (zoneBean.getBukrs() != null ? " AND BUKRS LIKE '%"+zoneBean.getBukrs()+"%'" : "");
+		condition += bukrs;
+		werks = (zoneBean.getWerks() != null ? " AND WERKS LIKE '%"+zoneBean.getWerks()+"%'" : "");
+		condition += werks;
+		lgort = (zoneBean.getLgort() != null ? "AND LGORT LIKE '%" + zoneBean.getLgort()+"%'" :"");
+		condition += lgort;
+//		bDesc = (zoneBean.getbDesc() != null ? "AND LGORT LIKE '%" + zoneBean.getbDesc()+"%'" :"");
 		condition = condition.isEmpty() ? null : condition;
 		
 		return condition;
@@ -444,7 +433,7 @@ public class ZoneDao {
 			searchFilterNumber += aux;
 		} catch (Exception e) {
 			searchFilterNumber = searchFilter;
-			log.warning("Trying to convert String to Int");
+			log.info("Trying to convert String to Int");
 		}
 		
 		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT,BDESC, WDESC, GDES  FROM dbo.INV_VW_ZONES";
@@ -456,13 +445,13 @@ public class ZoneDao {
 				INV_VW_ZONES += condition;
 			}
 		}
-		log.warning(INV_VW_ZONES);
+		log.info(INV_VW_ZONES);
 		INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT,BDESC, WDESC, GDES";
-		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
+		log.info("[getZonesDao] Preparing sentence...");
 		
 		try {
 			stm = con.prepareCall(INV_VW_ZONES);
-			log.log(Level.WARNING,"[getZonesDao] Executing query...");
+			log.info("[getZonesDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 					
@@ -492,7 +481,7 @@ public class ZoneDao {
 			rs.close();
 			stm.close();	
 			
-			log.log(Level.WARNING,"[getZonesDao] Sentence successfully executed.");
+			log.info("[getZonesDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONES, e);
@@ -505,10 +494,6 @@ public class ZoneDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -525,13 +510,13 @@ public class ZoneDao {
 		
 		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
 		
-		log.warning(INV_VW_ZONE_WITH_POSITIONS);
-		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
+		log.info(INV_VW_ZONE_WITH_POSITIONS);
+		log.info("[getZonesDao] Preparing sentence...");
 		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM";
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
-			log.log(Level.WARNING,"[getZonesDao] Executing query...");
+			log.info("[getZonesDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 				
@@ -558,7 +543,7 @@ public class ZoneDao {
 			rs.close();
 			stm.close();	
 			
-			log.log(Level.WARNING,"[getZonesDao] Sentence successfully executed.");
+			log.info("[getZonesDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_WITH_POSITIONS, e);
@@ -581,14 +566,14 @@ public class ZoneDao {
 		
 		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT PK_POS_MAT, MATNR ,TYP_MAT ,DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ?";
 		
-		log.warning(INV_VW_ZONE_POSITIONS_MATERIALS);
-		log.log(Level.WARNING,"[getZonesDao] Preparing sentence...");
+		log.info(INV_VW_ZONE_POSITIONS_MATERIALS);
+		log.info("[getZonesDao] Preparing sentence...");
 		INV_VW_ZONE_POSITIONS_MATERIALS += " GROUP BY PK_POS_MAT, MATNR ,TYP_MAT ,DEN_TYP_MAT";
 		
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
 			stm.setString(1,pkAsgId );
-			log.log(Level.WARNING,"[getZonesDao] Executing query...");
+			log.info("[getZonesDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 				
@@ -614,7 +599,7 @@ public class ZoneDao {
 			rs.close();
 			stm.close();	
 			
-			log.log(Level.WARNING,"[getZonesDao] Sentence successfully executed.");
+			log.info("[getZonesDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_POSITIONS_MATERIALS, e);
@@ -662,7 +647,7 @@ public class ZoneDao {
 		
 		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?, ?, ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[unassignMaterialToZoneDao] Preparing sentence...");
+		log.info("[unassignMaterialToZoneDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ZONE);
@@ -683,7 +668,7 @@ public class ZoneDao {
 				cs.setNull(3, Types.INTEGER);
 			}
 			
-			log.log(Level.WARNING,"[unassignMaterialToZoneDao] Executing query...");
+			log.info("[unassignMaterialToZoneDao] Executing query...");
 			
 			ResultSet rs = cs.executeQuery();
 			
@@ -718,7 +703,7 @@ public class ZoneDao {
 			rs.close();
 			cs.close();	
 			
-			log.log(Level.WARNING,"[unassignMaterialToZoneDao] Sentence successfully executed.");
+			log.info("[unassignMaterialToZoneDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[unassignMaterialToZoneDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_DESASSIGN_MATERIAL_TO_ZONE, e);
@@ -731,10 +716,6 @@ public class ZoneDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[unassignMaterialToZoneDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		abstractResult.setResultMsgAbs(resultSP);

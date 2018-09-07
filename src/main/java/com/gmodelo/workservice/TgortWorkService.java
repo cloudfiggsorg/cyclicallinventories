@@ -15,17 +15,16 @@ import com.google.gson.JsonSyntaxException;
 
 public class TgortWorkService {
 	private Logger log = Logger.getLogger( TgortWorkService.class.getName());
+	Gson gson = new Gson();
 	
 	public Response<List<TgortB>> getTgort(Request request){
-		log.log(Level.WARNING,"[TgortWorkService] "+request.toString());
+		log.info("[TgortWorkService] "+request.toString());
 		TgortB tgortBean;
 		Response<List<TgortB>> res = new Response<List<TgortB>>();
 		try {
-			tgortBean = new Gson().fromJson(request.getLsObject().toString(), TgortB.class) ;
-			
-			log.log(Level.WARNING,request.getLsObject().toString());
+			tgortBean = gson.fromJson(gson.toJson(request.getLsObject()), TgortB.class) ;
 		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE,"Error al pasar de Json a TgortBean");
+			log.log(Level.SEVERE,"Error al pasar de Json a TgortBean", e);
 			tgortBean = null;
 			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);

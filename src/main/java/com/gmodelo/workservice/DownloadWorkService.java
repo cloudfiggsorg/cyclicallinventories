@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.gmodelo.Exception.InvCicException;
@@ -34,6 +33,7 @@ import com.google.gson.reflect.TypeToken;
 public class DownloadWorkService {
 
 	Logger log = Logger.getLogger(getClass().getName());
+	Gson gson = new Gson();
 
 	/*
 	 * * * This Method Is used for the background data to the smartphone In
@@ -62,8 +62,8 @@ public class DownloadWorkService {
 
 	@SuppressWarnings({ "rawtypes" })
 	public String GetInfoTablesWS(Request request, HttpSession httpSession) {
-		log.warning("Entrando al Workservice");
-		log.warning(request.toString());
+		log.info("Entrando al Workservice");
+		log.info(request.toString());
 		Response<List<RfcTablesBean>> response = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		response.setAbstractResult(abstractResult);
@@ -77,11 +77,11 @@ public class DownloadWorkService {
 			abstractResult.setResultMsgAbs(e.getMessage());
 
 		}
-		log.warning("Saliendo del Workservice");
+		log.info("Saliendo del Workservice");
 		response.setLsObject(listToReturn);
 		abstractResult.setStrCom1(httpSession.getId());
 		abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
-		log.warning(response.toString());
+		log.info(response.toString());
 		return new Gson().toJson(response);
 	}
 
@@ -100,8 +100,8 @@ public class DownloadWorkService {
 	 */
 
 	public String GetMasterDataWS(Request request, HttpSession httpSession) {
-		log.log(Level.WARNING, "Init... GetMasterDataWS(Request<LoginBean<?>> request)");
-		log.log(Level.WARNING, "Request Data" + request.toString());
+		log.info("Init... GetMasterDataWS(Request<LoginBean<?>> request)");
+		log.info("Request Data" + request.toString());
 		Response<String> response = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		try {
@@ -110,10 +110,9 @@ public class DownloadWorkService {
 			ResultSet rs = null;
 			Type listType = new TypeToken<ArrayList<RfcTablesBean>>() {
 			}.getType(); // Codigo para Castear a Lista
-			List<RfcTablesBean> responseList = new ArrayList<>();
-			List<RfcTablesBean> listOfTables = new Gson().fromJson(request.getLsObject().toString(), listType);
+			List<RfcTablesBean> listOfTables = gson.fromJson(gson.toJson(request.getLsObject()), listType);
 			for (RfcTablesBean rfcBean : listOfTables) {
-				log.log(Level.WARNING, rfcBean.toString());
+				log.info(rfcBean.toString());
 				try {
 					String queryValuesString = rfcBean.getTable_value().replaceAll("\\|", "\\,");
 					queryValuesString = queryValuesString.substring(0, queryValuesString.length() - 1);
@@ -152,7 +151,7 @@ public class DownloadWorkService {
 				} catch (SQLException e) {
 					rfcBean.setStoredValues(null);
 				}
-				log.log(Level.WARNING, "Before Adding to List" + rfcBean.getTable_name());
+				log.info("Before Adding to List" + rfcBean.getTable_name());
 
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ObjectOutputStream oos;
@@ -170,7 +169,7 @@ public class DownloadWorkService {
 				}
 
 			}
-			log.log(Level.WARNING, "Before Adding to ResponseList to LSOBJECT");
+			log.info("Before Adding to ResponseList to LSOBJECT");
 			abstractResult.setStrCom1(httpSession.getId());
 			abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
 			response.setAbstractResult(abstractResult);
@@ -181,7 +180,7 @@ public class DownloadWorkService {
 			abstractResult.setStrCom1(httpSession.getId());
 			abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
 		}
-		log.log(Level.WARNING, "Before Response" + response.getAbstractResult());
+		log.info("Before Response" + response.getAbstractResult());
 		return new Gson().toJson(response);
 	}
 

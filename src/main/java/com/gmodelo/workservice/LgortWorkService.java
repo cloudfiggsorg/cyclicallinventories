@@ -16,15 +16,16 @@ import com.google.gson.JsonSyntaxException;
 public class LgortWorkService {
 
 	private Logger log = Logger.getLogger( LgortWorkService.class.getName());
+	Gson gson = new Gson();
 	
 	public Response<List<LgortBeanView>> getLgortByWerks(Request request){
 		
-		log.log(Level.WARNING,"[LgortWorkService] "+request.toString());
+		log.info("[LgortWorkService] "+request.toString());
 		LgortBeanView lgortBean;
 		Response<List<LgortBeanView>> res = new Response<List<LgortBeanView>>();
 		
 		try {
-			lgortBean = new Gson().fromJson(request.getLsObject().toString(), LgortBeanView.class);
+			lgortBean = gson.fromJson(gson.toJson(request.getLsObject()), LgortBeanView.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[LgortWorkService] Error al pasar de Json a LgortBean");
 			lgortBean = null;
@@ -41,12 +42,12 @@ public class LgortWorkService {
 	
 	public Response<List<LgortBeanView>> getNgorts(Request request){
 		
-		log.log(Level.WARNING,"[NgortWorkService] "+request.toString());
+		log.info("[NgortWorkService] "+request.toString());
 		LgortBeanView lgortBeanView;
 		Response<List<LgortBeanView>> res = new Response<List<LgortBeanView>>();
 		
 		try {
-			lgortBeanView = new Gson().fromJson(request.getLsObject().toString(), LgortBeanView.class);
+			lgortBeanView = gson.fromJson(gson.toJson(request.getLsObject()), LgortBeanView.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[NgortWorkService] Error al pasar de Json a NgortBean");
 			lgortBeanView = null;

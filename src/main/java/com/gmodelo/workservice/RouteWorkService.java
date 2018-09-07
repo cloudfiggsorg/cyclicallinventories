@@ -4,7 +4,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.servlet.http.HttpSession;
+
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
@@ -20,14 +22,14 @@ import com.google.gson.JsonSyntaxException;
 public class RouteWorkService {
 
 	private Logger log = Logger.getLogger(RouteWorkService.class.getName());
+	Gson gson = new Gson();
 
 	public Response<RouteBean> addRoute(Request request, User user) {
 		
-		log.log(Level.WARNING, "[addRouteWS] " + request.toString());
+		log.info("[addRouteWS] " + request.toString());
 		RouteBean routeBean;
 		Response<RouteBean> res = new Response<RouteBean>();
 		String req = request.getLsObject().toString().trim();
-		Gson gson = new Gson();
 		if (!req.isEmpty()) {
 			try {								
 				routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteBean.class);
@@ -55,26 +57,26 @@ public class RouteWorkService {
 
 	public Response<Object> deleteRoute(Request request) {
 
-		log.log(Level.WARNING, "[deleteRouteWS] " + request.toString());
+		log.info("[deleteRouteWS] " + request.toString());
 		String arrayIdRoutes;
 		arrayIdRoutes = request.getLsObject().toString();
 		return new RouteDao().deleteRoute(arrayIdRoutes);
 	}
 
 	public Response<List<RouteBean>> getRoutes(Request request) {
-		log.log(Level.WARNING, "[getRoutesService] " + request.toString());
+		log.info("[getRoutesService] " + request.toString());
 		RouteBean routeBean = null;
 		String searchFilter = null;
 		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
 			try {
-				routeBean = new Gson().fromJson(request.getLsObject().toString(), RouteBean.class);
+				routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteBean.class);
 
-				log.log(Level.WARNING, "Fue objeto");
+				log.info("Fue objeto");
 			} catch (JsonSyntaxException e) {
 				searchFilter = request.getLsObject().toString();
-				log.log(Level.WARNING, "Fue cadena");
+				log.info("Fue cadena");
 			}
 		} else {
 			searchFilter = "";
@@ -103,8 +105,9 @@ public class RouteWorkService {
 		} catch (SQLException e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgGen(e.getMessage());
+			log.log(Level.SEVERE, "[getRoutesByUserService] ",e);
 		}
-		log.log(Level.WARNING, "[getRoutesByUserService] ");
+		
 		return new Gson().toJson(routeResponse);
 	}
 }

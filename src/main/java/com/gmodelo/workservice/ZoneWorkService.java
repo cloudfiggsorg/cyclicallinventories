@@ -10,8 +10,6 @@ import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
-import com.gmodelo.beans.ZoneBean;
-import com.gmodelo.beans.ZonePositionsBean;
 import com.gmodelo.dao.ZoneDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -20,14 +18,14 @@ import com.google.gson.JsonSyntaxException;
 public class ZoneWorkService {
 
 	private Logger log = Logger.getLogger(ZoneWorkService.class.getName());
+	Gson gson = new Gson();
 	
 	public Response<List<ZoneBean>> getLgortByZone(Request request){
 			
-			log.log(Level.WARNING,"[getZoneByLgortWorkService] "+request.toString());
+			log.info("[getZoneByLgortWorkService] "+request.toString());
 			ZoneBean zoneBean = null;
 			String searchFilter = null;
 			Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
-			Gson gson = new Gson();
 			String req = request.getLsObject().toString().trim();
 			if(!req.isEmpty()){
 				try {
@@ -40,7 +38,7 @@ public class ZoneWorkService {
 				}
 			}else{
 				searchFilter = "";
-				log.log(Level.WARNING, "[getZoneByLgortWorkService] Fue cadena vacía ");
+				log.info("[getZoneByLgortWorkService] Fue cadena vacía ");
 			}
 			
 			
@@ -50,15 +48,14 @@ public class ZoneWorkService {
 	
 	public Response<List<ZoneBean>> validateZone(Request request){
 		
-		log.log(Level.WARNING,"[validateZoneWorkService] "+request.toString());
+		log.info("[validateZoneWorkService] "+request.toString());
 		ZoneBean zoneBean = null;
-		String searchFilter = null;
 		Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
 		String req = request.getLsObject().toString().trim();
 		if(!req.isEmpty()){
 			try {
 //				aqui siempre se recibirá un objeto
-				zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
+				zoneBean = gson.fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE,"[validateZoneWorkService] Error al convertir json a ZoneBean");
 				AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -68,7 +65,6 @@ public class ZoneWorkService {
 				return res;
 			}
 		}else{
-			searchFilter = "";
 			log.log(Level.WARNING, "[validateZoneWorkService] Fue cadena vacía ");
 		}
 		
@@ -79,12 +75,12 @@ public class ZoneWorkService {
 	
 	public Response<ZoneBean> addZone(Request<?> request, User user){
 		
-		log.log(Level.WARNING,"[addZone] "+request.toString());
+		log.info("[addZone] "+request.toString());
 		ZoneBean zoneBean;
 		Response<ZoneBean> res = new Response<ZoneBean>();
 		
 		try {
-			zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
+			zoneBean = gson.fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE,"[addZone] Error al pasar de Json a ZoneBean");
 			zoneBean = null;
@@ -101,7 +97,7 @@ public class ZoneWorkService {
 	
 	public Response<Object> deleteZone(Request<?> request){
 			
-			log.log(Level.WARNING,"[deleteZoneWS] "+request.toString());
+			log.info("[deleteZoneWS] "+request.toString());
 			String arrayIdZones;
 			Response<Object> res = new Response<Object>();
 			AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -131,14 +127,14 @@ public class ZoneWorkService {
 
 	public Response<List<ZoneBean>> getZones(Request<?> request){
 		
-		log.log(Level.WARNING,"[getZonesWorkService] "+request.toString());
+		log.info("[getZonesWorkService] "+request.toString());
 		ZoneBean zoneBean = null;
 		Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
 		if(!req.isEmpty()){
 			try {
-				zoneBean = new Gson().fromJson(request.getLsObject().toString(), ZoneBean.class);
+				zoneBean = gson.fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE,"[getZonesWorkService] Error al pasar de Json a ZoneB");
 				zoneBean = null;
@@ -150,7 +146,7 @@ public class ZoneWorkService {
 			}
 		}else{
 			searchFilter = "";
-			log.log(Level.WARNING, "[getZonesWorkService] Fue cadena vacía ");
+			log.info("[getZonesWorkService] Fue cadena vacía ");
 		}
 		return new ZoneDao().getZones(zoneBean,searchFilter);
 		
@@ -158,13 +154,13 @@ public class ZoneWorkService {
 	
 	public Response<Object> unassignMaterialToZone(Request request){
 			
-			log.log(Level.WARNING,"[unassignMaterialToZoneWS] "+request.toString());
+			log.info("[unassignMaterialToZoneWS] "+request.toString());
 			MaterialToZoneBean materialToZoneBean;
 			Response<Object> res = new Response<Object>();
 			String req = request.getLsObject().toString().trim();
 			if(!req.isEmpty()){
 				try {
-					materialToZoneBean = new Gson().fromJson(request.getLsObject().toString(), MaterialToZoneBean.class);
+					materialToZoneBean = gson.fromJson(gson.toJson(request.getLsObject()), MaterialToZoneBean.class);
 				} catch (JsonSyntaxException e) {
 					log.log(Level.SEVERE,"[unassignMaterialToRouteWS] Error al pasar de Json a MaterialToZoneBean");
 					materialToZoneBean = null;

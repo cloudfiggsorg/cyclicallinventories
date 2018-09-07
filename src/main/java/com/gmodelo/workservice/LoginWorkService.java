@@ -3,7 +3,6 @@ package com.gmodelo.workservice;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -21,61 +20,8 @@ public class LoginWorkService {
 	// private Logger log = Logger.getLogger(LoginWorkService.class.getName());
 	private java.util.logging.Logger myLog = java.util.logging.Logger.getLogger(LoginWorkService.class.getName());
 
-	// public String validateLogin(String loginString) {
-	// Response<LoginBean> response = new Response<>();
-	// Gson gson = new Gson();
-	// AbstractResults result = new AbstractResults();
-	// ConnectionManager iConnectionManager = new ConnectionManager();
-	// LoginBean login = gson.fromJson(loginString, LoginBean.class);
-	// LoginDAO loginDAO = new LoginDAO();
-	// Connection con = iConnectionManager.createConnectionViaDatasource();
-	// response.setAbstractResult(result);
-	// try {
-	// result = iConnectionManager.ValidateLDAPLogin(login, con);
-	// if (result.getResultId().equals(ReturnValues.ISUCCESS)) {
-	// if (loginDAO.ValidateToken(login, con) > 0) {
-	// RecoveryBean recovery = loginDAO.RecoverStoredToken(login, con);
-	// if (recovery.getLogOnCredential().equals(login.getRelationUUID())) {
-	// if (new Date().after(recovery.getLogOnValid())) {
-	// login.setRelationUUID(new Utilities().generateLoginToken(login));
-	// loginDAO.UpdateStoredToken(login, con);
-	// } else {
-	// loginDAO.ExtendStoredToken(login, con);
-	// }
-	// } else {
-	// login.setRelationUUID(recovery.getLogOnCredential());
-	// loginDAO.ExtendStoredToken(login, con);
-	// }
-	// } else {
-	// login.setRelationUUID(new Utilities().generateLoginToken(login));
-	// loginDAO.LoginStoreToken(login, con);
-	// }
-	// } else {
-	// response.setAbstractResult(result);
-	// }
-	// } catch (InvCicException e) {
-	// result.setResultId(ReturnValues.IEXCEPTION);
-	// result.setResultMsgAbs(e.getMessage());
-	// } finally {
-	// try {
-	// iConnectionManager.CloseConnection(con);
-	// } catch (Exception e) {
-	// e.printStackTrace(System.out);
-	// }
-	// }
-	// return gson.toJson(response);
-	// }
-
 	public Response login(LoginBean loginBean, HttpServletRequest request, HttpSession session) {
-		InitialContext ctx;
-		// try {
-		// ctx = new InitialContext();
-		// NamingEnumeration<NameClassPair> list = ctx.list(""); while
-		// (list.hasMore()) { System.out.println(list.next().getName()); }
-		// } catch (NamingException e2) {
-		// log.error("InitialContext error", e2);
-		// }
-
+		
 		Response<LoginBean> resp = new Response<LoginBean>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
@@ -119,25 +65,11 @@ public class LoginWorkService {
 					user.getAccInf().setPassword(loginBean.getLoginPass().trim());
 					user = apiUME.checkUserLDAP(user);
 					abstractResult.setResultId(ReturnValues.ISUCCESS);
-
-					// ConnectionManager iConnectionManager = new
-					// ConnectionManager();
-					//
-					// Connection con =
-					// iConnectionManager.createConnection(ConnectionManager.connectionBean);
-					// abstractResult =
-					// iConnectionManager.ValidateLDAPLogin(loginBean, con);
-					// iConnectionManager.CloseConnection(con);
 				} catch (NamingException e) {
 					user = null;
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
 					myLog.log(Level.SEVERE, "Error al verificar usuario en LDAP", e);
 				}
-				// catch (InvCicException e) {
-				// myLog.log(Level.SEVERE,"[login] Error while tryng to retrive the
-				// user info from LDAP", e);
-				// abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				// }
 			}
 			
 

@@ -37,12 +37,12 @@ public class ToleranceDao {
 			INV_VW_MATKL += "WHERE MATKL LIKE '%"+searchFilter+"%' OR WGBEZ LIKE '%"+searchFilter+"%'";
 		}
 		
-		log.log(Level.WARNING,"[getMATKLDao] Preparing sentence...");
+		log.info("[getMATKLDao] Preparing sentence...");
 		
 		try {
 			stm = con.prepareCall(INV_VW_MATKL);
 			
-			log.log(Level.WARNING,"[getMATKLDao] Executing query...");
+			log.info("[getMATKLDao] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -68,7 +68,7 @@ public class ToleranceDao {
 			rs.close();
 			stm.close();	
 			
-			log.log(Level.WARNING,"[getMATKLDao] Sentence successfully executed.");
+			log.info("[getMATKLDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getMATKLDao] Some error occurred while was trying to execute the query: "+INV_VW_MATKL, e);
@@ -81,10 +81,6 @@ public class ToleranceDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getMATKLDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -103,7 +99,7 @@ public class ToleranceDao {
 		
 		final String INV_SP_ADD_TOLERANCE = "INV_SP_ADD_TOLERANCE ?, ?, ?, ?, ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[addToleranceDao] Preparing sentence...");
+		log.info("[addToleranceDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_ADD_TOLERANCE);
@@ -120,7 +116,7 @@ public class ToleranceDao {
 			cs.registerOutParameter(1, Types.INTEGER);
 			
 			
-			log.log(Level.WARNING,"[addToleranceDao] Executing query...");
+			log.info("[addToleranceDao] Executing query...");
 			
 			cs.execute();
 			
@@ -136,7 +132,7 @@ public class ToleranceDao {
 			//Free resources
 			cs.close();	
 			
-			log.log(Level.WARNING,"[addToleranceDao] Sentence successfully executed.");
+			log.info("[addToleranceDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[addToleranceDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_ADD_TOLERANCE, e);
@@ -148,10 +144,6 @@ public class ToleranceDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[addToleranceDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -169,7 +161,7 @@ public class ToleranceDao {
 		
 		final String INV_SP_DEL_TOLERANCE = "INV_SP_DEL_TOLERANCE ?, ?"; //The Store procedure to call
 		
-		log.log(Level.WARNING,"[deleteToleranceDao] Preparing sentence...");
+		log.info("[deleteToleranceDao] Preparing sentence...");
 		
 		try {
 			cs = con.prepareCall(INV_SP_DEL_TOLERANCE);
@@ -177,7 +169,7 @@ public class ToleranceDao {
 			cs.setString(1,arrayIdZones);
 			cs.registerOutParameter(2, Types.INTEGER);
 			
-			log.log(Level.WARNING,"[deleteToleranceDao] Executing query...");
+			log.info("[deleteToleranceDao] Executing query...");
 			
 			cs.execute();
 			
@@ -193,7 +185,7 @@ public class ToleranceDao {
 			//Free resources
 			cs.close();	
 			
-			log.log(Level.WARNING,"[deleteToleranceDao] Sentence successfully executed.");
+			log.info("[deleteToleranceDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[deleteToleranceDao] Some error occurred while was trying to execute the S.P.: "+INV_SP_DEL_TOLERANCE, e);
@@ -206,10 +198,6 @@ public class ToleranceDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[deleteToleranceDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -237,13 +225,13 @@ public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean, 
 			}
 		}
 		
-		log.warning(INV_VW_TOLERANCES);
-		log.log(Level.WARNING,"[getTolerancesDao] Preparing sentence...");
+		log.info(INV_VW_TOLERANCES);
+		log.info("[getTolerancesDao] Preparing sentence...");
 		
 		try {
 			stm = con.prepareCall(INV_VW_TOLERANCES);
 			
-			log.log(Level.WARNING,"[getTolerancesDao] Executing query...");
+			log.info("[getTolerancesDao] Executing query...");
 			
 			ResultSet rs = stm.executeQuery();
 			
@@ -271,7 +259,7 @@ public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean, 
 			rs.close();
 			stm.close();	
 			
-			log.log(Level.WARNING,"[getTolerancesDao] Sentence successfully executed.");
+			log.info("[getTolerancesDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getTolerancesDao] Some error occurred while was trying to execute the query: "+INV_VW_TOLERANCES, e);
@@ -284,10 +272,6 @@ public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean, 
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getTolerancesDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
