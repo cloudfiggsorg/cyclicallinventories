@@ -32,7 +32,6 @@ public class GroupDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
 		CallableStatement cs = null;
-		int resultSP = -1;
 		
 		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?"; //The Store procedure to call
 		
@@ -46,14 +45,11 @@ public class GroupDao {
 			cs.setString(2,groupBean.getGdesc());
 			
 			cs.setString(3, createdBy);
-			
-			cs.registerOutParameter(1, Types.INTEGER);
 			log.log(Level.WARNING,"[addGroup] Executing query...");
 			
 			 cs.execute();
 			
 			 abstractResult.setResultId(ReturnValues.ISUCCESS);
-			 abstractResult.setIntCom1(cs.getInt(1));
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -77,10 +73,6 @@ public class GroupDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[addGroup] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 	
@@ -96,8 +88,8 @@ public class GroupDao {
 		CallableStatement cs = null;
 		String resultSP = null;
 		
-		final String INV_SP_ASSIGN_GROUP_TO_USER = "INV_SP_ASSIGN_GROUP_TO_USER ?, ?, ?, ?"; //The Store procedure to call
-		
+		final String INV_SP_ASSIGN_GROUP_TO_USER = "INV_SP_ASSIGN_GROUP_TO_USER ?, ?, ?"; //The Store procedure to call
+		log.info(groupToUserBean.toString());
 		log.log(Level.WARNING,"[assignGroupToUserDao] Preparing sentence...");
 		
 		try {
@@ -106,14 +98,12 @@ public class GroupDao {
 			cs.setString(1,groupToUserBean.getGroupId());
 			cs.setString(2,groupToUserBean.getUserId());
 			cs.setString(3, createdBy);
-			cs.registerOutParameter(4, Types.INTEGER);
 			
 			log.log(Level.WARNING,"[assignGroupToUserDao] Executing query...");
 			
 			cs.execute();
 			
 			 abstractResult.setResultId(ReturnValues.ISUCCESS);
-			 abstractResult.setIntCom1(cs.getInt(4));
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -138,9 +128,6 @@ public class GroupDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[assignGroupToUserDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				return res;
 			}
 		}
 		abstractResult.setResultMsgAbs(resultSP);
@@ -197,10 +184,6 @@ public class GroupDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[unassignGroupToUserDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -254,10 +237,6 @@ public class GroupDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[unassignGroupToRouteDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -308,10 +287,6 @@ public class GroupDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[deleteGroupDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -387,10 +362,6 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,"[getMantrDao] Some error occurred while was trying to close the connection.", e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		}
 		
