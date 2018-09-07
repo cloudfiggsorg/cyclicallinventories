@@ -18,12 +18,33 @@ public class RFC_DATAMART {
 	String table_Insert;
 	String table_filters;
 	String[] table_values;
+	String table_field_filter;
 	Integer maxRows;
+	String table_type_filter;
+	String last_request;
 
+	
+	public String getLast_request() {
+		return last_request;
+	}
+	public void setLast_request(String last_request) {
+		this.last_request = last_request;
+	}
+	public String getTable_type_filter() {
+		return table_type_filter;
+	}
+	public void setTable_type_filter(String table_type_filter) {
+		this.table_type_filter = table_type_filter;
+	}
+	public String getTable_field_filter() {
+		return table_field_filter;
+	}
+	public void setTable_field_filter(String table_field_filter) {
+		this.table_field_filter = table_field_filter;
+	}
 	public String getTablename() {
 		return tablename;
 	}
-
 	public void setTablename(String tablename) {
 		this.tablename = tablename;
 	}
@@ -75,6 +96,19 @@ public class RFC_DATAMART {
 		this.table_Insert = table_Insert;
 		this.maxRows = maxRows;
 	}
+	
+
+	public RFC_DATAMART(String tablename, String table_value, String table_Insert, String table_filters,
+			String[] table_values, String table_field_max, Integer maxRows) {
+		super();
+		this.tablename = tablename;
+		this.table_value = table_value;
+		this.table_Insert = table_Insert;
+		this.table_filters = table_filters;
+		this.table_values = table_values;
+		this.table_field_filter = table_field_max;
+		this.maxRows = maxRows;
+	}
 
 	public RFC_DATAMART() {
 		super();
@@ -87,7 +121,9 @@ public class RFC_DATAMART {
 		this.table_value = rs.getString("TABLE_VALUES");
 		this.table_Insert = rs.getString("TABLE_SQL_FILL");
 		this.table_filters = rs.getString("TABLE_REQUEST_FILTERS");
-
+		this.table_field_filter = rs.getString("TABLE_FIELD_FILTER");
+		this.table_type_filter = rs.getString("TABLE_TYPE_FILTER");
+		this.last_request = rs.getString("LAST_REQUEST");
 	}
 
 	@Override

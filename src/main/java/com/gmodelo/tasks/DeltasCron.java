@@ -24,8 +24,8 @@ public class DeltasCron implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent arg0) {
 		DeltasDao cron = new DeltasDao();
 		
-		JobDetail job = JobBuilder.newJob(DeltasJob.class).withIdentity("JobClienteWS", "group1").build();
-		Trigger trigger = TriggerBuilder.newTrigger().withIdentity("TriggerClienteWS", "group1")
+		JobDetail job = JobBuilder.newJob(DeltasJob.class).withIdentity("JobDao", "group1").build();
+		Trigger trigger = TriggerBuilder.newTrigger().withIdentity("TriggerDao", "group1")
 				.withSchedule(CronScheduleBuilder.cronSchedule(cron.getCronDelta())).build();
 		
 		try {

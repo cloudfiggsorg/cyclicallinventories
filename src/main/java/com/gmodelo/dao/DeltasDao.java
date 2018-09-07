@@ -31,20 +31,26 @@ public class DeltasDao {
 	
 	final static String RFC_DESTINATION = "RFC_DESTINATION";
 	final private static String RFC_NAME_PERSONNEL = "/BOA/ZRFC_READ_TABLE";
+	//final private static String RFC_COUNT_TABLE = "ZRARMF_GET_TABLE_SIZE_RFC";
 	final private static String RFC_COUNT_TABLE = "/BOA/ZGET_TABLE_SIZE_RFC";
 	final static Integer masterRows = 5000;
 	final static Integer masterBeginRow = 0;
 	public static final String REQUESTTABLECONFIG = "SELECT TABLE_NAME, TABLE_VALUES, TABLE_SQL_FILL FROM RFC_TABLE_FILL WITH(NOLOCK)";
-	public static final String REQUESTTABLECONFIGDELTA = "SELECT TABLE_NAME, TABLE_VALUES, TABLE_SQL_FILL, TABLE_REQUEST_FILTERS FROM RFC_TABLE_FILL WITH(NOLOCK) WHERE LAST_REQUEST IS NULL OR "
+	
+	public static final String REQUESTTABLECONFIGDELTA = "SELECT TOP 1 TABLE_NAME, TABLE_VALUES, TABLE_SQL_FILL, TABLE_REQUEST_FILTERS, TABLE_FIELD_FILTER, TABLE_TYPE_FILTER, CONVERT(DATE,LAST_REQUEST)LAST_REQUEST FROM RFC_TABLE_FILL WITH(NOLOCK)";
+	/*public static final String REQUESTTABLECONFIGDELTA = "SELECT TABLE_NAME, TABLE_VALUES, TABLE_SQL_FILL, TABLE_REQUEST_FILTERS, TABLE_FIELD_MAX_MODIFIED FROM RFC_TABLE_FILL WITH(NOLOCK) WHERE LAST_REQUEST IS NULL OR "
 			+ " CONVERT(date,getdate()) > CONVERT(date,dateadd(day,7,LAST_REQUEST))";
+	*/
 	public static final String UPDATETABLEDATAMART = "UPDATE RFC_TABLE_FILL SET LAST_REQUEST = getdate() WHERE TABLE_NAME = ?";
 	
 	private String HOST; 
 	private String USERHOST;
     private String PASSWORDHOST;
+    private JCoDestination destination;
 	final static String INV_CIC_REPOSITORY = "SELECT STORED_KEY, STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY IN('SAP_HOST','SAP_USER','SAP_PASSWORD') GROUP BY STORED_KEY, STORED_VALUE ORDER BY STORED_KEY ASC";
 	
 	public DeltasDao(){
+		destination = null;
 		generatedProperties();
 	}
 	
@@ -116,7 +122,9 @@ public class DeltasDao {
 					PASSWORDHOST = rs.getString("STORED_VALUE");
 				}
 			}
-
+			
+			System.out.println("HOST: "+ HOST + " USERHOST: "+ USERHOST + " PASSWORDHOST: "+ PASSWORDHOST);
+			
 			// Retrive the warnings if there're
 			SQLWarning warning = stm.getWarnings();
 			while (warning != null) {
@@ -162,7 +170,7 @@ public class DeltasDao {
         try{
         	log.log(Level.WARNING, "[createDestinationDataFileDeltaDAO] Preparing sentence...");
             FileOutputStream fos = new FileOutputStream(destCfg, false);
-            //connectProperties.store(fos, "for tests only !");
+            connectProperties.store(fos, "DESTINATION SAP");
             fos.close();
         }catch (Exception e){
         	log.log(Level.SEVERE,"[createDestinationDataFileDeltaDAO] Some error occurred while was trying to createDestination: " + destinationName, e);
@@ -170,13 +178,15 @@ public class DeltasDao {
     }
 	
 	public void connectDestination(){
-        JCoDestination destination = null;
 		try {
 			log.log(Level.WARNING, "[connectDestinationDeltaDAO] Preparing sentence...");
 			destination = JCoDestinationManager.getDestination(RFC_DESTINATION);
-			System.out.println("Attributes:");
-	        System.out.println(destination.getAttributes());
-	        System.out.println();
+			//System.out.println("Attributes:");
+	        //System.out.println(destination.getAttributes());
+	        
+	        if(destination.isValid()){
+	        	System.out.println("Conectado");	
+	        }
 		} catch (JCoException e) {
 			log.log(Level.SEVERE,"[connectDestinationDeltaDAO] Some error occurred while was connectDestination: " + destination, e);
 		}
@@ -184,6 +194,7 @@ public class DeltasDao {
 	
 	public void RequestFirstRun() {
 		Connection con = new ConnectionManager().createConnection();
+		String options = "";
 		try {
 			PreparedStatement stm = con.prepareStatement(REQUESTTABLECONFIGDELTA);
 			System.out.println(REQUESTTABLECONFIGDELTA);
@@ -194,17 +205,17 @@ public class DeltasDao {
 			}
 			if (rfc_datamarts.size() > 0) {
 				for (RFC_DATAMART datamart : rfc_datamarts) {
-					
 					datamart.setMaxRows(RequestCurretRows(datamart.getTablename()));
 					System.out.println("table: "+ datamart.getTablename()+ " sizetable: "+ datamart.getMaxRows());
 					
 					if(datamart.getMaxRows() <= 50000){
 						System.out.println("Cargar toda la tabla");
-						System.out.println("Inicia Extraccion Tabla " + datamart.getTablename() + " : " + new Date());
-						//RequestTableViaDatabase(datamart, con, masterRows, masterBeginRow);
-						System.out.println("Finalizo Extraccion Tabla " + datamart.getTablename() + " : " + new Date());
+						//RequestTableViaDatabase(datamart, con, masterRows, masterBeginRow, options);
 					}else{
 						System.out.println("Cargar solo datos recientes");
+						options = this.generatedFiltersTable(datamart.getTablename(), datamart.getTable_field_filter(), datamart.getTable_type_filter(), datamart.getLast_request());
+						System.out.println(options);
+						RequestTableViaDatabase(datamart, con, masterRows, masterBeginRow, options);
 					}
 					
 					//UpdateLastExcecute(con, datamart);
@@ -227,18 +238,7 @@ public class DeltasDao {
 		}
 	}
 
-	public void UpdateLastExcecute(Connection con, RFC_DATAMART datamart) {
-		try {
-			PreparedStatement stm = con.prepareStatement(UPDATETABLEDATAMART);
-			stm.setString(1, datamart.getTablename());
-			stm.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public Integer RequestCurretRows(String tableName) throws JCoException {
-		JCoDestination destination = JCoDestinationManager.getDestination(RFC_DESTINATION);
 		JCoFunction function = destination.getRepository().getFunction(RFC_COUNT_TABLE);
 		Integer currentRows = 0;
 		if (function == null)
@@ -252,29 +252,50 @@ public class DeltasDao {
 			e.printStackTrace();
 			currentRows = 0;
 		}
-
 		return currentRows;
 	}
+	
+	public String generatedFiltersTable(String tableName, String field, String filterType, String lastRequest){
+		String options = "";
+	     switch (filterType) {
+	         case "MAX":
+	        	 options = field + " > '" + lastRequest +"' ";
+	             break;
+	         case "BETWEEN":
+	             options = field + " BETWEEN '' AND '' ";
+	             break;
+	     }
+		return options;
+	}
+	
+	public void UpdateLastExcecute(Connection con, RFC_DATAMART datamart) {
+		try {
+			PreparedStatement stm = con.prepareStatement(UPDATETABLEDATAMART);
+			stm.setString(1, datamart.getTablename());
+			stm.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
-	public void RequestTableViaDatabase(RFC_DATAMART rfc_datamart, Connection con, Integer rowCount, Integer rowSkip)
+	public void RequestTableViaDatabase(RFC_DATAMART rfc_datamart, Connection con, Integer rowCount, Integer rowSkip, String options)
 			throws JCoException, SQLException {
 		if (rfc_datamart.getMaxRows() == 0) {
 			for (; rowSkip <= 999999999; rowSkip += rowCount) {
-				if (GetRFCTable(rfc_datamart, String.valueOf(rowSkip), String.valueOf(rowCount), con) == 9999) {
+				if (GetRFCTable(rfc_datamart, String.valueOf(rowSkip), String.valueOf(rowCount), con, options) == 9999) {
 					break;
 				}
 			}
 		} else {
 			for (; rowSkip <= rfc_datamart.getMaxRows(); rowSkip += rowCount) {
-				GetRFCTable(rfc_datamart, String.valueOf(rowSkip), String.valueOf(rowCount), con);
+				GetRFCTable(rfc_datamart, String.valueOf(rowSkip), String.valueOf(rowCount), con, options);
 			}
 		}
 	}
 
-	public Integer GetRFCTable(RFC_DATAMART rfc_datamart, String rowSkip, String rowCount, Connection con)
+	public Integer GetRFCTable(RFC_DATAMART rfc_datamart, String rowSkip, String rowCount, Connection con, String options)
 			throws JCoException {
 		Integer success = 1;
-		JCoDestination destination = JCoDestinationManager.getDestination(RFC_DESTINATION);
 		JCoFunction function = destination.getRepository().getFunction(RFC_NAME_PERSONNEL);
 		if (function == null)
 			throw new RuntimeException("BAPI_COMPANYCODE_GETLIST not found in SAP.");
@@ -284,7 +305,15 @@ public class DeltasDao {
 		function.getImportParameterList().setValue("ROWSKIPS", rowSkip);
 		function.getImportParameterList().setValue("ROWCOUNT", rowCount);
 		function.getImportParameterList().setValue("CROSS_CLIENT", "");
+		
+		if(options != ""){
+			JCoTable fields = function.getTableParameterList().getTable("OPTIONS");
+			fields.appendRow();
+			fields.setValue("TEXT", options);
+		}
+		
 		rfc_datamart.StandarGetTableFields(function, rfc_datamart);
+		
 		if (rfc_datamart.getTable_filters() != null && !rfc_datamart.getTable_filters().isEmpty()) {
 			rfc_datamart.StandartGetTableFilters(function, rfc_datamart);
 		}
@@ -292,7 +321,10 @@ public class DeltasDao {
 			function.execute(destination);
 			JCoTable resultTable = null;
 			resultTable = function.getTableParameterList().getTable(0);
-			PreparedStatement stm = con.prepareStatement(rfc_datamart.getTable_Insert());
+			System.out.println("-----------------------------------------------------------------------\n\n");
+			//System.out.println(rfc_datamart.getSapResourceValues(resultTable));
+			
+			/*PreparedStatement stm = con.prepareStatement(rfc_datamart.getTable_Insert());
 			try {
 				do {
 					try {
@@ -315,12 +347,13 @@ public class DeltasDao {
 				e.printStackTrace();
 				success = 99;
 			}
+			*/
 		} catch (AbapException e) {
 			e.printStackTrace();
 			success = 99;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			success = 99;
+		//} catch (SQLException e) {
+		//	e.printStackTrace();
+		//	success = 99;
 		}
 		return success;
 
