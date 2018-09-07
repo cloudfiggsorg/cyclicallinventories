@@ -24,7 +24,7 @@ public class BukrsDao {
 	public Response<List<BukrsBean>> getBukrs(BukrsBean bukrsBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
 		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();
@@ -99,7 +99,7 @@ public class BukrsDao {
 	public Response<List<BukrsBean>> getBukrsWithWerks(BukrsBean bukrsBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
 		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();

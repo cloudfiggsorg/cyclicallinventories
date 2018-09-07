@@ -27,7 +27,7 @@ public class ToleranceDao {
 		Response<List<ToleranceBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ToleranceBean> listMATKL = new ArrayList<ToleranceBean>();
 		//verificar si es necesario agregar mas campos al select para agregarlos al ToleranceBean
@@ -95,7 +95,7 @@ public class ToleranceDao {
 	public Response<Object> addTolerance(ToleranceBean toleranceBean, String createdBy){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
 		Response<Object> res = new Response<>();
@@ -164,7 +164,7 @@ public class ToleranceDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
 		final String INV_SP_DEL_TOLERANCE = "INV_SP_DEL_TOLERANCE ?, ?"; //The Store procedure to call
@@ -221,7 +221,7 @@ public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean, 
 		Response<List<ToleranceBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ToleranceBean> listTolerance = new ArrayList<ToleranceBean>();
 		//verificar si es necesario agregar mas campos al select para agregarlos al ToleranceBean

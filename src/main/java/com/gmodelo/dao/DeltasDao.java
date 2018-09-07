@@ -51,7 +51,7 @@ public class DeltasDao {
 	public String getCronDelta(){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
 		String INV_CIC_REPOSITORY = "SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = ?";
@@ -94,7 +94,7 @@ public class DeltasDao {
 
 	public void getDataConectionSAP(){
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
 		log.warning(INV_CIC_REPOSITORY);
@@ -183,7 +183,7 @@ public class DeltasDao {
     }
 	
 	public void RequestFirstRun() {
-		Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
+		Connection con = new ConnectionManager().createConnection();
 		try {
 			PreparedStatement stm = con.prepareStatement(REQUESTTABLECONFIGDELTA);
 			System.out.println(REQUESTTABLECONFIGDELTA);

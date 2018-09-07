@@ -23,7 +23,7 @@ public class DocInvDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		String resultSP = null;
 		//ROUTE_ID, BUKRS, TYPE, CREATED_BY, JUSTIFICATION, DOC_INV_ID

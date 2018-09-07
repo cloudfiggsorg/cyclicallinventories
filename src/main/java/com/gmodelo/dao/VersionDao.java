@@ -20,7 +20,7 @@ public class VersionDao {
 
 	@SuppressWarnings("rawtypes")
 	public Response getVersion() {
-		Connection con = new ConnectionManager().createConnection(ConnectionManager.connectionBean);
+		Connection con = new ConnectionManager().createConnection();
 		PreparedStatement stm = null;
 		Response res = new Response();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();

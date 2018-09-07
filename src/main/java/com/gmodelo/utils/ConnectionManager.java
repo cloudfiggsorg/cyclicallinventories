@@ -32,54 +32,8 @@ public class ConnectionManager {
 		connectionBean.setPort("1433");
 		connectionBean.setUser("INV_CIC_ADMIN");
 	}
-	static DirContext ldapContext;
-
-	public AbstractResultsBean ValidateLDAPLogin(LoginBean login, Connection con) throws InvCicException {
-		AbstractResultsBean result = new AbstractResultsBean();
-		Utilities iUtilities = new Utilities();
-		try {
-			Hashtable<String, String> ldapEnv = new Hashtable<String, String>(11);
-			ldapEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-			ldapEnv.put(Context.PROVIDER_URL,
-					iUtilities.GetValueRepByKey(con, ReturnValues.REP_LDAP_RPOVIDER).getStrCom1());
-			ldapEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
-			ldapEnv.put(Context.SECURITY_PRINCIPAL,
-					iUtilities.GetValueRepByKey(con, ReturnValues.REP_LDAP_DOMAIN).getStrCom1() + "\\"
-							+ login.getLoginId());
-			ldapEnv.put(Context.SECURITY_CREDENTIALS, login.getLoginPass());
-			ldapContext = new InitialDirContext(ldapEnv);
-			ldapContext.close();
-		} catch (NamingException e) {
-			try {
-				System.out.println(e.getMessage());
-				if (e.getMessage().lastIndexOf("AcceptSecurityContext") != -1) {
-					result.setResultId(ReturnValues.IUSERNOTEXISTS);
-					result.setResultMsgAbs(iUtilities
-							.GetLangByKey(con, ReturnValues.SUSERNOTEXISTS, login.getLoginLang()).getStrCom1());
-
-				} else if (e.getCause().toString().lastIndexOf("SECURITY") != -1) {
-					result.setResultId(ReturnValues.IPASSWORDNOTMATCH);
-					result.setResultMsgAbs(iUtilities
-							.GetLangByKey(con, ReturnValues.SPASSWORDNOTMATCH, login.getLoginLang()).getStrCom1());
-				} else if (e.getCause().toString().lastIndexOf("ConnectException") != -1) {
-					result.setResultId(ReturnValues.ILDAPTIMEOUT);
-					result.setResultMsgAbs(
-							iUtilities.GetLangByKey(con, ReturnValues.SLDAPTIMEOUT, login.getLoginLang()).getStrCom1());
-				} else {
-					throw new InvCicException(e);
-				}
-			} catch (Exception ex) {
-				throw new InvCicException(ex);
-			}
-		} catch (InvCicException e) {
-			throw new InvCicException(e);
-		} catch (NullPointerException e) {
-			throw new InvCicException(e);
-		}
-		return result;
-	}
-
-	public Connection createConnection(ConnectionBean connectionBean) {
+	
+	public Connection createConnection() {
 
 		Connection con = null;
 		try {

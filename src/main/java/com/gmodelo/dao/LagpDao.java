@@ -23,7 +23,7 @@ public class LagpDao {
 	public Response<List<LagpEntity>> getLagp(LagpEntity lgplaBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
 		Response<List<LagpEntity>> res = new Response<List<LagpEntity>>();

@@ -33,7 +33,7 @@ public class RouteUserDao {
 	public RouteUserBean getRoutesByUser(User user) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		RouteUserBean routeBean = null;
 		final String INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
@@ -67,7 +67,7 @@ public class RouteUserDao {
 
 	public long updateDowloadTask(String idTask) throws SQLException {
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 
 		final String INV_SP_UPDATE_DOWLOAD_TASK = "INV_SP_UPDATE_DOWLOAD_TASK ?, ?, ?";
@@ -100,7 +100,7 @@ public class RouteUserDao {
 	public List<RouteUserPositionBean> getPositions(String idRoute) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<RouteUserPositionBean> listPositions = new ArrayList<RouteUserPositionBean>();
 		final String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? ORDER BY SECUENCY ASC";
@@ -155,7 +155,7 @@ public class RouteUserDao {
 	public ZoneUserBean getZoneByPosition(String zoneId) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		ZoneUserBean zoneBean = new ZoneUserBean();
 		final String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES WITH(NOLOCK) WHERE ZONE_ID = ?";
@@ -200,7 +200,7 @@ public class RouteUserDao {
 	public List<ZoneUserPositionsBean> getPositionsZone(String zoneId) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneUserPositionsBean> listPositions = new ArrayList<ZoneUserPositionsBean>();
 
@@ -258,7 +258,7 @@ public class RouteUserDao {
 	private HashMap<String, LgplaValuesBean> getPositionMaterials(String pkAsgId) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		HashMap<String, LgplaValuesBean> listMaterials = new HashMap<String, LgplaValuesBean>();
 

@@ -41,7 +41,7 @@ public class RouteDao{
 		}
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 
 		log.log(Level.WARNING, "[addRoute] Preparing sentence...");
@@ -176,7 +176,7 @@ public class RouteDao{
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 
 		final String INV_SP_DEL_ROUTES = "INV_SP_DEL_ROUTES ?, ?";
@@ -227,7 +227,7 @@ public class RouteDao{
 
 	public Response<List<RouteBean>> getRoutes(RouteBean routeBean, String searchFilter) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
 		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
@@ -316,7 +316,7 @@ public class RouteDao{
 	public List<RoutePositionBean> getPositions(String idRoute) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
 		List<RoutePositionBean> listPositions = new ArrayList<RoutePositionBean>();
@@ -362,7 +362,7 @@ public class RouteDao{
 	public List<RouteGroupBean> getGroups(String idRoute) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
 		List<RouteGroupBean> listGroups = new ArrayList<RouteGroupBean>();

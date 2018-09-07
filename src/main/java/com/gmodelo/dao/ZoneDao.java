@@ -29,7 +29,7 @@ public class ZoneDao {
 		Response<ZoneBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
 		String zoneId = zoneBean.getZoneId() == null ? null : zoneBean.getZoneId().replaceFirst ("^0*", "");
@@ -71,41 +71,41 @@ public class ZoneDao {
 			if (zoneId != null) {
 				
 				//INSERTAR POSICIONES
-				if(zoneBean.getPositionsB() != null){
+				if(zoneBean.getPositions() != null){
 					
-					for (int i = 0; i < zoneBean.getPositionsB().size(); i++) {
-						zoneBean.getPositionsB().get(i).setZoneId(zoneId);
+					for (int i = 0; i < zoneBean.getPositions().size(); i++) {
+						zoneBean.getPositions().get(i).setZoneId(zoneId);
 						
 						cs = null;
 						cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
 						
-						cs.setString(1,zoneBean.getPositionsB().get(i).getZoneId());
-						cs.setString(2,zoneBean.getPositionsB().get(i).getLgtyp());
-						cs.setString(3,zoneBean.getPositionsB().get(i).getLgpla());
-						cs.setString(4,zoneBean.getPositionsB().get(i).getSecuency());
-						cs.setString(5,zoneBean.getPositionsB().get(i).getImwm());
+						cs.setString(1,zoneBean.getPositions().get(i).getZoneId());
+						cs.setString(2,zoneBean.getPositions().get(i).getLgtyp());
+						cs.setString(3,zoneBean.getPositions().get(i).getLgpla());
+						cs.setString(4,zoneBean.getPositions().get(i).getSecuency());
+						cs.setString(5,zoneBean.getPositions().get(i).getImwm());
 						cs.registerOutParameter(6, Types.INTEGER);
 						
 						log.log(Level.WARNING,"[addPositionZone] Executing query...");
 						
 						cs.execute();
 						idPosition = cs.getInt(6);
-						zoneBean.getPositionsB().get(i).setPkAsgId(idPosition);
+						zoneBean.getPositions().get(i).setPkAsgId(idPosition);
 						
 						if(idPosition > 0){
 							
 							//INSERTAR MATERIAL A POSICION ZONE
-							if(zoneBean.getPositionsB().get(i).getPositionMaterial() != null){
+							if(zoneBean.getPositions().get(i).getPositionMaterial() != null){
 								
-								for(int j=0; j < zoneBean.getPositionsB().get(i).getPositionMaterial().size(); j++){
-									zoneBean.getPositionsB().get(i).getPositionMaterial().get(j).setPosMat(idPosition);
-									zoneBean.getPositionsB().get(i).getPositionMaterial().get(j).setZoneId(Integer.parseInt(zoneId));
+								for(int j=0; j < zoneBean.getPositions().get(i).getPositionMaterial().size(); j++){
+									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setPosMat(idPosition);
+									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setZoneId(Integer.parseInt(zoneId));
 									
 									cs = null;
 									cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
 									
-									cs.setInt(1,zoneBean.getPositionsB().get(i).getPositionMaterial().get(j).getPosMat());
-									cs.setString(2,zoneBean.getPositionsB().get(i).getPositionMaterial().get(j).getMatnr());
+									cs.setInt(1,zoneBean.getPositions().get(i).getPositionMaterial().get(j).getPosMat());
+									cs.setString(2,zoneBean.getPositions().get(i).getPositionMaterial().get(j).getMatnr());
 									cs.registerOutParameter(3, Types.INTEGER);
 									cs.registerOutParameter(4, Types.VARCHAR);
 									cs.registerOutParameter(5, Types.VARCHAR);
@@ -114,9 +114,9 @@ public class ZoneDao {
 									cs.execute();
 									
 									idPosMat = cs.getInt(3);
-									zoneBean.getPositionsB().get(i).getPositionMaterial().get(j).setPkPosMat(idPosMat);
-									zoneBean.getPositionsB().get(i).getPositionMaterial().get(j).setTypMat(cs.getString(4));
-									zoneBean.getPositionsB().get(i).getPositionMaterial().get(j).setDescTM(cs.getString(5));
+									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setPkPosMat(idPosMat);
+									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setTypMat(cs.getString(4));
+									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setDescTM(cs.getString(5));
 								}
 							}
 							
@@ -177,7 +177,7 @@ public class ZoneDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
 		final String INV_SP_DEL_ZONE = "INV_SP_DEL_ZONE ?"; //The Store procedure to call
@@ -232,7 +232,7 @@ public class ZoneDao {
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
@@ -324,7 +324,7 @@ public class ZoneDao {
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
@@ -432,7 +432,7 @@ public class ZoneDao {
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
@@ -476,7 +476,7 @@ public class ZoneDao {
 				zoneBean.setbDesc(rs.getString("BDESC"));
 				zoneBean.setwDesc(rs.getString("WDESC"));
 				zoneBean.setgDesc(rs.getString("GDES"));
-				zoneBean.setPositionsB(this.getPositionsZone(rs.getString("ZONE_ID")));
+				zoneBean.setPositions(this.getPositionsZone(rs.getString("ZONE_ID")));
 				listZone.add(zoneBean);
 				
 			}
@@ -519,7 +519,7 @@ public class ZoneDao {
 	private List<ZonePositionsBean> getPositionsZone(String zoneId){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
 		
@@ -575,7 +575,7 @@ public class ZoneDao {
 	private List<ZonePositionMaterialsBean> getPositionMaterials(String pkAsgId){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZonePositionMaterialsBean> listMaterials = new ArrayList<ZonePositionMaterialsBean>();
 		
@@ -656,7 +656,7 @@ public class ZoneDao {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection(ConnectionManager.connectionBean);
+		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		String resultSP = null;
 		
