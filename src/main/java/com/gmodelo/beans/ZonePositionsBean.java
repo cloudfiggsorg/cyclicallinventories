@@ -9,6 +9,7 @@ public class ZonePositionsBean {
 	String lgpla;
 	String secuency;
 	String imwm;
+	String lgtypDesc;
 	
 	List<ZonePositionMaterialsBean> positionMaterial;
 	
@@ -17,6 +18,14 @@ public class ZonePositionsBean {
 		// TODO Auto-generated constructor stub
 	}
 	
+	public String getLgtypDesc() {
+		return lgtypDesc;
+	}
+
+	public void setLgtypDesc(String lgtypDesc) {
+		this.lgtypDesc = lgtypDesc;
+	}
+
 	public int getPkAsgId() {
 		return pkAsgId;
 	}
@@ -78,10 +87,7 @@ public class ZonePositionsBean {
 	
 	@Override
 	public String toString() {
-		return "ZonePositionsB [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", lgtyp="
-				+ lgtyp + ", lgpla=" + lgpla + ", secuency=" + secuency + ", imwm=" + imwm + ", positionMaterial="
-				+ positionMaterial + "]";
+		return "ZonePositionsBean [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", lgtyp=" + lgtyp + ", lgpla=" + lgpla
+				+ ", secuency=" + secuency + ", imwm=" + imwm + ", lgtypDesc=" + lgtypDesc + ", positionMaterial=" + positionMaterial + "]";
 	}
-	
-
 }
