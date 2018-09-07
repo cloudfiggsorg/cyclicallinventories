@@ -170,7 +170,7 @@ public class GroupWorkService {
 			log.info("Fue cadena vacía ");
 		}
 		
-		return new GroupDao().getGroups(groupsBean, searchFilter);
+		return new GroupDao().getGroupsWithUsers(groupsBean, searchFilter);
 	}
 	
 	//Metodo para obtener usuarios de la UME que se usan para GroupWorkService
@@ -217,6 +217,34 @@ public class GroupWorkService {
 	res.setAbstractResult(abstractResult);
 	return 	res;
 		
+	}
+
+	public Response<List<GroupBean>> getOnlyGroups(Request request) {
+		log.info("[GroupsWorkService] "+request.toString());
+		GroupBean groupsBean = null;
+		String searchFilter = null;		
+		String req = request.getLsObject().toString().trim();
+		
+		if(!req.isEmpty()){
+			
+			try {
+				
+				groupsBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupBean.class) ;
+				log.info("Fue Objeto: " + request.getLsObject().toString());
+				
+			}catch (JsonSyntaxException e1){
+				
+				log.info("Intentando por String");
+				searchFilter = request.getLsObject().toString().trim();
+			}
+			
+		}else{
+			
+			searchFilter = "";
+			log.info("Fue cadena vacía ");
+		}
+		
+		return new GroupDao().getOnlyGroup(groupsBean, searchFilter);
 	}
 
 }

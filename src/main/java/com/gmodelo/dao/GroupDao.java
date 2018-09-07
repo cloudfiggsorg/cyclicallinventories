@@ -292,7 +292,7 @@ public class GroupDao {
 		return res ;
 	}
 
-public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter){
+	public Response<List<GroupBean>> getGroupsWithUsers(GroupBean groupB, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -336,6 +336,82 @@ public Response<List<GroupBean>> getGroups(GroupBean groupB, String searchFilter
 				groupB.setGroupId(rs.getString("IP_GROUP"));
 				groupB.setGdesc(rs.getString("GDESC"));
 				groupB.setUsers(this.groupUsers(rs.getString("IP_GROUP")));
+				listGroupsBean.add(groupB);
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();
+			log.info("[getGroupsDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getGroupsDao] Some error occurred while was trying to execute the query: "+INV_VW_GET_GROUPS, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getMantrDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listGroupsBean);
+		return res;
+	}
+	
+	public Response<List<GroupBean>> getOnlyGroup(GroupBean groupB, String searchFilter){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		
+		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<GroupBean> listGroupsBean = new ArrayList<GroupBean>(); 
+		String INV_VW_GET_GROUPS = null;
+		
+		int aux;		
+		String searchFilterNumber = "";
+		
+		try {
+			aux = Integer.parseInt(searchFilter); 
+			searchFilterNumber += aux;
+		} catch (Exception e) {
+			searchFilterNumber = searchFilter;
+			log.info("Trying to convert String to Int");
+		}		
+
+		INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
+		
+		if (searchFilter != null) {
+			INV_VW_GET_GROUPS += "WHERE IP_GROUP LIKE '%" + searchFilterNumber + "%' OR GDESC LIKE '%" + searchFilter + "%'";
+		} else {
+			String condition = buildCondition(groupB);
+			if (condition != null) {
+				INV_VW_GET_GROUPS += condition;
+			}
+		}
+		
+		log.info(INV_VW_GET_GROUPS);
+		log.info("[getGroupsDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_GET_GROUPS);		
+			log.info("[getGroupsDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()){
+				groupB = new GroupBean();				
+				groupB.setGroupId(rs.getString("IP_GROUP"));
+				groupB.setGdesc(rs.getString("GDESC"));
 				listGroupsBean.add(groupB);
 			}
 			
