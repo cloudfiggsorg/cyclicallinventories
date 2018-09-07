@@ -12,7 +12,7 @@ public class ZoneBean {
 	String wDesc;
 	String gDesc;
 	
-	List<ZonePositionsBean> positionsB;
+	List<ZonePositionsBean> positions;
 	
 	public String getbDesc() {
 		return bDesc;
@@ -32,11 +32,11 @@ public class ZoneBean {
 	public void setgDesc(String gDesc) {
 		this.gDesc = gDesc;
 	}
-	public List<ZonePositionsBean> getPositionsB() {
-		return positionsB;
+	public List<ZonePositionsBean> getPositions() {
+		return positions;
 	}
-	public void setPositionsB(List<ZonePositionsBean> positionsB) {
-		this.positionsB = positionsB;
+	public void setPositions(List<ZonePositionsBean> positionsB) {
+		this.positions = positionsB;
 	}
 	public String getZoneId() {
 		return zoneId;
@@ -81,7 +81,7 @@ public class ZoneBean {
 		this.bukrs = bukrs;
 		this.werks = werks;
 		this.lgort = lgort;
-		this.positionsB = positionsB;
+		this.positions = positionsB;
 	}
 	
 	public ZoneBean(String zoneId, String zdesc, String bukrs, String werks, String lgort, String bDesc, String wDesc,
@@ -95,13 +95,13 @@ public class ZoneBean {
 		this.bDesc = bDesc;
 		this.wDesc = wDesc;
 		this.gDesc = gDesc;
-		this.positionsB = positionsB;
+		this.positions = positionsB;
 	}
 	
 	@Override
 	public String toString() {
 		return "ZoneBean [zoneId=" + zoneId + ", zdesc=" + zdesc + ", bukrs=" + bukrs + ", werks=" + werks + ", lgort="
-				+ lgort + ", bDesc=" + bDesc + ", wDesc=" + wDesc + ", gDesc=" + gDesc + ", positionsB=" + positionsB
+				+ lgort + ", bDesc=" + bDesc + ", wDesc=" + wDesc + ", gDesc=" + gDesc + ", positionsB=" + positions
 				+ "]";
 	}
 	
