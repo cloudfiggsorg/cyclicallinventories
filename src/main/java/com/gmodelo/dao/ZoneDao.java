@@ -508,11 +508,11 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
 		
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
+		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM,LTYPT FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
 		
 		log.info(INV_VW_ZONE_WITH_POSITIONS);
 		log.info("[getZonesDao] Preparing sentence...");
-		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM";
+		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, LTYPT";
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
@@ -521,11 +521,12 @@ public class ZoneDao {
 			while (rs.next()){
 				
 				ZonePositionsBean position = new ZonePositionsBean();
-				position.setPkAsgId(rs.getInt(1));
-				position.setLgtyp(rs.getString(2));
-				position.setLgpla(rs.getString(3));
-				position.setSecuency(rs.getString(4));
-				position.setImwm(rs.getString(5));
+				position.setPkAsgId(rs.getInt("PK_ASG_ID"));
+				position.setLgtyp(rs.getString("LGTYP"));
+				position.setLgpla(rs.getString("LGPLA"));
+				position.setSecuency(rs.getString("SECUENCY"));
+				position.setImwm(rs.getString("IMWM"));
+				position.setLgtypDesc(rs.getString("LTYPT"));
 				position.setZoneId(zoneId);
 				position.setPositionMaterial(this.getPositionMaterials(rs.getString(1)));
 				listPositions.add(position);
