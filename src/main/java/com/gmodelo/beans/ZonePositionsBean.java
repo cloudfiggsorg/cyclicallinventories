@@ -1,6 +1,5 @@
 package com.gmodelo.beans;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class ZonePositionsBean {
@@ -77,16 +76,6 @@ public class ZonePositionsBean {
 		this.positionMaterial = positionMaterial;
 	}
 	
-	public ZonePositionsBean(String lgtyp, String lgpla, String secuency,
-			String imwm, List<ZonePositionMaterialsBean> positionMaterial) {
-		super();
-		this.lgtyp = lgtyp;
-		this.lgpla = lgpla;
-		this.secuency = secuency;
-		this.imwm = imwm;
-		this.positionMaterial = positionMaterial;
-	}
-
 	@Override
 	public String toString() {
 		return "ZonePositionsB [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", lgtyp="

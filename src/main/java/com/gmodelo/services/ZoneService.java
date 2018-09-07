@@ -49,6 +49,7 @@ public class ZoneService {
 		return new ZoneWorkService().addZone(request, user);
 	}
 	
+	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -65,12 +66,4 @@ public class ZoneService {
 		return new ZoneWorkService().getZones(request);
 	}
 	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/unassignMaterialToZone")
-	public Response<Object> unassignMaterialToZone(Request request){
-		return new ZoneWorkService().unassignMaterialToZone(request);
-	}
-
 }

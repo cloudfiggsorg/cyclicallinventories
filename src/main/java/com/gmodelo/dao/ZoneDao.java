@@ -79,7 +79,7 @@ public class ZoneDao {
 						cs = null;
 						cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
 						
-						cs.setString(1,zoneBean.getPositions().get(i).getZoneId());
+						cs.setString(1,zoneBean.getZoneId());
 						cs.setString(2,zoneBean.getPositions().get(i).getLgtyp());
 						cs.setString(3,zoneBean.getPositions().get(i).getLgpla());
 						cs.setString(4,zoneBean.getPositions().get(i).getSecuency());
@@ -396,9 +396,9 @@ public class ZoneDao {
 		String bukrs = "";
 		String werks = "";
 		String lgort = "";
-		String bDesc = "";
-		String wDesc= "";
-		String gDesc= "";
+//		String bDesc = "";
+//		String wDesc= "";
+//		String gDesc= "";
 		String condition = "";
 		zoneId = (zoneBean.getZoneId() != null ? " AND ZONE_ID = "+Integer.parseInt(zoneBean.getZoneId()) : "");
 		condition += zoneId;
@@ -521,12 +521,12 @@ public class ZoneDao {
 			while (rs.next()){
 				
 				ZonePositionsBean position = new ZonePositionsBean();
+				position.setZoneId(zoneId);
 				position.setPkAsgId(rs.getInt(1));
 				position.setLgtyp(rs.getString(2));
 				position.setLgpla(rs.getString(3));
 				position.setSecuency(rs.getString(4));
-				position.setImwm(rs.getString(5));
-				position.setZoneId(zoneId);
+				position.setImwm(rs.getString(5));				
 				position.setPositionMaterial(this.getPositionMaterials(rs.getString(1)));
 				listPositions.add(position);
 				
