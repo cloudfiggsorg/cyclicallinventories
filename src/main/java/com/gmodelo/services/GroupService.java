@@ -60,6 +60,14 @@ public class GroupService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getOnlyGroups")
+	public Response<List<GroupBean>> getOnlyGroups(Request request){
+		return new GroupWorkService().getOnlyGroups(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getUMEUsers")
 	public Response<ArrayList<User>> getUMEUsers(Request request){
 		return new GroupWorkService().getUMEUsers(request);
