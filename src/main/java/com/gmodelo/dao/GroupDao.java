@@ -335,7 +335,7 @@ public class GroupDao {
 				groupB = new GroupBean();				
 				groupB.setGroupId(rs.getString("IP_GROUP"));
 				groupB.setGdesc(rs.getString("GDESC"));
-				groupB.setUsers(this.groupUsers(rs.getString("IP_GROUP")));
+				groupB.setUsers(this.groupUsers(rs.getString("IP_GROUP"), null));
 				listGroupsBean.add(groupB);
 			}
 			
@@ -445,7 +445,7 @@ public class GroupDao {
 		return res;
 	}
 
-	public List<User> groupUsers(String groupId) throws SQLException{
+	public List<User> groupUsers(String groupId, String userId) throws SQLException{
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -453,6 +453,7 @@ public class GroupDao {
 		List<User> listUser = new ArrayList<User>();
 		
 		String INV_VW_GROUPS_USER = "SELECT PK_GROUP_USER, GRU_USER_ID FROM INV_GROUPS_USER WHERE GRU_GROUP_ID = ? ";
+		INV_VW_GROUPS_USER = (userId != null) ?  INV_VW_GROUPS_USER+= ("AND GRU_USER_ID = '"+userId+"'") : INV_VW_GROUPS_USER;
 		log.info(INV_VW_GROUPS_USER);
 		log.info("[groupUsersDao] Preparing sentence...");
 		INV_VW_GROUPS_USER += " GROUP BY PK_GROUP_USER, GRU_USER_ID";

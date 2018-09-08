@@ -388,7 +388,7 @@ public class RouteDao{
 				group.setGroupId(rs.getString(2));
 				group.setGdesc(rs.getString(3));
 				group.setCountNum(rs.getString(4));
-				group.setUsers(groupDAO.groupUsers(rs.getString(2)));
+				group.setUsers(groupDAO.groupUsers(rs.getString(2),null));
 				listGroups.add(group);
 			}
 
