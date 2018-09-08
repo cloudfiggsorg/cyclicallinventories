@@ -17,7 +17,7 @@ import com.google.gson.JsonSyntaxException;
 
 public class ZoneWorkService {
 
-	private Logger log = Logger.getLogger(ZoneWorkService.class.getName());
+	Logger log = Logger.getLogger(ZoneWorkService.class.getName());
 	Gson gson = new Gson();
 	
 	public Response<List<ZoneBean>> getLgortByZone(Request request){
@@ -25,7 +25,6 @@ public class ZoneWorkService {
 			log.info("[getZoneByLgortWorkService] "+request.toString());
 			ZoneBean zoneBean = null;
 			String searchFilter = null;
-			Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
 			String req = request.getLsObject().toString().trim();
 			if(!req.isEmpty()){
 				try {
