@@ -73,7 +73,7 @@ public class FServices implements Filter {
 			MyRequestWrapper myRequestWrapper = new MyRequestWrapper((HttpServletRequest) sRequest);
 			 String body = myRequestWrapper.getBody();
 			if(body != null && !body.isEmpty()){
-//				 log.warn(body);
+//				 log.info(body);
 				
 				@SuppressWarnings("rawtypes")
 				Request req = null;
@@ -83,9 +83,7 @@ public class FServices implements Filter {
 					log.error("[doFilter] Error al pasar de Json a Request");
 					req = null;
 				}
-//				log.warn(req);
-				
-				System.out.println(req);
+//				log.info(req);
 				
 				if(req.getTokenObject() != null && req.getTokenObject().getLoginId() != null && req.getTokenObject().getLoginPass() != null){
 //					HttpSession androidSession = HttpSessionCollector.find(req.getTokenObject().getRelationUUID());
@@ -95,9 +93,9 @@ public class FServices implements Filter {
 //					}
 					
 					Response res = new LoginWorkService().login(req.getTokenObject(), (HttpServletRequest)sRequest, session);
-					log.warn(res);
+//					log.warn(res);
 					if(res.getAbstractResult().getResultId() == 1 || res.getAbstractResult().getResultId() == 2){
-						log.warn("[doFilter] Android. Renovated session!!. Forwading request..");
+						log.info("[doFilter] Android. Renovated session!!. Forwading request..");
 							filterChain.doFilter(myRequestWrapper, sResponse);
 							
 					}else{
@@ -122,7 +120,7 @@ public class FServices implements Filter {
 				if(!HttpSessionCollector.sessions.isEmpty()){
 					if(req.getTokenObject() != null && req.getTokenObject().getRelationUUID() != null){
 						if(HttpSessionCollector.sessions.containsKey(req.getTokenObject().getRelationUUID())){
-							log.warn("[doFilter] Android. Token exists. Forwading request...");
+							log.info("[doFilter] Android. Token exists. Forwading request...");
 							filterChain.doFilter(myRequestWrapper, sResponse);
 						}else{
 							@SuppressWarnings("rawtypes")
@@ -154,7 +152,7 @@ public class FServices implements Filter {
 							response.getWriter().write(json);
 							
 						} else{
-							log.warn("[doFilter] Consola. Forwading request...");
+							log.info("[doFilter] Consola. Forwading request...");
 							filterChain.doFilter(myRequestWrapper, sResponse);	
 						}
 					}
@@ -191,7 +189,7 @@ public class FServices implements Filter {
 				response.getWriter().write(json);
 				
 			} else{
-				log.warn("[doFilter] Consola. Forwading request...");
+				log.info("[doFilter] Consola. Forwading request...");
 				filterChain.doFilter(myRequestWrapper, sResponse);	
 			}
 		}catch (NullPointerException e) {

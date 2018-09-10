@@ -72,4 +72,12 @@ public class GroupService {
 	public Response<ArrayList<User>> getUMEUsers(Request request){
 		return new GroupWorkService().getUMEUsers(request);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getUsersGroup")
+	public Response<List<User>> getUsersGroup(Request request){
+		return new GroupWorkService().getUsersGroup(request);
+	}
 }
