@@ -24,7 +24,7 @@ public class LgortService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getLgortAndWerks")
-	public Response<List<LgortBeanView>> getBukrsAndWerks(Request request){
+	public Response<List<LgortBeanView>> getLgortByWerks(Request request){
 		return new LgortWorkService().getLgortByWerks(request);
 	}
 	
