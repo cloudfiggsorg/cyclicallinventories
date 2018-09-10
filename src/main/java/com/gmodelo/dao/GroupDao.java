@@ -142,7 +142,7 @@ public class GroupDao {
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
-		final String INV_SP_DESASSIGN_GROUP_TO_USER = "INV_SP_DESASSIGN_GROUP_TO_USER ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_DESASSIGN_GROUP_TO_USER = "INV_SP_DESASSIGN_GROUP_TO_USER ?, ?"; //The Store procedure to call
 		
 		log.info("[unassignGroupToUserDao] Preparing sentence...");
 		
@@ -152,13 +152,11 @@ public class GroupDao {
 			cs.setString(1,groupToUserBean.getUserId());
 			
 			cs.setString(2,groupToUserBean.getGroupId());
-			
-			cs.registerOutParameter(3, Types.INTEGER);
 			log.log(Level.WARNING,"[unassignGroupToUserDao] Executing query...");
 			
 			cs.execute();
 			
-			abstractResult.setResultId(cs.getInt(3));
+			abstractResult.setResultId(ReturnValues.ISUCCESS);
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
