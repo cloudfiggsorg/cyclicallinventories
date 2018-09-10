@@ -95,17 +95,17 @@ public class ZoneDao {
 						if(idPosition > 0){
 							
 							//INSERTAR MATERIAL A POSICION ZONE
-							if(zoneBean.getPositions().get(i).getPositionMaterial() != null){
+							if(zoneBean.getPositions().get(i).getMaterials() != null){
 								
-								for(int j=0; j < zoneBean.getPositions().get(i).getPositionMaterial().size(); j++){
-									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setPosMat(idPosition);
-									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setZoneId(Integer.parseInt(zoneId));
+								for(int j=0; j < zoneBean.getPositions().get(i).getMaterials().size(); j++){
+									zoneBean.getPositions().get(i).getMaterials().get(j).setPosMat(idPosition);
+									zoneBean.getPositions().get(i).getMaterials().get(j).setZoneId(Integer.parseInt(zoneId));
 									
 									cs = null;
 									cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
 									
-									cs.setInt(1,zoneBean.getPositions().get(i).getPositionMaterial().get(j).getPosMat());
-									cs.setString(2,zoneBean.getPositions().get(i).getPositionMaterial().get(j).getMatnr());
+									cs.setInt(1,zoneBean.getPositions().get(i).getMaterials().get(j).getPosMat());
+									cs.setString(2,zoneBean.getPositions().get(i).getMaterials().get(j).getMatnr());
 									cs.registerOutParameter(3, Types.INTEGER);
 									cs.registerOutParameter(4, Types.VARCHAR);
 									cs.registerOutParameter(5, Types.VARCHAR);
@@ -114,9 +114,9 @@ public class ZoneDao {
 									cs.execute();
 									
 									idPosMat = cs.getInt(3);
-									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setPkPosMat(idPosMat);
-									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setTypMat(cs.getString(4));
-									zoneBean.getPositions().get(i).getPositionMaterial().get(j).setDescTM(cs.getString(5));
+									zoneBean.getPositions().get(i).getMaterials().get(j).setPkPosMat(idPosMat);
+									zoneBean.getPositions().get(i).getMaterials().get(j).setTypMat(cs.getString(4));
+									zoneBean.getPositions().get(i).getMaterials().get(j).setDescTM(cs.getString(5));
 								}
 							}
 							
@@ -528,7 +528,7 @@ public class ZoneDao {
 				position.setSecuency(rs.getString("SECUENCY"));
 				position.setImwm(rs.getString("IMWM"));
 				position.setLgtypDesc(rs.getString("LTYPT"));							
-				position.setPositionMaterial(this.getPositionMaterials(rs.getString(1)));
+				position.setMaterials(this.getPositionMaterials(rs.getString(1)));
 				listPositions.add(position);
 				
 			}

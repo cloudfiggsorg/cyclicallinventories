@@ -9,9 +9,8 @@ public class ZonePositionsBean {
 	String lgpla;
 	String secuency;
 	String imwm;
-	String lgtypDesc;
-	
-	List<ZonePositionMaterialsBean> positionMaterial;
+	String lgtypDesc;	
+	List<ZonePositionMaterialsBean> materials;
 	
 	public ZonePositionsBean() {
 		super();
@@ -34,12 +33,12 @@ public class ZonePositionsBean {
 		this.pkAsgId = pkAsgId;
 	}
 
-	public List< ZonePositionMaterialsBean> getPositionMaterial() {
-		return positionMaterial;
+	public List< ZonePositionMaterialsBean> getMaterials() {
+		return materials;
 	}
 	
-	public void setPositionMaterial(List<ZonePositionMaterialsBean> positionMaterial) {
-		this.positionMaterial = positionMaterial;
+	public void setMaterials(List<ZonePositionMaterialsBean> positionMaterial) {
+		this.materials = positionMaterial;
 	}
 
 	public String getZoneId() {
@@ -82,12 +81,12 @@ public class ZonePositionsBean {
 		this.lgpla = lgpla;
 		this.secuency = secuency;
 		this.imwm = imwm;
-		this.positionMaterial = positionMaterial;
+		this.materials = positionMaterial;
 	}
 	
 	@Override
 	public String toString() {
 		return "ZonePositionsBean [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", lgtyp=" + lgtyp + ", lgpla=" + lgpla
-				+ ", secuency=" + secuency + ", imwm=" + imwm + ", lgtypDesc=" + lgtypDesc + ", positionMaterial=" + positionMaterial + "]";
+				+ ", secuency=" + secuency + ", imwm=" + imwm + ", lgtypDesc=" + lgtypDesc + ", positionMaterial=" + materials + "]";
 	}
 }

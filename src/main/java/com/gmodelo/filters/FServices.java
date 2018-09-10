@@ -143,7 +143,7 @@ public class FServices implements Filter {
 							@SuppressWarnings("rawtypes")
 							Response resp = new Response();
 							AbstractResultsBean abstractResult = new AbstractResultsBean();
-							abstractResult.setResultId(-1);
+							abstractResult.setResultId(ReturnValues.IUSERNOSESSION);
 							abstractResult.setResultMsgAbs("NO SESSION FOR USER CONSOLE WITH PARAM");
 							resp.setAbstractResult(abstractResult);
 							
@@ -180,7 +180,7 @@ public class FServices implements Filter {
 				@SuppressWarnings("rawtypes")
 				Response resp = new Response();
 				AbstractResultsBean abstractResult = new AbstractResultsBean();
-				abstractResult.setResultId(-1);
+				abstractResult.setResultId(ReturnValues.IUSERNOSESSION);
 				abstractResult.setResultMsgAbs("NO SESSION FOR USER CONSOLE");
 				resp.setAbstractResult(abstractResult);
 				

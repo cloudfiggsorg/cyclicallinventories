@@ -44,6 +44,14 @@ public class GroupService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/unAssignGroupToUser")
+	public Response<Object> unAssignGroupToUser(Request request){
+		return new GroupWorkService().unassignGroupToUser(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/deleteGroup")
 	public Response<Object> deleteGroup(Request request){
 		return new GroupWorkService().deleteGroup(request);
