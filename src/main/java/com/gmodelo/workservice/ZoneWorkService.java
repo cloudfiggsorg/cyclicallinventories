@@ -135,13 +135,8 @@ public class ZoneWorkService {
 			try {
 				zoneBean = gson.fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
 			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE,"[getZonesWorkService] Error al pasar de Json a ZoneB");
-				zoneBean = null;
-				AbstractResultsBean abstractResult = new AbstractResultsBean();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
+				log.log(Level.SEVERE,"[getZonesWorkService] Probando con String");
+				searchFilter = request.getLsObject().toString();
 			}
 		}else{
 			searchFilter = "";

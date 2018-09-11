@@ -119,7 +119,6 @@ public class GroupWorkService {
 
 		log.info("[deleteGroupWS] " + request.toString());
 		String arrayIdGroups;
-		StringBuilder stringGroups = new StringBuilder();
 		Response<Object> res = new Response<Object>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
@@ -142,7 +141,7 @@ public class GroupWorkService {
 			return res;
 		}
 
-		return new GroupDao().deleteGroup(stringGroups.toString());
+		return new GroupDao().deleteGroup(arrayIdGroups);
 
 	}
 
@@ -185,7 +184,7 @@ public class GroupWorkService {
 		User user = new User();
 		if (!req.isEmpty()) {
 			try {
-				user.getEntity().setIdentyId(request.getLsObject().toString());
+				user.getEntity().setIdentyId(request.getLsObject().toString().trim());
 				lista = new ArrayList<>();
 				lista.add(user);
 				lista = UMEDao.getUsersLDAPByCredentials(lista);
