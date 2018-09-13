@@ -128,7 +128,7 @@ public class MatnrDao {
 				tmatnrBean = new TmatnrBean();
 				
 				tmatnrBean.setMatnr(rs.getString("MATNR"));
-				tmatnrBean.setMaktx(rs.getString("MAKTX"));
+				tmatnrBean.setDescM(rs.getString("MAKTX"));
 				tmatnrBean.setTyp_mat(rs.getString("TYP_MAT"));
 				tmatnrBean.setDen_typ_mat(rs.getString("DEN_TYP_MAT"));
 				

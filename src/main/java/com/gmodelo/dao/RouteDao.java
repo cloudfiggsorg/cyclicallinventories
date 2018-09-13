@@ -321,7 +321,7 @@ public class RouteDao{
 
 		List<RoutePositionBean> listPositions = new ArrayList<RoutePositionBean>();
 
-		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
+		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? AND RPO_STATUS = 1";
 
 		log.info(INV_VW_ROUTES_WITH_POSITIONS);
 		log.info("[getPositionsDao] Preparing sentence...");
@@ -367,7 +367,7 @@ public class RouteDao{
 
 		List<RouteGroupBean> listGroups = new ArrayList<RouteGroupBean>();
 
-		String INV_VW_ROUTE_GROUPS = "SELECT PK_ASG_ID, GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ? ";
+		String INV_VW_ROUTE_GROUPS = "SELECT PK_ASG_ID, GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ? AND RGR_STATUS = 1";
 
 		log.info(INV_VW_ROUTE_GROUPS);
 		log.info("[getGroupsDao] Preparing sentence...");

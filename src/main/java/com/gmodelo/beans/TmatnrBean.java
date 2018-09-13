@@ -3,12 +3,12 @@ package com.gmodelo.beans;
 public class TmatnrBean {
 	
 	String matnr;
-	String maktx;
-	public String getMaktx() {
-		return maktx;
+	String descM;
+	public String getDescM() {
+		return descM;
 	}
-	public void setMaktx(String maktx) {
-		this.maktx = maktx;
+	public void setDescM(String maktx) {
+		this.descM = maktx;
 	}
 	String typ_mat;
 	String den_typ_mat;
@@ -38,13 +38,13 @@ public class TmatnrBean {
 	public TmatnrBean(String matnr, String maktx, String typ_mat, String den_typ_mat) {
 		super();
 		this.matnr = matnr;
-		this.maktx = maktx;
+		this.descM = maktx;
 		this.typ_mat = typ_mat;
 		this.den_typ_mat = den_typ_mat;
 	}
 	@Override
 	public String toString() {
-		return "TmatnrBean [matnr=" + matnr + ", maktx=" + maktx + ", typ_mat=" + typ_mat + ", den_typ_mat="
+		return "TmatnrBean [matnr=" + matnr + ", maktx=" + descM + ", typ_mat=" + typ_mat + ", den_typ_mat="
 				+ den_typ_mat + "]";
 	}
 	
