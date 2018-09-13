@@ -30,13 +30,14 @@ public class TgortDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TgortB> listTgortBean = new ArrayList<TgortB>(); 
 		 
-		String INV_VW_TGORT_BY_NGORT = "SELECT WERKS,LGORT, LGNUM, LGTYP, LTYPT, IMWM  FROM [INV_CIC_DB].[dbo].[INV_VW_TGORT_BY_NGORT] WITH(NOLOCK) ";
-		
+		String INV_VW_TGORT_BY_NGORT = "SELECT WERKS, LGORT, LGNUM, LGTYP, LTYPT, IMWM  FROM [INV_CIC_DB].[dbo].[INV_VW_TGORT_BY_NGORT] WITH(NOLOCK) ";
 		String condition = buildCondition(tgortBean);
+		
 		if(condition != null){
 			INV_VW_TGORT_BY_NGORT += condition;
-			log.info(INV_VW_TGORT_BY_NGORT);
+			
 		}
+		log.info(INV_VW_TGORT_BY_NGORT);
 		log.info("[getTgortWithNgortDao] Preparing sentence...");
 		try {
 			
