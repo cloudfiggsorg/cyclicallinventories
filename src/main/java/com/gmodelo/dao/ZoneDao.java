@@ -108,15 +108,13 @@ public class ZoneDao {
 									cs.setString(2,zoneBean.getPositions().get(i).getMaterials().get(j).getMatnr());
 									cs.registerOutParameter(3, Types.INTEGER);
 									cs.registerOutParameter(4, Types.VARCHAR);
-									cs.registerOutParameter(5, Types.VARCHAR);
 									
 									log.info("[assignMaterialToZoneDao] Executing query...");
 									cs.execute();
 									
 									idPosMat = cs.getInt(3);
 									zoneBean.getPositions().get(i).getMaterials().get(j).setPkPosMat(idPosMat);
-									zoneBean.getPositions().get(i).getMaterials().get(j).setTypMat(cs.getString(4));
-									zoneBean.getPositions().get(i).getMaterials().get(j).setDescTM(cs.getString(5));
+									zoneBean.getPositions().get(i).getMaterials().get(j).setDescM(cs.getString(4));
 								}
 							}
 							
