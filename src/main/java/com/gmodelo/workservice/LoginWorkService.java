@@ -129,9 +129,9 @@ public class LoginWorkService {
 
 	}
 
-	public Response<?> logout(HttpServletRequest request) {
+	public Response<Object> logout(HttpServletRequest request) {
 
-		Response<?> resp = new Response();
+		Response<Object> resp = new Response();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		if (request.getSession().getAttribute("user") != null) {
 

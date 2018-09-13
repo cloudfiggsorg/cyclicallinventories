@@ -18,7 +18,7 @@ public class LogoutService {
 	
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response<?> logout() {
+	public Response<Object> logout() {
 		
 		return new LoginWorkService().logout(request);
 		
