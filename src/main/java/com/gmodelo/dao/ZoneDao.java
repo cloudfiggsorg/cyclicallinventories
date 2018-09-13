@@ -565,11 +565,11 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZonePositionMaterialsBean> listMaterials = new ArrayList<ZonePositionMaterialsBean>();
 		
-		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT PK_POS_MAT, MATNR ,TYP_MAT ,DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ?";
+		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT PK_POS_MAT, MATNR ,MAKTX FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ?";
 		
 		log.info(INV_VW_ZONE_POSITIONS_MATERIALS);
 		log.info("[getZonesDao] Preparing sentence...");
-		INV_VW_ZONE_POSITIONS_MATERIALS += " GROUP BY PK_POS_MAT, MATNR ,TYP_MAT ,DEN_TYP_MAT";
+		INV_VW_ZONE_POSITIONS_MATERIALS += " GROUP BY PK_POS_MAT, MATNR ,MAKTX";
 		
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
@@ -580,10 +580,9 @@ public class ZoneDao {
 				
 				ZonePositionMaterialsBean material = new ZonePositionMaterialsBean();
 				
-				material.setPkPosMat(rs.getInt(1));
-				material.setMatnr(rs.getString(2));
-				material.setTypMat(rs.getString(3));
-				material.setDescTM(rs.getString(4));
+				material.setPkPosMat(rs.getInt("PK_POS_MAT"));
+				material.setMatnr(rs.getString("MATNR"));
+				material.setDescM(rs.getString("MAKTX"));
 				
 				listMaterials.add(material);
 				

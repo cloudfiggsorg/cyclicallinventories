@@ -5,8 +5,7 @@ public class ZonePositionMaterialsBean {
 	int zoneId;
 	int posMat;
 	String matnr;
-	String typMat;
-	String descTM;
+	String descM;
 	
 	public int getZoneId() {
 		return zoneId;
@@ -32,35 +31,27 @@ public class ZonePositionMaterialsBean {
 	public void setMatnr(String matnr) {
 		this.matnr = matnr;
 	}
-	public String getTypMat() {
-		return typMat;
+	public String getDescM() {
+		return descM;
 	}
-	public void setTypMat(String typMat) {
-		this.typMat = typMat;
-	}
-	public String getDescTM() {
-		return descTM;
-	}
-	public void setDescTM(String descTM) {
-		this.descTM = descTM;
+	public void setDescM(String descM) {
+		this.descM = descM;
 	}
 	public ZonePositionMaterialsBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public ZonePositionMaterialsBean(int zoneId, int posMat, String matnr, String typMat, String descTM) {
+	public ZonePositionMaterialsBean(int zoneId, int posMat, String matnr, String descTM) {
 		super();
 		this.zoneId = zoneId;
 		this.posMat = posMat;
 		this.matnr = matnr;
-		this.typMat = typMat;
-		this.descTM = descTM;
+		this.descM = descTM;
 	}
 	
 	@Override
 	public String toString() {
-		return "ZonePositionMaterialsBean [zoneId=" + zoneId + ", posMat=" + posMat + ", matnr=" + matnr + ", typMat="
-				+ typMat + ", descTM=" + descTM + "]";
+		return "ZonePositionMaterialsBean [zoneId=" + zoneId + ", posMat=" + posMat + ", matnr=" + matnr + ", descTM=" + descM + "]";
 	}
 	
 }

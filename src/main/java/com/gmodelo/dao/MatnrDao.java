@@ -103,7 +103,7 @@ public class MatnrDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TmatnrBean> listTmatnrBean = new ArrayList<TmatnrBean>(); 
 		 
-		String INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, TYP_MAT, DEN_TYP_MAT FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) ";
+		String INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, MAKTX,TYP_MAT, DEN_TYP_MAT FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) ";
 		
 		if(searchFilter != null){
 			INV_VW_TYPMATNR_BY_MATNR += "WHERE MATNR LIKE '%"+searchFilter+"%' OR TYP_MAT LIKE '%"+searchFilter+"%' OR DEN_TYP_MAT LIKE '%"+searchFilter+"%'";
@@ -127,9 +127,10 @@ public class MatnrDao {
 			while (rs.next()){
 				tmatnrBean = new TmatnrBean();
 				
-				tmatnrBean.setMatnr(rs.getString(1));
-				tmatnrBean.setTyp_mat(rs.getString(2));
-				tmatnrBean.setDen_typ_mat(rs.getString(3));
+				tmatnrBean.setMatnr(rs.getString("MATNR"));
+				tmatnrBean.setMaktx(rs.getString("MAKTX"));
+				tmatnrBean.setTyp_mat(rs.getString("TYP_MAT"));
+				tmatnrBean.setDen_typ_mat(rs.getString("DEN_TYP_MAT"));
 				
 				listTmatnrBean.add(tmatnrBean);
 			}

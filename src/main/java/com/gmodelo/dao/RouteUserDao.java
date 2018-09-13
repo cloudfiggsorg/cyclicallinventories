@@ -262,7 +262,7 @@ public class RouteUserDao {
 		PreparedStatement stm = null;
 		HashMap<String, LgplaValuesBean> listMaterials = new HashMap<String, LgplaValuesBean>();
 
-		final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR, DEN_TYP_MAT FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ? GROUP BY MATNR ,DEN_TYP_MAT";
+		final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR, MAKTX FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ? GROUP BY MATNR ,MAKTX";
 
 		log.info(INV_VW_ZONE_POSITIONS_MATERIALS);
 		log.info("[getPositionMaterialsDao] Preparing sentence...");
@@ -276,7 +276,7 @@ public class RouteUserDao {
 				LgplaValuesBean material = new LgplaValuesBean();
 
 				material.setMatnr(rs.getString("MATNR").replaceFirst("^0*", ""));
-				material.setMatkx(rs.getString("DEN_TYP_MAT"));
+				material.setMatkx(rs.getString("MAKTX"));
 				material.setLocked(true);
 				listMaterials.put(material.toKey(pkAsgId), material);
 			}
