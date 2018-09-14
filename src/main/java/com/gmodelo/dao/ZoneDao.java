@@ -37,7 +37,9 @@ public class ZoneDao {
 		int idPosMat = 0;
 
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?,?,?,?";
-		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?";
+		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?, ?";
+		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?, ?";
+		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?";		
 		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?,?,?";
 		
 		log.info("[addZone] Preparing sentence...");
@@ -62,8 +64,23 @@ public class ZoneDao {
 			
 			cs.execute();
 			
+			//Eliminar posiciones
+			String ids = "";
+			for (int i = 0; i < zoneBean.getPositions().size(); i++) {
+								
+				if(zoneBean.getPositions().get(i).getPkAsgId() > 0){
+					ids += zoneBean.getPositions().get(i).getPkAsgId() + ",";
+				}				
+			}
+												
+			cs = null;
+			cs = con.prepareCall(INV_SP_DEL_ZONE_POSITION);
+			cs.setInt(1, Integer.parseInt(zoneId));
+			cs.setString(2, ids);
+			cs.execute();
+			
 			zoneId = cs.getString(1);
-			zoneBean.setZoneId(String.format("%08d",Integer.parseInt(zoneId))); //addZeros
+			zoneBean.setZoneId(zoneId);
 			zoneBean.setbDesc(cs.getString(7));
 			zoneBean.setwDesc(cs.getString(8));
 			zoneBean.setgDesc(cs.getString(9));
@@ -75,7 +92,7 @@ public class ZoneDao {
 					
 					for (int i = 0; i < zoneBean.getPositions().size(); i++) {
 						zoneBean.getPositions().get(i).setZoneId(zoneId);
-						
+												
 						cs = null;
 						cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
 						
@@ -92,34 +109,37 @@ public class ZoneDao {
 						idPosition = cs.getInt(6);
 						zoneBean.getPositions().get(i).setPkAsgId(idPosition);
 						
-						if(idPosition > 0){
+						//Eliminar materiales de posición
+						ids = "";
+						for (int j = 0; j < zoneBean.getPositions().get(i).getMaterials().size(); j++) {
+											
+							ids += zoneBean.getPositions().get(i).getMaterials().get(j).getMatnr() + ",";				
+						}
+															
+						cs = null;
+						cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ZONE);
+						cs.setInt(1, zoneBean.getPositions().get(i).getPkAsgId());
+						cs.setString(2, ids);
+						cs.execute();
+						
+						for(int k = 0; k < zoneBean.getPositions().get(i).getMaterials().size(); k++){
+							zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(idPosition);
+							zoneBean.getPositions().get(i).getMaterials().get(k).setZoneId(Integer.parseInt(zoneId));
 							
-							//INSERTAR MATERIAL A POSICION ZONE
-							if(zoneBean.getPositions().get(i).getMaterials() != null){
-								
-								for(int j=0; j < zoneBean.getPositions().get(i).getMaterials().size(); j++){
-									zoneBean.getPositions().get(i).getMaterials().get(j).setPosMat(idPosition);
-									zoneBean.getPositions().get(i).getMaterials().get(j).setZoneId(Integer.parseInt(zoneId));
-									
-									cs = null;
-									cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
-									
-									cs.setInt(1,zoneBean.getPositions().get(i).getMaterials().get(j).getPosMat());
-									cs.setString(2,zoneBean.getPositions().get(i).getMaterials().get(j).getMatnr());
-									cs.registerOutParameter(3, Types.INTEGER);
-									cs.registerOutParameter(4, Types.VARCHAR);
-									
-									log.info("[assignMaterialToZoneDao] Executing query...");
-									cs.execute();
-									
-									idPosMat = cs.getInt(3);
-									zoneBean.getPositions().get(i).getMaterials().get(j).setPkPosMat(idPosMat);
-									zoneBean.getPositions().get(i).getMaterials().get(j).setDescM(cs.getString(4));
-								}
-							}
+							cs = null;
+							cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
 							
-						}else{
-							log.log(Level.WARNING,"[addPositionZone] idPositionZone not generated...");
+							cs.setInt(1,zoneBean.getPositions().get(i).getMaterials().get(k).getPosMat());
+							cs.setString(2,zoneBean.getPositions().get(i).getMaterials().get(k).getMatnr());
+							cs.registerOutParameter(3, Types.INTEGER);
+							cs.registerOutParameter(4, Types.VARCHAR);
+							
+							log.info("[assignMaterialToZoneDao] Executing query...");
+							cs.execute();
+							
+							idPosMat = cs.getInt(3);
+							zoneBean.getPositions().get(i).getMaterials().get(k).setPkPosMat(idPosMat);
+							zoneBean.getPositions().get(i).getMaterials().get(k).setDescM(cs.getString(4));
 						}
 						
 					}

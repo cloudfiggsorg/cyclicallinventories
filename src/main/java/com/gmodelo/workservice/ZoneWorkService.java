@@ -20,7 +20,7 @@ public class ZoneWorkService {
 	Logger log = Logger.getLogger(ZoneWorkService.class.getName());
 	Gson gson = new Gson();
 	
-	public Response<List<ZoneBean>> getLgortByZone(Request request){
+	public Response<List<ZoneBean>> getLgortByZone(Request<?> request){
 			
 			log.info("[getZoneByLgortWorkService] "+request.toString());
 			ZoneBean zoneBean = null;
@@ -28,7 +28,6 @@ public class ZoneWorkService {
 			String req = request.getLsObject().toString().trim();
 			if(!req.isEmpty()){
 				try {
-
 					//					aqui siempre se recibirá un objeto
 					zoneBean = gson .fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
 				} catch (JsonSyntaxException e) {
@@ -45,7 +44,7 @@ public class ZoneWorkService {
 			
 		}
 	
-	public Response<List<ZoneBean>> validateZone(Request request){
+	public Response<List<ZoneBean>> validateZone(Request<?> request){
 		
 		log.info("[validateZoneWorkService] "+request.toString());
 		ZoneBean zoneBean = null;
@@ -127,8 +126,7 @@ public class ZoneWorkService {
 	public Response<List<ZoneBean>> getZones(Request<?> request){
 		
 		log.info("[getZonesWorkService] "+request.toString());
-		ZoneBean zoneBean = null;
-		Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
+		ZoneBean zoneBean = null;	
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
 		if(!req.isEmpty()){
@@ -146,7 +144,7 @@ public class ZoneWorkService {
 		
 	}
 	
-	public Response<Object> unassignMaterialToZone(Request request){
+	public Response<Object> unassignMaterialToZone(Request<?> request){
 			
 			log.info("[unassignMaterialToZoneWS] "+request.toString());
 			MaterialToZoneBean materialToZoneBean;
