@@ -14,8 +14,6 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
-import com.gmodelo.beans.ZoneBean;
-import com.gmodelo.workservice.RouteWorkService;
 import com.gmodelo.workservice.ZoneWorkService;
 
 @Path("/services/ZoneService")

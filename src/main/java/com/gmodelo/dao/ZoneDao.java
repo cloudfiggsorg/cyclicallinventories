@@ -34,13 +34,12 @@ public class ZoneDao {
 		
 		String zoneId = zoneBean.getZoneId() == null ? null : zoneBean.getZoneId().replaceFirst ("^0*", "");
 		int idPosition = 0;
-		int idPosMat = 0;
 
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?,?,?,?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?, ?";
 		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?, ?";
 		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?";		
-		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?,?,?";
+		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?";
 		
 		log.info("[addZone] Preparing sentence...");
 		
@@ -63,6 +62,12 @@ public class ZoneDao {
 			log.info("[addZone] Executing query...");
 			
 			cs.execute();
+						
+			zoneId = cs.getString(1);
+			zoneBean.setZoneId(zoneId);
+			zoneBean.setbDesc(cs.getString(7));
+			zoneBean.setwDesc(cs.getString(8));
+			zoneBean.setgDesc(cs.getString(9));
 			
 			//Eliminar posiciones
 			String ids = "";
@@ -78,12 +83,6 @@ public class ZoneDao {
 			cs.setInt(1, Integer.parseInt(zoneId));
 			cs.setString(2, ids);
 			cs.execute();
-			
-			zoneId = cs.getString(1);
-			zoneBean.setZoneId(zoneId);
-			zoneBean.setbDesc(cs.getString(7));
-			zoneBean.setwDesc(cs.getString(8));
-			zoneBean.setgDesc(cs.getString(9));
 			
 			if (zoneId != null) {
 				
@@ -132,14 +131,11 @@ public class ZoneDao {
 							cs.setInt(1,zoneBean.getPositions().get(i).getMaterials().get(k).getPosMat());
 							cs.setString(2,zoneBean.getPositions().get(i).getMaterials().get(k).getMatnr());
 							cs.registerOutParameter(3, Types.INTEGER);
-							cs.registerOutParameter(4, Types.VARCHAR);
 							
 							log.info("[assignMaterialToZoneDao] Executing query...");
 							cs.execute();
 							
-							idPosMat = cs.getInt(3);
-							zoneBean.getPositions().get(i).getMaterials().get(k).setPkPosMat(idPosMat);
-							zoneBean.getPositions().get(i).getMaterials().get(k).setDescM(cs.getString(4));
+							zoneBean.getPositions().get(i).getMaterials().get(k).setPkPosMat(cs.getInt(3));							
 						}
 						
 					}
