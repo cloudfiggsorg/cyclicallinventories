@@ -32,8 +32,14 @@ public class ZoneDao {
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
-		String zoneId = zoneBean.getZoneId() == null ? null : zoneBean.getZoneId().replaceFirst ("^0*", "");
 		int idPosition = 0;
+		int zoneId = 0;
+		
+		try {
+			zoneId = Integer.parseInt(zoneBean.getZoneId());
+		} catch (NumberFormatException e) {
+			// TODO: handle exception
+		}		
 
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?,?,?,?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?, ?";
@@ -63,8 +69,7 @@ public class ZoneDao {
 			
 			cs.execute();
 						
-			zoneId = cs.getString(1);
-			zoneBean.setZoneId(zoneId);
+			zoneBean.setZoneId(cs.getString(1));
 			zoneBean.setbDesc(cs.getString(7));
 			zoneBean.setwDesc(cs.getString(8));
 			zoneBean.setgDesc(cs.getString(9));
@@ -77,75 +82,64 @@ public class ZoneDao {
 					ids += zoneBean.getPositions().get(i).getPkAsgId() + ",";
 				}				
 			}
-												
+															
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_ZONE_POSITION);
-			cs.setInt(1, Integer.parseInt(zoneId));
+			cs.setInt(1, zoneId);
 			cs.setString(2, ids);
 			cs.execute();
 			
-			if (zoneId != null) {
+			for (int i = 0; i < zoneBean.getPositions().size(); i++) {
+				zoneBean.getPositions().get(i).setZoneId(zoneBean.getZoneId());
+										
+				cs = null;
+				cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
 				
-				//INSERTAR POSICIONES
-				if(zoneBean.getPositions() != null){
+				cs.setString(1,zoneBean.getZoneId());
+				cs.setString(2,zoneBean.getPositions().get(i).getLgtyp());
+				cs.setString(3,zoneBean.getPositions().get(i).getLgpla());
+				cs.setString(4,zoneBean.getPositions().get(i).getSecuency());
+				cs.setString(5,zoneBean.getPositions().get(i).getImwm());
+				cs.registerOutParameter(6, Types.INTEGER);
+				
+				log.info("[addPositionZone] Executing query...");
+				
+				cs.execute();
+				idPosition = cs.getInt(6);
+				zoneBean.getPositions().get(i).setPkAsgId(idPosition);
+				
+				//Eliminar materiales de posición
+				ids = "";
+				for (int j = 0; j < zoneBean.getPositions().get(i).getMaterials().size(); j++) {
+									
+					ids += zoneBean.getPositions().get(i).getMaterials().get(j).getMatnr() + ",";				
+				}
+													
+				cs = null;
+				cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ZONE);
+				cs.setInt(1, zoneBean.getPositions().get(i).getPkAsgId());
+				cs.setString(2, ids);
+				cs.execute();
+				
+				for(int k = 0; k < zoneBean.getPositions().get(i).getMaterials().size(); k++){
+					zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(idPosition);
+					zoneBean.getPositions().get(i).getMaterials().get(k).setZoneId(zoneId);
 					
-					for (int i = 0; i < zoneBean.getPositions().size(); i++) {
-						zoneBean.getPositions().get(i).setZoneId(zoneId);
-												
-						cs = null;
-						cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
-						
-						cs.setString(1,zoneBean.getZoneId());
-						cs.setString(2,zoneBean.getPositions().get(i).getLgtyp());
-						cs.setString(3,zoneBean.getPositions().get(i).getLgpla());
-						cs.setString(4,zoneBean.getPositions().get(i).getSecuency());
-						cs.setString(5,zoneBean.getPositions().get(i).getImwm());
-						cs.registerOutParameter(6, Types.INTEGER);
-						
-						log.info("[addPositionZone] Executing query...");
-						
-						cs.execute();
-						idPosition = cs.getInt(6);
-						zoneBean.getPositions().get(i).setPkAsgId(idPosition);
-						
-						//Eliminar materiales de posición
-						ids = "";
-						for (int j = 0; j < zoneBean.getPositions().get(i).getMaterials().size(); j++) {
-											
-							ids += zoneBean.getPositions().get(i).getMaterials().get(j).getMatnr() + ",";				
-						}
-															
-						cs = null;
-						cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ZONE);
-						cs.setInt(1, zoneBean.getPositions().get(i).getPkAsgId());
-						cs.setString(2, ids);
-						cs.execute();
-						
-						for(int k = 0; k < zoneBean.getPositions().get(i).getMaterials().size(); k++){
-							zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(idPosition);
-							zoneBean.getPositions().get(i).getMaterials().get(k).setZoneId(Integer.parseInt(zoneId));
-							
-							cs = null;
-							cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
-							
-							cs.setInt(1,zoneBean.getPositions().get(i).getMaterials().get(k).getPosMat());
-							cs.setString(2,zoneBean.getPositions().get(i).getMaterials().get(k).getMatnr());
-							cs.registerOutParameter(3, Types.INTEGER);
-							
-							log.info("[assignMaterialToZoneDao] Executing query...");
-							cs.execute();
-							
-							zoneBean.getPositions().get(i).getMaterials().get(k).setPkPosMat(cs.getInt(3));							
-						}
-						
-					}
+					cs = null;
+					cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
 					
+					cs.setInt(1,zoneBean.getPositions().get(i).getMaterials().get(k).getPosMat());
+					cs.setString(2,zoneBean.getPositions().get(i).getMaterials().get(k).getMatnr());
+					cs.registerOutParameter(3, Types.INTEGER);
+					
+					log.info("[assignMaterialToZoneDao] Executing query...");
+					cs.execute();
+					
+					zoneBean.getPositions().get(i).getMaterials().get(k).setPkPosMat(cs.getInt(3));							
 				}
 				
-			}else{
-				log.log(Level.WARNING, "[addZone] Not created ZoneId.");
 			}
-
+						
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -179,6 +173,7 @@ public class ZoneDao {
 			}
 		}
 		res.setAbstractResult(abstractResult);
+		res.setLsObject(zoneBean);
 		return res ;
 	}
 	
