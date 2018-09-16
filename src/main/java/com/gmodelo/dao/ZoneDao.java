@@ -123,7 +123,6 @@ public class ZoneDao {
 				
 				for(int k = 0; k < zoneBean.getPositions().get(i).getMaterials().size(); k++){
 					zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(idPosition);
-					zoneBean.getPositions().get(i).getMaterials().get(k).setZoneId(zoneId);
 					
 					cs = null;
 					cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
@@ -135,7 +134,7 @@ public class ZoneDao {
 					log.info("[assignMaterialToZoneDao] Executing query...");
 					cs.execute();
 					
-					zoneBean.getPositions().get(i).getMaterials().get(k).setPkPosMat(cs.getInt(3));							
+					zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(cs.getInt(3));							
 				}
 				
 			}
@@ -589,7 +588,7 @@ public class ZoneDao {
 				
 				ZonePositionMaterialsBean material = new ZonePositionMaterialsBean();
 				
-				material.setPkPosMat(rs.getInt("PK_POS_MAT"));
+				material.setPosMat(rs.getInt("PK_POS_MAT"));
 				material.setMatnr(rs.getString("MATNR"));
 				material.setDescM(rs.getString("MAKTX"));
 				
