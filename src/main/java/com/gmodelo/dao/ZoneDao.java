@@ -103,7 +103,7 @@ public class ZoneDao {
 				//Eliminar materiales de posición
 				ids = "";
 				for (int j = 0; j < zoneBean.getPositions().get(i).getMaterials().size(); j++) {
-									
+					
 					ids += zoneBean.getPositions().get(i).getMaterials().get(j).getMatnr() + ",";				
 				}
 													
@@ -112,7 +112,7 @@ public class ZoneDao {
 				cs.setInt(1, zoneBean.getPositions().get(i).getPkAsgId());
 				cs.setString(2, ids);
 				cs.execute();
-				
+								
 				for(int k = 0; k < zoneBean.getPositions().get(i).getMaterials().size(); k++){
 					zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(idPosition);
 					

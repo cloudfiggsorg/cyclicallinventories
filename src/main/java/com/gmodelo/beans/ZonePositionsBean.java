@@ -1,5 +1,6 @@
 package com.gmodelo.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ZonePositionsBean {
@@ -13,9 +14,9 @@ public class ZonePositionsBean {
 	String lgnum;
 	List<ZonePositionMaterialsBean> materials;
 	
-	public ZonePositionsBean() {
+	public ZonePositionsBean() {		
 		super();
-		// TODO Auto-generated constructor stub
+		this.materials = new ArrayList<ZonePositionMaterialsBean>();		
 	}
 	public String getLgnum() {
 		return lgnum;

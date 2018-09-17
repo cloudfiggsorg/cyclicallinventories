@@ -1,5 +1,6 @@
 package com.gmodelo.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ZoneBean {
@@ -10,9 +11,13 @@ public class ZoneBean {
 	String lgort;
 	String bDesc;
 	String wDesc;
-	String gDesc;
-	
+	String gDesc;	
 	List<ZonePositionsBean> positions;
+	
+	public ZoneBean(){
+		super();
+		this.positions = new ArrayList<ZonePositionsBean>();
+	}
 	
 	public String getbDesc() {
 		return bDesc;
@@ -69,21 +74,6 @@ public class ZoneBean {
 		this.lgort = lgort;
 	}
 
-	public ZoneBean() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	
-	public ZoneBean( String zdesc, String bukrs, String werks, String lgort,
-			List<ZonePositionsBean> positionsB) {
-		super();
-		this.zdesc = zdesc;
-		this.bukrs = bukrs;
-		this.werks = werks;
-		this.lgort = lgort;
-		this.positions = positionsB;
-	}
-	
 	public ZoneBean(String zoneId, String zdesc, String bukrs, String werks, String lgort, String bDesc, String wDesc,
 			String gDesc, List<ZonePositionsBean> positionsB) {
 		super();
@@ -104,8 +94,5 @@ public class ZoneBean {
 				+ lgort + ", bDesc=" + bDesc + ", wDesc=" + wDesc + ", gDesc=" + gDesc + ", positionsB=" + positions
 				+ "]";
 	}
-	
-	
-
-	
+		
 }
