@@ -9,14 +9,21 @@ public class ZonePositionsBean {
 	String lgpla;
 	String secuency;
 	String imwm;
-	String lgtypDesc;	
+	String lgtypDesc;
+	String lgnum;
 	List<ZonePositionMaterialsBean> materials;
 	
 	public ZonePositionsBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	
+	public String getLgnum() {
+		return lgnum;
+	}
+	public void setLgnum(String lgnum) {
+		this.lgnum = lgnum;
+	}
+
 	public String getLgtypDesc() {
 		return lgtypDesc;
 	}
@@ -71,9 +78,14 @@ public class ZonePositionsBean {
 	public void setImwm(String imwm) {
 		this.imwm = imwm;
 	}
-
-	public ZonePositionsBean(int pkAsgId, String zoneId, String lgtyp, String lgpla, String secuency,
-			String imwm, List<ZonePositionMaterialsBean> positionMaterial) {
+	@Override
+	public String toString() {
+		return "ZonePositionsBean [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", lgtyp=" + lgtyp + ", lgpla=" + lgpla
+				+ ", secuency=" + secuency + ", imwm=" + imwm + ", lgtypDesc=" + lgtypDesc + ", lgnum=" + lgnum
+				+ ", materials=" + materials + "]";
+	}
+	public ZonePositionsBean(int pkAsgId, String zoneId, String lgtyp, String lgpla, String secuency, String imwm,
+			String lgtypDesc, String lgnum, List<ZonePositionMaterialsBean> materials) {
 		super();
 		this.pkAsgId = pkAsgId;
 		this.zoneId = zoneId;
@@ -81,12 +93,8 @@ public class ZonePositionsBean {
 		this.lgpla = lgpla;
 		this.secuency = secuency;
 		this.imwm = imwm;
-		this.materials = positionMaterial;
-	}
-	
-	@Override
-	public String toString() {
-		return "ZonePositionsBean [pkAsgId=" + pkAsgId + ", zoneId=" + zoneId + ", lgtyp=" + lgtyp + ", lgpla=" + lgpla
-				+ ", secuency=" + secuency + ", imwm=" + imwm + ", lgtypDesc=" + lgtypDesc + ", positionMaterial=" + materials + "]";
+		this.lgtypDesc = lgtypDesc;
+		this.lgnum = lgnum;
+		this.materials = materials;
 	}
 }

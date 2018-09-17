@@ -31,10 +31,8 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
-		
 		int idPosition = 0;
 		int zoneId = 0;
-		
 		try {
 			zoneId = Integer.parseInt(zoneBean.getZoneId());
 		} catch (NumberFormatException e) {
@@ -44,22 +42,19 @@ public class ZoneDao {
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?,?,?,?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?, ?";
 		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?, ?";
-		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?";		
-		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?";
-		
+		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?, ?";		
+		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?, ?";
 		log.info("[addZone] Preparing sentence...");
-		
 		try {
 			con.setAutoCommit(false);
-			
 			cs = con.prepareCall(INV_SP_ADD_ZONE);
-			
 			cs.setString(1,zoneBean.getZoneId());
 			cs.setString(2,zoneBean.getZdesc());
 			cs.setString(3,zoneBean.getBukrs());
 			cs.setString(4,zoneBean.getWerks());
 			cs.setString(5,zoneBean.getLgort());
 			cs.setString(6, createdBy);
+			cs.setString(7, zoneBean.getgDesc());
 		
 			cs.registerOutParameter(1, Types.INTEGER);
 			cs.registerOutParameter(7, Types.VARCHAR);
@@ -77,7 +72,6 @@ public class ZoneDao {
 			//Eliminar posiciones
 			String ids = "";
 			for (int i = 0; i < zoneBean.getPositions().size(); i++) {
-								
 				if(zoneBean.getPositions().get(i).getPkAsgId() > 0){
 					ids += zoneBean.getPositions().get(i).getPkAsgId() + ",";
 				}				
@@ -91,21 +85,19 @@ public class ZoneDao {
 			
 			for (int i = 0; i < zoneBean.getPositions().size(); i++) {
 				zoneBean.getPositions().get(i).setZoneId(zoneBean.getZoneId());
-										
 				cs = null;
 				cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
-				
 				cs.setString(1,zoneBean.getZoneId());
 				cs.setString(2,zoneBean.getPositions().get(i).getLgtyp());
 				cs.setString(3,zoneBean.getPositions().get(i).getLgpla());
 				cs.setString(4,zoneBean.getPositions().get(i).getSecuency());
 				cs.setString(5,zoneBean.getPositions().get(i).getImwm());
-				cs.registerOutParameter(6, Types.INTEGER);
-				
+				cs.setString(6,zoneBean.getPositions().get(i).getLgnum());
+				cs.setString(7,zoneBean.getPositions().get(i).getLgtypDesc());
+				cs.registerOutParameter(8, Types.INTEGER);
 				log.info("[addPositionZone] Executing query...");
-				
 				cs.execute();
-				idPosition = cs.getInt(6);
+				idPosition = cs.getInt(8);
 				zoneBean.getPositions().get(i).setPkAsgId(idPosition);
 				
 				//Eliminar materiales de posición
@@ -130,11 +122,12 @@ public class ZoneDao {
 					cs.setInt(1,zoneBean.getPositions().get(i).getMaterials().get(k).getPosMat());
 					cs.setString(2,zoneBean.getPositions().get(i).getMaterials().get(k).getMatnr());
 					cs.registerOutParameter(3, Types.INTEGER);
+					cs.registerOutParameter(4, Types.VARCHAR);
 					
 					log.info("[assignMaterialToZoneDao] Executing query...");
 					cs.execute();
-					
-					zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(cs.getInt(3));							
+					zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(cs.getInt(3));
+					zoneBean.getPositions().get(i).getMaterials().get(k).setDescM(cs.getString(4));
 				}
 				
 			}
@@ -425,17 +418,14 @@ public class ZoneDao {
 	}
 	
 	public Response<List<ZoneBean>> getZones(ZoneBean zoneBean, String searchFilter){
-		
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
-		
 		int aux;		
 		String searchFilterNumber = "";
-		
 		try {
 			aux = Integer.parseInt(searchFilter); 
 			searchFilterNumber += aux;
@@ -443,7 +433,6 @@ public class ZoneDao {
 			searchFilterNumber = searchFilter;
 			log.info("Trying to convert String to Int");
 		}
-		
 		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT,BDESC, WDESC, GDES  FROM dbo.INV_VW_ZONES";
 		if(searchFilter != null){
 			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' OR BUKRS LIKE '%"+searchFilter+"%' OR WERKS LIKE '%"+searchFilter+ "%' OR LGORT LIKE '%"+ searchFilter+"%'";
@@ -510,24 +499,20 @@ public class ZoneDao {
 	}
 	
 	private List<ZonePositionsBean> getPositionsZone(String zoneId){
-		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
-		
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM,LTYPT FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
-		
+		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, ZPO_LTYPT FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
 		log.info(INV_VW_ZONE_WITH_POSITIONS);
 		log.info("[getZonesDao] Preparing sentence...");
-		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, LTYPT";
+		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, ZPO_LTYPT";
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
 			log.info("[getZonesDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
-				
 				ZonePositionsBean position = new ZonePositionsBean();
 				position.setZoneId(zoneId);
 				position.setPkAsgId(rs.getInt("PK_ASG_ID"));
@@ -535,10 +520,10 @@ public class ZoneDao {
 				position.setLgpla(rs.getString("LGPLA"));
 				position.setSecuency(rs.getString("SECUENCY"));
 				position.setImwm(rs.getString("IMWM"));
-				position.setLgtypDesc(rs.getString("LTYPT"));							
+				position.setLgtypDesc(rs.getString("ZPO_LTYPT"));
+				position.setLgnum(rs.getString("ZPO_LGNUM"));
 				position.setMaterials(this.getPositionMaterials(rs.getString(1)));
 				listPositions.add(position);
-				
 			}
 			
 			//Retrive the warnings if there're
