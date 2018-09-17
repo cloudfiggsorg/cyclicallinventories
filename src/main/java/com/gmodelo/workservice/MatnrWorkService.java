@@ -21,7 +21,6 @@ public class MatnrWorkService {
 	public Response<List<MatnrBeanView>> getMatnr(Request request){
 		log.info("[getMatnrWorkService] "+request.toString());
 		MatnrBeanView mantrBean  = null;
-		String searchFilter = null;
 		Response<List<MatnrBeanView>> res = new Response<List<MatnrBeanView>>();
 		String req = request.getLsObject().toString().trim();
 		
@@ -38,11 +37,10 @@ public class MatnrWorkService {
 				return res;
 			}
 		}else{
-			searchFilter = "";
 			log.info("[getMatnrWorkService] Fue cadena vacía ");
 		}
 		
-		return new MatnrDao().getMatnr(mantrBean, searchFilter);
+		return new MatnrDao().getMatnr(mantrBean);
 	}
 	
 	public Response<List<TmatnrBean>> getTmatnr(Request request){

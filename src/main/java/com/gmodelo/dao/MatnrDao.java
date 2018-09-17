@@ -21,7 +21,7 @@ public class MatnrDao {
 	
 	private Logger log = Logger.getLogger( MatnrDao.class.getName());
 	
-	public Response<List<MatnrBeanView>> getMatnr(MatnrBeanView mantrBean, String searchFilter){
+	public Response<List<MatnrBeanView>> getMatnr(MatnrBeanView mantrBean){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -32,16 +32,11 @@ public class MatnrDao {
 		List<MatnrBeanView> listMantrBean = new ArrayList<MatnrBeanView>(); 
 		 
 		String INV_VW_MATNR_BY_WERKS = "SELECT WERKS, MATNR, MAKTX  FROM [INV_CIC_DB].[dbo].[INV_VW_MATNR_BY_WERKS] WITH(NOLOCK) ";
-		
-		if(searchFilter != null){
-			INV_VW_MATNR_BY_WERKS += " WHERE WERKS LIKE '%"+searchFilter+"%' OR MATNR LIKE '%"+searchFilter+"%' OR MAKTX LIKE '%"+searchFilter+"%' ";
-		}else{
-			String condition = buildCondition(mantrBean);
-			if(condition != null){
-				INV_VW_MATNR_BY_WERKS += condition;
+		INV_VW_MATNR_BY_WERKS += "WHERE WERKS LIKE '" + mantrBean.getWerks() +"' "; 
+		INV_VW_MATNR_BY_WERKS += "AND (MATNR LIKE '%" + mantrBean.getMatnr() + "%' ";
+		INV_VW_MATNR_BY_WERKS += "OR ";
+		INV_VW_MATNR_BY_WERKS += "MAKTX LIKE '%" + mantrBean.getMaktx() + "%') ";
 				
-			}
-		}
 		log.info(INV_VW_MATNR_BY_WERKS);
 		
 		log.info("[getMatnrDao] Preparing sentence...");
@@ -54,8 +49,8 @@ public class MatnrDao {
 			ResultSet rs = stm.executeQuery();
 			
 			while (rs.next()){
-				mantrBean = new MatnrBeanView();
 				
+				mantrBean = new MatnrBeanView();				
 				mantrBean.setWerks(rs.getString(1));
 				mantrBean.setMatnr(rs.getString(2));
 				mantrBean.setMaktx(rs.getString(3));
@@ -192,7 +187,7 @@ public class MatnrDao {
 		
 		String condition = "";
 		
-		werks = (mantrB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS LIKE '%"+ mantrB.getWerks() + "%' "  : "";
+		werks = (mantrB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS LIKE '"+ mantrB.getWerks() + "' "  : "";
 		condition+=werks;
 		matnr = (mantrB.getMatnr() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " MATNR LIKE '%" + mantrB.getMatnr() +"%' " : "";
 		condition+=matnr;
