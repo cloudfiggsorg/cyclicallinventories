@@ -11,9 +11,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.MatnrBeanView;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TmatnrBean;
-import com.gmodelo.beans.MatnrBeanView;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -127,7 +127,11 @@ public class MatnrDao {
 			while (rs.next()){
 				tmatnrBean = new TmatnrBean();
 				
-				tmatnrBean.setMatnr(rs.getString("MATNR"));
+				try {
+					tmatnrBean.setMatnr(String.valueOf(Integer.parseInt(rs.getString("MATNR"))));
+				} catch (Exception e) {
+					tmatnrBean.setMatnr(rs.getString("MATNR"));
+				}
 				tmatnrBean.setDescM(rs.getString("MAKTX"));
 				tmatnrBean.setTyp_mat(rs.getString("TYP_MAT"));
 				tmatnrBean.setDen_typ_mat(rs.getString("DEN_TYP_MAT"));
