@@ -221,10 +221,10 @@ public class ZoneDao {
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		
-		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";
 				
 		if(searchFilter == null){
-			INV_VW_ZONE_BY_LGORT += "WHERE BUKRS = '"+zoneBean.getBukrs()+"' AND WERKS = '"+zoneBean.getWerks()+"' ";
+			INV_VW_ZONE_BY_LGORT += "WHERE BUKRS = '" + zoneBean.getBukrs() +"' AND WERKS = '"+ zoneBean.getWerks() +"' ";
 			String condition = buildCondition(zoneBean);
 			if(condition != null){
 				INV_VW_ZONE_BY_LGORT += condition;
@@ -241,7 +241,7 @@ public class ZoneDao {
 			INV_VW_ZONE_BY_LGORT += "WHERE  ZONE_ID LIKE '%"+searchFilterNumber+"%' OR ZON_DESC LIKE '%"+searchFilter+"%' ";
 		}
 		 
-		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
+		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
 		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
 		
 		log.info(INV_VW_ZONE_BY_LGORT);
@@ -260,6 +260,7 @@ public class ZoneDao {
 				zoneBean = new ZoneBean();
 				
 				zoneBean.setLgort(rs.getString("LGORT"));
+				zoneBean.setgDesc(rs.getString("LGOBE"));
 				zoneBean.setZoneId(String.format("%08d",Integer.parseInt(rs.getString("ZONE_ID"))));
 				zoneBean.setZdesc(rs.getString("ZON_DESC"));
 				zoneBean.setBukrs(rs.getString("BUKRS"));
