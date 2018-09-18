@@ -39,11 +39,11 @@ public class ZoneDao {
 			// TODO: handle exception
 		}		
 
-		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?,?,?,?";
+		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?, ?";
 		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?, ?";
 		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?, ?";		
-		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?, ?";
+		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?";
 		log.info("[addZone] Preparing sentence...");
 		try {
 			con.setAutoCommit(false);
@@ -57,17 +57,11 @@ public class ZoneDao {
 			cs.setString(7, zoneBean.getgDesc());
 		
 			cs.registerOutParameter(1, Types.INTEGER);
-			cs.registerOutParameter(7, Types.VARCHAR);
-			cs.registerOutParameter(8, Types.VARCHAR);
-			cs.registerOutParameter(9, Types.VARCHAR);
 			log.info("[addZone] Executing query...");
 			
 			cs.execute();
 						
 			zoneBean.setZoneId(cs.getString(1));
-			zoneBean.setbDesc(cs.getString(7));
-			zoneBean.setwDesc(cs.getString(8));
-			zoneBean.setgDesc(cs.getString(9));
 			
 			//Eliminar posiciones
 			String ids = "";
@@ -122,12 +116,10 @@ public class ZoneDao {
 					cs.setInt(1,zoneBean.getPositions().get(i).getMaterials().get(k).getPosMat());
 					cs.setString(2,zoneBean.getPositions().get(i).getMaterials().get(k).getMatnr());
 					cs.registerOutParameter(3, Types.INTEGER);
-					cs.registerOutParameter(4, Types.VARCHAR);
 					
 					log.info("[assignMaterialToZoneDao] Executing query...");
 					cs.execute();
 					zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(cs.getInt(3));
-					zoneBean.getPositions().get(i).getMaterials().get(k).setDescM(cs.getString(4));
 				}
 				
 			}
@@ -435,7 +427,7 @@ public class ZoneDao {
 		}
 		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT,BDESC, WDESC, GDES  FROM dbo.INV_VW_ZONES";
 		if(searchFilter != null){
-			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' OR BUKRS LIKE '%"+searchFilter+"%' OR WERKS LIKE '%"+searchFilter+ "%' OR LGORT LIKE '%"+ searchFilter+"%'";
+			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' ";
 		}else{
 			String condition = buildConditionZones(zoneBean);
 			if(condition != null){
