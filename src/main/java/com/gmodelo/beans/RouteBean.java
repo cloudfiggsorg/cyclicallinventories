@@ -1,18 +1,25 @@
 package com.gmodelo.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RouteBean {
+	
 	String routeId;
 	String bukrs;
 	String werks;
 	String rdesc;
 	String type;
 	String bdesc;
-	String wdesc;
-	
+	String wdesc;	
 	List<RoutePositionBean> positions;
 	List<RouteGroupBean> groups;
+	
+	public RouteBean(){
+		super();
+		this.positions = new ArrayList<RoutePositionBean>();
+		this.groups = new ArrayList<RouteGroupBean>();
+	}
 	
 	public String getBdesc() {
 		return bdesc;
@@ -69,10 +76,6 @@ public class RouteBean {
 		this.rdesc = rdesc;
 	}
 	
-	public RouteBean() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
 	public RouteBean(String routeId, String bukrs, String werks, String rdesc, String type, String bdesc, String wdesc,
 			List<RoutePositionBean> positions, List<RouteGroupBean> groups) {
 		super();
