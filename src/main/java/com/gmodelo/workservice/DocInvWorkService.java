@@ -36,8 +36,8 @@ public class DocInvWorkService {
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-		
-		return new DocInvDao().addDocInv(docInvBean, user.getEntity().getIdentyId());
+		return null;
+	//	return new DocInvDao().addDocInv(docInvBean, user.getEntity().getIdentyId());
 		
 	}
 
