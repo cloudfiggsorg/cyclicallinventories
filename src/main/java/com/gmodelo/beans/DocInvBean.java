@@ -18,6 +18,7 @@ public class DocInvBean {
 	public DocInvBean() {
 		super();
 		positions = new ArrayList<DocInvPositionBean>();
+		route = null;
 		// TODO Auto-generated constructor stub
 	}
 	

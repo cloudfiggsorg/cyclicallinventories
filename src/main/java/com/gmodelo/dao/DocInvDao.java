@@ -14,11 +14,12 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.DocInvBean;
-import com.gmodelo.beans.ZonePositionsBean;
+import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -37,7 +38,7 @@ public class DocInvDao {
 		int docInvId = 0;
 				
 		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?,?";
-		final String INV_SP_ADD_DOC_INVENTORY_POSITIONS = "INV_SP_ADD_DOC_INVENTORY_POSITIONS ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_DOC_INVENTORY_POSITIONS = "INV_SP_ADD_DOC_INVENTORY_POSITIONS ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_DOC_INV_POSITION = "INV_SP_DEL_DOC_INV_POSITION ?, ?";
 		
 		log.info("[addDocInv] Preparing sentence...");
@@ -87,19 +88,7 @@ public class DocInvDao {
 				
 				cs = null;
 				cs = con.prepareCall(INV_SP_ADD_DOC_INVENTORY_POSITIONS);
-				/*@DOC_INV_ID ='3',
-@LGORT ='0088',
-@LGTYP ='501',
-@LGPLA ='BL01',
-@MATNR ='000000000004172258',
-@THEORIC ='',
-@COUNTED ='',
-@DIFF_COUNTED ='',
-@DIFF_FLAG ='',
-@ZONE_ID ='1',
-@MEINS ='',
-@EXPLOSION =''
-*/
+	
 				cs.setInt(2,docInvBean.getDocInvId());
 				cs.setInt(3,docInvBean.getPositions().get(i).getLgort());
 				cs.setString(4,docInvBean.getPositions().get(i).getLgtyp());
@@ -109,9 +98,10 @@ public class DocInvDao {
 				cs.setString(8,docInvBean.getPositions().get(i).getCounted());
 				cs.setString(9,docInvBean.getPositions().get(i).getDiffCounted());
 				cs.setString(10,docInvBean.getPositions().get(i).getFlag());
-				cs.setString(11,docInvBean.getPositions().get(i).getZone().getZoneId());
-				cs.setString(12,docInvBean.getPositions().get(i).getMeins());
-				cs.setString(13,docInvBean.getPositions().get(i).getExplosion());
+				cs.setString(11,docInvBean.getPositions().get(i).getMeins());
+				cs.setString(12,docInvBean.getPositions().get(i).getExplosion());
+				cs.setString(13,docInvBean.getPositions().get(i).getGdes());
+				cs.setString(14,docInvBean.getPositions().get(i).getLgtypDes());
 				cs.registerOutParameter(1, Types.INTEGER);
 				log.info("[addPositionDocInv] Executing query...");
 				cs.execute();
@@ -228,21 +218,17 @@ public class DocInvDao {
 				docInvBean = new DocInvBean();
 				
 				RouteDao route = new RouteDao();
-				RouteBean routeB = new RouteBean();
-				routeB.setRouteId(rs.getString("ZDESC"));
-				String search = "";
-				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
+				docInvBean.setRoute(route.getRoute(rs.getInt("ROUTE_ID")));
 				
-				//docInvBean.setRoute(route.getRoutes(routeB, search));
+				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
 				docInvBean.setBukrsD(rs.getString("BDESC"));
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setType(rs.getString("TYPE"));
 				docInvBean.setJustification(rs.getString("JUSTIFICATION"));
-				//docInvBean.setPositions(this.getPositionsZone(rs.getString("ZONE_ID")));
+				docInvBean.setPositions(this.getPositions(rs.getString("DOC_INV_ID")));
 				listDocInv.add(docInvBean);
-				
 			}
 			
 			//Retrive the warnings if there're
@@ -275,32 +261,35 @@ public class DocInvDao {
 		res.setLsObject(listDocInv);
 		return res ;
 	}
-	/*
-	private List<ZonePositionsBean> getPositionsZone(String zoneId){
+	
+	private List<DocInvPositionBean> getPositions(String docInvId){
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, ZPO_LTYPT FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
-		log.info(INV_VW_ZONE_WITH_POSITIONS);
-		log.info("[getDocInvDao] Preparing sentence...");
-		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, ZPO_LTYPT";
+		List<DocInvPositionBean> listPositions = new ArrayList<DocInvPositionBean>();
+		String INV_VW_DOC_INVENTORY_POSITIONS = "SELECT LGORT,LGTYP,LGPLA,MATNR,THEORIC,COUNTED,DIFF_COUNTED,DIFF_FLAG,DOC_INV_ID,LTYPT,GDES,MAKTX  FROM INV_VW_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+		log.info(INV_VW_DOC_INVENTORY_POSITIONS);
+		log.info("getPositionsDocInvDao] Preparing sentence...");
+		INV_VW_DOC_INVENTORY_POSITIONS += " GROUP BY LGORT,LGTYP,LGPLA,MATNR,THEORIC,COUNTED,DIFF_COUNTED,DIFF_FLAG,DOC_INV_ID,LTYPT,GDES,MAKTX";
 		try {
-			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
-			stm.setString(1, zoneId);
-			log.info("[getDocInvDao] Executing query...");
+			stm = con.prepareCall(INV_VW_DOC_INVENTORY_POSITIONS);
+			stm.setString(1, docInvId);
+			log.info("[getPositionsDocInvDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
-				ZonePositionsBean position = new ZonePositionsBean();
-				position.setZoneId(zoneId);
-				position.setPkAsgId(rs.getInt("PK_ASG_ID"));
+				DocInvPositionBean position = new DocInvPositionBean();
+				position.setDocInvId(Integer.parseInt(docInvId));
+				position.setLgort(rs.getInt("LGORT"));
 				position.setLgtyp(rs.getString("LGTYP"));
 				position.setLgpla(rs.getString("LGPLA"));
-				position.setSecuency(rs.getString("SECUENCY"));
-				position.setImwm(rs.getString("IMWM"));
-				position.setLgtypDesc(rs.getString("ZPO_LTYPT"));
-				position.setLgnum(rs.getString("ZPO_LGNUM"));
-				position.setMaterials(this.getPositionMaterials(rs.getString(1)));
+				position.setMatnr(rs.getString("MATNR"));
+				position.setTheoric(rs.getString("THEORIC"));
+				position.setCounted(rs.getString("COUNTED"));
+				position.setDiffCounted(rs.getString("DIFF_COUNTED"));
+				position.setFlag(rs.getString("DIFF_FLAG"));
+				position.setLgtypDes(rs.getString("LTYPT"));
+				position.setGdes(rs.getString("GDES"));
+				position.setMatnrDes(rs.getString("MAKTX"));
 				listPositions.add(position);
 			}
 			
@@ -315,20 +304,19 @@ public class DocInvDao {
 			rs.close();
 			stm.close();	
 			
-			log.info("[getDocInvDao] Sentence successfully executed.");
-			
+			log.info("[getPositionsDocInvDao] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getDocInvDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_WITH_POSITIONS, e);
+			log.log(Level.SEVERE,"[getPositionsDocInvDao] Some error occurred while was trying to execute the query: "+INV_VW_DOC_INVENTORY_POSITIONS, e);
 		}finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[getDocInvDao] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE,"[getPositionsDocInvDao] Some error occurred while was trying to close the connection.", e);
 			}
 		}
-		return listPositions ;
+		return listPositions;
 	}
-	*/
+	
 	private String buildCondition(DocInvBean docInvB){
 		String condition ="";
 		String DOC_INV_ID ="";
@@ -353,6 +341,17 @@ public class DocInvDao {
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
+	}
+	
+	public static void main(String args[]){
+		DocInvDao dao = new DocInvDao();
+		DocInvBean docInvBean = new DocInvBean();
+		String searchFilter = "";
+		Response<List<DocInvBean>> x = dao.getDocInv(docInvBean, searchFilter);
+		for(int i=0; i < x.getLsObject().size() ; i++){
+			System.out.println(x.getLsObject().get(i));
+			System.out.println("------------------------------------------------\n");
+		}
 	}
 
 }

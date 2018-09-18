@@ -11,24 +11,23 @@ public class DocInvPositionBean {
 	String counted;
 	String diffCounted;
 	String flag;
-	ZoneBean zone;
 	String meins;
 	String explosion;
+	String gdes;
+	String lgtypDes;
+	String matnrDes;
 	
 	@Override
 	public String toString() {
 		return "DocInvPositionBean [positionId=" + positionId + ", docInvId=" + docInvId + ", lgort=" + lgort
 				+ ", lgtyp=" + lgtyp + ", lgpla=" + lgpla + ", matnr=" + matnr + ", theoric=" + theoric + ", counted="
-				+ counted + ", diffCounted=" + diffCounted + ", flag=" + flag + ", zone=" + zone + ", meins=" + meins
-				+ ", explosion=" + explosion + "]";
+				+ counted + ", diffCounted=" + diffCounted + ", flag=" + flag + ", meins=" + meins + ", explosion="
+				+ explosion + ", gdes=" + gdes + ", lgtypDes=" + lgtypDes + ", matnrDes=" + matnrDes + "]";
 	}
-	public DocInvPositionBean() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+
 	public DocInvPositionBean(int positionId, int docInvId, int lgort, String lgtyp, String lgpla, String matnr,
-			String theoric, String counted, String diffCounted, String flag, ZoneBean zone, String meins,
-			String explosion) {
+			String theoric, String counted, String diffCounted, String flag, String meins, String explosion,
+			String gdes, String lgtypDes, String matnrDes) {
 		super();
 		this.positionId = positionId;
 		this.docInvId = docInvId;
@@ -40,9 +39,37 @@ public class DocInvPositionBean {
 		this.counted = counted;
 		this.diffCounted = diffCounted;
 		this.flag = flag;
-		this.zone = zone;
 		this.meins = meins;
 		this.explosion = explosion;
+		this.gdes = gdes;
+		this.lgtypDes = lgtypDes;
+		this.matnrDes = matnrDes;
+	}
+
+	public String getMatnrDes() {
+		return matnrDes;
+	}
+
+	public void setMatnrDes(String matnrDes) {
+		this.matnrDes = matnrDes;
+	}
+
+	public DocInvPositionBean() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	
+	public String getGdes() {
+		return gdes;
+	}
+	public void setGdes(String gdes) {
+		this.gdes = gdes;
+	}
+	public String getLgtypDes() {
+		return lgtypDes;
+	}
+	public void setLgtypDes(String lgtypDes) {
+		this.lgtypDes = lgtypDes;
 	}
 	public int getPositionId() {
 		return positionId;
@@ -103,12 +130,6 @@ public class DocInvPositionBean {
 	}
 	public void setFlag(String flag) {
 		this.flag = flag;
-	}
-	public ZoneBean getZone() {
-		return zone;
-	}
-	public void setZone(ZoneBean zone) {
-		this.zone = zone;
 	}
 	public String getMeins() {
 		return meins;

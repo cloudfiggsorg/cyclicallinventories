@@ -321,7 +321,7 @@ public class RouteDao{
 
 		List<RoutePositionBean> listPositions = new ArrayList<RoutePositionBean>();
 
-		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? AND RPO_STATUS = 1";
+		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 
 		log.info(INV_VW_ROUTES_WITH_POSITIONS);
 		log.info("[getPositionsDao] Preparing sentence...");
@@ -367,7 +367,7 @@ public class RouteDao{
 
 		List<RouteGroupBean> listGroups = new ArrayList<RouteGroupBean>();
 
-		String INV_VW_ROUTE_GROUPS = "SELECT PK_ASG_ID, GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ? AND RGR_STATUS = 1";
+		String INV_VW_ROUTE_GROUPS = "SELECT PK_ASG_ID, GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 
 		log.info(INV_VW_ROUTE_GROUPS);
 		log.info("[getGroupsDao] Preparing sentence...");
@@ -415,7 +415,7 @@ public class RouteDao{
 
 		return listGroups;
 	}
-
+	
 	private String buildCondition(RouteBean routeB) {
 		String routeId = "";
 		String bukrs = "";
@@ -442,6 +442,63 @@ public class RouteDao{
 		condition += type;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
+	}
+
+	public RouteBean getRoute(int i) {
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+
+		RouteBean routeBean = new RouteBean();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
+		String INV_VW_ROUTES = null;
+		
+		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES WITH(NOLOCK) WHERE ROUTE_ID = ?";
+		log.info(INV_VW_ROUTES);
+		log.info("[getRoutesDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_ROUTES);
+			stm.setInt(1, i);
+			log.info("[getRouteDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+				
+				routeBean.setRouteId(String.format("%08d",rs.getInt(1)));
+				routeBean.setBukrs(rs.getString(2));
+				routeBean.setWerks(rs.getString(3));
+				routeBean.setRdesc(rs.getString(4));
+				routeBean.setType(rs.getString(5));
+				routeBean.setBdesc(rs.getString(6));
+				routeBean.setWdesc(rs.getString(7));
+				routeBean.setPositions(this.getPositions(rs.getString(1)));
+				routeBean.setGroups(this.getGroups(rs.getString(1)));
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[getRouteDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getRouteDao] Some error occurred while was trying to execute the query: " + INV_VW_ROUTES, e);
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getRoutesDao] Some error occurred while was trying to close the connection.",e);
+			}
+		}
+		return routeBean;
 	}
 
 	
