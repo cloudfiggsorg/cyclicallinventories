@@ -1,5 +1,6 @@
 package com.gmodelo.workservice;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -8,6 +9,7 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.dao.DocInvDao;
 import com.gmodelo.dao.ToleranceDao;
 import com.gmodelo.utils.ReturnValues;
@@ -62,4 +64,41 @@ public class DocInvWorkService {
 		}
 		return new ToleranceDao().deleteTolerance(arrayIdDocInv);
 	}
+
+	public Response<List<DocInvBean>> getDocInv(Request request) {
+
+		log.info("[getDocInvWS] " + request.toString());
+		DocInvBean tb = null;
+		String searchFilter = null;
+		String req = request.getLsObject().toString().trim();
+		Response<List<DocInvBean>> res = new Response<List<DocInvBean>>();
+
+		if (!req.isEmpty()) {
+			try {
+				tb = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+				log.info("[getDocInvWS] Fue Objeto: " + tb);
+			} catch (JsonSyntaxException e) {
+				searchFilter = request.getLsObject().toString().trim();
+				log.info("[getDocInvWS] jsyn Intentando por String ");
+			}
+		} else {
+			searchFilter = "";
+			log.info("[getDocInvWS] Fue cadena vacía ");
+
+			try {
+				tb = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+			} catch (JsonSyntaxException e) {
+				log.log(Level.SEVERE, "[getDocInvWS] Error al pasar de Json a ZoneB");
+				tb = null;
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+			
+		}
+		return new DocInvDao().getDocInv(tb, searchFilter);
+	}
+
 }

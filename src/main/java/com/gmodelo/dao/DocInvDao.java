@@ -342,16 +342,6 @@ public class DocInvDao {
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
-	
-	public static void main(String args[]){
-		DocInvDao dao = new DocInvDao();
-		DocInvBean docInvBean = new DocInvBean();
-		String searchFilter = "";
-		Response<List<DocInvBean>> x = dao.getDocInv(docInvBean, searchFilter);
-		for(int i=0; i < x.getLsObject().size() ; i++){
-			System.out.println(x.getLsObject().get(i));
-			System.out.println("------------------------------------------------\n");
-		}
-	}
+
 
 }
