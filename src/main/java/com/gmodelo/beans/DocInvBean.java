@@ -1,22 +1,42 @@
 package com.gmodelo.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DocInvBean {
 	RouteBean route;
 	String bukrs;
+	String bukrsD;
 	String werks;
+	String werksD;
 	String type;
 	String createdBy;
 	String justification;
-	String docInvId;
+	int docInvId;
 	List<DocInvPositionBean> positions;
 	
 	public DocInvBean() {
 		super();
+		positions = new ArrayList<DocInvPositionBean>();
 		// TODO Auto-generated constructor stub
 	}
 	
+	public String getBukrsD() {
+		return bukrsD;
+	}
+
+	public void setBukrsD(String bukrsD) {
+		this.bukrsD = bukrsD;
+	}
+
+	public String getWerksD() {
+		return werksD;
+	}
+
+	public void setWerksD(String werksD) {
+		this.werksD = werksD;
+	}
+
 	public String getWerks() {
 		return werks;
 	}
@@ -55,10 +75,10 @@ public class DocInvBean {
 	public void setJustification(String justification) {
 		this.justification = justification;
 	}
-	public String getDocInvId() {
+	public int getDocInvId() {
 		return docInvId;
 	}
-	public void setDocInvId(String docInvId) {
+	public void setDocInvId(int docInvId) {
 		this.docInvId = docInvId;
 	}
 	

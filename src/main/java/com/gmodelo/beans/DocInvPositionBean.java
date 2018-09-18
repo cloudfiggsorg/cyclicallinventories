@@ -14,6 +14,7 @@ public class DocInvPositionBean {
 	ZoneBean zone;
 	String meins;
 	String explosion;
+	
 	@Override
 	public String toString() {
 		return "DocInvPositionBean [positionId=" + positionId + ", docInvId=" + docInvId + ", lgort=" + lgort

@@ -9,9 +9,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.bmore.ume001.beans.User;
+import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.workservice.DocInvWorkService;
+import com.gmodelo.workservice.ToleranceWorkService;
 
 public class DocInvService {
 	
@@ -22,9 +24,17 @@ public class DocInvService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addDocInv")
-	public Response<Object> addDocInv(Request request){
+	public Response<DocInvBean> addDocInv(Request request){
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new DocInvWorkService().addDocInv(request, user);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/deleteDocInv")
+	public Response<Object> deleteDocInv(Request request){
+		return new DocInvWorkService().deleteDocInv(request);
 	}
 
 }
