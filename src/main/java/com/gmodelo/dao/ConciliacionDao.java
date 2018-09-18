@@ -13,128 +13,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.DocInvBean;
-import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
-import com.gmodelo.beans.DocInvBean;
-import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.ConciliacionBean;
+import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.DocInvPositionBean;
-import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
-public class DocInvDao {
+public class ConciliacionDao {
 	
-	private Logger log = Logger.getLogger( DocInvDao.class.getName());
+	private Logger log = Logger.getLogger( ConciliacionDao.class.getName());
 	
-	public Response<DocInvBean> addDocInv(DocInvBean docInvBean, String createdBy){
-		Response<DocInvBean> res = new Response<>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
-		CallableStatement cs = null;
-		int docInvId = 0;
-				
-		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?";
-		
-		log.info("[addDocInv] Preparing sentence...");
-		try {
-			con.setAutoCommit(false);
-			cs = con.prepareCall(INV_SP_ADD_DOC_INVENTOY_HEADER);
-	
-			cs.setString(1,docInvBean.getRoute());
-			cs.setString(2,docInvBean.getBukrs());
-			cs.setString(3,docInvBean.getWerks());
-			cs.setString(4,createdBy);
-			cs.registerOutParameter(5, Types.INTEGER);
-			log.info("[addDocInv] Executing query...");
-			
-			cs.execute();
-			docInvId = cs.getInt(5);			
-			docInvBean.setDocInvId(docInvId);		
-	
-			//Retrive the warnings if there're
-			SQLWarning warning = cs.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING,warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-			con.commit();
-			cs.close();	
-			log.info("[addDocInv] Sentence successfully executed.");
-		} catch (SQLException e) {
-			try {
-				log.log(Level.WARNING,"[addDocInv] Execute rollback");
-				con.rollback();
-			} catch (SQLException e1) {
-				log.log(Level.SEVERE,"[addDocInv] Not rollback .", e);
-			}
-			log.log(Level.SEVERE,"[addDocInv] Some error occurred while was trying to execute the S.P.: "+ INV_SP_ADD_DOC_INVENTOY_HEADER, e);
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			res.setAbstractResult(abstractResult);
-			return res;
-		}finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[addDocInv] Some error occurred while was trying to close the connection.", e);
-			}
-		}
-		res.setAbstractResult(abstractResult);
-		res.setLsObject(docInvBean);
-		return res ;
-	}
-	
-	public Response<Object> deleteDocInvId(String arrayIdDocInv){
-		Response<Object> res = new Response<>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
-		CallableStatement cs = null;
-		final String INV_SP_DEL_DOC_INV = "INV_SP_DEL_DOC_INV ?";
-		
-		log.info("[deleteDocInvId] Preparing sentence...");
-		try {
-			cs = con.prepareCall(INV_SP_DEL_DOC_INV);
-			cs.setString(1,arrayIdDocInv);
-			log.info("[deleteDocInvId] Executing query...");
-			cs.execute();
-			//Retrive the warnings if there're
-			SQLWarning warning = cs.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING,"[deleteDocInvId] "+warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-			
-			cs.close();	
-			log.info("[deleteDocInvId] Sentence successfully executed.");
-			
-		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[deleteDocInvId] Some error occurred while was trying to execute the S.P.: "+INV_SP_DEL_DOC_INV, e);
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		}finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[deleteDocInvId] Some error occurred while was trying to close the connection.", e);
-			}
-		}
-		res.setAbstractResult(abstractResult);
-		return res ;
-	}
-
-	public Response<List<DocInvBean>> getDocInv(DocInvBean docInvBean, String searchFilter){
-		Response<List<DocInvBean>> res = new Response<>();
+	public Response<List<ConciliacionBean>> getConciliacion(ConciliacionBean docInvBean, String searchFilter){
+		Response<List<ConciliacionBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<DocInvBean> listDocInv = new ArrayList<DocInvBean>();
+		List<ConciliacionBean> listDocInv = new ArrayList<ConciliacionBean>();
 		int aux;		
 		String searchFilterNumber = "";
 		try {
@@ -162,7 +62,7 @@ public class DocInvDao {
 			log.info("[getDocInvDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
-				docInvBean = new DocInvBean();
+				docInvBean = new ConciliacionBean();
 				
 				RouteDao route = new RouteDao();
 				docInvBean.setRoute(rs.getString("ROUTE_ID"));
@@ -171,6 +71,8 @@ public class DocInvDao {
 				docInvBean.setBukrsD(rs.getString("BDESC"));
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
+				docInvBean.setJustification(rs.getString("JUSTIFICATION"));
+				docInvBean.setPositions(this.getPositions(rs.getString("DOC_INV_ID")));
 				listDocInv.add(docInvBean);
 			}
 			
@@ -205,12 +107,68 @@ public class DocInvDao {
 		return res ;
 	}
 	
-	private String buildCondition(DocInvBean docInvB){
+	private List<DocInvPositionBean> getPositions(String docInvId){
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		List<DocInvPositionBean> listPositions = new ArrayList<DocInvPositionBean>();
+		String INV_VW_DOC_INVENTORY_POSITIONS = "SELECT LGORT,LGTYP,LGPLA,MATNR,THEORIC,COUNTED,DIFF_COUNTED,DIFF_FLAG,DOC_INV_ID,LTYPT,GDES,MAKTX  FROM INV_VW_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+		log.info(INV_VW_DOC_INVENTORY_POSITIONS);
+		log.info("getPositionsDocInvDao] Preparing sentence...");
+		INV_VW_DOC_INVENTORY_POSITIONS += " GROUP BY LGORT,LGTYP,LGPLA,MATNR,THEORIC,COUNTED,DIFF_COUNTED,DIFF_FLAG,DOC_INV_ID,LTYPT,GDES,MAKTX";
+		try {
+			stm = con.prepareCall(INV_VW_DOC_INVENTORY_POSITIONS);
+			stm.setString(1, docInvId);
+			log.info("[getPositionsDocInvDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()){
+				DocInvPositionBean position = new DocInvPositionBean();
+				position.setDocInvId(Integer.parseInt(docInvId));
+				position.setLgort(rs.getInt("LGORT"));
+				position.setLgtyp(rs.getString("LGTYP"));
+				position.setLgpla(rs.getString("LGPLA"));
+				position.setMatnr(rs.getString("MATNR"));
+				position.setTheoric(rs.getString("THEORIC"));
+				position.setCounted(rs.getString("COUNTED"));
+				position.setDiffCounted(rs.getString("DIFF_COUNTED"));
+				position.setFlag(rs.getString("DIFF_FLAG"));
+				position.setLgtypDes(rs.getString("LTYPT"));
+				position.setGdes(rs.getString("GDES"));
+				position.setMatnrDes(rs.getString("MAKTX"));
+				listPositions.add(position);
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.info("[getPositionsDocInvDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getPositionsDocInvDao] Some error occurred while was trying to execute the query: "+INV_VW_DOC_INVENTORY_POSITIONS, e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getPositionsDocInvDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		return listPositions;
+	}
+	
+	private String buildCondition(ConciliacionBean docInvB){
 		String condition ="";
 		String DOC_INV_ID ="";
 		String ROUTE_ID ="";
 		String bukrs ="";
 		String werks ="";
+		String JUSTIFICATION = "";
 		
 		DOC_INV_ID = (docInvB.getDocInvId() != 0 ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "DOC_INV_ID LIKE '%" 	+ docInvB.getDocInvId() + "%' " : "");
 		condition+=DOC_INV_ID;
@@ -220,9 +178,11 @@ public class DocInvDao {
 		condition+=bukrs;
 		werks = (docInvB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS LIKE '%"		+ docInvB.getWerks() + "%' ": "");
 		condition+=werks;
+		JUSTIFICATION = (docInvB.getJustification() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "JUSTIFICATION LIKE '%"	+ docInvB.getJustification() + "%' ": "");
+		condition+=JUSTIFICATION;
+
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
-
 
 }
