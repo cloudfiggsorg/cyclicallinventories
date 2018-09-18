@@ -35,6 +35,7 @@ public class LagpDao {
 		if(searchFilter != null){
 			INV_VW_LAGP += "WHERE LGNUM LIKE '%"+searchFilter+"%' OR LGTYP LIKE '%"+searchFilter+"%' OR LGPLA LIKE '%"+searchFilter
 					+"%' OR LPTYP LIKE '%"+searchFilter+"%' OR SKZUA LIKE '%"+searchFilter+"%' OR SKZUE LIKE '%"+searchFilter+"%' ";
+						
 		}else{
 			String condition = buildCondition(lgplaBean);
 			if(condition != null){
@@ -97,6 +98,7 @@ public class LagpDao {
 	}
 	
 	private String buildCondition(LagpEntity lgplaB){
+				
 		String lgNum = "";
 		String lgTyp = "";
 		String lgPla = "";
