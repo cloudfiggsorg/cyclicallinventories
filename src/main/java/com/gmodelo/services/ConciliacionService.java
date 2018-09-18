@@ -12,14 +12,14 @@ import javax.ws.rs.core.MediaType;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.ConciliacionBean;
-import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ToleranceBean;
+import com.gmodelo.workservice.ConciliacionWorkService;
 import com.gmodelo.workservice.DocInvWorkService;
 import com.gmodelo.workservice.ToleranceWorkService;
 
-public class DocInvService {
+public class ConciliacionService {
 	
 	@Context
 	private HttpServletRequest httpRequest;
@@ -27,26 +27,9 @@ public class DocInvService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/addDocInv")
-	public Response<DocInvBean> addDocInv(Request request){
-		User user = (User) httpRequest.getSession().getAttribute("user");
-		return new DocInvWorkService().addDocInv(request, user);
-	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/deleteDocInv")
-	public Response<Object> deleteDocInv(Request request){
-		return new DocInvWorkService().deleteDocInv(request);
-	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getDocInv")
-	public Response<List<DocInvBean>> getDocInv(Request request){
-		return new DocInvWorkService().getDocInv(request);
+	@Path("/getConciliacion")
+	public Response<List<ConciliacionBean>> getConciliacion(Request request){
+		return new ConciliacionWorkService().getConciliacion(request);
 	}
 
 }
