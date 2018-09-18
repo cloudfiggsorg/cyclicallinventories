@@ -1,30 +1,35 @@
 package com.gmodelo.beans;
 
+import java.util.List;
+
 public class DocInvBean {
-	String routeId;
+	RouteBean route;
 	String bukrs;
+	String werks;
 	String type;
 	String createdBy;
 	String justification;
 	String docInvId;
+	List<DocInvPositionBean> positions;
+	
 	public DocInvBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public DocInvBean(String routeId, String bukrs, String type, String createdBy, String justification, String docInvId) {
-		super();
-		this.routeId = routeId;
-		this.bukrs = bukrs;
-		this.type = type;
-		this.createdBy = createdBy;
-		this.justification = justification;
-		this.docInvId = docInvId;
+	
+	public String getWerks() {
+		return werks;
 	}
-	public String getRouteId() {
-		return routeId;
+
+	public void setWerks(String werks) {
+		this.werks = werks;
 	}
-	public void setRouteId(String routeId) {
-		this.routeId = routeId;
+
+	public RouteBean getRoute() {
+		return route;
+	}
+	public void setRouteId(RouteBean route) {
+		this.route = route;
 	}
 	public String getBukrs() {
 		return bukrs;
@@ -56,11 +61,22 @@ public class DocInvBean {
 	public void setDocInvId(String docInvId) {
 		this.docInvId = docInvId;
 	}
+	
+	public List<DocInvPositionBean> getPositions() {
+		return positions;
+	}
+	public void setPositions(List<DocInvPositionBean> positions) {
+		this.positions = positions;
+	}
+	public void setRoute(RouteBean route) {
+		this.route = route;
+	}
+
 	@Override
 	public String toString() {
-		return "DocInvB [routeId=" + routeId + ", bukrs=" + bukrs + ", type=" + type + ", createdBy=" + createdBy
-				+ ", justification=" + justification + ", docInvId=" + docInvId + "]";
+		return "DocInvBean [route=" + route + ", bukrs=" + bukrs + ", werks=" + werks + ", type=" + type
+				+ ", createdBy=" + createdBy + ", justification=" + justification + ", docInvId=" + docInvId
+				+ ", positions=" + positions + "]";
 	}
 	
-
 }
