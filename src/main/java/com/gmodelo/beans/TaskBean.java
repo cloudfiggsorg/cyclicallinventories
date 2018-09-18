@@ -4,7 +4,7 @@ public class TaskBean {
 	
 	int taskId;
 	String groupId; 
-	int docInvId;
+	DocInvBean docInvId;
 	int count;
 	
 	public int getTaskId() {
@@ -19,10 +19,10 @@ public class TaskBean {
 	public void setGroupId(String groupId) {
 		this.groupId = groupId;
 	}
-	public int getDocInvId() {
+	public DocInvBean getDocInvId() {
 		return docInvId;
 	}
-	public void setDocInvId(int docInvId) {
+	public void setDocInvId(DocInvBean docInvId) {
 		this.docInvId = docInvId;
 	}
 	public int getCount() {
@@ -32,7 +32,7 @@ public class TaskBean {
 		this.count = count;
 	}
 	
-	public TaskBean(int taskId, String groupId, int docInvId, int count) {
+	public TaskBean(int taskId, String groupId, DocInvBean docInvId, int count) {
 		super();
 		this.taskId = taskId;
 		this.groupId = groupId;

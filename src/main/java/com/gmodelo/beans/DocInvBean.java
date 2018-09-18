@@ -63,4 +63,23 @@ public class DocInvBean {
 	public void setDocInvId(int docInvId) {
 		this.docInvId = docInvId;
 	}
+
+	public DocInvBean(String route, String bukrs, String bukrsD, String werks, String werksD, String createdBy,
+			int docInvId) {
+		super();
+		this.route = route;
+		this.bukrs = bukrs;
+		this.bukrsD = bukrsD;
+		this.werks = werks;
+		this.werksD = werksD;
+		this.createdBy = createdBy;
+		this.docInvId = docInvId;
+	}
+
+	@Override
+	public String toString() {
+		return "DocInvBean [route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD + ", werks=" + werks
+				+ ", werksD=" + werksD + ", createdBy=" + createdBy + ", docInvId=" + docInvId + "]";
+	}
+	
 }

@@ -118,7 +118,7 @@ public class ToleranceWorkService {
 			try {
 				tb = gson.fromJson(gson.toJson(request.getLsObject()), ToleranceBean.class);
 			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE, "[getTolerancesWS] Error al pasar de Json a ZoneB");
+				log.log(Level.SEVERE, "[getTolerancesWS] Error al pasar de Json a TaskB");
 				tb = null;
 				AbstractResultsBean abstractResult = new AbstractResultsBean();
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);

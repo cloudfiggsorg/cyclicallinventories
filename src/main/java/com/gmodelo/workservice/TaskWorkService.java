@@ -1,5 +1,6 @@
 package com.gmodelo.workservice;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -8,7 +9,9 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
+import com.gmodelo.beans.TaskBean;
 import com.gmodelo.dao.TaskDao;
+import com.gmodelo.dao.ToleranceDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -58,6 +61,42 @@ public class TaskWorkService {
 			return res;
 		}
 		return new TaskDao().deleteTask(arrayIdTask);
+	}
+	
+	public Response<List<TaskBean>> getTasks(Request request) {
+
+		log.info("getTasksWS] " + request.toString());
+		TaskBean tb = null;
+		String searchFilter = null;
+		String req = request.getLsObject().toString().trim();
+		Response<List<TaskBean>> res = new Response<List<TaskBean>>();
+
+		if (!req.isEmpty()) {
+			try {
+				tb = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
+				log.info("[getTasksWS] Fue Objeto: " + tb);
+			} catch (JsonSyntaxException e) {
+				searchFilter = request.getLsObject().toString().trim();
+				log.info("[getTasksWS] jsyn Intentando por String ");
+			}
+		} else {
+			searchFilter = "";
+			log.info("[getTasksWS] Fue cadena vacía ");
+
+			try {
+				tb = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
+			} catch (JsonSyntaxException e) {
+				log.log(Level.SEVERE, "[getTasksWS] Error al pasar de Json a TaskB");
+				tb = null;
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+			
+		}
+		return new TaskDao().getTasks(tb, searchFilter);
 	}
 
 
