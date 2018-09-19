@@ -312,6 +312,94 @@ public class RouteDao{
 		res.setLsObject(listRoutesBean);
 		return res;
 	}
+	
+	public Response<List<RouteBean>> getOnlyRoutes(RouteBean routeBean, String searchFilter) {
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+
+		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
+		String INV_VW_ROUTES = null;
+		int aux;		
+		String searchFilterNumber = "";
+		
+		try {
+			aux = Integer.parseInt(searchFilter); 
+			searchFilterNumber += aux;
+		} catch (Exception e) {
+			searchFilterNumber = searchFilter;
+			log.info("[getRoutesDao] Trying to convert String to Int");
+		}		
+
+		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
+
+		if (searchFilter != null) {
+			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter + "%'";
+		} else {
+			String condition = buildCondition(routeBean);
+			if (condition != null) {
+				INV_VW_ROUTES += condition;
+			}
+		}
+		log.info(INV_VW_ROUTES);
+		log.info("[getRoutesDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_ROUTES);
+
+			log.info("[getRoutesDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+				
+				routeBean = new RouteBean();
+				routeBean.setRouteId(String.format("%08d",rs.getInt(1)));
+				routeBean.setBukrs(rs.getString(2));
+				routeBean.setWerks(rs.getString(3));
+				routeBean.setRdesc(rs.getString(4));
+				routeBean.setType(rs.getString(5));
+				routeBean.setBdesc(rs.getString(6));
+				routeBean.setWdesc(rs.getString(7));
+				
+				routeBean.setPositions(null);
+				routeBean.setGroups(null);
+
+				listRoutesBean.add(routeBean);
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[getRoutesDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getRoutesDao] Some error occurred while was trying to execute the query: " + INV_VW_ROUTES, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getRoutesDao] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listRoutesBean);
+		return res;
+	}
 
 	public List<RoutePositionBean> getPositions(String idRoute) throws SQLException {
 

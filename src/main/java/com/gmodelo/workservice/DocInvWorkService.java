@@ -7,10 +7,8 @@ import java.util.logging.Logger;
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
-import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.gmodelo.dao.ConciliacionDao;
 import com.gmodelo.dao.DocInvDao;
 import com.gmodelo.dao.ToleranceDao;
 import com.gmodelo.utils.ReturnValues;
@@ -86,18 +84,6 @@ public class DocInvWorkService {
 			searchFilter = "";
 			log.info("[getDocInvWS] Fue cadena vacía ");
 
-			try {
-				tb = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
-			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE, "[getDocInvWS] Error al pasar de Json a ZoneB");
-				tb = null;
-				AbstractResultsBean abstractResult = new AbstractResultsBean();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-			
 		}
 		return new DocInvDao().getDocInv(tb, searchFilter);
 	}

@@ -84,6 +84,28 @@ public class RouteWorkService {
 
 		return new RouteDao().getRoutes(routeBean, searchFilter);
 	}
+	
+	public Response<List<RouteBean>> getOnlyRoutes(Request request) {
+		log.info("[getRoutesService] " + request.toString());
+		RouteBean routeBean = null;
+		String searchFilter = null;
+		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
+		String req = request.getLsObject().toString().trim();
+		if (!req.isEmpty()) {
+			try {
+				routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteBean.class);
+
+				log.info("Fue objeto");
+			} catch (JsonSyntaxException e) {
+				searchFilter = request.getLsObject().toString();
+				log.info("Fue cadena");
+			}
+		} else {
+			searchFilter = "";
+		}
+
+		return new RouteDao().getRoutes(routeBean, searchFilter);
+	}
 
 	public String getRoutesByUser(User user, HttpSession userSession) {
 

@@ -48,6 +48,14 @@ public class RouteService {
 	public Response<List<RouteBean>> getRoutes(Request request) {
 		return new RouteWorkService().getRoutes(request);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getOnlyRoutes")
+	public Response<List<RouteBean>> getOnlyRoutes(Request request) {
+		return new RouteWorkService().getOnlyRoutes(request);
+	}
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

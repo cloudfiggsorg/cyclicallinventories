@@ -11,14 +11,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.bmore.ume001.beans.User;
-import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.ToleranceBean;
 import com.gmodelo.workservice.DocInvWorkService;
-import com.gmodelo.workservice.ToleranceWorkService;
 
+@Path("/services/DocInvService")
 public class DocInvService {
 	
 	@Context

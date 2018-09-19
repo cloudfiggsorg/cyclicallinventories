@@ -14,14 +14,7 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
-import com.gmodelo.beans.DocInvBean;
-import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.RouteBean;
-import com.gmodelo.beans.DocInvBean;
-import com.gmodelo.beans.DocInvBean;
-import com.gmodelo.beans.DocInvPositionBean;
-import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -142,11 +135,11 @@ public class DocInvDao {
 			searchFilterNumber += aux;
 		} catch (Exception e) {
 			searchFilterNumber = searchFilter;
-			log.info("Trying to convert String to Int");
+			log.info("Is String");
 		}
 		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)";
 		if(searchFilter != null){
-			INV_VW_DOC_INV += " WHERE DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"+searchFilter+"%' ";
+			INV_VW_DOC_INV += " WHERE DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"+searchFilterNumber+ "%' OR BDESC LIKE '%"+searchFilterNumber+"%' "+ " OR WERKSD LIKE '%"+searchFilterNumber+"%' ";
 		}else{
 			String condition = buildCondition(docInvBean);
 			if(condition != null){
@@ -164,7 +157,6 @@ public class DocInvDao {
 			while (rs.next()){
 				docInvBean = new DocInvBean();
 				
-				RouteDao route = new RouteDao();
 				docInvBean.setRoute(rs.getString("ROUTE_ID"));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
