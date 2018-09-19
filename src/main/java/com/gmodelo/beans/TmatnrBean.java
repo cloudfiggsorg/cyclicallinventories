@@ -4,15 +4,15 @@ public class TmatnrBean {
 	
 	String matnr;
 	String descM;
+	String typ_mat;
+	String den_typ_mat;
+	
 	public String getDescM() {
 		return descM;
 	}
 	public void setDescM(String maktx) {
 		this.descM = maktx;
-	}
-	String typ_mat;
-	String den_typ_mat;
-	
+	}	
 	public String getMatnr() {
 		return matnr;
 	}
