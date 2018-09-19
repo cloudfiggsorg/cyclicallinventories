@@ -61,7 +61,7 @@ public class ZoneDao {
 			
 			cs.execute();
 						
-			zoneBean.setZoneId(cs.getString(1));
+			zoneBean.setZoneId(String.format("%08d", cs.getInt(1))); // addZeroscs
 			
 			//Eliminar posiciones
 			String ids = "";
