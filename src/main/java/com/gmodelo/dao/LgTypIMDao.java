@@ -16,8 +16,6 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LgTypIM;
 import com.gmodelo.beans.LgplaIM;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.RouteBean;
-import com.gmodelo.beans.RoutePositionBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -25,7 +23,7 @@ public class LgTypIMDao {
 	
 	private Logger log = Logger.getLogger(LgTypIMDao.class.getName());
 
-	public Response<LgTypIM> addRoute(LgTypIM lgTypIM, String createdBy) {
+	public Response<LgTypIM> saveLgTypIM(LgTypIM lgTypIM, String createdBy) {
 		Response<LgTypIM> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
@@ -131,7 +129,7 @@ public class LgTypIMDao {
 		return res;
 	}
 	
-	public Response<List<LgTypIM>> getRoutes(LgTypIM lgTypIM, String searchFilter) {
+	public Response<List<LgTypIM>> getLgTypsIM(LgTypIM lgTypIM, String searchFilter) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
@@ -255,7 +253,7 @@ public class LgTypIMDao {
 		return listPositions;
 	}
 	
-	public Response<Object> deleteLgTyp(String arrayToDelete) {
+	public Response<Object> deleteLgTypIM(String arrayToDelete) {
 		
 		log.info("[deleteLgTyp] "+ arrayToDelete);
 
