@@ -5,25 +5,25 @@ import java.util.List;
 
 public class LgTypIM {
 
-	private String lgTyp;
-	private String ltypt;
-	private String bukrs;
-	private String bDesc;
-	private String werks;
-	private String wDesc;
-	private String lgort;
-	private String gDesc;
-	private String lgnum;
-	private List<LgTypIM> lsLgPla;
+	private String lgTyp; //The hold type
+	private String ltypt; //The hold description
+	private String bukrs; //The society Id
+	private String bDesc; //The society description
+	private String werks; //The werks Id	
+	private String wDesc; //The werks description
+	private String lgort; //The warehouse Id
+	private String gDesc; //The warehouse description
+	private String lgnum; //The lgnum
+	private List<LgplaIM> lsLgPla; //The location positions
 	
 	public LgTypIM(){
 		
 		super();
-		this.lsLgPla = new ArrayList<LgTypIM>();
+		this.lsLgPla = new ArrayList<LgplaIM>();
 	}
 	
 	public LgTypIM(String lgTyp, String ltypt, String bukrs, String bDesc, String werks, String wDesc, String lgort,
-			String gDesc, String lgnum, ArrayList<LgTypIM> lsLgPla) {
+			String gDesc, String lgnum, ArrayList<LgplaIM> lsLgPla) {
 		super();
 		this.lgTyp = lgTyp;
 		this.ltypt = ltypt;
@@ -98,10 +98,10 @@ public class LgTypIM {
 	public void setLgnum(String lgnum) {
 		this.lgnum = lgnum;
 	}
-	public List<LgTypIM> getLsLgPla() {
+	public List<LgplaIM> getLsLgPla() {
 		return lsLgPla;
 	}
-	public void setLsLgPla(List<LgTypIM> lsLgPla) {
+	public void setLsLgPla(List<LgplaIM> lsLgPla) {
 		this.lsLgPla = lsLgPla;
 	}
 		
