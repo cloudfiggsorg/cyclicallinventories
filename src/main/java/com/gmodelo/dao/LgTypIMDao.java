@@ -14,8 +14,10 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LgTypIM;
+import com.gmodelo.beans.LgplaIM;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
+import com.gmodelo.beans.RoutePositionBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -129,111 +131,227 @@ public class LgTypIMDao {
 		return res;
 	}
 	
-//	public Response<List<LgTypIM>> getRoutes(LgTypIM lgTypIM, String searchFilter) {
-//		ConnectionManager iConnectionManager = new ConnectionManager();
-//		Connection con = iConnectionManager.createConnection();
-//		PreparedStatement stm = null;
-//
-//		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
-//		AbstractResultsBean abstractResult = new AbstractResultsBean();
-//		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
-//		String INV_VW_ROUTES = null;
-//		int aux;		
-//
-//		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
-//
-//		if (searchFilter != null) {
-//			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilter + "%' OR RDESC LIKE '%" + searchFilter + "%'";
-//		} else {
-//			String condition = buildCondition(lgTypIM);
-//			if (condition != null) {
-//				INV_VW_ROUTES += condition;
-//			}
-//		}
-//		log.info(INV_VW_ROUTES);
-//		log.info("[getRoutesDao] Preparing sentence...");
-//		try {
-//			stm = con.prepareStatement(INV_VW_ROUTES);
-//
-//			log.info("[getRoutesDao] Executing query...");
-//
-//			ResultSet rs = stm.executeQuery();
-//
-//			while (rs.next()) {
-//				
-//				routeBean = new RouteBean();
-//				routeBean.setRouteId(String.format("%08d",rs.getInt(1)));
-//				routeBean.setBukrs(rs.getString(2));
-//				routeBean.setWerks(rs.getString(3));
-//				routeBean.setRdesc(rs.getString(4));
-//				routeBean.setType(rs.getString(5));
-//				routeBean.setBdesc(rs.getString(6));
-//				routeBean.setWdesc(rs.getString(7));
-//				
-//				routeBean.setPositions(this.getPositions(rs.getString(1)));
-//				routeBean.setGroups(this.getGroups(rs.getString(1)));
-//
-//				listRoutesBean.add(routeBean);
-//			}
-//
-//			// Retrive the warnings if there're
-//			SQLWarning warning = stm.getWarnings();
-//			while (warning != null) {
-//				log.log(Level.WARNING, warning.getMessage());
-//				warning = warning.getNextWarning();
-//			}
-//
-//			// Free resources
-//			rs.close();
-//			stm.close();
-//			log.info("[getRoutesDao] Sentence successfully executed.");
-//		} catch (SQLException e) {
-//			log.log(Level.SEVERE,
-//					"[getRoutesDao] Some error occurred while was trying to execute the query: " + INV_VW_ROUTES, e);
-//			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-//			abstractResult.setResultMsgAbs(e.getMessage());
-//			res.setAbstractResult(abstractResult);
-//			return res;
-//		} finally {
-//			try {
-//				con.close();
-//			} catch (SQLException e) {
-//				log.log(Level.SEVERE, "[getRoutesDao] Some error occurred while was trying to close the connection.",
-//						e);
-//			}
-//		}
-//
-//		res.setAbstractResult(abstractResult);
-//		res.setLsObject(listRoutesBean);
-//		return res;
-//	}
+	public Response<List<LgTypIM>> getRoutes(LgTypIM lgTypIM, String searchFilter) {
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+
+		Response<List<LgTypIM>> res = new Response<List<LgTypIM>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<LgTypIM> listLgTypIM = new ArrayList<LgTypIM>();
+		String INV_VW_LGTYPE_IM = null;
+		LgTypIM lgTypIMAux;
+
+		INV_VW_LGTYPE_IM = "SELECT LGTYP_ID, LGT_LTYPT, LGT_BUKRS, BUTXT, LGT_WERKS, NAME1, LGT_LGORT, LGOBE, LGT_LGNUM, LGT_STATUS FROM dbo.INV_VW_LGTYPE_IM WITH(NOLOCK) ";
+
+		if (searchFilter != null) {
+			INV_VW_LGTYPE_IM += "WHERE LGTYP_ID LIKE '%" + searchFilter + "%' OR LGT_LTYPT LIKE '%" + searchFilter + "%'";
+		} else {
+			String condition = buildCondition(lgTypIM);
+			if (condition != null) {
+				INV_VW_LGTYPE_IM += condition;
+			}
+		}
+		log.info(INV_VW_LGTYPE_IM);
+		log.info("[getRoutesDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_LGTYPE_IM);
+
+			log.info("[getRoutesDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+				
+				lgTypIMAux = new LgTypIM();
+				lgTypIMAux.setLgTyp(rs.getString(1));
+				lgTypIMAux.setLtypt(rs.getString(2));
+				lgTypIMAux.setBukrs(rs.getString(3));
+				lgTypIMAux.setbDesc(rs.getString(4));
+				lgTypIMAux.setWerks(rs.getString(5));
+				lgTypIMAux.setwDesc(rs.getString(6));
+				lgTypIMAux.setLgort(rs.getString(7));
+				lgTypIMAux.setgDesc(rs.getString(8));
+				lgTypIMAux.setLgnum(rs.getString(9));								
+				lgTypIMAux.setLsLgPla(this.getPositions(rs.getString(1)));
+
+				listLgTypIM.add(lgTypIMAux);
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[getRoutesDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getRoutesDao] Some error occurred while was trying to execute the query: " + INV_VW_LGTYPE_IM, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getRoutesDao] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listLgTypIM);
+		return res;
+	}
 	
-//	private String buildCondition(LgTypIM lgTypIM) {
-//		String routeId = "";
-//		String bukrs = "";
-//		String werks = "";
-//		String rdesc = "";
-//		String type = "";
-//		String condition = "";
-//		
-//		routeId = (routeB.getRouteId() != null)
-//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + routeB.getRouteId().replaceFirst("^0*", "") + "' "
-//				: "";
-//		condition += routeId;
-//		bukrs = (routeB.getBukrs() != null)
-//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS = '" + routeB.getBukrs() + "' " : "";
-//		condition += bukrs;
-//		werks = (routeB.getWerks() != null)
-//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + routeB.getWerks() + "' " : "";
-//		condition += werks;
-//		rdesc = (routeB.getRdesc() != null)
-//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + routeB.getRdesc() + "' " : "";
-//		condition += rdesc;
-//		type = (routeB.getType() != null)
-//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TYPE = '" + routeB.getType() + "' " : "";
-//		condition += type;
-//		condition = condition.isEmpty() ? null : condition;
-//		return condition;
-//	}
+	public List<LgplaIM> getPositions(String lgtyp) throws SQLException {
+
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+
+		List<LgplaIM> listPositions = new ArrayList<LgplaIM>();
+
+		String INV_VW_LGPLA_IM = "SELECT LGPLA_ID, LGP_DESC, LGP_STATUS FROM dbo.INV_VW_LGPLA_IM WITH(NOLOCK) WHERE LGTYP_ID = ?";
+
+		log.info(INV_VW_LGPLA_IM);
+		log.info("[getPositionsDao] Preparing sentence...");
+
+		stm = con.prepareStatement(INV_VW_LGPLA_IM);
+		stm.setString(1, lgtyp);
+		log.info("[getPositionsDao] Executing query...");
+
+		ResultSet rs = stm.executeQuery();
+
+		while (rs.next()) {
+			
+			LgplaIM position = new LgplaIM();
+			position.setGltypId(lgtyp);
+			position.setLgPlaId(rs.getInt(1));
+			position.setDescription(rs.getString(2));
+			position.setStatus(rs.getBoolean(3));
+			listPositions.add(position);
+		}
+
+		// Retrive the warnings if there're
+		SQLWarning warning = stm.getWarnings();
+		while (warning != null) {
+			log.log(Level.WARNING, warning.getMessage());
+			warning = warning.getNextWarning();
+		}
+
+		// Free resources
+		rs.close();
+		stm.close();
+		log.info("[getPositionsDao] Sentence successfully executed.");
+		con.close();
+
+		return listPositions;
+	}
+	
+	public Response<Object> deleteLgTyp(String arrayToDelete) {
+		
+		log.info("[deleteLgTyp] "+ arrayToDelete);
+
+		Response<Object> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		CallableStatement cs = null;
+
+		final String INV_SP_DEL_LGTYPE_IM = "INV_SP_DEL_LGTYPE_IM ?";
+
+		log.info("[deleteLgTyp] Preparing sentence...");
+
+		try {
+			cs = con.prepareCall(INV_SP_DEL_LGTYPE_IM);
+			cs.setString(1, arrayToDelete);
+			log.info("[deleteLgTyp] Executing query...");
+
+			cs.execute();
+
+			abstractResult.setResultId(1);
+
+			// Retrive the warnings if there're
+			SQLWarning warning = cs.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, "[deleteLgTyp] " + warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			cs.close();
+
+			log.info("[deleteLgTyp] Sentence successfully executed.");
+
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[deleteLgTyp] Some error occurred while was trying to execute the S.P.: " + INV_SP_DEL_LGTYPE_IM,
+					e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[deleteRouteDao] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		return res;
+	}
+	
+	private String buildCondition(LgTypIM lgTypIM) {
+		
+		String lgTyp; //The hold type
+		String ltypt; //The hold description
+		String bukrs; //The society Id
+		String bDesc; //The society description
+		String werks; //The werks Id	
+		String wDesc; //The werks description
+		String lgort; //The warehouse Id
+		String gDesc; //The warehouse description
+		String lgnum; //The lgnum
+		String condition = "";
+		
+		lgTyp = (lgTypIM.getLgTyp() != null)? 
+				(condition.contains("WHERE") ? " AND " : " WHERE ") + " LGTYP_ID = '" + lgTypIM.getLgTyp() + "' "	: "";
+		condition += lgTyp;
+		ltypt = (lgTypIM.getLtypt() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_LTYPT LIKE '%" + lgTypIM.getLtypt() + "%' " : "";
+		condition += ltypt;
+		bukrs = (lgTypIM.getBukrs() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_BUKRS = '" + lgTypIM.getBukrs() + "' " : "";
+		condition += bukrs;
+		bDesc = (lgTypIM.getbDesc() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUTXT LIKE '%" + lgTypIM.getbDesc() + "%' " : "";
+		condition += bDesc;
+		werks = (lgTypIM.getWerks() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + lgTypIM.getWerks() + "' " : "";
+		condition += werks;
+		wDesc = (lgTypIM.getwDesc() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " NAME1 LIKE '%" + lgTypIM.getwDesc() + "%' " : "";
+		condition += wDesc;		
+		lgort = (lgTypIM.getLgort() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_LGORT = '" + lgTypIM.getLgort() + "' " : "";
+		condition += lgort;
+		gDesc = (lgTypIM.getgDesc() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGOBE LIKE '%" + lgTypIM.getgDesc() + "%' " : "";
+		condition += gDesc;		
+		lgnum = (lgTypIM.getLgnum() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_LGNUM = '" + lgTypIM.getLgnum() + "' " : "";
+		condition += lgnum;
+		condition = condition.isEmpty() ? null : condition;
+		return condition;
+	}
 
 }

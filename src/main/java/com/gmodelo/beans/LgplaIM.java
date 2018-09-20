@@ -7,6 +7,10 @@ public class LgplaIM {
 	private String description; //The description
 	private boolean status; // The status
 	
+	public LgplaIM(){
+		super();
+	}
+	
 	public LgplaIM(int lgPlaId, String gltypId, String description, boolean status) {
 		
 		super();
