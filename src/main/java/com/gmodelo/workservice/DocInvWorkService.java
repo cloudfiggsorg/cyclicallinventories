@@ -61,7 +61,7 @@ public class DocInvWorkService {
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-		return new ToleranceDao().deleteTolerance(arrayIdDocInv);
+		return new DocInvDao().deleteDocInvId(arrayIdDocInv);
 	}
 
 	public Response<List<DocInvBean>> getDocInv(Request request) {

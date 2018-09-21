@@ -6,6 +6,7 @@ public class DocInvBean {
 	String bukrsD;
 	String werks;
 	String werksD;
+	String type;
 	String createdBy;
 	int docInvId;
 
@@ -36,6 +37,14 @@ public class DocInvBean {
 	public void setWerksD(String werksD) {
 		this.werksD = werksD;
 	}
+	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 
 	public String getWerks() {
 		return werks;
@@ -64,14 +73,15 @@ public class DocInvBean {
 		this.docInvId = docInvId;
 	}
 
-	public DocInvBean(String route, String bukrs, String bukrsD, String werks, String werksD, String createdBy,
-			int docInvId) {
+	public DocInvBean(String route, String bukrs, String bukrsD, String werks, String werksD, String type,
+			String createdBy, int docInvId) {
 		super();
 		this.route = route;
 		this.bukrs = bukrs;
 		this.bukrsD = bukrsD;
 		this.werks = werks;
 		this.werksD = werksD;
+		this.type = type;
 		this.createdBy = createdBy;
 		this.docInvId = docInvId;
 	}
@@ -79,7 +89,9 @@ public class DocInvBean {
 	@Override
 	public String toString() {
 		return "DocInvBean [route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD + ", werks=" + werks
-				+ ", werksD=" + werksD + ", createdBy=" + createdBy + ", docInvId=" + docInvId + "]";
+				+ ", werksD=" + werksD + ", type=" + type + ", createdBy=" + createdBy + ", docInvId=" + docInvId + "]";
 	}
+
+	
 	
 }
