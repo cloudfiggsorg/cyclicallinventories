@@ -11,7 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.bmore.ume001.beans.User;
-import com.gmodelo.beans.LgTypIM;
+import com.gmodelo.beans.LgTypIMBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.workservice.LgTypIMWorkService;
@@ -26,7 +26,7 @@ public class LgTypIMService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/saveLgTypIM")
-	public Response<LgTypIM> addZone(Request request){
+	public Response<LgTypIMBean> addZone(Request request){
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new LgTypIMWorkService().saveLgTypIM(request, user);
 	}
@@ -35,7 +35,7 @@ public class LgTypIMService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getLgTypsIM")
-	public Response<List<LgTypIM>> getLgTypsIM(Request request){
+	public Response<List<LgTypIMBean>> getLgTypsIM(Request request){
 		return new LgTypIMWorkService().getLgTypsIM(request);
 	}
 	

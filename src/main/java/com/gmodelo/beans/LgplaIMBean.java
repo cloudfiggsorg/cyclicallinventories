@@ -1,17 +1,17 @@
 package com.gmodelo.beans;
 
-public class LgplaIM {
+public class LgplaIMBean {
 	
 	private int lgPlaId; //The lgpla id
 	private String gltypId; // The lgtype id
 	private String description; //The description
 	private boolean status; // The status
 	
-	public LgplaIM(){
+	public LgplaIMBean(){
 		super();
 	}
 	
-	public LgplaIM(int lgPlaId, String gltypId, String description, boolean status) {
+	public LgplaIMBean(int lgPlaId, String gltypId, String description, boolean status) {
 		
 		super();
 		this.lgPlaId = lgPlaId;

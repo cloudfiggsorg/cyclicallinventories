@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.LgTypIM;
+import com.gmodelo.beans.LgTypIMBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.LgTypIMDao;
@@ -18,17 +18,17 @@ public class LgTypIMWorkService {
 	private Logger log = Logger.getLogger(LgTypIMWorkService.class.getName());
 	Gson gson = new Gson();
 
-	public Response<LgTypIM> saveLgTypIM(Request request, User user) {
+	public Response<LgTypIMBean> saveLgTypIM(Request request, User user) {
 		
 		log.info("[addLgTypWS] " + request.toString());
-		LgTypIM lgTypIM;
-		Response<LgTypIM> res = new Response<LgTypIM>();
+		LgTypIMBean lgTypIMBean;
+		Response<LgTypIMBean> res = new Response<LgTypIMBean>();
 		
 		try {								
-			lgTypIM = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIM.class);
+			lgTypIMBean = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIMBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE, "[addLgTypWS] Error al pasar de Json a RouteBean");
-			lgTypIM = null;
+			lgTypIMBean = null;
 			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
@@ -36,21 +36,21 @@ public class LgTypIMWorkService {
 			return res;
 		}
 
-		return new LgTypIMDao().saveLgTypIM(lgTypIM, user.getEntity().getIdentyId());
+		return new LgTypIMDao().saveLgTypIM(lgTypIMBean, user.getEntity().getIdentyId());
 
 	}
 	
-	public Response<List<LgTypIM>> getLgTypsIM(Request request) {
+	public Response<List<LgTypIMBean>> getLgTypsIM(Request request) {
 		
 		log.info("[getLgTypIMService] " + request.toString());
-		LgTypIM lgTypIM = null;
+		LgTypIMBean lgTypIMBean = null;
 		String searchFilter = null;
-		Response<List<LgTypIM>> res = new Response<List<LgTypIM>>();
+		Response<List<LgTypIMBean>> res = new Response<List<LgTypIMBean>>();
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
 			try {
 				
-				lgTypIM = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIM.class);
+				lgTypIMBean = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIMBean.class);
 
 				log.info("Fue objeto");
 			} catch (JsonSyntaxException e) {
@@ -61,7 +61,7 @@ public class LgTypIMWorkService {
 			searchFilter = "";
 		}
 
-		return new LgTypIMDao().getLgTypsIM(lgTypIM, searchFilter);
+		return new LgTypIMDao().getLgTypsIM(lgTypIMBean, searchFilter);
 	}
 
 	public Response<Object> deleteLgTypsIM(Request request) {

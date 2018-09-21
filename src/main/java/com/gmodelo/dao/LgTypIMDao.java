@@ -13,8 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.LgTypIM;
-import com.gmodelo.beans.LgplaIM;
+import com.gmodelo.beans.LgTypIMBean;
+import com.gmodelo.beans.LgplaIMBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -23,8 +23,8 @@ public class LgTypIMDao {
 	
 	private Logger log = Logger.getLogger(LgTypIMDao.class.getName());
 
-	public Response<LgTypIM> saveLgTypIM(LgTypIM lgTypIM, String createdBy) {
-		Response<LgTypIM> res = new Response<>();
+	public Response<LgTypIMBean> saveLgTypIM(LgTypIMBean lgTypIMBean, String createdBy) {
+		Response<LgTypIMBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		final String INV_SP_ADD_LGTYPE_IM = "INV_SP_ADD_LGTYPE_IM ?, ?, ?, ?, ?, ?, ?"; 		
@@ -43,51 +43,51 @@ public class LgTypIMDao {
 			// ADD ROUTE
 			
 			cs = con.prepareCall(INV_SP_ADD_LGTYPE_IM);
-			cs.setString(1, lgTypIM.getLgTyp());
-			cs.setString(2, lgTypIM.getLtypt());
-			cs.setString(3, lgTypIM.getBukrs());
-			cs.setString(4, lgTypIM.getWerks());
-			cs.setString(5, lgTypIM.getLgort());
-			cs.setString(6, lgTypIM.getLgnum());
+			cs.setString(1, lgTypIMBean.getLgTyp());
+			cs.setString(2, lgTypIMBean.getLtypt());
+			cs.setString(3, lgTypIMBean.getBukrs());
+			cs.setString(4, lgTypIMBean.getWerks());
+			cs.setString(5, lgTypIMBean.getLgort());
+			cs.setString(6, lgTypIMBean.getLgnum());
 			cs.setString(7, createdBy);
 			cs.registerOutParameter(1, Types.INTEGER);
 
 			log.info("[addLGTYP] Executing query...");
 			cs.execute();
 			
-			lgTypIM.setLgTyp(cs.getString(1));
+			lgTypIMBean.setLgTyp(cs.getString(1));
 			
 			//Eliminar posiciones
 			String ids = "";
-			for (int i = 0; i < lgTypIM.getLsLgPla().size(); i++) {
+			for (int i = 0; i < lgTypIMBean.getLsLgPla().size(); i++) {
 								
-				if(lgTypIM.getLsLgPla().get(i).getLgPlaId() > 0){
-					ids += lgTypIM.getLsLgPla().get(i).getLgPlaId() + ",";
+				if(lgTypIMBean.getLsLgPla().get(i).getLgPlaId() > 0){
+					ids += lgTypIMBean.getLsLgPla().get(i).getLgPlaId() + ",";
 				}				
 			}
 												
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_LGPLA_IM);
-			cs.setString(1, lgTypIM.getLgTyp());
+			cs.setString(1, lgTypIMBean.getLgTyp());
 			cs.setString(2, ids);
 			cs.execute();
 			
 			// INSERTAR POSICIONES
-			for (int i = 0; i < lgTypIM.getLsLgPla().size(); i++) {
+			for (int i = 0; i < lgTypIMBean.getLsLgPla().size(); i++) {
 				
 				cs = null;
 				log.info("[addLGTYPPosition] Preparing sentence...");
 				cs = con.prepareCall(INV_SP_ADD_LGPLA_IM);
-				cs.setInt(1, lgTypIM.getLsLgPla().get(i).getLgPlaId());
-				cs.setString(2, lgTypIM.getLsLgPla().get(i).getGltypId());
-				cs.setString(3, lgTypIM.getLsLgPla().get(i).getDescription());
-				cs.setByte(4, (byte) (lgTypIM.getLsLgPla().get(i).isStatus()? 1 : 0));
+				cs.setInt(1, lgTypIMBean.getLsLgPla().get(i).getLgPlaId());
+				cs.setString(2, lgTypIMBean.getLsLgPla().get(i).getGltypId());
+				cs.setString(3, lgTypIMBean.getLsLgPla().get(i).getDescription());
+				cs.setByte(4, (byte) (lgTypIMBean.getLsLgPla().get(i).isStatus()? 1 : 0));
 				cs.setString(5, createdBy);
 				cs.registerOutParameter(1, Types.INTEGER);
 
 				log.info("[addLGTYPPosition] Executing query...");
 				cs.execute(); 
-				lgTypIM.getLsLgPla().get(i).setLgPlaId(cs.getInt(1));
+				lgTypIMBean.getLsLgPla().get(i).setLgPlaId(cs.getInt(1));
 			}
 			
 			log.info("[addLGTYP] Sentence successfully executed.");
@@ -125,27 +125,27 @@ public class LgTypIMDao {
 			}
 		}
 		res.setAbstractResult(abstractResult);
-		res.setLsObject(lgTypIM);
+		res.setLsObject(lgTypIMBean);
 		return res;
 	}
 	
-	public Response<List<LgTypIM>> getLgTypsIM(LgTypIM lgTypIM, String searchFilter) {
+	public Response<List<LgTypIMBean>> getLgTypsIM(LgTypIMBean lgTypIMBean, String searchFilter) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<LgTypIM>> res = new Response<List<LgTypIM>>();
+		Response<List<LgTypIMBean>> res = new Response<List<LgTypIMBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<LgTypIM> listLgTypIM = new ArrayList<LgTypIM>();
+		List<LgTypIMBean> listLgTypIM = new ArrayList<LgTypIMBean>();
 		String INV_VW_LGTYPE_IM = null;
-		LgTypIM lgTypIMAux;
+		LgTypIMBean lgTypIMAux;
 
 		INV_VW_LGTYPE_IM = "SELECT LGTYP_ID, LGT_LTYPT, LGT_BUKRS, BUTXT, LGT_WERKS, NAME1, LGT_LGORT, LGOBE, LGT_LGNUM, LGT_STATUS FROM dbo.INV_VW_LGTYPE_IM WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
 			INV_VW_LGTYPE_IM += "WHERE LGTYP_ID LIKE '%" + searchFilter + "%' OR LGT_LTYPT LIKE '%" + searchFilter + "%'";
 		} else {
-			String condition = buildCondition(lgTypIM);
+			String condition = buildCondition(lgTypIMBean);
 			if (condition != null) {
 				INV_VW_LGTYPE_IM += condition;
 			}
@@ -161,7 +161,7 @@ public class LgTypIMDao {
 
 			while (rs.next()) {
 				
-				lgTypIMAux = new LgTypIM();
+				lgTypIMAux = new LgTypIMBean();
 				lgTypIMAux.setLgTyp(rs.getString(1));
 				lgTypIMAux.setLtypt(rs.getString(2));
 				lgTypIMAux.setBukrs(rs.getString(3));
@@ -208,13 +208,13 @@ public class LgTypIMDao {
 		return res;
 	}
 	
-	public List<LgplaIM> getPositions(String lgtyp) throws SQLException {
+	public List<LgplaIMBean> getPositions(String lgtyp) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		List<LgplaIM> listPositions = new ArrayList<LgplaIM>();
+		List<LgplaIMBean> listPositions = new ArrayList<LgplaIMBean>();
 
 		String INV_VW_LGPLA_IM = "SELECT LGPLA_ID, LGP_DESC, LGP_STATUS FROM dbo.INV_VW_LGPLA_IM WITH(NOLOCK) WHERE LGTYP_ID = ?";
 
@@ -229,7 +229,7 @@ public class LgTypIMDao {
 
 		while (rs.next()) {
 			
-			LgplaIM position = new LgplaIM();
+			LgplaIMBean position = new LgplaIMBean();
 			position.setGltypId(lgtyp);
 			position.setLgPlaId(rs.getInt(1));
 			position.setDescription(rs.getString(2));
@@ -308,7 +308,7 @@ public class LgTypIMDao {
 		return res;
 	}
 	
-	private String buildCondition(LgTypIM lgTypIM) {
+	private String buildCondition(LgTypIMBean lgTypIMBean) {
 		
 		String lgTyp; //The hold type
 		String ltypt; //The hold description
@@ -321,32 +321,32 @@ public class LgTypIMDao {
 		String lgnum; //The lgnum
 		String condition = "";
 		
-		lgTyp = (lgTypIM.getLgTyp() != null)? 
-				(condition.contains("WHERE") ? " AND " : " WHERE ") + " LGTYP_ID = '" + lgTypIM.getLgTyp() + "' "	: "";
+		lgTyp = (lgTypIMBean.getLgTyp() != null)? 
+				(condition.contains("WHERE") ? " AND " : " WHERE ") + " LGTYP_ID = '" + lgTypIMBean.getLgTyp() + "' "	: "";
 		condition += lgTyp;
-		ltypt = (lgTypIM.getLtypt() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_LTYPT LIKE '%" + lgTypIM.getLtypt() + "%' " : "";
+		ltypt = (lgTypIMBean.getLtypt() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_LTYPT LIKE '%" + lgTypIMBean.getLtypt() + "%' " : "";
 		condition += ltypt;
-		bukrs = (lgTypIM.getBukrs() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_BUKRS = '" + lgTypIM.getBukrs() + "' " : "";
+		bukrs = (lgTypIMBean.getBukrs() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_BUKRS = '" + lgTypIMBean.getBukrs() + "' " : "";
 		condition += bukrs;
-		bDesc = (lgTypIM.getbDesc() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUTXT LIKE '%" + lgTypIM.getbDesc() + "%' " : "";
+		bDesc = (lgTypIMBean.getbDesc() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUTXT LIKE '%" + lgTypIMBean.getbDesc() + "%' " : "";
 		condition += bDesc;
-		werks = (lgTypIM.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + lgTypIM.getWerks() + "' " : "";
+		werks = (lgTypIMBean.getWerks() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + lgTypIMBean.getWerks() + "' " : "";
 		condition += werks;
-		wDesc = (lgTypIM.getwDesc() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " NAME1 LIKE '%" + lgTypIM.getwDesc() + "%' " : "";
+		wDesc = (lgTypIMBean.getwDesc() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " NAME1 LIKE '%" + lgTypIMBean.getwDesc() + "%' " : "";
 		condition += wDesc;		
-		lgort = (lgTypIM.getLgort() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_LGORT = '" + lgTypIM.getLgort() + "' " : "";
+		lgort = (lgTypIMBean.getLgort() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_LGORT = '" + lgTypIMBean.getLgort() + "' " : "";
 		condition += lgort;
-		gDesc = (lgTypIM.getgDesc() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGOBE LIKE '%" + lgTypIM.getgDesc() + "%' " : "";
+		gDesc = (lgTypIMBean.getgDesc() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGOBE LIKE '%" + lgTypIMBean.getgDesc() + "%' " : "";
 		condition += gDesc;		
-		lgnum = (lgTypIM.getLgnum() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_LGNUM = '" + lgTypIM.getLgnum() + "' " : "";
+		lgnum = (lgTypIMBean.getLgnum() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGT_LGNUM = '" + lgTypIMBean.getLgnum() + "' " : "";
 		condition += lgnum;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;

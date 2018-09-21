@@ -3,7 +3,7 @@ package com.gmodelo.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LgTypIM {
+public class LgTypIMBean {
 
 	private String lgTyp; //The hold type
 	private String ltypt; //The hold description
@@ -14,16 +14,16 @@ public class LgTypIM {
 	private String lgort; //The warehouse Id
 	private String gDesc; //The warehouse description
 	private String lgnum; //The lgnum
-	private List<LgplaIM> lsLgPla; //The location positions
+	private List<LgplaIMBean> lsLgPla; //The location positions
 	
-	public LgTypIM(){
+	public LgTypIMBean(){
 		
 		super();
-		this.lsLgPla = new ArrayList<LgplaIM>();
+		this.lsLgPla = new ArrayList<LgplaIMBean>();
 	}
 	
-	public LgTypIM(String lgTyp, String ltypt, String bukrs, String bDesc, String werks, String wDesc, String lgort,
-			String gDesc, String lgnum, ArrayList<LgplaIM> lsLgPla) {
+	public LgTypIMBean(String lgTyp, String ltypt, String bukrs, String bDesc, String werks, String wDesc, String lgort,
+			String gDesc, String lgnum, ArrayList<LgplaIMBean> lsLgPla) {
 		super();
 		this.lgTyp = lgTyp;
 		this.ltypt = ltypt;
@@ -98,10 +98,10 @@ public class LgTypIM {
 	public void setLgnum(String lgnum) {
 		this.lgnum = lgnum;
 	}
-	public List<LgplaIM> getLsLgPla() {
+	public List<LgplaIMBean> getLsLgPla() {
 		return lsLgPla;
 	}
-	public void setLsLgPla(List<LgplaIM> lsLgPla) {
+	public void setLsLgPla(List<LgplaIMBean> lsLgPla) {
 		this.lsLgPla = lsLgPla;
 	}
 		
