@@ -425,7 +425,7 @@ public class ZoneDao {
 			searchFilterNumber = searchFilter;
 			log.info("Trying to convert String to Int");
 		}
-		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES  FROM dbo.INV_VW_ZONES";
+		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES FROM dbo.INV_VW_ZONES";
 		if(searchFilter != null){
 			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' ";
 		}else{
