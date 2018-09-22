@@ -6,14 +6,22 @@ public class RouteUserBean {
 	String routeId;
 	String bukrs;
 	String werks;
+	String taskId;
 	String rdesc;
 	String type;
 	String bdesc;
 	String wdesc;
 	long dateIni;
 	long dateEnd;
-
 	List<RouteUserPositionBean> positions;
+
+	public String getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
+	}
 
 	public long getDateIni() {
 		return dateIni;
@@ -100,12 +108,13 @@ public class RouteUserBean {
 		// TODO Auto-generated constructor stub
 	}
 
-	public RouteUserBean(String routeId, String bukrs, String werks, String rdesc, String type, String bdesc,
-			String wdesc, long dateIni, long dateEnd, List<RouteUserPositionBean> positions) {
+	public RouteUserBean(String routeId, String bukrs, String werks, String taskId, String rdesc, String type,
+			String bdesc, String wdesc, long dateIni, long dateEnd, List<RouteUserPositionBean> positions) {
 		super();
 		this.routeId = routeId;
 		this.bukrs = bukrs;
 		this.werks = werks;
+		this.taskId = taskId;
 		this.rdesc = rdesc;
 		this.type = type;
 		this.bdesc = bdesc;
@@ -117,9 +126,9 @@ public class RouteUserBean {
 
 	@Override
 	public String toString() {
-		return "RouteUserBean [routeId=" + routeId + ", bukrs=" + bukrs + ", werks=" + werks + ", rdesc=" + rdesc
-				+ ", type=" + type + ", bdesc=" + bdesc + ", wdesc=" + wdesc + ", dateIni=" + dateIni + ", dateEnd="
-				+ dateEnd + ", positions=" + positions + "]";
+		return "RouteUserBean [routeId=" + routeId + ", bukrs=" + bukrs + ", werks=" + werks + ", taskId=" + taskId
+				+ ", rdesc=" + rdesc + ", type=" + type + ", bdesc=" + bdesc + ", wdesc=" + wdesc + ", dateIni="
+				+ dateIni + ", dateEnd=" + dateEnd + ", positions=" + positions + "]";
 	}
 
 }

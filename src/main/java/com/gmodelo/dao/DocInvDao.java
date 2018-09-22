@@ -18,6 +18,8 @@ import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
+import javassist.bytecode.analysis.Type;
+
 public class DocInvDao {
 	
 	private Logger log = Logger.getLogger( DocInvDao.class.getName());
@@ -30,7 +32,7 @@ public class DocInvDao {
 		CallableStatement cs = null;
 		int docInvId = 0;
 				
-		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?, ?";
 		
 		log.info("[addDocInv] Preparing sentence...");
 		try {
@@ -41,12 +43,13 @@ public class DocInvDao {
 			cs.setString(2,docInvBean.getBukrs());
 			cs.setString(3, docInvBean.getType());
 			cs.setString(4,docInvBean.getWerks());
-			cs.setString(5,createdBy);
-			cs.registerOutParameter(6, Types.INTEGER);
+			cs.setNull(5, Types.INTEGER);
+			cs.setString(6,createdBy);
+			cs.registerOutParameter(7, Types.INTEGER);
 			log.info("[addDocInv] Executing query...");
 			
 			cs.execute();
-			docInvId = cs.getInt(6);			
+			docInvId = cs.getInt(7);			
 			docInvBean.setDocInvId(docInvId);		
 	
 			//Retrive the warnings if there're
@@ -138,7 +141,7 @@ public class DocInvDao {
 			searchFilterNumber = searchFilter;
 			log.info("Is String");
 		}
-		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)";
+		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)";
 		if(searchFilter != null){
 			INV_VW_DOC_INV += " WHERE DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"+searchFilterNumber+ "%' OR BDESC LIKE '%"+searchFilterNumber+"%' "+ " OR WERKSD LIKE '%"+searchFilterNumber+"%' ";
 		}else{
@@ -165,6 +168,7 @@ public class DocInvDao {
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setType(rs.getString("TYPE"));
+				docInvBean.setStatus(rs.getString("STATUS"));
 				listDocInv.add(docInvBean);
 			}
 			
@@ -205,6 +209,7 @@ public class DocInvDao {
 		String ROUTE_ID ="";
 		String bukrs ="";
 		String werks ="";
+		String status = "";
 		
 		DOC_INV_ID = (docInvB.getDocInvId() != 0 ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "DOC_INV_ID LIKE '%" 	+ docInvB.getDocInvId() + "%' " : "");
 		condition+=DOC_INV_ID;
@@ -214,6 +219,8 @@ public class DocInvDao {
 		condition+=bukrs;
 		werks = (docInvB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS LIKE '%"		+ docInvB.getWerks() + "%' ": "");
 		condition+=werks;
+		status = (docInvB.getStatus() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ")  + "STATUS LIKE '%"		+ docInvB.getStatus() + "%' ": "");
+		condition+= status;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
