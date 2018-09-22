@@ -53,6 +53,7 @@ public class RouteUserDao {
 				routeBean.setType(rs.getString("RTYPE"));
 				routeBean.setBdesc(rs.getString("BDESC"));
 				routeBean.setWdesc(rs.getString("WDESC"));
+				routeBean.setTaskId(rs.getString("TASK_ID"));
 				routeBean.setDateIni(updateDowloadTask(rs.getString("TASK_ID")));
 				// routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
 			}
