@@ -30,7 +30,7 @@ public class DocInvDao {
 		CallableStatement cs = null;
 		int docInvId = 0;
 				
-		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?";
 		
 		log.info("[addDocInv] Preparing sentence...");
 		try {
@@ -39,13 +39,14 @@ public class DocInvDao {
 	
 			cs.setString(1,docInvBean.getRoute());
 			cs.setString(2,docInvBean.getBukrs());
-			cs.setString(3,docInvBean.getWerks());
-			cs.setString(4,createdBy);
-			cs.registerOutParameter(5, Types.INTEGER);
+			cs.setString(3, docInvBean.getType());
+			cs.setString(4,docInvBean.getWerks());
+			cs.setString(5,createdBy);
+			cs.registerOutParameter(6, Types.INTEGER);
 			log.info("[addDocInv] Executing query...");
 			
 			cs.execute();
-			docInvId = cs.getInt(5);			
+			docInvId = cs.getInt(6);			
 			docInvBean.setDocInvId(docInvId);		
 	
 			//Retrive the warnings if there're
@@ -163,6 +164,7 @@ public class DocInvDao {
 				docInvBean.setBukrsD(rs.getString("BDESC"));
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
+				docInvBean.setType(rs.getString("TYPE"));
 				listDocInv.add(docInvBean);
 			}
 			

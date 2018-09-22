@@ -9,7 +9,7 @@ import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.LoginBean;
 import com.gmodelo.utils.Utilities;
 
-public class LoginDAO {
+public class LoginDao {
 
 	public static final String STORE_TOKEN_ID = "insert into INV_CIC_KEY_EXCHANGE VALUES (?,?,getdate(),dateadd(mi, 60,getdate()))";
 	public static final String UPDATE_STORED_TOKEN = "update INV_CIC_KEY_EXCHANGE set logInCredential = ?, logOnDate = GETDATE(), logOnValid =dateadd(mi, 60,getdate()) where logOnValue = ?";

@@ -64,8 +64,6 @@ public class MatnrWorkService {
 			log.info("[getTmatnrWorkService] Fue cadena vacía ");
 		}
 		
-			
-		
 		return new MatnrDao().getTmatnrWithMatnr(tmatnrBean,searchFilter);
 	}
 

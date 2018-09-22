@@ -39,7 +39,7 @@ public class ZoneDao {
 			// TODO: handle exception
 		}		
 
-		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?, ?";
 		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?, ?";
 		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?, ?";		
@@ -54,7 +54,6 @@ public class ZoneDao {
 			cs.setString(4,zoneBean.getWerks());
 			cs.setString(5,zoneBean.getLgort());
 			cs.setString(6, createdBy);
-			cs.setString(7, zoneBean.getgDesc());
 		
 			cs.registerOutParameter(1, Types.INTEGER);
 			log.info("[addZone] Executing query...");
@@ -426,7 +425,7 @@ public class ZoneDao {
 			searchFilterNumber = searchFilter;
 			log.info("Trying to convert String to Int");
 		}
-		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT,BDESC, WDESC, GDES  FROM dbo.INV_VW_ZONES";
+		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES FROM dbo.INV_VW_ZONES";
 		if(searchFilter != null){
 			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' ";
 		}else{
@@ -436,7 +435,7 @@ public class ZoneDao {
 			}
 		}
 		log.info(INV_VW_ZONES);
-		INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT,BDESC, WDESC, GDES";
+		INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
 		log.info("[getZonesDao] Preparing sentence...");
 		
 		try {
