@@ -3,18 +3,33 @@ package com.gmodelo.beans;
 public class LgplaValuesBean {
 
 	String matnr;
+	String vhilm;
 	String matkx;
-	String sCantidad;
 	Integer sec;
 	Integer tarimas;
 	Integer camas;
-	Integer cajas;
+	Integer um;//Cantidad de Unidad de medida
 	Integer totalConverted;
-	Integer iCantidad;
 	boolean locked;
 
 	public String getMatnr() {
 		return matnr;
+	}
+
+	public Integer getUm() {
+		return um;
+	}
+
+	public void setUm(Integer um) {
+		this.um = um;
+	}
+
+	public String getVhilm() {
+		return vhilm;
+	}
+
+	public void setVhilm(String vhilm) {
+		this.vhilm = vhilm;
 	}
 
 	public void setMatnr(String matnr) {
@@ -27,14 +42,6 @@ public class LgplaValuesBean {
 
 	public void setMatkx(String matkx) {
 		this.matkx = matkx;
-	}
-
-	public String getsCantidad() {
-		return sCantidad;
-	}
-
-	public void setsCantidad(String sCantidad) {
-		this.sCantidad = sCantidad;
 	}
 
 	public Integer getSec() {
@@ -61,28 +68,12 @@ public class LgplaValuesBean {
 		this.camas = camas;
 	}
 
-	public Integer getCajas() {
-		return cajas;
-	}
-
-	public void setCajas(Integer cajas) {
-		this.cajas = cajas;
-	}
-
 	public Integer getTotalConverted() {
 		return totalConverted;
 	}
 
 	public void setTotalConverted(Integer totalConverted) {
 		this.totalConverted = totalConverted;
-	}
-
-	public Integer getiCantidad() {
-		return iCantidad;
-	}
-
-	public void setiCantidad(Integer iCantidad) {
-		this.iCantidad = iCantidad;
 	}
 
 	public boolean isLocked() {
@@ -98,29 +89,29 @@ public class LgplaValuesBean {
 		// TODO Auto-generated constructor stub
 	}
 
-	public LgplaValuesBean(String matnr, String matkx, String sCantidad, Integer sec, Integer tarimas, Integer camas,
-			Integer cajas, Integer totalConverted, Integer iCantidad, boolean locked) {
+	public String toKey(String pkAsgId) {
+		return pkAsgId + this.matnr;
+	}
+
+	public LgplaValuesBean(String matnr, String vhilm, String matkx, Integer sec, Integer tarimas, Integer camas,
+			Integer um, Integer totalConverted, boolean locked) {
 		super();
 		this.matnr = matnr;
+		this.vhilm = vhilm;
 		this.matkx = matkx;
-		this.sCantidad = sCantidad;
 		this.sec = sec;
 		this.tarimas = tarimas;
 		this.camas = camas;
-		this.cajas = cajas;
+		this.um = um;
 		this.totalConverted = totalConverted;
-		this.iCantidad = iCantidad;
 		this.locked = locked;
 	}
 
 	@Override
 	public String toString() {
-		return "CarrilValuesBean [matnr=" + matnr + ", matkx=" + matkx + ", sCantidad=" + sCantidad + ", sec=" + sec
-				+ ", tarimas=" + tarimas + ", camas=" + camas + ", cajas=" + cajas + ", totalConverted="
-				+ totalConverted + ", iCantidad=" + iCantidad + ", locked=" + locked + "]";
+		return "LgplaValuesBean [matnr=" + matnr + ", vhilm=" + vhilm + ", matkx=" + matkx + ", sec=" + sec
+				+ ", tarimas=" + tarimas + ", camas=" + camas + ", um=" + um + ", totalConverted=" + totalConverted
+				+ ", locked=" + locked + "]";
 	}
-
-	public String toKey(String pkAsgId) {
-		return pkAsgId + this.matnr;
-	}
+	
 }
