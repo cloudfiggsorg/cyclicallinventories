@@ -42,7 +42,7 @@ public class ZoneDao {
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?, ?";
 		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?, ?";
-		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?, ?";		
+		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?";		
 		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?";
 		log.info("[addZone] Preparing sentence...");
 		try {
@@ -86,11 +86,10 @@ public class ZoneDao {
 				cs.setString(4,zoneBean.getPositions().get(i).getSecuency());
 				cs.setString(5,zoneBean.getPositions().get(i).getImwm());
 				cs.setString(6,zoneBean.getPositions().get(i).getLgnum());
-				cs.setString(7,zoneBean.getPositions().get(i).getLgtypDesc());
-				cs.registerOutParameter(8, Types.INTEGER);
+				cs.registerOutParameter(7, Types.INTEGER);
 				log.info("[addPositionZone] Executing query...");
 				cs.execute();
-				idPosition = cs.getInt(8);
+				idPosition = cs.getInt(7);
 				zoneBean.getPositions().get(i).setPkAsgId(idPosition);
 				
 				//Eliminar materiales de posición
@@ -446,7 +445,7 @@ public class ZoneDao {
 					
 				zoneBean = new ZoneBean();
 				
-				zoneBean.setZoneId(String.format("%08d",Integer.parseInt(rs.getString("ZONE_ID"))));
+				zoneBean.setZoneId(String.format("%08d", rs.getInt("ZONE_ID")));
 				zoneBean.setZdesc(rs.getString("ZDESC"));
 				zoneBean.setBukrs(rs.getString("BUKRS"));
 				zoneBean.setWerks(rs.getString("WERKS"));
@@ -495,13 +494,12 @@ public class ZoneDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, ZPO_LTYPT FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
-		log.info(INV_VW_ZONE_WITH_POSITIONS);
-		log.info("[getZonesDao] Preparing sentence...");
-		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, ZPO_LTYPT";
+		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, LTYPT FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";		
+		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, LTYPT";
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
+			log.info(INV_VW_ZONE_WITH_POSITIONS);
 			log.info("[getZonesDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
@@ -512,7 +510,7 @@ public class ZoneDao {
 				position.setLgpla(rs.getString("LGPLA"));
 				position.setSecuency(rs.getString("SECUENCY"));
 				position.setImwm(rs.getString("IMWM"));
-				position.setLgtypDesc(rs.getString("ZPO_LTYPT"));
+				position.setLgtypDesc(rs.getString("LTYPT"));
 				position.setLgnum(rs.getString("ZPO_LGNUM"));
 				position.setMaterials(this.getPositionMaterials(rs.getString(1)));
 				listPositions.add(position);
@@ -532,7 +530,7 @@ public class ZoneDao {
 			log.info("[getZonesDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONE_WITH_POSITIONS, e);
+			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: " + INV_VW_ZONE_WITH_POSITIONS, e);
 		}finally {
 			try {
 				con.close();
