@@ -40,7 +40,7 @@ public class LgTypIMDao {
 		try {
 			
 			con.setAutoCommit(false);
-			// ADD ROUTE
+			// ADD LGTYP
 			
 			cs = con.prepareCall(INV_SP_ADD_LGTYPE_IM);
 			cs.setString(1, lgTypIMBean.getLgTyp());
@@ -50,13 +50,13 @@ public class LgTypIMDao {
 			cs.setString(5, lgTypIMBean.getLgort());
 			cs.setString(6, lgTypIMBean.getLgnum());
 			cs.setString(7, createdBy);
-			cs.registerOutParameter(1, Types.INTEGER);
+			cs.registerOutParameter(1, Types.VARCHAR);
 
 			log.info("[addLGTYP] Executing query...");
 			cs.execute();
 			
 			lgTypIMBean.setLgTyp(cs.getString(1));
-			
+						
 			//Eliminar posiciones
 			String ids = "";
 			for (int i = 0; i < lgTypIMBean.getLsLgPla().size(); i++) {
@@ -71,7 +71,7 @@ public class LgTypIMDao {
 			cs.setString(1, lgTypIMBean.getLgTyp());
 			cs.setString(2, ids);
 			cs.execute();
-			
+									
 			// INSERTAR POSICIONES
 			for (int i = 0; i < lgTypIMBean.getLsLgPla().size(); i++) {
 				
@@ -79,7 +79,7 @@ public class LgTypIMDao {
 				log.info("[addLGTYPPosition] Preparing sentence...");
 				cs = con.prepareCall(INV_SP_ADD_LGPLA_IM);
 				cs.setInt(1, lgTypIMBean.getLsLgPla().get(i).getLgPlaId());
-				cs.setString(2, lgTypIMBean.getLsLgPla().get(i).getGltypId());
+				cs.setString(2, lgTypIMBean.getLgTyp());
 				cs.setString(3, lgTypIMBean.getLsLgPla().get(i).getDescription());
 				cs.setByte(4, (byte) (lgTypIMBean.getLsLgPla().get(i).isStatus()? 1 : 0));
 				cs.setString(5, createdBy);

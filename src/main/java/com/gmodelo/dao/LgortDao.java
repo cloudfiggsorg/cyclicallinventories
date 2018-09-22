@@ -28,7 +28,7 @@ public class LgortDao {
 		PreparedStatement stm = null;
 		List<LgortBeanView> listLgort = new ArrayList<LgortBeanView>();
 		
-		String INV_VW_GORS_BY_WERKS = "SELECT [WERKS], [LGORT], [LGOBE] FROM [INV_CIC_DB].[dbo].[INV_VW_GORS_BY_WERKS] "; //Query
+		String INV_VW_GORS_BY_WERKS = "SELECT [WERKS], [LGORT], [LGOBE] , [LGNUM] FROM [INV_CIC_DB].[dbo].[INV_VW_GORS_BY_WERKS] "; //Query
 		String condition = buildCondition(lgortBean);
 		
 		if(condition != null){
@@ -52,7 +52,7 @@ public class LgortDao {
 				lgortBean.setWerks(rs.getString(1));
 				lgortBean.setLgort(rs.getString(2));
 				lgortBean.setLgobe(rs.getString(3));
-				
+				lgortBean.setLgNum(rs.getString(4));
 				listLgort.add(lgortBean);
 				
 			}
@@ -93,6 +93,7 @@ public class LgortDao {
 			String werks = "";
 			String lgort = "";
 			String lgobe = "";
+			String lgNum = "";
 			String condition = "";
 			
 			werks = (lgortBean.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS LIKE '%" + lgortBean.getWerks() +"%' " : "";
@@ -101,6 +102,8 @@ public class LgortDao {
 			condition += lgort;
 			lgobe = (lgortBean.getLgobe() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGOBE LIKE '%" + lgortBean.getLgobe() +"%' " : "";
 			condition += lgobe;
+			lgNum = (lgortBean.getLgobe() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGNUM LIKE '%" + lgortBean.getLgNum() +"%' " : "";
+			condition += lgNum;
 			condition = (condition.isEmpty() ? null : condition);
 			return condition;
 		}
