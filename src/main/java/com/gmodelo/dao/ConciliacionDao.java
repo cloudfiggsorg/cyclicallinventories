@@ -1,12 +1,10 @@
 package com.gmodelo.dao;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -16,11 +14,6 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.RouteBean;
-import com.gmodelo.beans.ConciliacionBean;
-import com.gmodelo.beans.ConciliacionBean;
-import com.gmodelo.beans.DocInvPositionBean;
-import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -64,7 +57,6 @@ public class ConciliacionDao {
 			while (rs.next()){
 				docInvBean = new ConciliacionBean();
 				
-				RouteDao route = new RouteDao();
 				docInvBean.setRoute(rs.getString("ROUTE_ID"));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
@@ -72,7 +64,7 @@ public class ConciliacionDao {
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setJustification(rs.getString("JUSTIFICATION"));
-				docInvBean.setPositions(this.getPositions(rs.getString("DOC_INV_ID")));
+				docInvBean.setPositions(null);//PENDIENTE poner positions de ConciliationPositionBean
 				listDocInv.add(docInvBean);
 			}
 			
