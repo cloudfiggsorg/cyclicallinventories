@@ -4,13 +4,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.ConciliacionDao;
-import com.gmodelo.dao.ToleranceDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -39,18 +37,6 @@ public class ConciliacionWorkService {
 		} else {
 			searchFilter = "";
 			log.info("[getConciliacionWS] Fue cadena vacía ");
-
-			try {
-				tb = gson.fromJson(gson.toJson(request.getLsObject()), ConciliacionBean.class);
-			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE, "[getConciliacionWS] Error al pasar de Json a ConciliacionB");
-				tb = null;
-				AbstractResultsBean abstractResult = new AbstractResultsBean();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
 			
 		}
 		return new ConciliacionDao().getConciliacion(tb, searchFilter);

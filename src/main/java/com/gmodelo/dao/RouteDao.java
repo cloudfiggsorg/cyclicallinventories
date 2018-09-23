@@ -330,10 +330,10 @@ public class RouteDao{
 			searchFilterNumber += aux;
 		} catch (Exception e) {
 			searchFilterNumber = searchFilter;
-			log.info("[getRoutesDao] Trying to convert String to Int");
+			log.info("[getOnlyRoutes] Trying to convert String to Int");
 		}		
 
-		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
+		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_AVAILABLE_ROUTES WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
 			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter + "%'";
@@ -344,11 +344,11 @@ public class RouteDao{
 			}
 		}
 		log.info(INV_VW_ROUTES);
-		log.info("[getRoutesDao] Preparing sentence...");
+		log.info("[getOnlyRoutes] Preparing sentence...");
 		try {
 			stm = con.prepareStatement(INV_VW_ROUTES);
 
-			log.info("[getRoutesDao] Executing query...");
+			log.info("[getOnlyRoutes] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
 
@@ -379,10 +379,10 @@ public class RouteDao{
 			// Free resources
 			rs.close();
 			stm.close();
-			log.info("[getRoutesDao] Sentence successfully executed.");
+			log.info("[getOnlyRoutes] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
-					"[getRoutesDao] Some error occurred while was trying to execute the query: " + INV_VW_ROUTES, e);
+					"[getRougetOnlyRoutestesDao] Some error occurred while was trying to execute the query: " + INV_VW_ROUTES, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -391,7 +391,7 @@ public class RouteDao{
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[getRoutesDao] Some error occurred while was trying to close the connection.",
+				log.log(Level.SEVERE, "[getOnlyRoutes] Some error occurred while was trying to close the connection.",
 						e);
 			}
 		}
