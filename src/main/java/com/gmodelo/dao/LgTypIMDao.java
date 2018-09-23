@@ -29,7 +29,7 @@ public class LgTypIMDao {
 
 		final String INV_SP_ADD_LGTYPE_IM = "INV_SP_ADD_LGTYPE_IM ?, ?, ?, ?, ?, ?, ?"; 		
 		final String INV_SP_DEL_LGPLA_IM = "INV_SP_DEL_LGPLA_IM ?, ?";				
-		final String INV_SP_ADD_LGPLA_IM = "INV_SP_ADD_LGPLA_IM ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_LGPLA_IM = "INV_SP_ADD_LGPLA_IM ?, ?, ?, ?, ?, ?";
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -80,9 +80,10 @@ public class LgTypIMDao {
 				cs = con.prepareCall(INV_SP_ADD_LGPLA_IM);
 				cs.setInt(1, lgTypIMBean.getLsLgPla().get(i).getLgPlaId());
 				cs.setString(2, lgTypIMBean.getLgTyp());
-				cs.setString(3, lgTypIMBean.getLsLgPla().get(i).getDescription());
-				cs.setByte(4, (byte) (lgTypIMBean.getLsLgPla().get(i).isStatus()? 1 : 0));
-				cs.setString(5, createdBy);
+				cs.setString(3, lgTypIMBean.getLgnum());
+				cs.setString(4, lgTypIMBean.getLsLgPla().get(i).getDescription());
+				cs.setByte(5, (byte) (lgTypIMBean.getLsLgPla().get(i).isStatus()? 1 : 0));
+				cs.setString(6, createdBy);
 				cs.registerOutParameter(1, Types.INTEGER);
 
 				log.info("[addLGTYPPosition] Executing query...");

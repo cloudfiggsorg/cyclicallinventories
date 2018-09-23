@@ -4,6 +4,7 @@ public class LgplaIMBean {
 	
 	private int lgPlaId; //The lgpla id
 	private String gltypId; // The lgtype id
+	private String lgNum; //The lgNum
 	private String description; //The description
 	private boolean status; // The status
 	
@@ -11,19 +12,19 @@ public class LgplaIMBean {
 		super();
 	}
 	
-	public LgplaIMBean(int lgPlaId, String gltypId, String description, boolean status) {
-		
+	public LgplaIMBean(int lgPlaId, String gltypId, String lgNum, String description, boolean status) {
 		super();
 		this.lgPlaId = lgPlaId;
 		this.gltypId = gltypId;
+		this.lgNum = lgNum;
 		this.description = description;
 		this.status = status;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "LgplaIM [lgPlaId=" + lgPlaId + ", gltypId=" + gltypId + ", description=" + description + ", status="
-				+ status + "]";
+		return "LgplaIMBean [lgPlaId=" + lgPlaId + ", gltypId=" + gltypId + ", lgNum=" + lgNum + ", description="
+				+ description + ", status=" + status + "]";
 	}
 
 	public int getLgPlaId() {
@@ -37,6 +38,12 @@ public class LgplaIMBean {
 	}
 	public void setGltypId(String gltypId) {
 		this.gltypId = gltypId;
+	}
+	public String getLgNum() {
+		return lgNum;
+	}
+	public void setLgNum(String lgNum) {
+		this.lgNum = lgNum;
 	}
 	public String getDescription() {
 		return description;

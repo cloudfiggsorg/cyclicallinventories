@@ -30,7 +30,7 @@ public class LagpDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<LagpEntity> listLgplaBean = new ArrayList<LagpEntity>(); 
 		 
-		String INV_VW_LAGP = "SELECT LGNUM, LGTYP, LGPLA, LPTYP, SKZUA, SKZUE, IMWM FROM INV_CIC_DB.dbo.INV_VW_LAGP WITH(NOLOCK) ";
+		String INV_VW_LAGP = "SELECT LGNUM, LGTYP, LGPLA, IMWM FROM INV_CIC_DB.dbo.INV_VW_LAGP WITH(NOLOCK) ";
 		
 		if(searchFilter != null){
 			INV_VW_LAGP += "WHERE LGNUM LIKE '%"+searchFilter+"%' OR LGTYP LIKE '%"+searchFilter+"%' OR LGPLA LIKE '%"+searchFilter
@@ -60,10 +60,7 @@ public class LagpDao {
 				lgplaBean.setLgNum(rs.getString(1));
 				lgplaBean.setLgTyp(rs.getString(2));
 				lgplaBean.setLgPla(rs.getString(3));
-				lgplaBean.setLpTyp(rs.getString(4));
-				lgplaBean.setSkzua(rs.getString(5));
-				lgplaBean.setSkzue(rs.getString(6));
-				lgplaBean.setImwm(rs.getString(7));
+				lgplaBean.setImwm(rs.getString(4));
 				listLgplaBean.add(lgplaBean);
 			}
 			
