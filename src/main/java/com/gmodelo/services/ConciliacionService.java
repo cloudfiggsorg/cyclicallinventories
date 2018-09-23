@@ -10,15 +10,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.ToleranceBean;
 import com.gmodelo.workservice.ConciliacionWorkService;
-import com.gmodelo.workservice.DocInvWorkService;
-import com.gmodelo.workservice.ToleranceWorkService;
 
+@Path("/services/ConciliationService")
 public class ConciliacionService {
 	
 	@Context
@@ -27,7 +24,7 @@ public class ConciliacionService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getConciliacion")
+	@Path("/getConciliation")
 	public Response<List<ConciliacionBean>> getConciliacion(Request request){
 		return new ConciliacionWorkService().getConciliacion(request);
 	}

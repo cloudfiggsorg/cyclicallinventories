@@ -104,7 +104,7 @@ public class RouteWorkService {
 			searchFilter = "";
 		}
 
-		return new RouteDao().getRoutes(routeBean, searchFilter);
+		return new RouteDao().getOnlyRoutes(routeBean, searchFilter);
 	}
 
 	public String getRoutesByUser(User user, HttpSession userSession) {

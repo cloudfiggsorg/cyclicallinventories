@@ -114,18 +114,6 @@ public class ToleranceWorkService {
 		} else {
 			searchFilter = "";
 			log.info("[getTolerancesWS] Fue cadena vacía ");
-
-			try {
-				tb = gson.fromJson(gson.toJson(request.getLsObject()), ToleranceBean.class);
-			} catch (JsonSyntaxException e) {
-				log.log(Level.SEVERE, "[getTolerancesWS] Error al pasar de Json a TaskB");
-				tb = null;
-				AbstractResultsBean abstractResult = new AbstractResultsBean();
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
 			
 		}
 		return new ToleranceDao().getTolerances(tb, searchFilter);

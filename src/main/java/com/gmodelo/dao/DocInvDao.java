@@ -151,7 +151,7 @@ public class DocInvDao {
 			}
 		}
 		log.info(INV_VW_DOC_INV);
-		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION";
+		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";
 		log.info("[getDocInvDao] Preparing sentence...");
 		
 		try {
@@ -211,15 +211,15 @@ public class DocInvDao {
 		String werks ="";
 		String status = "";
 		
-		DOC_INV_ID = (docInvB.getDocInvId() != 0 ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "DOC_INV_ID LIKE '%" 	+ docInvB.getDocInvId() + "%' " : "");
+		DOC_INV_ID = (docInvB.getDocInvId() != 0 ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "DOC_INV_ID = '" 	+ docInvB.getDocInvId() + "' " : "");
 		condition+=DOC_INV_ID;
-		ROUTE_ID = (docInvB.getRoute() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ROUTE_ID LIKE '%" 	+ docInvB.getRoute() + "%' ": "");
+		ROUTE_ID = (docInvB.getRoute() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ROUTE_ID = '" 	+ docInvB.getRoute() + "' ": "");
 		condition+=ROUTE_ID;
-		bukrs = (docInvB.getBukrs() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS LIKE '%" 	+ docInvB.getBukrs() + "%' ": "");
+		bukrs = (docInvB.getBukrs() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS = '" 	+ docInvB.getBukrs() + "' ": "");
 		condition+=bukrs;
-		werks = (docInvB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS LIKE '%"		+ docInvB.getWerks() + "%' ": "");
+		werks = (docInvB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '"		+ docInvB.getWerks() + "' ": "");
 		condition+=werks;
-		status = (docInvB.getStatus() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ")  + "STATUS LIKE '%"		+ docInvB.getStatus() + "%' ": "");
+		status = (docInvB.getStatus() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ")  + "STATUS = '"		+ docInvB.getStatus() + "' ": "");
 		condition+= status;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
