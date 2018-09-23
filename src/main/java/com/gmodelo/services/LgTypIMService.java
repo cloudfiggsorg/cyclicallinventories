@@ -42,7 +42,7 @@ public class LgTypIMService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/deleteZone")
+	@Path("/deleteLgTypsIM")
 	public Response<Object> deleteZone(Request request){
 		return new LgTypIMWorkService().deleteLgTypsIM(request);
 	}	

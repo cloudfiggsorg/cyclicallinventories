@@ -140,10 +140,10 @@ public class LgTypIMDao {
 		String INV_VW_LGTYPE_IM = null;
 		LgTypIMBean lgTypIMAux;
 
-		INV_VW_LGTYPE_IM = "SELECT LGTYP_ID, LGT_LTYPT, LGT_BUKRS, BUTXT, LGT_WERKS, NAME1, LGT_LGORT, LGOBE, LGT_LGNUM, LGT_STATUS FROM dbo.INV_VW_LGTYPE_IM WITH(NOLOCK) ";
+		INV_VW_LGTYPE_IM = "SELECT LGTYP_ID, LGT_LTYPT, LGT_BUKRS, BUTXT, LGT_WERKS, NAME1, LGT_LGORT, LGOBE, LGT_LGNUM FROM dbo.INV_VW_LGTYPE_IM WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
-			INV_VW_LGTYPE_IM += "WHERE LGTYP_ID LIKE '%" + searchFilter + "%' OR LGT_LTYPT LIKE '%" + searchFilter + "%'";
+			INV_VW_LGTYPE_IM += "WHERE (LGTYP_ID LIKE '%" + searchFilter + "%' OR LGT_LTYPT LIKE '%" + searchFilter + "%') AND LGT_STATUS = 1";
 		} else {
 			String condition = buildCondition(lgTypIMBean);
 			if (condition != null) {
