@@ -166,8 +166,9 @@ public class ConciliacionDao {
 		List<ConciliationPositionBean> listPositions = new ArrayList<ConciliationPositionBean>();
 		
 		String DROP_TABLE = "INV_SP_DROP_TABLE_COUNT_POSITIONS ?";
-		String INV_VW_DOC_INVENTORY_POSITIONS_TEMP = "SELECT TAS_DOC_INV_ID, ZONE_ID, ZONE_DESC, LGPLA, MATNR,  MATDESC, MEINS, COUNT_NUM, TOTAL INTO DBO.COUNT_POSITIONS FROM INV_VW_COUNT_POSITIONS_BASE WITH(NOLOCK) WHERE TAS_DOC_INV_ID=? ";
-		INV_VW_DOC_INVENTORY_POSITIONS_TEMP += " ORDER BY MATNR,COUNT_NUM ASC";
+		String INV_VW_DOC_INVENTORY_POSITIONS_TEMP = "SELECT TAS_DOC_INV_ID, ZONE_ID, ZONE_DESC, LGPLA, MATNR,  MATDESC, MEINS, COUNT_NUM, TOTAL INTO "
+				+ " DBO.COUNT_POSITIONS FROM INV_VW_COUNT_POSITIONS_BASE WITH(NOLOCK) WHERE TAS_DOC_INV_ID= ?  ORDER BY MATNR,COUNT_NUM ASC";
+		
 		
 		String INV_VW_COUNT_POSITIONS = "SELECT TAS_DOC_INV_ID, ZONE_ID, ZONE_DESC,LGPLA, MATNR, MATDESC, MEINS, [1A],[1B],[2],[3] FROM INV_VW_COUNT_POSITIONS ORDER BY MATNR ASC ";
 		try {
@@ -196,7 +197,12 @@ public class ConciliacionDao {
 							position.setZoneId(rs.getString("ZONE_ID"));   
 							position.setZoneD(rs.getString("ZONE_DESC"));
 							position.setLgpla(rs.getString("LGPLA"));
-							position.setMatnr(rs.getString("MATNR"));
+							
+							try {
+								position.setMatnr(String.valueOf(rs.getInt("MATNR")));
+							} catch (Exception e) {
+								position.setMatnr(rs.getString("MATNR"));
+							}
 							position.setMatnrD(rs.getString("MATDESC"));
 							position.setMeasureUnit(rs.getString("MEINS"));
 							position.setCount1A(rs.getString("1A"));
