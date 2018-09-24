@@ -160,70 +160,45 @@ public class ConciliacionDao {
 	private List<ConciliationPositionBean> getPositions(int i){
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-		CallableStatement cs = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		List<ConciliationPositionBean> listPositions = new ArrayList<ConciliationPositionBean>();
 		
-		String DROP_TABLE = "INV_SP_DROP_TABLE_COUNT_POSITIONS ?";
-		String INV_VW_DOC_INVENTORY_POSITIONS_TEMP = "SELECT TAS_DOC_INV_ID, ZONE_ID, ZONE_DESC, LGPLA, MATNR,  MATDESC, MEINS, COUNT_NUM, TOTAL INTO "
-				+ " DBO.COUNT_POSITIONS FROM INV_VW_COUNT_POSITIONS_BASE WITH(NOLOCK) WHERE TAS_DOC_INV_ID= ?  ORDER BY MATNR,COUNT_NUM ASC";
+		String INV_VW_DOC_INVENTORY_POSITIONS_TEMP = "SELECT TAS_DOC_INV_ID, ZONE_ID, ZONE_DESC, LGPLA, MATNR,  MATDESC, MEINS FROM INV_VW_COUNT_POSITIONS_BASE WITH(NOLOCK) WHERE TAS_DOC_INV_ID= ? "
+				+ "GROUP BY TAS_DOC_INV_ID, ZONE_ID, ZONE_DESC, LGPLA, MATNR,  MATDESC, MEINS ORDER BY MATNR ASC";
 		
-		
-		String INV_VW_COUNT_POSITIONS = "SELECT TAS_DOC_INV_ID, ZONE_ID, ZONE_DESC,LGPLA, MATNR, MATDESC, MEINS, [1A],[1B],[2],[3] FROM INV_VW_COUNT_POSITIONS ORDER BY MATNR ASC ";
 		try {
-			
-			//DROP TABLE TEMPORAL CONCILIATION POSITIONS
-			cs = con.prepareCall(DROP_TABLE);
-			cs.registerOutParameter(1, Types.INTEGER);
-			cs.execute();
-			if(cs.getInt(1) > 0){
-				
-				//GENERAR TABLE TEMPORAL
 				stm = con.prepareCall(INV_VW_DOC_INVENTORY_POSITIONS_TEMP);
 				stm.setInt(1, i);
-				System.out.println("id: "+ i);
 				log.info("[getPositionsConciliationDao] TABLE_CONCILIATION_POSITIONS Temp, Executing query...");
-				int result = stm.executeUpdate();
-				System.out.println("result:" +result);
-				if(result > 0){
-					//EJECUTAR TABLE FINAL TABLE_CONCILIATION_POSITIONS
-					stm = null;
-					stm = con.prepareCall(INV_VW_COUNT_POSITIONS);
-					rs = stm.executeQuery();
-					if(rs != null){
-						while (rs.next()){
-							ConciliationPositionBean position = new ConciliationPositionBean();
-							position.setZoneId(rs.getString("ZONE_ID"));   
-							position.setZoneD(rs.getString("ZONE_DESC"));
-							position.setLgpla(rs.getString("LGPLA"));
-							
-							try {
-								position.setMatnr(String.valueOf(rs.getInt("MATNR")));
-							} catch (Exception e) {
-								position.setMatnr(rs.getString("MATNR"));
-							}
-							position.setMatnrD(rs.getString("MATDESC"));
-							position.setMeasureUnit(rs.getString("MEINS"));
-							position.setCount1A(rs.getString("1A"));
-							position.setCount1B(rs.getString("1B"));
-							position.setCount2(rs.getString("2"));
-							position.setCount3(rs.getString("3"));
-							listPositions.add(position);
+				rs = stm.executeQuery();
+				
+				if(rs != null){
+					while (rs.next()){
+						ConciliationPositionBean position = new ConciliationPositionBean();
+						position.setZoneId(rs.getString("ZONE_ID"));   
+						position.setZoneD(rs.getString("ZONE_DESC"));
+						position.setLgpla(rs.getString("LGPLA"));
+						
+						try {
+							position.setMatnr(String.valueOf(rs.getInt("MATNR")));
+						} catch (Exception e) {
+							position.setMatnr(rs.getString("MATNR"));
 						}
-					}else{
-						log.info("[getPositionsConciliationDao] No data in TABLE_CONCILIATION_POSITIONS Final...");
+						position.setMatnrD(rs.getString("MATDESC"));
+						position.setMeasureUnit(rs.getString("MEINS"));
+						
+						position.setCount1A(this.getRowCount(i, "1A",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
+						position.setCount1B(this.getRowCount(i, "1B",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
+						position.setCount2(this.getRowCount(i, "2",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
+						position.setCount3(this.getRowCount(i, "3",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
+						listPositions.add(position);
 					}
 				}else{
-					log.info("[getPositionsConciliationDao] No data in TABLE_CONCILIATION_POSITIONS Temp...");
+					log.info("[getPositionsConciliationDao] No data in TABLE_CONCILIATION_POSITIONS Final...");
 				}
 				
-			}else{
-				log.info("getPositionsConciliationDao] Not delete table Temp");
-			}
-			
 			//Free resources
-			if(cs != null){cs.close();}
 			if(rs != null){rs.close();}
 			if(stm != null){stm.close();}	
 			
@@ -238,6 +213,28 @@ public class ConciliacionDao {
 			}
 		}
 		return listPositions;
+	}
+	
+	public String getRowCount(int docInvId, String conteo,String idZone,String lgpla, String matnr, String meins,Connection con, PreparedStatement stm){
+		String result="";
+		stm = null;
+		String INV_VW_COUNT_POSITIONS = "SELECT TOTAL FROM INV_VW_COUNT_POSITIONS_BASE WITH(NOLOCK) WHERE TAS_DOC_INV_ID= ? AND ZONE_ID=? AND LGPLA = ? "
+				+ " AND MATNR=? AND COUNT_NUM=?";
+		try {
+			stm = con.prepareStatement(INV_VW_COUNT_POSITIONS);
+			stm.setInt(1, docInvId);
+			stm.setString(2, idZone);
+			stm.setString(3, lgpla);
+			stm.setString(4, matnr);
+			stm.setString(5, conteo);
+			ResultSet res = stm.executeQuery();
+			while(res.next()){
+				result = res.getString("TOTAL");
+			}
+		} catch (SQLException e1) {
+			log.log(Level.SEVERE,"[getRowCountConciliationDao] Some error occurred while was execute: "+ INV_VW_COUNT_POSITIONS + "Exception: "+ e1.getMessage());
+		}
+		return result;
 	}
 	
 	private String buildCondition(ConciliacionBean docInvB){
@@ -261,18 +258,5 @@ public class ConciliacionDao {
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
-	}
-
-	/*
-	public static void main(String args[]){
-		ConciliacionDao dao = new ConciliacionDao();
-		ConciliacionBean docInvBean = new ConciliacionBean();
-	//	docInvBean.setDocInvId(3);
-		String searchFilter = "";
-		Response<List<ConciliacionBean>> x = dao.getConciliacion(docInvBean, searchFilter);
-		for(int i=0; i < x.getLsObject().size(); i++){
-			System.out.println(x.getLsObject().get(i).toString());
-		}
-	}
-	*/
+	}	
 }
