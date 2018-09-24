@@ -11,11 +11,11 @@ public class ConciliacionBean {
 	String werksD;
 	String justification;
 	int docInvId;
-	List<DocInvPositionBean> positions;
+	List<ConciliationPositionBean> positions;
 	
 	public ConciliacionBean() {
 		super();
-		positions = new ArrayList<DocInvPositionBean>();
+		positions = new ArrayList<ConciliationPositionBean>();
 		route = null;
 		// TODO Auto-generated constructor stub
 	}
@@ -69,10 +69,10 @@ public class ConciliacionBean {
 		this.docInvId = docInvId;
 	}
 	
-	public List<DocInvPositionBean> getPositions() {
+	public List<ConciliationPositionBean> getPositions() {
 		return positions;
 	}
-	public void setPositions(List<DocInvPositionBean> positions) {
+	public void setPositions(List<ConciliationPositionBean> positions) {
 		this.positions = positions;
 	}
 	public void setRoute(String route) {

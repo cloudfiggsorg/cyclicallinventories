@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.gmodelo.beans.ConciliacionBean;
+import com.gmodelo.beans.ConciliationsIDsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.workservice.ConciliacionWorkService;
@@ -20,6 +21,14 @@ public class ConciliacionService {
 	
 	@Context
 	private HttpServletRequest httpRequest;
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getConciliationsID")
+	public Response<List<ConciliationsIDsBean>> getConciliationIDs(){
+		return new ConciliacionWorkService().getConciliationIDs();
+	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConciliacionBean;
+import com.gmodelo.beans.ConciliationsIDsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.ConciliacionDao;
@@ -17,6 +18,10 @@ public class ConciliacionWorkService {
 	
 	private Logger log = Logger.getLogger(ConciliacionWorkService.class.getName());
 	Gson gson = new Gson();
+	
+	public Response<List<ConciliationsIDsBean>> getConciliationIDs(){
+		return new ConciliacionDao().getConciliationIDs();
+	}
 	
 	public Response<List<ConciliacionBean>> getConciliacion(Request request) {
 

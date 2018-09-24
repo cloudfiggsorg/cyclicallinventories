@@ -1,12 +1,10 @@
 package com.gmodelo.dao;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -14,19 +12,69 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConciliacionBean;
+import com.gmodelo.beans.ConciliationsIDsBean;
 import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.RouteBean;
-import com.gmodelo.beans.ConciliacionBean;
-import com.gmodelo.beans.ConciliacionBean;
-import com.gmodelo.beans.DocInvPositionBean;
-import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
 public class ConciliacionDao {
 	
 	private Logger log = Logger.getLogger( ConciliacionDao.class.getName());
+	
+	public Response<List<ConciliationsIDsBean>> getConciliationIDs(){
+		Response<List<ConciliationsIDsBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		List<ConciliationsIDsBean> listConIds = new ArrayList<ConciliationsIDsBean>();
+		ConciliationsIDsBean conciliationIDsBean;
+		final String GENERATE_IDDESC_CONCILIATION = "select DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION from INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK)  Inner join INV_ROUTE inr WITH(NOLOCK) on idih.DIH_ROUTE_ID = inr.routE_ID WHERE idih.DIH_STATUS = '1'";
+		
+		try {
+			stm = con.prepareCall(GENERATE_IDDESC_CONCILIATION);
+			log.info("[getConciliationIDsDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()){
+				 conciliationIDsBean = new ConciliationsIDsBean();
+				
+				 conciliationIDsBean.setId(rs.getString("DOC_INV"));
+				 conciliationIDsBean.setDesc(rs.getString("DESCRIPCION"));
+				
+				 listConIds.add(conciliationIDsBean);
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.info("[getConciliationIDsDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getConciliationIDsDao] Some error occurred while was trying to execute the query: "+GENERATE_IDDESC_CONCILIATION, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getConciliationIDsDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listConIds);
+		return res ;
+	}
 	
 	public Response<List<ConciliacionBean>> getConciliacion(ConciliacionBean docInvBean, String searchFilter){
 		Response<List<ConciliacionBean>> res = new Response<>();
@@ -64,7 +112,6 @@ public class ConciliacionDao {
 			while (rs.next()){
 				docInvBean = new ConciliacionBean();
 				
-				RouteDao route = new RouteDao();
 				docInvBean.setRoute(rs.getString("ROUTE_ID"));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
@@ -72,7 +119,7 @@ public class ConciliacionDao {
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setJustification(rs.getString("JUSTIFICATION"));
-				docInvBean.setPositions(this.getPositions(rs.getString("DOC_INV_ID")));
+				docInvBean.setPositions(null);//PENDIENTE poner positions de ConciliationPositionBean
 				listDocInv.add(docInvBean);
 			}
 			
