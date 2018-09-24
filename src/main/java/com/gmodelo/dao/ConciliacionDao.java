@@ -261,7 +261,7 @@ public class ConciliacionDao {
 	public static void main(String args[]){
 		ConciliacionDao dao = new ConciliacionDao();
 		ConciliacionBean docInvBean = new ConciliacionBean();
-		docInvBean.setDocInvId(3);
+	//	docInvBean.setDocInvId(3);
 		String searchFilter = "";
 		Response<List<ConciliacionBean>> x = dao.getConciliacion(docInvBean, searchFilter);
 		for(int i=0; i < x.getLsObject().size(); i++){
