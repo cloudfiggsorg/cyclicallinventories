@@ -11,6 +11,7 @@ public class RouteUserBean {
 	String type;
 	String bdesc;
 	String wdesc;
+	Boolean reconteo;
 	long dateIni;
 	long dateEnd;
 	List<RouteUserPositionBean> positions;
@@ -103,13 +104,25 @@ public class RouteUserBean {
 		this.rdesc = rdesc;
 	}
 
+	public Boolean getReconteo() {
+		return reconteo;
+	}
+
+	public void setReconteo(Boolean reconteo) {
+		this.reconteo = reconteo;
+	}
+
+
 	public RouteUserBean() {
 		super();
+		this.reconteo = false;
 		// TODO Auto-generated constructor stub
 	}
 
+	
 	public RouteUserBean(String routeId, String bukrs, String werks, String taskId, String rdesc, String type,
-			String bdesc, String wdesc, long dateIni, long dateEnd, List<RouteUserPositionBean> positions) {
+			String bdesc, String wdesc, Boolean reconteo, long dateIni, long dateEnd,
+			List<RouteUserPositionBean> positions) {
 		super();
 		this.routeId = routeId;
 		this.bukrs = bukrs;
@@ -119,6 +132,7 @@ public class RouteUserBean {
 		this.type = type;
 		this.bdesc = bdesc;
 		this.wdesc = wdesc;
+		this.reconteo = reconteo;
 		this.dateIni = dateIni;
 		this.dateEnd = dateEnd;
 		this.positions = positions;
@@ -127,8 +141,10 @@ public class RouteUserBean {
 	@Override
 	public String toString() {
 		return "RouteUserBean [routeId=" + routeId + ", bukrs=" + bukrs + ", werks=" + werks + ", taskId=" + taskId
-				+ ", rdesc=" + rdesc + ", type=" + type + ", bdesc=" + bdesc + ", wdesc=" + wdesc + ", dateIni="
-				+ dateIni + ", dateEnd=" + dateEnd + ", positions=" + positions + "]";
+				+ ", rdesc=" + rdesc + ", type=" + type + ", bdesc=" + bdesc + ", wdesc=" + wdesc + ", reconteo="
+				+ reconteo + ", dateIni=" + dateIni + ", dateEnd=" + dateEnd + ", positions=" + positions + "]";
 	}
+
+	
 
 }
