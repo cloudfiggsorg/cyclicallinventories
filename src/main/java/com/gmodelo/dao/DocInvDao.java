@@ -239,7 +239,7 @@ public class DocInvDao {
 		condition+=bukrs;
 		werks = (docInvB.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '"		+ docInvB.getWerks() + "' ": "");
 		condition+=werks;
-		status = (docInvB.getStatus() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ")  + "STATUS = '"		+ docInvB.getStatus() + "' ": "");
+		status = (docInvB.getStatus() == null ? (condition.contains("WHERE") ? " AND " : " WHERE ")  + "STATUS IS NULL " :(condition.contains("WHERE") ? " AND " : " WHERE ") + " STATUS = '"+docInvB.getStatus()+"'");
 		condition+= status;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
