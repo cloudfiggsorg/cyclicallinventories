@@ -218,7 +218,7 @@ public class ConciliacionDao {
 	public String getRowCount(int docInvId, String conteo,String idZone,String lgpla, String matnr, String meins,Connection con, PreparedStatement stm){
 		String result="";
 		stm = null;
-		String INV_VW_COUNT_POSITIONS = "SELECT TOTAL FROM INV_VW_COUNT_POSITIONS_BASE WITH(NOLOCK) WHERE TAS_DOC_INV_ID= ? AND ZONE_ID=? AND LGPLA = ? "
+		String INV_VW_COUNT_POSITIONS = "SELECT SUM(TOTAL) TOTAL FROM INV_VW_COUNT_POSITIONS_BASE WITH(NOLOCK) WHERE TAS_DOC_INV_ID= ? AND ZONE_ID=? AND LGPLA = ? "
 				+ " AND MATNR=? AND COUNT_NUM=?";
 		try {
 			stm = con.prepareStatement(INV_VW_COUNT_POSITIONS);
@@ -258,5 +258,17 @@ public class ConciliacionDao {
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
-	}	
+	}
+	/*
+	public static void main(String args[]){
+		ConciliacionDao dao = new ConciliacionDao();
+		ConciliacionBean docInvBean = new ConciliacionBean();
+	//	docInvBean.setDocInvId(3);
+		String searchFilter = "";
+		Response<List<ConciliacionBean>> x = dao.getConciliacion(docInvBean, searchFilter);
+		for(int i=0; i < x.getLsObject().size(); i++){
+			System.out.println(x.getLsObject().get(i).toString());
+		}
+	}
+	*/
 }
