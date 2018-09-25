@@ -30,7 +30,7 @@ public class TaskDao {
 		Response<TaskBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
-		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?"; 		
+		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?"; 		
 		int taskId = 0;
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -44,21 +44,16 @@ public class TaskDao {
 			cs = con.prepareCall(INV_SP_ADD_TASK);
 			cs.setInt(1, taskBean.getTaskId());
 			cs.setString(2, taskBean.getGroupId());
-			cs.setInt(3, taskBean.getDocInvId().getDocInvId());
-			cs.setInt(4, taskBean.getCount());			
+			cs.setInt(3, taskBean.getDocInvId().getDocInvId());			
 			cs.registerOutParameter(1, Types.INTEGER);
 			log.info("[addTask] Executing query...");
 			cs.execute();
 			taskBean.setTaskId(cs.getInt(1));
-			System.out.println(cs.getInt(1));
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
 				log.log(Level.WARNING, "[addTask] " + warning.getMessage());
 				warning = warning.getNextWarning();
 			}
-
-			con.commit();
-			cs.close();
 			
 		} catch (SQLException e) {
 			try {
@@ -149,7 +144,7 @@ public class TaskDao {
 			log.info("[getTaskDao] Trying to convert String to Int");
 		}		
 
-		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TAS_COUNT_ID FROM INV_VW_TASK WITH(NOLOCK) ";
+		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID FROM INV_VW_TASK WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
 			INV_VW_TASK += "WHERE TASK_ID LIKE '%" + searchFilterNumber + "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%'";
@@ -159,7 +154,7 @@ public class TaskDao {
 				INV_VW_TASK += condition;
 			}
 		}
-		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TAS_COUNT_ID ORDER BY TASK_ID ASC";
+		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID ORDER BY TASK_ID ASC";
 		
 		log.info(INV_VW_TASK);
 		log.info("[getTaskDao] Preparing sentence...");
@@ -175,7 +170,6 @@ public class TaskDao {
 				taskBean.setTaskId(rs.getInt("TASK_ID"));
 				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));
 				taskBean.setDocInvId(this.getDocInv(rs.getInt("TAS_DOC_INV_ID")));
-				taskBean.setCount(rs.getInt("TAS_COUNT_ID"));
 				listTaskBean.add(taskBean);
 			}
 
@@ -210,11 +204,42 @@ public class TaskDao {
 		return res;
 	}
 
+	public long updateDowloadTask(String idTask) throws SQLException {
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		CallableStatement cs = null;
+
+		final String INV_SP_UPDATE_DOWLOAD_TASK = "INV_SP_UPDATE_DOWLOAD_TASK ?, ?, ?";
+		long date = 0;
+
+		log.info("[updateDowloadTaskDao] Preparing sentence...");
+		try {
+			cs = con.prepareCall(INV_SP_UPDATE_DOWLOAD_TASK);
+			cs.setString(1, idTask);
+			cs.registerOutParameter(2, Types.INTEGER);
+			cs.registerOutParameter(3, Types.DATE);
+			log.info("[updateDowloadTaskDao] Executing query...");
+			cs.execute();
+			date = cs.getDate(3).getTime();
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[updateDowloadTask] Some error occurred while was trying to execute the query: "
+					+ INV_SP_UPDATE_DOWLOAD_TASK, e);
+			throw e;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[updateDowloadTask] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		return date;
+	}
+	
 	private String buildCondition(TaskBean taskB) {
 		String TASK_ID = "";
 		String TAS_GROUP_ID = "";
 		String TAS_DOC_INV_ID = "";
-		String TAS_COUNT_ID = "";
 		String type = "";
 		String condition = "";
 		/*TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TAS_COUNT_ID*/
@@ -224,8 +249,6 @@ public class TaskDao {
 		condition += TAS_GROUP_ID;
 		TAS_DOC_INV_ID = (taskB.getDocInvId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_DOC_INV_ID = '" + taskB.getDocInvId() + "' " : "";
 		condition += TAS_DOC_INV_ID;
-		TAS_COUNT_ID = (taskB.getCount() != 0) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + taskB.getCount() + "' " : "";
-		condition += TAS_COUNT_ID;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}

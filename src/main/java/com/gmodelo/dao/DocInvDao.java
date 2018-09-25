@@ -203,6 +203,26 @@ public class DocInvDao {
 		return res ;
 	}
 	
+	public int updateStatusDocInv(int i){
+		ConnectionManager iConnectionManager = new ConnectionManager();;
+		Connection con = iConnectionManager.createConnection();
+		int res = 0; 
+		String UPDATE ="UPDATE INV_DOC_INVENTORY_HEADER SET DIH_STATUS='1' WHERE DOC_INV_ID=?";
+		try {
+			PreparedStatement stm = con.prepareStatement(UPDATE);
+			stm.setInt(1, i);
+			res = stm.executeUpdate();
+		} catch (SQLException e) {
+			try {
+				con.close();
+			} catch (SQLException e1) {
+				log.log(Level.SEVERE,"[updateStatusDocInv] Some error occurred while was trying to close the connection.", e1);
+			}
+			log.log(Level.SEVERE,"[updateStatusDocInv] Some error occurred while was trying to execute: " + UPDATE + "Exeption: "+ e);
+		}
+		return 0;
+	}
+	
 	private String buildCondition(DocInvBean docInvB){
 		String condition ="";
 		String DOC_INV_ID ="";
@@ -224,6 +244,4 @@ public class DocInvDao {
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
-
-
 }
