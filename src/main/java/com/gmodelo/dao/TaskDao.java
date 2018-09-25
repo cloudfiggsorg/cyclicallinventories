@@ -55,11 +55,6 @@ public class TaskDao {
 				warning = warning.getNextWarning();
 			}
 			
-			DocInvDao dao = new DocInvDao(); 
-			dao.updateStatusDocInv(taskBean.getDocInvId().getDocInvId());
-			con.commit();
-			cs.close();
-			
 		} catch (SQLException e) {
 			try {
 				log.log(Level.WARNING,"[addTask] Execute rollback");
