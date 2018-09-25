@@ -54,4 +54,12 @@ public class ToleranceService {
 	public Response<List<ToleranceBean>> getTolerances(Request request){
 		return new ToleranceWorkService().getTolerances(request);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getToleranceByMatnr")
+	public Response<ToleranceBean> getToleranceByMatnr(Request request){
+		return new ToleranceWorkService().getToleranceByMatnr(request);
+	}
 }

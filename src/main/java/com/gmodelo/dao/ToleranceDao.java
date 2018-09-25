@@ -279,6 +279,69 @@ public Response<List<ToleranceBean>> getTolerances(ToleranceBean toleranceBean, 
 		return res ;
 	}
 
+	public Response<ToleranceBean> getToleranceByMatnr(String matnr){
+		Response<ToleranceBean> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		ToleranceBean tb = null;
+		String TOLERANCE_BY_MATNR = "SELECT MATNR, MATKL, TOL_TP, TOL_TC from INV_VW_TOLERANCE_BY_MATNR WHERE MATNR LIKE '%"+matnr+"%'";
+		
+		log.info(TOLERANCE_BY_MATNR);
+		log.info("[getToleranceByMatnrDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(TOLERANCE_BY_MATNR);
+			
+			log.info("[getToleranceByMatnrDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				
+				tb = new ToleranceBean();
+				
+				tb.setTp(rs.getString("TOL_TP"));
+				tb.setTc(rs.getString("TOL_TC"));
+				
+				log.info("tp "+tb.getTp());
+				log.info("tc "+tb.getTc());
+				
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.info("[getToleranceByMatnrDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getToleranceByMatnrDao] Some error occurred while was trying to execute the query: "+TOLERANCE_BY_MATNR, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getToleranceByMatnrDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		abstractResult.setResultId(tb != null ? ReturnValues.ISUCCESS : ReturnValues.IEMPTY);
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(tb);
+		return res ;
+	}
+
 	private String buildCondition(ToleranceBean toleranceBean) {
 		
 		String condition = "";

@@ -101,8 +101,6 @@ public class ToleranceWorkService {
 		ToleranceBean tb = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
-		Response<List<ToleranceBean>> res = new Response<List<ToleranceBean>>();
-
 		if (!req.isEmpty()) {
 			try {
 				tb = gson.fromJson(gson.toJson(request.getLsObject()), ToleranceBean.class);
@@ -117,5 +115,12 @@ public class ToleranceWorkService {
 			
 		}
 		return new ToleranceDao().getTolerances(tb, searchFilter);
+	}
+	
+	public Response<ToleranceBean> getToleranceByMatnr(Request request){
+		String matnr;
+		log.info("getToleranceByMatnrWS] matnr = " +request.getLsObject().toString());
+		matnr = request.getLsObject().toString().trim();
+		return new ToleranceDao().getToleranceByMatnr(matnr);
 	}
 }
