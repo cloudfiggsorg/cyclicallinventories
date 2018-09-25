@@ -1,12 +1,10 @@
 package com.gmodelo.dao;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -14,8 +12,8 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConciliacionBean;
-import com.gmodelo.beans.ConciliationsIDsBean;
 import com.gmodelo.beans.ConciliationPositionBean;
+import com.gmodelo.beans.ConciliationsIDsBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -116,6 +114,7 @@ public class ConciliacionDao {
 				docInvBean = new ConciliacionBean();
 				
 				docInvBean.setRoute(rs.getString("ROUTE_ID"));
+				docInvBean.setType(rs.getString("TYPE"));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
 				docInvBean.setBukrsD(rs.getString("BDESC"));
