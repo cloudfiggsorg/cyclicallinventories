@@ -27,7 +27,7 @@ public class TaskDao {
 		Response<TaskBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
-		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?"; 		
+		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?"; 		
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -42,6 +42,7 @@ public class TaskDao {
 			cs.setString(1, taskBean.getTaskId());
 			cs.setString(2, taskBean.getGroupId());
 			cs.setInt(3, taskBean.getDocInvId().getDocInvId());
+			cs.setString(4, taskBean.getTaskIdFather());
 			cs.setString(1, taskBean.getTaskIdFather());
 			cs.registerOutParameter(1, Types.INTEGER);
 			
