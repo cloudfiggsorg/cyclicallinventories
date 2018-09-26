@@ -30,7 +30,7 @@ public class DownloadService {
 		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
 		return new DownloadWorkService().GetInfoTablesWS(request, s);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -40,24 +40,13 @@ public class DownloadService {
 		return new DownloadWorkService().GetMasterDataWS(request, s);
 	}
 
-	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/GetMobileDataMaterial")
-	public String GetMobileData(Request request){
+	@Path("/GetMobileData")
+	public String GetMobileDataMaterial(Request request) {
 		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
-		return null;
+		return new DownloadWorkService().GetMobileDataWS(request, s);
 	}
 
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/GetMobileDataEmbalaje")
-	public String GetMobileDataEmbalaje(Request request){
-		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
-		return null;
-	}
-
-	
 }

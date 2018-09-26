@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.MaterialTarimasBean;
+import com.gmodelo.beans.MobileMaterialBean;
 
 public class DownloadDao {
 
@@ -41,7 +42,30 @@ public class DownloadDao {
 		} catch (SQLException e) {
 			throw new InvCicException(e);
 		}
-		return null;
+		return materialTarimasList;
+	}
+
+	public List<MobileMaterialBean> getAllMaterialMobile(Connection con) throws InvCicException {
+		List<MobileMaterialBean> mobileMaterialList = new ArrayList<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_ALL_INFO_MATERIAL);
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				MobileMaterialBean bean = new MobileMaterialBean();
+				bean.setMatnr(rs.getString("MATNR"));
+				bean.setMaktx(rs.getString("MAKTX"));
+				bean.setMeins(rs.getString("MEINS"));
+				bean.setMeinh(rs.getString("MEINH"));
+				bean.setUmrez(rs.getString("UMREZ"));
+				bean.setUmren(rs.getString("UMREN"));
+				bean.setEannr(rs.getString("EANNR"));
+				bean.setEan11(rs.getString("EAN11"));
+				mobileMaterialList.add(bean);
+			}
+		} catch (SQLException e) {
+			throw new InvCicException(e);
+		}
+		return mobileMaterialList;
 	}
 
 }
