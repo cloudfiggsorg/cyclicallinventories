@@ -184,4 +184,13 @@ public class DownloadWorkService {
 		return new Gson().toJson(response);
 	}
 
+	
+	public String GetMobileDataMaterialWS(Request request, HttpSession s){
+		return null;
+	}
+	
+	public String GetMobileDataEmbalajeWS(Request request, HttpSession s){
+		return null;
+	}
+	
 }
