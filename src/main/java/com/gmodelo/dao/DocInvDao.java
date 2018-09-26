@@ -161,7 +161,7 @@ public class DocInvDao {
 			while (rs.next()){
 				docInvBean = new DocInvBean();
 				
-				docInvBean.setRoute(rs.getString("ROUTE_ID"));
+				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
 				docInvBean.setBukrsD(rs.getString("BDESC"));
