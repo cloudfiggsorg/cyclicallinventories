@@ -42,21 +42,20 @@ public class DownloadWorkService {
 	 * 
 	 * @ParamType1 @Null this will return all data in the table
 	 * 
-	 * @ParamType2 @List<RfcTableBean> this will return all the tables
-	 * enumerated on the table_name value in the RfcTableBean object contained
-	 * in the list
+	 * @ParamType2 @List<RfcTableBean> this will return all the tables enumerated on
+	 * the table_name value in the RfcTableBean object contained in the list
 	 * 
-	 * @ParamType3 @RfcTableBean object, this object will pass the following
-	 * filters one or all may applies.
+	 * @ParamType3 @RfcTableBean object, this object will pass the following filters
+	 * one or all may applies.
 	 * 
-	 * @ParamType3 @FilterValues #TABLE_NAME if you want only information for
-	 * the defined table.
+	 * @ParamType3 @FilterValues #TABLE_NAME if you want only information for the
+	 * defined table.
 	 * 
 	 * @ParamType3 @FilterValues #DEVICE this will give you information of wich
 	 * tables will be downloaded to device.
 	 * 
-	 * @ParamType3 @FilterValues #LAST_UPDATE will give you the information that
-	 * is updated after the specified date.
+	 * @ParamType3 @FilterValues #LAST_UPDATE will give you the information that is
+	 * updated after the specified date.
 	 * 
 	 */
 
@@ -95,8 +94,8 @@ public class DownloadWorkService {
 	 * tables.
 	 * 
 	 * @Param @List<RfcTablesBean> with #Last_Request values to get info of the
-	 * tables that are recently updated Pending TODO change the dynamic query
-	 * for the views, but the view needs to be exact in names that table
+	 * tables that are recently updated Pending TODO change the dynamic query for
+	 * the views, but the view needs to be exact in names that table
 	 */
 
 	public String GetMasterDataWS(Request request, HttpSession httpSession) {
@@ -118,13 +117,7 @@ public class DownloadWorkService {
 					queryValuesString = queryValuesString.substring(0, queryValuesString.length() - 1);
 
 					String executableQuery = "SELECT " + queryValuesString + " FROM " + rfcBean.getTable_name()
-							+ " WITH(NOLOCK) "
-					// + " ORDER BY " + queryValuesString + " OFFSET ("
-					// + rfcBean.getTableValues().getCurrent_row() + ") " + "
-					// ROWS FETCH NEXT ("
-					// + rfcBean.getTableValues().getRow_skips() + ") ROWS
-					// ONLY";
-					;
+							+ " WITH(NOLOCK) ";
 					if (rfcBean.getLastUpdate() != null) {
 						executableQuery += " WHERE CONVERT(DATE,LASTMODIFY) > '"
 								+ new SimpleDateFormat("yyyy-MM-dd").format(new Date(rfcBean.getLastUpdate())) + "' ";
@@ -184,13 +177,20 @@ public class DownloadWorkService {
 		return new Gson().toJson(response);
 	}
 
-	
-	public String GetMobileDataMaterialWS(Request request, HttpSession s){
+	public String GetMobileDataMaterialWS(Request request, HttpSession s) {
+		Response<String> response = new Response<>();
+		AbstractResultsBean results = new AbstractResultsBean();
+		try {
+			Connection con = new ConnectionManager().createConnection();
+			
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "GetMobileDataMarealWS Error", e);
+		}
+		return new Gson().toJson(response);
+	}
+
+	public String GetMobileDataEmbalajeWS(Request request, HttpSession s) {
 		return null;
 	}
-	
-	public String GetMobileDataEmbalajeWS(Request request, HttpSession s){
-		return null;
-	}
-	
+
 }
