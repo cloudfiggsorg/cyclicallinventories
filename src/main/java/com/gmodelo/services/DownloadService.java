@@ -40,5 +40,24 @@ public class DownloadService {
 		return new DownloadWorkService().GetMasterDataWS(request, s);
 	}
 
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/GetMobileDataMaterial")
+	public String GetMobileData(Request request){
+		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		return null;
+	}
 
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/GetMobileDataEmbalaje")
+	public String GetMobileDataEmbalaje(Request request){
+		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		return null;
+	}
+
+	
 }
