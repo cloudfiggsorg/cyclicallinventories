@@ -85,22 +85,29 @@ public class TaskDao {
 		return res;
 	}
 
-	public Response<Object> deleteTask(String arrayIdTask){
+	public Response<Object> deleteTask(String arrayIdTask, String status){
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		int ResultSP= 0;
-		final String INV_SP_DELETE_TASK = "INV_SP_DELETE_TASK ?,? "; //The Store procedure to call
+		final String INV_SP_DELETE_TASK = "INV_SP_DELETE_TASK ?, ?, ? "; //The Store procedure to call
 		log.info("[deleteTask] Preparing sentence...");
 		try {
 			cs = con.prepareCall(INV_SP_DELETE_TASK);
-			cs.setString(1,arrayIdTask);
-			cs.registerOutParameter(2, Types.INTEGER);
+			cs.setString(1, arrayIdTask);
+			
+			if(status != null){
+				cs.setString(2, status);
+			}else{
+				cs.setNull(2, Types.CHAR);
+			}
+			
+			cs.registerOutParameter(3, Types.INTEGER);
 			log.info("[deleteTask] Executing query...");
 			cs.execute();
-			ResultSP = cs.getInt(2);
+			ResultSP = cs.getInt(3);
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -112,7 +119,7 @@ public class TaskDao {
 			cs.close();	
 			log.info("[deleteTask] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[deleteTask] Some error occurred while was trying to execute the S.P.: "+INV_SP_DELETE_TASK, e);
+			log.log(Level.SEVERE,"[deleteTask] Some error occurred while was trying to execute the S.P.: "+ INV_SP_DELETE_TASK, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);

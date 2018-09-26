@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
@@ -42,25 +45,30 @@ public class TaskWorkService {
 
 	public Response<Object> deleteTask(Request request) {
 		log.info("[deleteTaskWS] " + request.toString());
-		String arrayIdTask;
+		String arrayIdTask = null;
+		String status;
 		Response<Object> res = new Response<Object>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		String req;
+		req = request.getLsObject().toString();
+		req = req.replaceAll("=", ":");
+		
 		try {
-			arrayIdTask = request.getLsObject().toString();
-			if (arrayIdTask == null || arrayIdTask.isEmpty()) {
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs("NULL OR EMPTY ARRAY");
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE, "[deleteTaskWS] Error al pasar de Json a String");
+			JSONObject jsonObj = new JSONObject(req);
+			arrayIdTask = jsonObj.getString("ids");
+			status = jsonObj.getString("status");
+		} catch (JSONException e) {
+			status = null;
+		}
+								
+		if (arrayIdTask == null || arrayIdTask.isEmpty()) {
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
+			abstractResult.setResultMsgAbs("NULL OR EMPTY ARRAY");
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-		return new TaskDao().deleteTask(arrayIdTask);
+		
+		return new TaskDao().deleteTask(arrayIdTask, status);
 	}
 	
 	public Response<List<TaskBean>> getTasks(Request request) {
