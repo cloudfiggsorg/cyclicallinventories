@@ -22,9 +22,11 @@ import javax.servlet.http.HttpSession;
 
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.DownloadDataBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RfcTablesBean;
+import com.gmodelo.dao.DownloadDao;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -42,20 +44,21 @@ public class DownloadWorkService {
 	 * 
 	 * @ParamType1 @Null this will return all data in the table
 	 * 
-	 * @ParamType2 @List<RfcTableBean> this will return all the tables enumerated on
-	 * the table_name value in the RfcTableBean object contained in the list
+	 * @ParamType2 @List<RfcTableBean> this will return all the tables
+	 * enumerated on the table_name value in the RfcTableBean object contained
+	 * in the list
 	 * 
-	 * @ParamType3 @RfcTableBean object, this object will pass the following filters
-	 * one or all may applies.
+	 * @ParamType3 @RfcTableBean object, this object will pass the following
+	 * filters one or all may applies.
 	 * 
-	 * @ParamType3 @FilterValues #TABLE_NAME if you want only information for the
-	 * defined table.
+	 * @ParamType3 @FilterValues #TABLE_NAME if you want only information for
+	 * the defined table.
 	 * 
 	 * @ParamType3 @FilterValues #DEVICE this will give you information of wich
 	 * tables will be downloaded to device.
 	 * 
-	 * @ParamType3 @FilterValues #LAST_UPDATE will give you the information that is
-	 * updated after the specified date.
+	 * @ParamType3 @FilterValues #LAST_UPDATE will give you the information that
+	 * is updated after the specified date.
 	 * 
 	 */
 
@@ -94,8 +97,8 @@ public class DownloadWorkService {
 	 * tables.
 	 * 
 	 * @Param @List<RfcTablesBean> with #Last_Request values to get info of the
-	 * tables that are recently updated Pending TODO change the dynamic query for
-	 * the views, but the view needs to be exact in names that table
+	 * tables that are recently updated Pending TODO change the dynamic query
+	 * for the views, but the view needs to be exact in names that table
 	 */
 
 	public String GetMasterDataWS(Request request, HttpSession httpSession) {
@@ -177,20 +180,45 @@ public class DownloadWorkService {
 		return new Gson().toJson(response);
 	}
 
-	public String GetMobileDataMaterialWS(Request request, HttpSession s) {
+	public String GetMobileDataWS(Request request, HttpSession httpSession) {
 		Response<String> response = new Response<>();
-		AbstractResultsBean results = new AbstractResultsBean();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		DownloadDao downloadDao = new DownloadDao();
+		DownloadDataBean databean = new DownloadDataBean();
+		Connection con = new ConnectionManager().createConnection();
+		response.setAbstractResult(abstractResult);
 		try {
-			Connection con = new ConnectionManager().createConnection();
-			
-		} catch (Exception e) {
+			databean.setListMaterialTarimas(downloadDao.getAllMaterialCrossTarimas(con));
+			databean.setListMobileMaterial(downloadDao.getAllMaterialMobile(con));
+			abstractResult.setStrCom1(httpSession.getId());
+			abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos;
+			try {
+				oos = new ObjectOutputStream(baos);
+				oos.writeObject(databean);
+				oos.close();
+				response.setLsObject(Base64.getEncoder().encodeToString(baos.toByteArray()));
+			} catch (IOException e) {
+				response.setLsObject(null);
+				log.log(Level.SEVERE, "Before Adding to List" + e);
+			}
+		} catch (InvCicException e) {
 			log.log(Level.SEVERE, "GetMobileDataMarealWS Error", e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			abstractResult.setStrCom1(httpSession.getId());
+			abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
+			response.setLsObject(null);
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "GetMobileDatalWS", e);
+			}
 		}
 		return new Gson().toJson(response);
-	}
-
-	public String GetMobileDataEmbalajeWS(Request request, HttpSession s) {
-		return null;
 	}
 
 }
