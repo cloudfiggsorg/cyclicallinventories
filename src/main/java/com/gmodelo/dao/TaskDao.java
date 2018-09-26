@@ -15,9 +15,6 @@ import java.util.logging.Logger;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.RouteBean;
-import com.gmodelo.beans.TaskBean;
-import com.gmodelo.beans.RoutePositionBean;
 import com.gmodelo.beans.TaskBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -31,7 +28,6 @@ public class TaskDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?"; 		
-		int taskId = 0;
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -40,20 +36,28 @@ public class TaskDao {
 		log.info("[addTask] Preparing sentence...");
 
 		try {
+			
 			con.setAutoCommit(false);
 			cs = con.prepareCall(INV_SP_ADD_TASK);
-			cs.setInt(1, taskBean.getTaskId());
+			cs.setString(1, taskBean.getTaskId());
 			cs.setString(2, taskBean.getGroupId());
-			cs.setInt(3, taskBean.getDocInvId().getDocInvId());			
+			cs.setInt(3, taskBean.getDocInvId().getDocInvId());
+			cs.setString(1, taskBean.getTaskIdFather());
 			cs.registerOutParameter(1, Types.INTEGER);
+			
 			log.info("[addTask] Executing query...");
 			cs.execute();
-			taskBean.setTaskId(cs.getInt(1));
+			
+			taskBean.setTaskId(cs.getString(1));
+			
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
 				log.log(Level.WARNING, "[addTask] " + warning.getMessage());
 				warning = warning.getNextWarning();
 			}
+			
+			con.commit();
+			cs.close();
 			
 		} catch (SQLException e) {
 			try {
@@ -144,7 +148,7 @@ public class TaskDao {
 			log.info("[getTaskDao] Trying to convert String to Int");
 		}		
 
-		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID FROM INV_VW_TASK WITH(NOLOCK) ";
+		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
 			INV_VW_TASK += "WHERE TASK_ID LIKE '%" + searchFilterNumber + "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%'";
@@ -154,7 +158,7 @@ public class TaskDao {
 				INV_VW_TASK += condition;
 			}
 		}
-		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID ORDER BY TASK_ID ASC";
+		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TASK_ID_PARENT ORDER BY TASK_ID ASC";
 		
 		log.info(INV_VW_TASK);
 		log.info("[getTaskDao] Preparing sentence...");
@@ -167,9 +171,10 @@ public class TaskDao {
 
 			while (rs.next()) {
 				taskBean = new TaskBean();
-				taskBean.setTaskId(rs.getInt("TASK_ID"));
+				taskBean.setTaskId(rs.getString("TASK_ID"));
 				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));
 				taskBean.setDocInvId(this.getDocInv(rs.getInt("TAS_DOC_INV_ID")));
+				taskBean.setTaskIdFather(rs.getString("TASK_ID_PARENT"));
 				listTaskBean.add(taskBean);
 			}
 
@@ -214,13 +219,16 @@ public class TaskDao {
 
 		log.info("[updateDowloadTaskDao] Preparing sentence...");
 		try {
+			
 			cs = con.prepareCall(INV_SP_UPDATE_DOWLOAD_TASK);
 			cs.setString(1, idTask);
 			cs.registerOutParameter(2, Types.INTEGER);
 			cs.registerOutParameter(3, Types.DATE);
 			log.info("[updateDowloadTaskDao] Executing query...");
+			
 			cs.execute();
 			date = cs.getDate(3).getTime();
+			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[updateDowloadTask] Some error occurred while was trying to execute the query: "
 					+ INV_SP_UPDATE_DOWLOAD_TASK, e);
@@ -237,23 +245,25 @@ public class TaskDao {
 	}
 	
 	private String buildCondition(TaskBean taskB) {
+		
 		String TASK_ID = "";
 		String TAS_GROUP_ID = "";
 		String TAS_DOC_INV_ID = "";
-		String type = "";
 		String condition = "";
+		
 		/*TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TAS_COUNT_ID*/
-		TASK_ID = (taskB.getTaskId() != 0) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TASK_ID = '" + taskB.getTaskId() + "' ": "";
+		TASK_ID = (taskB.getTaskId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TASK_ID LIKE '%" + taskB.getTaskId() + "%' ": "";
 		condition += TASK_ID;
-		TAS_GROUP_ID = (taskB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_GROUP_ID = '" + taskB.getGroupId() + "' " : "";
+		TAS_GROUP_ID = (taskB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_GROUP_ID LIKE '%" + taskB.getGroupId() + "%' " : "";
 		condition += TAS_GROUP_ID;
-		TAS_DOC_INV_ID = (taskB.getDocInvId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_DOC_INV_ID = '" + taskB.getDocInvId() + "' " : "";
+		TAS_DOC_INV_ID = (taskB.getDocInvId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_DOC_INV_ID LIKE '%" + taskB.getDocInvId() + "%' " : "";
 		condition += TAS_DOC_INV_ID;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
 	
 	private DocInvBean getDocInv(int docInvId){
+		
 		DocInvBean bean= new DocInvBean();
 		bean.setDocInvId(docInvId);
 		DocInvDao dao = new DocInvDao();

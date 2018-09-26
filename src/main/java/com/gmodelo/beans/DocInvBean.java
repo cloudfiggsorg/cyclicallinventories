@@ -1,6 +1,8 @@
 package com.gmodelo.beans;
 
 public class DocInvBean {
+	
+	int docInvId;
 	String route;
 	String bukrs;
 	String bukrsD;
@@ -8,9 +10,39 @@ public class DocInvBean {
 	String werksD;
 	String type;
 	String status;
-	String createdBy;
-	int docInvId;
+	String createdBy;	
 	
+	public DocInvBean() {
+		super();
+	}
+	
+	public DocInvBean(String route, String bukrs, String bukrsD, String werks, String werksD, String type,
+			String status, String createdBy, int docInvId) {
+		super();
+		this.route = route;
+		this.bukrs = bukrs;
+		this.bukrsD = bukrsD;
+		this.werks = werks;
+		this.werksD = werksD;
+		this.type = type;
+		this.status = status;
+		this.createdBy = createdBy;
+		this.docInvId = docInvId;
+	}
+	
+	@Override
+	public String toString() {
+		return "DocInvBean [route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD + ", werks=" + werks
+				+ ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy=" + createdBy
+				+ ", docInvId=" + docInvId + "]";
+	}
+	
+	public int getDocInvId() {
+		return docInvId;
+	}
+	public void setDocInvId(int docInvId) {
+		this.docInvId = docInvId;
+	}	
 	public String getRoute() {
 		return route;
 	}
@@ -59,41 +91,5 @@ public class DocInvBean {
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
-	public int getDocInvId() {
-		return docInvId;
-	}
-	public void setDocInvId(int docInvId) {
-		this.docInvId = docInvId;
-	}
-	
-	public DocInvBean(String route, String bukrs, String bukrsD, String werks, String werksD, String type,
-			String status, String createdBy, int docInvId) {
-		super();
-		this.route = route;
-		this.bukrs = bukrs;
-		this.bukrsD = bukrsD;
-		this.werks = werks;
-		this.werksD = werksD;
-		this.type = type;
-		this.status = status;
-		this.createdBy = createdBy;
-		this.docInvId = docInvId;
-	}
-	
-	
-	
-	public DocInvBean() {
-		super();
-	}
-	@Override
-	public String toString() {
-		return "DocInvBean [route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD + ", werks=" + werks
-				+ ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy=" + createdBy
-				+ ", docInvId=" + docInvId + "]";
-	}
-
-	
-
-	
 	
 }
