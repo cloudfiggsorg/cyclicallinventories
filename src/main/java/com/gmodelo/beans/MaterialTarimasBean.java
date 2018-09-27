@@ -2,9 +2,13 @@ package com.gmodelo.beans;
 
 import java.io.Serializable;
 
-public class MaterialTarimasBean {
+public class MaterialTarimasBean implements Serializable {
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3824661176421017891L;
 	String packnr;
 	String vhilm;
 	String maktx;

@@ -181,6 +181,8 @@ public class DownloadWorkService {
 	}
 
 	public String GetMobileDataWS(Request request, HttpSession httpSession) {
+		log.log(Level.WARNING, "Init... GetMobileDataWS(Request<LoginBean<?>> request)");
+		log.log(Level.WARNING, "Request Data" + request.toString());
 		Response<String> response = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		DownloadDao downloadDao = new DownloadDao();
@@ -218,6 +220,7 @@ public class DownloadWorkService {
 				log.log(Level.SEVERE, "GetMobileDatalWS", e);
 			}
 		}
+		log.info("Before Response" + response.getAbstractResult());
 		return new Gson().toJson(response);
 	}
 
