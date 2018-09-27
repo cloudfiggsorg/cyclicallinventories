@@ -61,7 +61,11 @@ public class DownloadDao {
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				MobileMaterialBean bean = new MobileMaterialBean();
-				bean.setMatnr(rs.getString("MATNR"));
+				try{
+					bean.setMatnr(String.valueOf(rs.getInt("MATNR")));
+				}catch(Exception e){
+					bean.setMatnr(rs.getString("MATNR"));
+				}
 				bean.setMaktx(rs.getString("MAKTX"));
 				bean.setMeins(rs.getString("MEINS"));
 				bean.setMeinh(rs.getString("MEINH"));

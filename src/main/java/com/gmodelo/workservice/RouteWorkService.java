@@ -13,6 +13,7 @@ import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteUserBean;
+import com.gmodelo.beans.RouteUserPositionBean;
 import com.gmodelo.dao.RouteDao;
 import com.gmodelo.dao.RouteUserDao;
 import com.gmodelo.utils.ReturnValues;
@@ -89,7 +90,6 @@ public class RouteWorkService {
 		log.info("[getRoutesService] " + request.toString());
 		RouteBean routeBean = null;
 		String searchFilter = null;
-		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
 			try {
@@ -119,7 +119,12 @@ public class RouteWorkService {
 			RouteUserBean route = routeDao.getRoutesByUser(user);
 			if (route != null) {
 				route.setPositions(routeDao.getPositions(route.getRouteId()));
-				routeResponse.setLsObject(route);
+				if (!route.getPositions().isEmpty()){
+					routeResponse.setLsObject(route);	
+				}else{
+					result.setResultId(ReturnValues.IUSERNOTTASK);
+					result.setResultMsgAbs("Tarea Inconpleta Contacte Administrador");
+				}
 			} else {
 				result.setResultId(ReturnValues.IUSERNOTTASK);
 				result.setResultMsgAbs("Tarea no encontrada para usuario: " + user.getEntity().getIdentyId());
@@ -131,5 +136,23 @@ public class RouteWorkService {
 		}
 		
 		return new Gson().toJson(routeResponse);
+	}
+	
+	public Response<List<RouteUserPositionBean>> getPositionsByIdRoute(Request request){
+		log.info(request.toString());
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		Response<List<RouteUserPositionBean>> res = new Response<List<RouteUserPositionBean>>();
+		try {
+			 res.setAbstractResult(abstractResult);
+			res.setLsObject(new RouteUserDao().getPositions(request.getLsObject().toString()));
+			 return res;
+		} catch (SQLException e) {
+			
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			log.log(Level.SEVERE, "[getPositionsByIdRoute]",e);
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
 	}
 }
