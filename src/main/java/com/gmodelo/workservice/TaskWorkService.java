@@ -45,30 +45,25 @@ public class TaskWorkService {
 
 	public Response<Object> deleteTask(Request request) {
 		log.info("[deleteTaskWS] " + request.toString());
-		String arrayIdTask = null;
-		String status;
+		String arrayIdTask;
 		Response<Object> res = new Response<Object>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		String req;
-		req = request.getLsObject().toString();
-		req = req.replaceAll("=", ":");
-		
 		try {
-			JSONObject jsonObj = new JSONObject(req);
-			arrayIdTask = jsonObj.getString("ids");
-			status = jsonObj.getString("status");
-		} catch (JSONException e) {
-			status = null;
-		}
-								
-		if (arrayIdTask == null || arrayIdTask.isEmpty()) {
+			arrayIdTask = request.getLsObject().toString();
+			if (arrayIdTask == null || arrayIdTask.isEmpty()) {
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("NULL OR EMPTY ARRAY");
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE, "[deleteTaskWS] Error al pasar de Json a String");
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs("NULL OR EMPTY ARRAY");
+			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-		
-		return new TaskDao().deleteTask(arrayIdTask, status);
+		return new TaskDao().deleteTask(arrayIdTask);
 	}
 	
 	public Response<List<TaskBean>> getTasks(Request request) {
