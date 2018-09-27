@@ -140,6 +140,7 @@ public class TaskDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TaskBean> listTaskBean = new ArrayList<TaskBean>();
 		String INV_VW_TASK = null;		
+		DocInvDao didao = new DocInvDao();
 
 		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, "
@@ -164,11 +165,8 @@ public class TaskDao {
 			while (rs.next()) {
 				taskBean = new TaskBean();
 				taskBean.setTaskId(rs.getString("TASK_ID"));
-				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));
-				
-				System.out.println(rs.getInt("TAS_DOC_INV_ID"));
-				
-				taskBean.setDocInvId(this.getDocInv(rs.getInt("TAS_DOC_INV_ID")));
+				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));				
+				taskBean.setDocInvId(didao.getDocInvById(rs.getInt("TAS_DOC_INV_ID")));
 				
 				try {
 					taskBean.setdCreated(rs.getDate("TAS_CREATED_DATE").getTime());
@@ -234,13 +232,13 @@ public class TaskDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-
 		Response<List<TaskBean>> res = new Response<List<TaskBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TaskBean> listTaskBean = new ArrayList<TaskBean>();
 		String INV_VW_TASK = null;
 		int aux;		
 		String searchFilterNumber = "";
+		DocInvDao didao = new DocInvDao();
 		
 		try {
 			aux = Integer.parseInt(searchFilter); 
@@ -280,7 +278,7 @@ public class TaskDao {
 				taskBean = new TaskBean();
 				taskBean.setTaskId(rs.getString("TASK_ID"));
 				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));
-				taskBean.setDocInvId(this.getDocInv(rs.getInt("TAS_DOC_INV_ID")));
+				taskBean.setDocInvId(didao.getDocInvById(rs.getInt("TAS_DOC_INV_ID")));
 				taskBean.setdCreated(rs.getDate("AS_CREATED_DATE").getTime());
 				taskBean.setdDownlad(rs.getDate("TAS_DOWLOAD_DATE").getTime());
 				taskBean.setdUpload(rs.getDate("TAS_UPLOAD_DATE").getTime());
@@ -374,20 +372,6 @@ public class TaskDao {
 		condition += TAS_STATUS;
 		condition = condition.isEmpty() ? null : condition;		
 		return condition;
-	}
-	
-	private DocInvBean getDocInv(int docInvId){
-		
-		DocInvBean bean= new DocInvBean();
-		bean.setDocInvId(docInvId);
-		DocInvDao dao = new DocInvDao();
-		Response<List<DocInvBean>> list = dao.getDocInv(bean, null);
-		if (list.getLsObject().size() > 0){
-			bean  = list.getLsObject().get(1);
-		}
-		
-		System.out.println(bean.getDocInvId());
-		return bean;
 	}
 	
 }
