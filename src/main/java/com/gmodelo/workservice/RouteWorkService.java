@@ -15,6 +15,7 @@ import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.dao.RouteDao;
 import com.gmodelo.dao.RouteUserDao;
+import com.gmodelo.dao.TaskUserDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -117,7 +118,7 @@ public class RouteWorkService {
 		routeResponse.setAbstractResult(result);
 		try {
 			RouteUserBean route = routeDao.getRoutesByUser(user);
-			if (route != null) {
+			if (route.getRouteId() != null) {
 				route.setPositions(routeDao.getPositions(route.getRouteId()));
 				routeResponse.setLsObject(route);
 			} else {
@@ -132,4 +133,47 @@ public class RouteWorkService {
 		
 		return new Gson().toJson(routeResponse);
 	}
+	
+	public String getAutoTaskByUser(User user, HttpSession userSession) {
+
+		Response<RouteUserBean> routeResponse = new Response<>();
+		RouteUserDao routeDao = new RouteUserDao();
+		AbstractResultsBean result = new AbstractResultsBean();
+		result.setIntCom1(userSession.getMaxInactiveInterval());
+		result.setStrCom1(userSession.getId());
+		routeResponse.setAbstractResult(result);
+		try {
+			RouteUserBean route = routeDao.getRoutesByUser(user);
+			if (route.getRouteId() != null) {
+				route.setPositions(routeDao.getPositions(route.getRouteId()));
+				routeResponse.setLsObject(route);
+			} else {
+				
+				TaskUserDao taskUserDao = new TaskUserDao();
+				Response<Object> resTask = taskUserDao.createAutoTask(user);
+				if (resTask.getAbstractResult().getResultId() == 1){
+					route = routeDao.getRoutesByUser(user);
+					if(route != null){
+						route.setPositions(routeDao.getPositions(route.getRouteId()));
+						routeResponse.setLsObject(route);
+					}else{
+						result.setResultId(ReturnValues.IUSERNOTTASK);
+						result.setResultMsgAbs("Tarea no encontrada para usuario: " + user.getEntity().getIdentyId());
+					}
+					
+				}else{
+					result.setResultId(ReturnValues.IUSERNOTTASK);
+					result.setResultMsgAbs("Tarea no encontrada para usuario: " + user.getEntity().getIdentyId());
+				}
+				
+			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgGen(e.getMessage());
+			log.log(Level.SEVERE, "[getRoutesByUserService] ",e);
+		}
+		
+		return new Gson().toJson(routeResponse);
+	}
+
 }

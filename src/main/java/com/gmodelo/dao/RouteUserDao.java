@@ -15,16 +15,12 @@ import java.util.logging.Logger;
 
 import com.bmore.ume001.beans.Entity;
 import com.bmore.ume001.beans.User;
-import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LgplaValuesBean;
-import com.gmodelo.beans.Response;
-import com.gmodelo.beans.RouteGroupBean;
 import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.beans.RouteUserPositionBean;
 import com.gmodelo.beans.ZoneUserBean;
 import com.gmodelo.beans.ZoneUserPositionsBean;
 import com.gmodelo.utils.ConnectionManager;
-import com.gmodelo.utils.ReturnValues;
 
 public class RouteUserDao {
 
@@ -34,68 +30,50 @@ public class RouteUserDao {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-		PreparedStatement stm = null;
+		
+		CallableStatement cs = null;
 		RouteUserBean routeBean = null;
-		final String INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID FROM dbo.INV_VW_ROUTES_USER WITH(NOLOCK) WHERE USER_ID = ?";
+		final String INV_VW_ROUTES = "INV_SP_ROUTE_USER ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		log.info(INV_VW_ROUTES);
 		log.info("[getRoutesByUserDao] Preparing sentence...");
 		try {
-			stm = con.prepareStatement(INV_VW_ROUTES);
-			stm.setString(1, user.getEntity().getIdentyId());
+			cs = con.prepareCall(INV_VW_ROUTES);
+			
+			cs.setString(1, user.getEntity().getIdentyId());
+			cs.registerOutParameter(2, Types.VARCHAR);	//routeId
+			cs.registerOutParameter(3, Types.VARCHAR);	//bukrs
+			cs.registerOutParameter(4, Types.VARCHAR);	//werks
+			cs.registerOutParameter(5, Types.VARCHAR);	//rdesc
+			cs.registerOutParameter(6, Types.VARCHAR);	//rtype
+			cs.registerOutParameter(7, Types.VARCHAR);	//bdesc
+			cs.registerOutParameter(8, Types.VARCHAR);	//wdesc
+			cs.registerOutParameter(9, Types.VARCHAR);	//taskId
+			cs.registerOutParameter(10, Types.INTEGER);	//return
+			
 			log.info("[getRoutesByUserDao] Executing query...");
-			ResultSet rs = stm.executeQuery();
-			if (rs.next()) {
+			cs.execute();
+			if (cs.getInt(10) == 1) {
 				routeBean = new RouteUserBean();
-				routeBean.setRouteId(rs.getString("ROUTE_ID"));
-				routeBean.setBukrs(rs.getString("BUKRS"));
-				routeBean.setWerks(rs.getString("WERKS"));
-				routeBean.setRdesc(rs.getString("RDESC"));
-				routeBean.setType(rs.getString("RTYPE"));
-				routeBean.setBdesc(rs.getString("BDESC"));
-				routeBean.setWdesc(rs.getString("WDESC"));
-				routeBean.setTaskId(rs.getString("TASK_ID"));
-				routeBean.setDateIni(updateDowloadTask(rs.getString("TASK_ID")));
-				// routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
+				routeBean.setRouteId(cs.getString(2));
+				routeBean.setBukrs(cs.getString(3));
+				routeBean.setWerks(cs.getString(4));
+				routeBean.setRdesc(cs.getString(5));
+				routeBean.setType(cs.getString(6));
+				routeBean.setBdesc(cs.getString(7));
+				routeBean.setWdesc(cs.getString(8));
+				routeBean.setTaskId(cs.getString(9));
+				TaskDao task = new TaskDao();
+				routeBean.setDateIni(task.updateDowloadTask(cs.getString(9)));
+				//routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
+			}else{
+				routeBean = null;
 			}
-			rs.close();
-			stm.close();
+			cs.close();
 			log.info("[getRoutesByUserDao] Sentence successfully executed.");
 		} finally {
 			con.close();
 		}
 		return routeBean;
-	}
-
-	public long updateDowloadTask(String idTask) throws SQLException {
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
-		CallableStatement cs = null;
-
-		final String INV_SP_UPDATE_DOWLOAD_TASK = "INV_SP_UPDATE_DOWLOAD_TASK ?, ?, ?";
-		long date = 0;
-
-		log.info("[updateDowloadTaskDao] Preparing sentence...");
-		try {
-			cs = con.prepareCall(INV_SP_UPDATE_DOWLOAD_TASK);
-			cs.setString(1, idTask);
-			cs.registerOutParameter(2, Types.INTEGER);
-			cs.registerOutParameter(3, Types.DATE);
-			log.info("[updateDowloadTaskDao] Executing query...");
-			cs.execute();
-			date = cs.getDate(3).getTime();
-		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[updateDowloadTask] Some error occurred while was trying to execute the query: "
-					+ INV_SP_UPDATE_DOWLOAD_TASK, e);
-			throw e;
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,
-						"[updateDowloadTask] Some error occurred while was trying to close the connection.", e);
-			}
-		}
-		return date;
 	}
 
 	public List<RouteUserPositionBean> getPositions(String idRoute) throws SQLException {
@@ -362,5 +340,27 @@ public class RouteUserDao {
 	//
 	// return listGroups;
 	// }
-
+	/*
+public static void main(String[] args) {
+		
+		
+		User user = new User(); 
+		user.getEntity().getIdentyId();
+		Entity entity = new Entity();
+		//entity.setIdentyId("ROD1986");
+		//entity.setIdentyId("TEST1");
+		entity.setIdentyId("1");
+		user.setEntity(entity);
+		RouteUserDao d = new RouteUserDao(); 
+		RouteUserBean x;
+		try {
+			x = d.getRoutesByUser(user);
+			System.out.println("lista:"+x.toString());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	*/
 }
