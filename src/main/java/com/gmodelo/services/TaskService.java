@@ -47,4 +47,12 @@ public class TaskService {
 	public Response<List<TaskBean>> getTasks(Request request){
 		return new TaskWorkService().getTasks(request);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getTasksByBukrsAndWerks")
+	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request request){
+		return new TaskWorkService().getTasksByBukrsAndWerks(request);
+	}
 }

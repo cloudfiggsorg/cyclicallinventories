@@ -101,11 +101,37 @@ public class TaskWorkService {
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
 				return res;
-			}
-			
+			}			
 		}
 		return new TaskDao().getTasks(tb, searchFilter);
 	}
-
-
+	
+	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request request) {
+		log.info("[deleteTaskWS] " + request.toString());
+		String bukrs;
+		String werks;
+		Response<List<TaskBean>> res = new Response<List<TaskBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		String req;
+		req = request.getLsObject().toString();
+		req = req.replaceAll("=", ":");
+		
+		try {
+			JSONObject jsonObj = new JSONObject(req);
+			bukrs = jsonObj.getString("bukrs");
+			werks = jsonObj.getString("werks");
+		} catch (JSONException e) {
+			bukrs = null;
+			werks = null;
+		}
+								
+		if (bukrs == null || werks ==  null) {
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs("NULL DATA...");
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		
+		return new TaskDao().getTasksbyBukrsAndWerks(bukrs, werks);
+	}
 }

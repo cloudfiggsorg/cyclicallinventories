@@ -27,7 +27,7 @@ public class TaskDao {
 		Response<TaskBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
-		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?"; 		
+		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?, ?"; 		
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -43,6 +43,7 @@ public class TaskDao {
 			cs.setString(2, taskBean.getGroupId());
 			cs.setInt(3, taskBean.getDocInvId().getDocInvId());
 			cs.setString(4, taskBean.getTaskIdFather());
+			cs.setString(5, createdBy);
 			cs.setString(1, taskBean.getTaskIdFather());
 			cs.registerOutParameter(1, Types.INTEGER);
 			
@@ -136,6 +137,81 @@ public class TaskDao {
 		return res ;
 	}
 	
+	public Response<List<TaskBean>> getTasksbyBukrsAndWerks(String bukrs, String werks) {
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		TaskBean taskBean;
+		Response<List<TaskBean>> res = new Response<List<TaskBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<TaskBean> listTaskBean = new ArrayList<TaskBean>();
+		String INV_VW_TASK = null;		
+
+		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
+				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, "
+				+ "TAS_STATUS, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
+
+		INV_VW_TASK += "WHERE DIH_BUKRS = '" + bukrs + "' AND DIH_WERKS = '" + werks + "'";
+		
+		INV_VW_TASK += "GROUP BY SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
+				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, " 
+				+ "TAS_STATUS, TASK_ID_PARENT " 
+				+ "ORDER BY TASK_ID ASC";
+		
+		log.info(INV_VW_TASK);
+		log.info("[getTaskDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_TASK);
+
+			log.info("[getTaskDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+				taskBean = new TaskBean();
+				taskBean.setTaskId(rs.getString("TASK_ID"));
+				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));
+				taskBean.setDocInvId(this.getDocInv(rs.getInt("TAS_DOC_INV_ID")));
+				taskBean.setdCreated(rs.getDate("AS_CREATED_DATE").getTime());
+				taskBean.setdDownlad(rs.getDate("TAS_DOWLOAD_DATE").getTime());
+				taskBean.setdUpload(rs.getDate("TAS_UPLOAD_DATE").getTime());
+				taskBean.setStatus(rs.getBoolean("TAS_STATUS"));
+				taskBean.setTaskIdFather(rs.getString("TASK_ID_PARENT"));
+				listTaskBean.add(taskBean);
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[getTaskDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getTaskDao] Some error occurred while was trying to execute the query: " + INV_VW_TASK, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getTaskDao] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listTaskBean);
+		return res;
+	}
+	
 	public Response<List<TaskBean>> getTasks(TaskBean taskBean, String searchFilter) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -156,7 +232,9 @@ public class TaskDao {
 			log.info("[getTaskDao] Trying to convert String to Int");
 		}		
 
-		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
+		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
+				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, "
+				+ "TAS_STATUS, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
 			INV_VW_TASK += "WHERE TASK_ID LIKE '%" + searchFilterNumber + "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%'";
@@ -166,7 +244,10 @@ public class TaskDao {
 				INV_VW_TASK += condition;
 			}
 		}
-		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TASK_ID_PARENT ORDER BY TASK_ID ASC";
+		INV_VW_TASK += "GROUP BY SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
+				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, " 
+				+ "TAS_STATUS, TASK_ID_PARENT " 
+				+ "ORDER BY TASK_ID ASC";
 		
 		log.info(INV_VW_TASK);
 		log.info("[getTaskDao] Preparing sentence...");
@@ -182,6 +263,10 @@ public class TaskDao {
 				taskBean.setTaskId(rs.getString("TASK_ID"));
 				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));
 				taskBean.setDocInvId(this.getDocInv(rs.getInt("TAS_DOC_INV_ID")));
+				taskBean.setdCreated(rs.getDate("AS_CREATED_DATE").getTime());
+				taskBean.setdDownlad(rs.getDate("TAS_DOWLOAD_DATE").getTime());
+				taskBean.setdUpload(rs.getDate("TAS_UPLOAD_DATE").getTime());
+				taskBean.setStatus(rs.getBoolean("TAS_STATUS"));
 				taskBean.setTaskIdFather(rs.getString("TASK_ID_PARENT"));
 				listTaskBean.add(taskBean);
 			}
@@ -257,6 +342,7 @@ public class TaskDao {
 		String TASK_ID = "";
 		String TAS_GROUP_ID = "";
 		String TAS_DOC_INV_ID = "";
+		String TAS_STATUS = "";
 		String condition = "";
 		
 		/*TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TAS_COUNT_ID*/
@@ -266,7 +352,9 @@ public class TaskDao {
 		condition += TAS_GROUP_ID;
 		TAS_DOC_INV_ID = (taskB.getDocInvId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_DOC_INV_ID LIKE '%" + taskB.getDocInvId() + "%' " : "";
 		condition += TAS_DOC_INV_ID;
-		condition = condition.isEmpty() ? null : condition;
+		TAS_STATUS = (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_STATUS = " + (taskB.isStatus()  ? 1 : 0) ;
+		condition += TAS_STATUS;
+		condition = condition.isEmpty() ? null : condition;		
 		return condition;
 	}
 	
@@ -275,8 +363,7 @@ public class TaskDao {
 		DocInvBean bean= new DocInvBean();
 		bean.setDocInvId(docInvId);
 		DocInvDao dao = new DocInvDao();
-		String searchFilter = "";
-		Response<List<DocInvBean>> list = dao.getDocInv(bean, searchFilter);
+		Response<List<DocInvBean>> list = dao.getDocInv(bean, "");
 		if (list.getLsObject().size() > 0){
 			bean  = list.getLsObject().get(1);
 		}
