@@ -10,6 +10,7 @@ import com.gmodelo.beans.ConciliationsIDsBean;
 import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.TaskBean;
 import com.gmodelo.dao.ConciliacionDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -67,6 +68,27 @@ public class ConciliacionWorkService {
 		}
 		
 		return new ConciliacionDao().getAvailableGroups(docInvId);
+	}
+	
+	public Response<TaskBean> getFatherTaskByDocId(Request request) {
+
+		log.info("[getFatherTaskByDocIdWS] " + request.toString());
+		String req = request.getLsObject().toString().trim();
+		Response<TaskBean> res = new Response<TaskBean>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();		
+		int docInvId;
+		
+		try {
+			docInvId = Integer.parseInt(req);
+		} catch (NumberFormatException e) {
+			log.log(Level.SEVERE, "[getFatherTaskByDocIdWS] Cadena no válida");
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		
+		return new ConciliacionDao().getFatherTaskByDocId(docInvId);
 	}
 
 }
