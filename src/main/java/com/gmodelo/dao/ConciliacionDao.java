@@ -14,6 +14,7 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.ConciliationPositionBean;
 import com.gmodelo.beans.ConciliationsIDsBean;
+import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -172,31 +173,27 @@ public class ConciliacionDao {
 				log.info("[getPositionsConciliationDao] TABLE_CONCILIATION_POSITIONS Temp, Executing query...");
 				rs = stm.executeQuery();
 				
-				if(rs != null){
-					while (rs.next()){
-						ConciliationPositionBean position = new ConciliationPositionBean();
-						position.setZoneId(rs.getString("ZONE_ID"));   
-						position.setZoneD(rs.getString("ZONE_DESC"));
-						position.setLgpla(rs.getString("LGPLA"));
-						
-						try {
-							position.setMatnr(String.valueOf(rs.getInt("MATNR")));
-						} catch (Exception e) {
-							position.setMatnr(rs.getString("MATNR"));
-						}
-						position.setMatnrD(rs.getString("MATDESC"));
-						position.setMeasureUnit(rs.getString("MEINS"));
-						
-						position.setCount1A(this.getRowCount(i, "1A",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
-						position.setCount1B(this.getRowCount(i, "1B",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
-						position.setCount2(this.getRowCount(i, "2",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
-						position.setCount3(this.getRowCount(i, "3",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
-						listPositions.add(position);
+				while (rs.next()){
+					ConciliationPositionBean position = new ConciliationPositionBean();
+					position.setZoneId(rs.getString("ZONE_ID"));   
+					position.setZoneD(rs.getString("ZONE_DESC"));
+					position.setLgpla(rs.getString("LGPLA"));
+					
+					try {
+						position.setMatnr(String.valueOf(rs.getInt("MATNR")));
+					} catch (Exception e) {
+						position.setMatnr(rs.getString("MATNR"));
 					}
-				}else{
-					log.info("[getPositionsConciliationDao] No data in TABLE_CONCILIATION_POSITIONS Final...");
+					position.setMatnrD(rs.getString("MATDESC"));
+					position.setMeasureUnit(rs.getString("MEINS"));
+					
+					position.setCount1A(this.getRowCount(i, "1A",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
+					position.setCount1B(this.getRowCount(i, "1B",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
+					position.setCount2(this.getRowCount(i, "2",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
+					position.setCount3(this.getRowCount(i, "3",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
+					listPositions.add(position);
 				}
-				
+								
 			//Free resources
 			if(rs != null){rs.close();}
 			if(stm != null){stm.close();}	
@@ -257,6 +254,72 @@ public class ConciliacionDao {
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
+	}
+	
+	public Response<List<GroupBean>> getAvailableGroups(int docInvId){
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		ResultSet rs = null;
+		List<GroupBean> listGroups = new ArrayList<GroupBean>();
+		Response<List<GroupBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		GroupBean gb = new GroupBean();
+		GroupDao gpDao= new GroupDao();
+		
+		String INV_VW_AVAILABLE_GROUPS = "SELECT GRPS.GROUP_ID, GRPS.GRP_DESC "   
+				+ "FROM INV_ROUTE_GROUPS AS IRG "
+				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IRG.RGR_ROUTE_ID = IDIH.DIH_ROUTE_ID) "
+				+ "INNER JOIN INV_GROUPS AS GRPS ON(GRPS.GROUP_ID = IRG.RGR_GROUP_ID) "
+				+ "AND RGR_GROUP_ID NOT IN(SELECT TAS_GROUP_ID "
+				+ "FROM INV_TASK "
+				+ "WHERE TAS_DOC_INV_ID = ?) "
+				+ "WHERE IDIH.DOC_INV_ID = ? "
+				+ "ORDER BY IRG.RGR_COUNT_NUM ASC";
+		
+		try {
+				stm = con.prepareCall(INV_VW_AVAILABLE_GROUPS);
+				stm.setInt(1, docInvId);
+				stm.setInt(2, docInvId);
+				log.info(INV_VW_AVAILABLE_GROUPS);
+				rs = stm.executeQuery();
+				
+				while (rs.next()){
+					
+					gb = new GroupBean();				
+					gb.setGroupId(rs.getString(1));
+					gb.setGdesc(rs.getString(2));
+					gb.setUsers(gpDao.groupUsers(gb.getGroupId(), null));
+					listGroups.add(gb);
+				}
+				
+			//Free resources
+			rs.close();	
+			stm.close();
+							
+			log.info("[getAvailableGroups] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getAvailableGroups] Some error occurred while was trying to execute the query: " + INV_VW_AVAILABLE_GROUPS, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getAvailableGroups] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+
+			}
+		}
+		
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listGroups);
+		return res;
 	}
 	/*
 	public static void main(String args[]){
