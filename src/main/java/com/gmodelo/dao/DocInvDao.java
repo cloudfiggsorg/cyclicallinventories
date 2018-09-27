@@ -18,8 +18,6 @@ import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
-import javassist.bytecode.analysis.Type;
-
 public class DocInvDao {
 	
 	private Logger log = Logger.getLogger( DocInvDao.class.getName());
@@ -45,6 +43,7 @@ public class DocInvDao {
 			cs.setString(4,docInvBean.getWerks());
 			cs.setNull(5, Types.INTEGER);
 			cs.setString(6,createdBy);
+			cs.setInt(7, docInvBean.getDocInvId());
 			cs.registerOutParameter(7, Types.INTEGER);
 			log.info("[addDocInv] Executing query...");
 			
@@ -141,9 +140,9 @@ public class DocInvDao {
 			searchFilterNumber = searchFilter;
 			log.info("Is String");
 		}
+		
 		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)";
 		if(searchFilter != null){
-			System.out.println("here.... PURO OR");
 			INV_VW_DOC_INV += " WHERE DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"+searchFilterNumber+ "%' OR BDESC LIKE '%"+searchFilterNumber+"%' "+ " OR WERKSD LIKE '%"+searchFilterNumber+"%' ";
 		}else{
 			String condition = buildCondition(docInvBean);
@@ -151,6 +150,7 @@ public class DocInvDao {
 				INV_VW_DOC_INV += condition;
 			}
 		}
+		
 		log.info(INV_VW_DOC_INV);
 		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";
 		log.info("[getDocInvDao] Preparing sentence...");
@@ -161,7 +161,7 @@ public class DocInvDao {
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()){
 				docInvBean = new DocInvBean();
-				
+				System.out.println("**********************HERE**********************");
 				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
@@ -202,6 +202,64 @@ public class DocInvDao {
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(listDocInv);
 		return res ;
+	}
+	
+	public DocInvBean getDocInvById(int docInvId) throws SQLException{
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		DocInvBean docInvBean = null;
+		
+		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)";
+		INV_VW_DOC_INV += "WHERE DOC_INV_ID = " + docInvId + " ";
+		//INV_VW_DOC_INV += "AND (STATUS IS NULL OR STATUS = '0')";
+				
+		log.info(INV_VW_DOC_INV);
+		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";
+		log.info("[getDocInvDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_DOC_INV);
+			log.info("[getDocInvDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			
+			if (rs.next()){
+				docInvBean = new DocInvBean();
+				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
+				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
+				docInvBean.setBukrs(rs.getString("BUKRS"));
+				docInvBean.setBukrsD(rs.getString("BDESC"));
+				docInvBean.setWerks(rs.getString("WERKS"));
+				docInvBean.setWerksD(rs.getString("WERKSD"));
+				docInvBean.setType(rs.getString("TYPE"));
+				docInvBean.setStatus(rs.getString("STATUS"));
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.info("[getDocInvDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getDocInvDao] Some error occurred while was trying to execute the query: " + INV_VW_DOC_INV, e);
+			throw e;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getDocInvDao] Some error occurred while was trying to close the connection.", e);
+				throw e;
+			}
+		}
+		return docInvBean ;
 	}
 	
 	public int updateStatusDocInv(int i){

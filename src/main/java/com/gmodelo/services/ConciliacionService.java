@@ -12,8 +12,10 @@ import javax.ws.rs.core.MediaType;
 
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.ConciliationsIDsBean;
+import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.TaskBean;
 import com.gmodelo.workservice.ConciliacionWorkService;
 
 @Path("/services/ConciliationService")
@@ -38,4 +40,20 @@ public class ConciliacionService {
 		return new ConciliacionWorkService().getConciliacion(request);
 	}
 
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getAvailableGroups")
+	public Response<List<GroupBean>> getAvailableGroups(Request request){
+		return new ConciliacionWorkService().getAvailableGroups(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getFatherTaskByDocId")
+	public Response<TaskBean> getFatherTaskByDocId(Request request){
+		return new ConciliacionWorkService().getFatherTaskByDocId(request);
+	}
+	
 }

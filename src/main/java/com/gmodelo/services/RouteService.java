@@ -16,6 +16,7 @@ import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteUserBean;
+import com.gmodelo.beans.RouteUserPositionBean;
 import com.gmodelo.filters.HttpSessionCollector;
 import com.gmodelo.workservice.RouteWorkService;
 
@@ -62,11 +63,8 @@ public class RouteService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getRoutesByUser")
 	public String getRoutesByUser(Request request) {
-		//HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
-		//User user = (User) session.getAttribute("user");
-		
-		User user = (User) httpRequest.getSession().getAttribute("user");
-		HttpSession session = httpRequest.getSession();
+		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		User user = (User) session.getAttribute("user");
 		return new RouteWorkService().getRoutesByUser(user, session);
 	}
 	
@@ -75,13 +73,16 @@ public class RouteService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/autoTaskByUser")
 	public String getAutoTaskByUser(Request request) {
-		
-		//HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
-		//User user = (User) session.getAttribute("user");
-		
-		User user = (User) httpRequest.getSession().getAttribute("user");
-		HttpSession session = httpRequest.getSession();
-	
+		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		User user = (User) session.getAttribute("user");
 		return new RouteWorkService().getAutoTaskByUser(user, session);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getPositionsByIdRoute")
+	public Response<List<RouteUserPositionBean>> getPositionsByIdRoute(Request request){
+		return new RouteWorkService().getPositionsByIdRoute(request);
 	}
 }
