@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.MaterialTarimasBean;
@@ -13,6 +15,8 @@ import com.gmodelo.beans.MobileMaterialBean;
 
 public class DownloadDao {
 
+	Logger log = Logger.getLogger(getClass().getName());
+	
 	public static final String GET_MATERIALES_TARIMAS = "SELECT PAT.PACKNR,  PAT.MATNR AS VHILM , MAKT.MAKTX, PAT.TRGQTY, "
 			+ "PAT.BASEUNIT, PAT.PACKITEM, PAT.PAITEMTYPE "
 			+ "FROM PACKPO PAT left JOIN MAKT MAKT ON PAT.MATNR = MAKT.MATNR WHERE MAKT.MAKTX IS NOT NULL "
@@ -26,7 +30,9 @@ public class DownloadDao {
 	public List<MaterialTarimasBean> getAllMaterialCrossTarimas(Connection con) throws InvCicException {
 		List<MaterialTarimasBean> materialTarimasList = new ArrayList<>();
 		try {
+			log.log(Level.WARNING, "getAllMaterialCrossTarimas");
 			PreparedStatement stm = con.prepareStatement(GET_MATERIALES_TARIMAS);
+			log.log(Level.WARNING, "executing: " + GET_MATERIALES_TARIMAS);
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				MaterialTarimasBean bean = new MaterialTarimasBean();
@@ -42,13 +48,16 @@ public class DownloadDao {
 		} catch (SQLException e) {
 			throw new InvCicException(e);
 		}
+		log.log(Level.WARNING, "Finish: " + materialTarimasList.size());
 		return materialTarimasList;
 	}
 
 	public List<MobileMaterialBean> getAllMaterialMobile(Connection con) throws InvCicException {
 		List<MobileMaterialBean> mobileMaterialList = new ArrayList<>();
+		log.log(Level.WARNING, "getAllMaterialMobile");
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_ALL_INFO_MATERIAL);
+			log.log(Level.WARNING, "executing: " + GET_MATERIALES_TARIMAS);
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				MobileMaterialBean bean = new MobileMaterialBean();
@@ -65,6 +74,7 @@ public class DownloadDao {
 		} catch (SQLException e) {
 			throw new InvCicException(e);
 		}
+		log.log(Level.WARNING, "Finish: " + mobileMaterialList.size());
 		return mobileMaterialList;
 	}
 

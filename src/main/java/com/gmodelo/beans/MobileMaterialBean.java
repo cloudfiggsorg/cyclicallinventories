@@ -1,7 +1,13 @@
 package com.gmodelo.beans;
 
-public class MobileMaterialBean {
+import java.io.Serializable;
 
+public class MobileMaterialBean implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5684316925363247131L;
 	String matnr;
 	String maktx;
 	String meins;
