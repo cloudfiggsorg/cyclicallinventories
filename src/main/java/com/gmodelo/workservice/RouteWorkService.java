@@ -119,7 +119,12 @@ public class RouteWorkService {
 			RouteUserBean route = routeDao.getRoutesByUser(user);
 			if (route != null) {
 				route.setPositions(routeDao.getPositions(route.getRouteId()));
-				routeResponse.setLsObject(route);
+				if (!route.getPositions().isEmpty()){
+					routeResponse.setLsObject(route);	
+				}else{
+					result.setResultId(ReturnValues.IUSERNOTTASK);
+					result.setResultMsgAbs("Tarea Inconpleta Contacte Administrador");
+				}
 			} else {
 				result.setResultId(ReturnValues.IUSERNOTTASK);
 				result.setResultMsgAbs("Tarea no encontrada para usuario: " + user.getEntity().getIdentyId());

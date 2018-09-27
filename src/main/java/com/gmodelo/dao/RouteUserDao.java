@@ -216,7 +216,6 @@ public class RouteUserDao {
 			log.info("[getPositionsZoneDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
-
 				ZoneUserPositionsBean position = new ZoneUserPositionsBean();
 				position.setPkAsgId(rs.getInt("PK_ASG_ID"));
 				position.setLgtyp(rs.getString("LGTYP"));
@@ -226,9 +225,7 @@ public class RouteUserDao {
 				position.setZoneId(zoneId);
 				position.setLgplaValues(this.getPositionMaterials(rs.getString("PK_ASG_ID")));
 				listPositions.add(position);
-
 			}
-
 			// Retrive the warnings if there're
 			SQLWarning warning = stm.getWarnings();
 			while (warning != null) {
