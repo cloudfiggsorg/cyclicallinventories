@@ -145,9 +145,9 @@ public class TaskDao {
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, "
 				+ "TAS_STATUS, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
 
-		INV_VW_TASK += "WHERE DIH_BUKRS = '" + bukrs + "' AND DIH_WERKS = '" + werks + "'";
+		INV_VW_TASK += "WHERE DIH_BUKRS LIKE '%" + bukrs + "%' AND DIH_WERKS LIKE '%" + werks + "%' ";
 		
-		INV_VW_TASK += "GROUP BY SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
+		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, " 
 				+ "TAS_STATUS, TASK_ID_PARENT " 
 				+ "ORDER BY TASK_ID ASC";
@@ -165,12 +165,37 @@ public class TaskDao {
 				taskBean = new TaskBean();
 				taskBean.setTaskId(rs.getString("TASK_ID"));
 				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));
+				
+				System.out.println(rs.getInt("TAS_DOC_INV_ID"));
+				
 				taskBean.setDocInvId(this.getDocInv(rs.getInt("TAS_DOC_INV_ID")));
-				taskBean.setdCreated(rs.getDate("AS_CREATED_DATE").getTime());
-				taskBean.setdDownlad(rs.getDate("TAS_DOWLOAD_DATE").getTime());
-				taskBean.setdUpload(rs.getDate("TAS_UPLOAD_DATE").getTime());
+				
+				try {
+					taskBean.setdCreated(rs.getDate("TAS_CREATED_DATE").getTime());
+				} catch (NullPointerException e) {
+					taskBean.setdCreated(0);
+				}
+				
+				try {
+					taskBean.setdDownlad(rs.getDate("TAS_DOWLOAD_DATE").getTime());
+				} catch (NullPointerException e) {
+					taskBean.setdDownlad(0);
+				}
+				
+				try {
+					taskBean.setdUpload(rs.getDate("TAS_UPLOAD_DATE").getTime());
+				} catch (Exception e) {
+					taskBean.setdUpload(0);
+				}
+								
 				taskBean.setStatus(rs.getBoolean("TAS_STATUS"));
-				taskBean.setTaskIdFather(rs.getString("TASK_ID_PARENT"));
+				
+				try {
+					taskBean.setTaskIdFather(rs.getString("TASK_ID_PARENT"));
+				} catch (Exception e) {
+					taskBean.setTaskIdFather(null);
+				}
+				
 				listTaskBean.add(taskBean);
 			}
 
@@ -237,7 +262,7 @@ public class TaskDao {
 				INV_VW_TASK += condition;
 			}
 		}
-		INV_VW_TASK += "GROUP BY SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
+		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, " 
 				+ "TAS_STATUS, TASK_ID_PARENT " 
 				+ "ORDER BY TASK_ID ASC";
@@ -356,10 +381,12 @@ public class TaskDao {
 		DocInvBean bean= new DocInvBean();
 		bean.setDocInvId(docInvId);
 		DocInvDao dao = new DocInvDao();
-		Response<List<DocInvBean>> list = dao.getDocInv(bean, "");
+		Response<List<DocInvBean>> list = dao.getDocInv(bean, null);
 		if (list.getLsObject().size() > 0){
 			bean  = list.getLsObject().get(1);
 		}
+		
+		System.out.println(bean.getDocInvId());
 		return bean;
 	}
 	

@@ -102,6 +102,7 @@ public class TaskWorkService {
 	}
 	
 	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request request) {
+		
 		log.info("[deleteTaskWS] " + request.toString());
 		String bukrs;
 		String werks;
@@ -111,22 +112,22 @@ public class TaskWorkService {
 		req = request.getLsObject().toString();
 		req = req.replaceAll("=", ":");
 		
+		JSONObject jsonObj = new JSONObject(req);
+		
 		try {
-			JSONObject jsonObj = new JSONObject(req);
+			
 			bukrs = jsonObj.getString("bukrs");
-			werks = jsonObj.getString("werks");
 		} catch (JSONException e) {
-			bukrs = null;
-			werks = null;
-		}
-								
-		if (bukrs == null || werks ==  null) {
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs("NULL DATA...");
-			res.setAbstractResult(abstractResult);
-			return res;
+			bukrs = "";
 		}
 		
+		try {
+			
+			werks = jsonObj.getString("werks");
+		} catch (JSONException e) {
+			werks = "";
+		}
+										
 		return new TaskDao().getTasksbyBukrsAndWerks(bukrs, werks);
 	}
 }
