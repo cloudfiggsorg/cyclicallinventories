@@ -18,8 +18,6 @@ import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
-import javassist.bytecode.analysis.Type;
-
 public class DocInvDao {
 	
 	private Logger log = Logger.getLogger( DocInvDao.class.getName());
@@ -45,6 +43,7 @@ public class DocInvDao {
 			cs.setString(4,docInvBean.getWerks());
 			cs.setNull(5, Types.INTEGER);
 			cs.setString(6,createdBy);
+			cs.setInt(7, docInvBean.getDocInvId());
 			cs.registerOutParameter(7, Types.INTEGER);
 			log.info("[addDocInv] Executing query...");
 			
