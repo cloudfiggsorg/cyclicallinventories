@@ -406,6 +406,60 @@ public class ConciliacionDao {
 		return res;
 	}
 	
+	public Response<String> getZonePosition(int zoneId, String lgpla){
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		ResultSet rs = null;
+		String posId = null;
+		Response<String> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		
+		String SQL_GET_ZONE_POSITION = "SELECT ZPO_PK_ASG_ID "
+				+ "FROM INV_ZONE_POSITION " 
+				+ "WHERE ZPO_ZONE_ID = ? AND ZPO_LGPLA = ? "; 
+		
+		try {
+				stm = con.prepareCall(SQL_GET_ZONE_POSITION);
+				stm.setInt(1, zoneId);
+				stm.setString(2, lgpla);
+				log.info(SQL_GET_ZONE_POSITION);
+				rs = stm.executeQuery();
+				
+				while(rs.next()){
+					
+					posId = rs.getString(1);
+				}
+				
+			//Free resources
+			rs.close();	
+			stm.close();
+							
+			log.info("[getZonePosition] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getZonePosition] Some error occurred while was trying to execute the query: " + SQL_GET_ZONE_POSITION, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getZonePosition] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+
+			}
+		}
+		
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(posId);
+		return res;
+	}
+	
 	/*
 	public static void main(String args[]){
 		ConciliacionDao dao = new ConciliacionDao();
