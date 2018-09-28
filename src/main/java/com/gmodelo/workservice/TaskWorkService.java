@@ -104,8 +104,6 @@ public class TaskWorkService {
 		log.info("[deleteTaskWS] " + request.toString());
 		String bukrs;
 		String werks;
-		Response<List<TaskBean>> res = new Response<List<TaskBean>>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		String req;
 		req = request.getLsObject().toString();
 		req = req.replaceAll("=", ":");
