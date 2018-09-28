@@ -16,7 +16,7 @@ import com.gmodelo.utils.ReturnValues;
 public class VersionDao {
 
 	private Logger log = Logger.getLogger(VersionDao.class.getName());
-	private static final String INV_VW_VERSION_APP = "SELECT MAX(VERSION), NAME "
+	private static final String INV_VW_VERSION_APP = "SELECT MAX(VERSION) AS VERSION, NAME "
 			+ "FROM dbo.INV_VW_VERSION_APP WITH(NOLOCK) "
 			+ "GROUP BY VERSION, NAME";
 

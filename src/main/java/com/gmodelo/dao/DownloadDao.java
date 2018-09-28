@@ -57,7 +57,7 @@ public class DownloadDao {
 		log.log(Level.WARNING, "getAllMaterialMobile");
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_ALL_INFO_MATERIAL);
-			log.log(Level.WARNING, "executing: " + GET_MATERIALES_TARIMAS);
+			log.log(Level.WARNING, "executing: " + GET_ALL_INFO_MATERIAL);
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				MobileMaterialBean bean = new MobileMaterialBean();
