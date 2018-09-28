@@ -6,6 +6,7 @@ import java.util.List;
 public class ZonePositionsBean {
 	int pkAsgId;
 	String zoneId;
+	String zoneD;
 	String lgtyp;
 	String lgpla;
 	String secuency;
@@ -18,6 +19,15 @@ public class ZonePositionsBean {
 		super();
 		this.materials = new ArrayList<ZonePositionMaterialsBean>();		
 	}
+	
+	public String getZoneD() {
+		return zoneD;
+	}
+
+	public void setZoneD(String zoneD) {
+		this.zoneD = zoneD;
+	}
+
 	public String getLgnum() {
 		return lgnum;
 	}

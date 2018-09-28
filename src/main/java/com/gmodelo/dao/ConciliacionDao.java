@@ -6,7 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,6 +20,7 @@ import com.gmodelo.beans.ConciliationsIDsBean;
 import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
+import com.gmodelo.beans.ZonePositionsBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -165,43 +169,92 @@ public class ConciliacionDao {
 		ResultSet rs = null;
 		List<ConciliationPositionBean> listPositions = new ArrayList<ConciliationPositionBean>();
 		
-		String INV_VW_DOC_INVENTORY_POSITIONS_TEMP = "SELECT TAS_DOC_INV_ID, ZONE_ID, ZONE_DESC, LGPLA, MATNR,  MATDESC, MEINS FROM INV_VW_COUNT_POSITIONS_BASE WITH(NOLOCK) WHERE TAS_DOC_INV_ID= ? "
-				+ "GROUP BY TAS_DOC_INV_ID, ZONE_ID, ZONE_DESC, LGPLA, MATNR,  MATDESC, MEINS ORDER BY MATNR ASC";
+		String TASK_DOC_INV = "SELECT TASK_ID, TAS_DOC_INV_ID,  ZONE_ID, ZON_DESC, ZPO_PK_ASG_ID ,LGPLA  FROM INV_VW_TASK_DOCINV WHERE TAS_DOC_INV_ID= ? "
+				+ "ORDER BY TASK_ID ASC";
 		
 		try {
-				stm = con.prepareCall(INV_VW_DOC_INVENTORY_POSITIONS_TEMP);
+				stm = con.prepareCall(TASK_DOC_INV);
 				stm.setInt(1, i);
 				log.info("[getPositionsConciliationDao] TABLE_CONCILIATION_POSITIONS Temp, Executing query...");
 				rs = stm.executeQuery();
 				
+				HashMap<String,List<ZonePositionsBean>> map = new HashMap <>();
+				
+				//HashMap<String,List<ZonePositionsBean>> zonPos = new HashMap <>();
+				
 				while (rs.next()){
-					ConciliationPositionBean position = new ConciliationPositionBean();
+					ZonePositionsBean position = new ZonePositionsBean();
+					
+					position.setPkAsgId(rs.getInt("ZPO_PK_ASG_ID"));
 					position.setZoneId(rs.getString("ZONE_ID"));   
 					position.setZoneD(rs.getString("ZONE_DESC"));
 					position.setLgpla(rs.getString("LGPLA"));
 					
-					try {
-						position.setMatnr(String.valueOf(rs.getInt("MATNR")));
-					} catch (Exception e) {
-						position.setMatnr(rs.getString("MATNR"));
+					if(map.containsKey(rs.getString("TASK_ID"))){
+						List<ZonePositionsBean> list = new ArrayList<>();
+						list = map.get(rs.getString("TASK_ID"));
+						list.add(position);
+						map.put(rs.getString("TASK_ID"), list);
+						
+					}else{
+						List<ZonePositionsBean> list = new ArrayList<>();
+						list.add(position);
+						map.put(rs.getString("TASK_ID"), list);
 					}
-					position.setMatnrD(rs.getString("MATDESC"));
-					position.setMeasureUnit(rs.getString("MEINS"));
-					
-					position.setCount1A(this.getRowCount(i, "1A",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
-					position.setCount1B(this.getRowCount(i, "1B",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
-					position.setCount2(this.getRowCount(i, "2",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
-					position.setCount3(this.getRowCount(i, "3",rs.getString("ZONE_ID"),rs.getString("LGPLA"), rs.getString("MATNR"), rs.getString("MEINS"), con, stm));
-					listPositions.add(position);
 				}
-								
+				
+				String inv_count = "SELECT C.COU_TASK_ID, C.COU_MATNR, C.COU_TOTAL FROM INV_COUNT C "
+						+ " WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
+				
+				Iterator ite = map.entrySet().iterator();
+				List<ZonePositionsBean> listPos = new ArrayList<>();
+				String task="";
+				
+				int count=0;
+				while(ite.hasNext()){
+					Map.Entry pair = (Map.Entry) ite.next();
+					task = pair.getKey().toString();
+					listPos = (List<ZonePositionsBean>) pair.getValue();
+					
+					for(ZonePositionsBean pos: listPos){
+						
+						ConciliationPositionBean conci =  new ConciliationPositionBean();
+						
+						stm = con.prepareStatement(inv_count);
+						stm.setInt(1, pos.getPkAsgId());
+						stm.setString(2, task);
+						log.info("[getPositionsConciliationDao] TABLE_CONCILIATION_POSITIONS Temp, Executing query...");
+						rs = stm.executeQuery();
+						
+						while(rs.next()){
+							conci.setZoneId(pos.getZoneId());
+							conci.setZoneD(pos.getZoneD());
+							conci.setLgpla(pos.getLgpla());
+							conci.setMatnr(String.valueOf(rs.getInt("COU_MATNR")));
+							if(count == 0){
+								conci.setCount1A(rs.getString("COU_TOTAL"));
+							}
+							if(count == 1){
+								conci.setCount1B(rs.getString("COU_TOTAL"));
+							}
+							if(count == 2){
+								conci.setCount2(rs.getString("COU_TOTAL"));
+							}
+							if(count == 3){
+								conci.setCount3(rs.getString("COU_TOTAL"));
+							}
+						}
+					}
+					count++;
+				}
+		
 			//Free resources
 			if(rs != null){rs.close();}
 			if(stm != null){stm.close();}	
 			
 			log.info("[getPositionsConciliationDao] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getPositionsConciliationDao] Some error occurred while was trying to execute the query: "+INV_VW_DOC_INVENTORY_POSITIONS_TEMP, e);
+			log.log(Level.SEVERE,"[getPositionsConciliationDao] Some error occurred while was trying to execute the query: "+TASK_DOC_INV, e);
 		}finally {
 			try {
 				con.close();
