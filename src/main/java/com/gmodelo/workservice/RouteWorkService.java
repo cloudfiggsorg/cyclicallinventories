@@ -156,10 +156,10 @@ public class RouteWorkService {
 			} else {
 				
 				TaskUserDao taskUserDao = new TaskUserDao();
-				Response<Object> resTask = taskUserDao.createAutoTask(user);
-				if (resTask.getAbstractResult().getResultId() == 1){
+				int resTask = taskUserDao.createAutoTask(user);
+				if (resTask == 1){
 					route = routeDao.getRoutesByUser(user);
-					if(route != null){
+					if(route.getRouteId() != null){
 						route.setPositions(routeDao.getPositions(route.getRouteId()));
 						routeResponse.setLsObject(route);
 					}else{

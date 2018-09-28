@@ -1,9 +1,11 @@
 package com.gmodelo.dao;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,68 +23,62 @@ public class TaskUserDao {
 	
 	private Logger log = Logger.getLogger(TaskUserDao.class.getName());
 	
-	public Response<Object> createAutoTask(User user){
+	public int createAutoTask(User user){
 		
-		Response<Object> response = new Response<>();
+		int response = 0;
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-		PreparedStatement stm = null;
+		CallableStatement cs = null;
 		
-		final String INV_VW_TASK = "SELECT DOCINV, ROUTEID, BUKRS, DTYPE, RTYPE, WERKS, GROUPID, USER_ID FROM INV_VW_LAST_TASK WHERE RTYPE='1' AND USER_ID=?";
+		final String INV_VW_TASK = "INV_SP_ROUTE_USER_UPLOAD ?, ?, ?, ?, ?, ?, ?, ?";
 		log.info(INV_VW_TASK);
 
 		try {
-			stm = con.prepareCall(INV_VW_TASK);
-			stm.setString(1, user.getEntity().getIdentyId());	
+			cs = con.prepareCall(INV_VW_TASK);
+			
+			cs.setString(1, user.getEntity().getIdentyId());
+			cs.registerOutParameter(2, Types.VARCHAR);	//routeId
+			cs.registerOutParameter(3, Types.VARCHAR);	//bukrs
+			cs.registerOutParameter(4, Types.VARCHAR);	//werks
+			cs.registerOutParameter(5, Types.VARCHAR);	//TYPODOCINV
+			cs.registerOutParameter(6, Types.VARCHAR);	//GRUPO
+			cs.registerOutParameter(7, Types.VARCHAR);	//WERKSD
+			cs.registerOutParameter(8, Types.INTEGER);	//return
 			
 			log.info("[getLastTask] Executing query...");
-			ResultSet rs = stm.executeQuery();
+			cs.execute();
 			
-			if (rs.next()) {
+			if (cs.getInt(8) == 1) {
 				
 				DocInvBean docInv = new DocInvBean(); 				
-				docInv.setRoute(rs.getString("ROUTEID"));
-				docInv.setBukrs(rs.getString("BUKRS"));
-				docInv.setWerks(rs.getString("WERKS"));
-				docInv.setType(rs.getString("DTYPE"));
+				docInv.setRoute(cs.getString(2));
+				docInv.setBukrs(cs.getString(3));
+				docInv.setWerks(cs.getString(4));
+				docInv.setType(cs.getString(5));
+				docInv.setWerksD(cs.getString(7));
+				
 				
 				DocInvDao dao = new DocInvDao();
 				Response<DocInvBean> res = dao.addDocInv(docInv, "SYSTEM");
 				
 				if(res.getAbstractResult().getResultId() == 1){
 					
-					System.out.println("doc gen: "+ res.getLsObject().toString());
-					
 					TaskBean taskBean = new TaskBean();
 					taskBean.setDocInvId(res.getLsObject());
-					taskBean.setGroupId(rs.getString("GROUPID"));
+					taskBean.setGroupId(cs.getString(6));
 					TaskDao daoTask = new TaskDao();
 					Response<TaskBean> resDaoTask = daoTask.addTask(taskBean , "SYSTEM");
 					
-					if(resDaoTask.getAbstractResult().getResultId() != 1){
-						log.log(Level.SEVERE,"[getTaskByUserDao] NO GENERATED AUTO TASK");
-						abstractResult.setResultId(0);
-						abstractResult.setResultMsgAbs("NO GENERATED AUTO TASK");
-						response.setAbstractResult(abstractResult);
+					if(resDaoTask.getAbstractResult().getResultId() == 1){
+						response = 1;
 					}
 					
-				}else{
-					log.log(Level.SEVERE,"[getTaskByUserDao] NO GENERATED DOC INVENTORY");
-					abstractResult.setResultId(0);
-					abstractResult.setResultMsgAbs("NO GENERATED DOC INVENTORY");
-					response.setAbstractResult(abstractResult);
 				}
-				
-			}else{
-				log.log(Level.SEVERE,"[getTaskByUserDao] USER NO RUOTE DIARY");
-				abstractResult.setResultId(0);
-				abstractResult.setResultMsgAbs("USER NO RUOTE DIARY");
-				response.setAbstractResult(abstractResult);
 			}
-			rs.close();
-			stm.close();
+			
+			cs.close();
 			log.info("[getTaskByUserDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.severe("Ocurred error try close the conection in createAutoTask: "+ e.getMessage());
@@ -96,16 +92,4 @@ public class TaskUserDao {
 		return response;
 	}
 	
-	public static void main(String args[]){
-		TaskUserDao dao =  new TaskUserDao();
-		
-		User user = new User(); 
-		user.getEntity().getIdentyId();
-		Entity entity = new Entity();
-		entity.setIdentyId("ROD1986");
-		user.setEntity(entity);
-		
-		dao.createAutoTask(user);
-	}
-
 }
