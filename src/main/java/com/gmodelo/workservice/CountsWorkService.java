@@ -1,20 +1,15 @@
 package com.gmodelo.workservice;
 
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.bmore.ume001.beans.User;
+import javax.servlet.http.HttpSession;
+
 import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.BukrsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteUserBean;
-import com.gmodelo.beans.ToleranceBean;
-import com.gmodelo.dao.BukrsDao;
 import com.gmodelo.dao.CountsDao;
-import com.gmodelo.dao.RouteDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -24,7 +19,7 @@ public class CountsWorkService {
 	private Logger log = Logger.getLogger( CountsWorkService.class.getName());
 	Gson gson = new Gson();
 	
-	public Response<Object> addCount(Request request) {
+	public Response<Object> addCount(Request request, HttpSession httpSession) {
 		log.info("[addCountWS] " + request.toString());
 		RouteUserBean routeBean = null;
 		Response<Object> res = new Response<Object>();
