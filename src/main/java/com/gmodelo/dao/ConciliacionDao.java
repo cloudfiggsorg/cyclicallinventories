@@ -187,7 +187,7 @@ public class ConciliacionDao {
 					
 					position.setPkAsgId(rs.getInt("ZPO_PK_ASG_ID"));
 					position.setZoneId(rs.getString("ZONE_ID"));   
-					position.setZoneD(rs.getString("ZONE_DESC"));
+					position.setZoneD(rs.getString("ZON_DESC"));
 					position.setLgpla(rs.getString("LGPLA"));
 					
 					if(map.containsKey(rs.getString("TASK_ID"))){
