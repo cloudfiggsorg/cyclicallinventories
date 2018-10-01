@@ -19,6 +19,8 @@ public class LgortDao {
 	
 	private Logger log = Logger.getLogger( LgortDao.class.getName());
 	
+	private static final String INV_VW_GORS_BY_WERKS = "SELECT [WERKS], [LGORT], [LGOBE] FROM [INV_CIC_DB].[dbo].[INV_VW_GORS_BY_WERKS] WHERE WERKS = ? "; //Query
+	
 	public Response<List<LgortBeanView>> getLgortByWerks(LgortBeanView lgortBean){
 		
 		Response<List<LgortBeanView>> res = new Response<>();
@@ -28,14 +30,6 @@ public class LgortDao {
 		PreparedStatement stm = null;
 		List<LgortBeanView> listLgort = new ArrayList<LgortBeanView>();
 		
-		String INV_VW_GORS_BY_WERKS = "SELECT [WERKS], [LGORT], [LGOBE] , [LGNUM] FROM [INV_CIC_DB].[dbo].[INV_VW_GORS_BY_WERKS] "; //Query
-		String condition = buildCondition(lgortBean);
-		
-		if(condition != null){
-			INV_VW_GORS_BY_WERKS += condition;
-			log.info(INV_VW_GORS_BY_WERKS);
-		}
-		
 		log.info("[getLgortByWerks] Preparing sentence...");
 		
 		try {
@@ -43,18 +37,16 @@ public class LgortDao {
 			
 			log.info("[getLgortByWerks] Executing query...");
 			
+			stm.setString(1, lgortBean.getWerks());
 			ResultSet rs = stm.executeQuery();
 			
+			
 			while (rs.next()){
-				
 				lgortBean = new LgortBeanView();
-				
 				lgortBean.setWerks(rs.getString(1));
 				lgortBean.setLgort(rs.getString(2));
 				lgortBean.setLgobe(rs.getString(3));
-				lgortBean.setLgNum(rs.getString(4));
 				listLgort.add(lgortBean);
-				
 			}
 			
 			//Retrive the warnings if there're
