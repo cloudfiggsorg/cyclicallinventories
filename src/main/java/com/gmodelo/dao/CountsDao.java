@@ -23,50 +23,49 @@ import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
 public class CountsDao {
-	
+
 	private Logger log = Logger.getLogger(CountsDao.class.getName());
 
 	public Response<Object> addCount(RouteUserBean routeBean) {
 		Response<Object> res = new Response<>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean(); 		
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		final String INV_SP_ADD_COUNT = "INV_SP_ADD_COUNT ?, ?, ?, ?,?, ?, ?, ?, ?, ?";
 		log.info("[addConteo] Preparing sentence...");
-		
+
 		try {
 			con.setAutoCommit(false);
 			// INSERTAR CONTEOS
 			for (int i = 0; i < routeBean.getPositions().size(); i++) {
-				for(int j=0; j < routeBean.getPositions().get(i).getZone().getPositionsB().size(); j ++){
-					for(int k=0; k < routeBean.getPositions().get(i).getZone().getPositionsB().size(); k ++){
-						
-						cs = con.prepareCall(INV_SP_ADD_COUNT);
-						
-						HashMap<String, LgplaValuesBean> materials = routeBean.getPositions().get(i).getZone().getPositionsB().get(k).getLgplaValues();
-						
-						for (Entry<String, LgplaValuesBean> entrada : materials.entrySet()) {
-							cs.setString(1, routeBean.getTaskId());
-							cs.setInt(2, routeBean.getPositions().get(i).getZone().getPositionsB().get(k).getPkAsgId());
-							
-							System.out.println("values: "+ entrada.getValue().toString());
-														
-							cs.setString(3, entrada.getValue().getMatnr());
-							cs.setString(4, entrada.getValue().getVhilm());
-							cs.setInt(5, entrada.getValue().getSec());
-							cs.setInt(6, entrada.getValue().getTarimas());
-							cs.setInt(7, entrada.getValue().getCamas());
-							cs.setInt(8, entrada.getValue().getUm());
-							cs.setInt(9, entrada.getValue().getTotalConverted());
-							cs.registerOutParameter(10, Types.INTEGER);
-							cs.execute();
-							log.info("[addConteo] Executing query...");			
-							if(cs.getInt(10) != 1){
-								abstractResult.setResultId(0);
-								break;
-							}
+				for (int j = 0; j < routeBean.getPositions().get(i).getZone().getPositionsB().size(); j++) {
+					cs = con.prepareCall(INV_SP_ADD_COUNT);
+					HashMap<String, LgplaValuesBean> materials = routeBean.getPositions().get(i).getZone()
+							.getPositionsB().get(j).getLgplaValues();
+					for (Entry<String, LgplaValuesBean> entrada : materials.entrySet()) {
+						log.log(Level.WARNING, "RouteBean Task: " + routeBean.getTaskId());
+						log.log(Level.WARNING, "RouteBean ZonePosition: "
+								+ routeBean.getPositions().get(i).getZone().getPositionsB().get(j).getPkAsgId());
+						cs.setString(1, routeBean.getTaskId());
+						cs.setInt(2, routeBean.getPositions().get(i).getZone().getPositionsB().get(j).getPkAsgId());
+						log.log(Level.WARNING, "values: " + entrada.getValue().toString());
+						cs.setString(3, entrada.getValue().getMatnr());
+						cs.setString(4, entrada.getValue().getVhilm());
+						cs.setInt(5, entrada.getValue().getSec() != null ? entrada.getValue().getSec() : 0);
+						cs.setInt(6, entrada.getValue().getTarimas() != null ? entrada.getValue().getTarimas() : 0);
+						cs.setInt(7, entrada.getValue().getCamas() != null ? entrada.getValue().getCamas() : 0);
+						cs.setInt(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : 0);
+						cs.setInt(9, entrada.getValue().getTotalConverted() != null
+								? entrada.getValue().getTotalConverted() : 0);
+						cs.registerOutParameter(10, Types.INTEGER);
+						cs.execute();
+						log.info("[addConteo] Executing query...");
+						if (cs.getInt(10) != 1) {
+							abstractResult.setResultId(0);
+							break;
 						}
+
 					}
 				}
 			}
@@ -85,13 +84,14 @@ public class CountsDao {
 
 		} catch (SQLException e) {
 			try {
-				//deshace todos los cambios realizados en los datos
-				log.log(Level.WARNING,"[addConteo] Execute rollback");
+				// deshace todos los cambios realizados en los datos
+				log.log(Level.WARNING, "[addConteo] Execute rollback");
 				con.rollback();
 			} catch (SQLException e1) {
 				log.log(Level.SEVERE, "[addConteo] Not rollback .", e);
 			}
-			log.log(Level.SEVERE,"[addConteo] Some error occurred while was trying to execute the S.P.: " + INV_SP_ADD_COUNT, e);
+			log.log(Level.SEVERE,
+					"[addConteo] Some error occurred while was trying to execute the S.P.: " + INV_SP_ADD_COUNT, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
