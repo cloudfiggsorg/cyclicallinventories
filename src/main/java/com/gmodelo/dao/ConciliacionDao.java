@@ -201,7 +201,9 @@ public class ConciliacionDao {
 					}
 				}
 				
-				String inv_count = "SELECT M.MAKTX MATDESC, MA.MEINS, C.COU_TASK_ID, C.COU_MATNR, C.COU_TOTAL FROM INV_COUNT C "
+				String inv_count = "SELECT M.MAKTX MATDESC, MA.MEINS, C.COU_TASK_ID, "
+						+ "C.COU_MATNR, C.COU_TOTAL, COU_POSITION_ID_ZONE "
+						+ "FROM INV_COUNT C "
 						+ "INNER JOIN MAKT M ON (M.MATNR = C.COU_MATNR) "
 						+ "INNER JOIN MARA MA ON (MA.MATNR = C.COU_MATNR) "
 						+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
@@ -209,6 +211,7 @@ public class ConciliacionDao {
 				Iterator ite = map.entrySet().iterator();
 				List<ZonePositionsBean> listPos = new ArrayList<>();
 				String task="";
+				String key = "";
 				
 				HashMap<String, ConciliationPositionBean> mapAux = new HashMap <>();
 				ConciliationPositionBean conci;
@@ -230,7 +233,9 @@ public class ConciliacionDao {
 																		
 						while(rs.next()){ //While para sumar conteos en un map
 						
-							if(mapAux.containsKey(rs.getString("COU_MATNR"))){
+							key = rs.getString("COU_MATNR") + rs.getString("COU_POSITION_ID_ZONE");
+							
+							if(mapAux.containsKey(key)){
 											
 								conci = (ConciliationPositionBean) mapAux.get(rs.getString("COU_MATNR"));
 																
@@ -275,7 +280,7 @@ public class ConciliacionDao {
 								}													
 							}
 							
-							mapAux.put(rs.getString("COU_MATNR"), conci);							
+							mapAux.put(key, conci);							
 						}
 					}
 					count++;
