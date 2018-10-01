@@ -345,8 +345,8 @@ public static void main(String[] args) {
 		user.getEntity().getIdentyId();
 		Entity entity = new Entity();
 		//entity.setIdentyId("ROD1986");
-		//entity.setIdentyId("TEST1");
-		entity.setIdentyId("1");
+		entity.setIdentyId("TEST1");
+	//	entity.setIdentyId("1");
 		user.setEntity(entity);
 		RouteUserDao d = new RouteUserDao(); 
 		RouteUserBean x;

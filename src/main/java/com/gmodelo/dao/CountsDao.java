@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bmore.ume001.beans.Entity;
+import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LgplaValuesBean;
 import com.gmodelo.beans.Response;
@@ -26,13 +28,13 @@ public class CountsDao {
 
 	private Logger log = Logger.getLogger(CountsDao.class.getName());
 
-	public Response<Object> addCount(RouteUserBean routeBean) {
+	public Response<Object> addCount(RouteUserBean routeBean, User user) {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
-		final String INV_SP_ADD_COUNT = "INV_SP_ADD_COUNT ?, ?, ?, ?,?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_COUNT = "INV_SP_ADD_COUNT ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?";
 		log.info("[addConteo] Preparing sentence...");
 
 		try {
@@ -50,7 +52,7 @@ public class CountsDao {
 						cs.setString(1, routeBean.getTaskId());
 						cs.setInt(2, routeBean.getPositions().get(i).getZone().getPositionsB().get(j).getPkAsgId());
 						log.log(Level.WARNING, "values: " + entrada.getValue().toString());
-						cs.setString(3, entrada.getValue().getMatnr());
+						cs.setString(3, String.format("%018d", Integer.parseInt(entrada.getValue().getMatnr())));
 						cs.setString(4, entrada.getValue().getVhilm());
 						cs.setInt(5, entrada.getValue().getSec() != null ? entrada.getValue().getSec() : 0);
 						cs.setInt(6, entrada.getValue().getTarimas() != null ? entrada.getValue().getTarimas() : 0);
@@ -58,10 +60,11 @@ public class CountsDao {
 						cs.setInt(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : 0);
 						cs.setInt(9, entrada.getValue().getTotalConverted() != null
 								? entrada.getValue().getTotalConverted() : 0);
-						cs.registerOutParameter(10, Types.INTEGER);
+						cs.setString(10, user.getEntity().getIdentyId());
+						cs.registerOutParameter(11, Types.INTEGER);
 						cs.execute();
 						log.info("[addConteo] Executing query...");
-						if (cs.getInt(10) != 1) {
+						if (cs.getInt(11) != 1) {
 							abstractResult.setResultId(0);
 							break;
 						}
@@ -101,5 +104,5 @@ public class CountsDao {
 		res.setLsObject(routeBean);
 		return res;
 	}
-
+	
 }
