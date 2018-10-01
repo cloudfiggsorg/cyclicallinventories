@@ -41,7 +41,11 @@ public class DocInvDao {
 			cs.setString(2,docInvBean.getBukrs());
 			cs.setString(3, docInvBean.getType());
 			cs.setString(4,docInvBean.getWerks());
-			cs.setNull(5, Types.INTEGER);
+			if(docInvBean.getStatus() == null){
+				cs.setNull(5, Types.CHAR);
+			}else{
+				cs.setString(5, docInvBean.getStatus());
+			}			
 			cs.setString(6,createdBy);
 			cs.setInt(7, docInvBean.getDocInvId());
 			cs.registerOutParameter(7, Types.INTEGER);
