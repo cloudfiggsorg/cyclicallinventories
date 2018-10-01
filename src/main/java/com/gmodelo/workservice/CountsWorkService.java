@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpSession;
 
+import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
@@ -22,6 +23,8 @@ public class CountsWorkService {
 	public Response<Object> addCount(Request request, HttpSession httpSession) {
 		log.info("[addCountWS] " + request.toString());
 		RouteUserBean routeBean = null;
+		User user = (User) httpSession.getAttribute("user");
+		
 		Response<Object> res = new Response<Object>();
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
@@ -47,7 +50,7 @@ public class CountsWorkService {
 			return res;
 		}
 
-		return new CountsDao().addCount(routeBean);
+		return new CountsDao().addCount(routeBean, user);
 
 	}
 

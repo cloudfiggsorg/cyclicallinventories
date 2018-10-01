@@ -65,6 +65,9 @@ public class RouteService {
 	public String getRoutesByUser(Request request) {
 		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
 		User user = (User) session.getAttribute("user");
+		
+		//User user = (User) httpRequest.getSession().getAttribute("user");
+		//HttpSession session = httpRequest.getSession();
 		return new RouteWorkService().getRoutesByUser(user, session);
 	}
 	
@@ -73,8 +76,8 @@ public class RouteService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/autoTaskByUser")
 	public String getAutoTaskByUser(Request request) {
-		User user = (User) httpRequest.getSession().getAttribute("user");
-		HttpSession session = httpRequest.getSession();		
+		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		User user = (User) session.getAttribute("user");
 		return new RouteWorkService().getAutoTaskByUser(user, session);
 	}
 	
