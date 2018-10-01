@@ -337,27 +337,5 @@ public class RouteUserDao {
 	//
 	// return listGroups;
 	// }
-	/*
-public static void main(String[] args) {
-		
-		
-		User user = new User(); 
-		user.getEntity().getIdentyId();
-		Entity entity = new Entity();
-		//entity.setIdentyId("ROD1986");
-		entity.setIdentyId("TEST1");
-	//	entity.setIdentyId("1");
-		user.setEntity(entity);
-		RouteUserDao d = new RouteUserDao(); 
-		RouteUserBean x;
-		try {
-			x = d.getRoutesByUser(user);
-			System.out.println("lista:"+x.toString());
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	*/
+
 }
