@@ -61,7 +61,7 @@ public class TaskUserDao {
 				
 				
 				DocInvDao dao = new DocInvDao();
-				Response<DocInvBean> res = dao.addDocInv(docInv, "SYSTEM");
+				Response<DocInvBean> res = dao.addDocInv(docInv, user.getEntity().getIdentyId());
 				
 				if(res.getAbstractResult().getResultId() == 1){
 					
@@ -69,7 +69,7 @@ public class TaskUserDao {
 					taskBean.setDocInvId(res.getLsObject());
 					taskBean.setGroupId(cs.getString(6));
 					TaskDao daoTask = new TaskDao();
-					Response<TaskBean> resDaoTask = daoTask.addTask(taskBean , "SYSTEM");
+					Response<TaskBean> resDaoTask = daoTask.addTask(taskBean , user.getEntity().getIdentyId());
 					
 					if(resDaoTask.getAbstractResult().getResultId() == 1){
 						response = 1;
