@@ -31,6 +31,7 @@ public class ReturnValues {
 	public static final int IUSERNOTTASK = -107;
 	public static final int IUSERNOTVALIDATEDTASK = -108;
 	public static final int IUSERTASKFINISHED = -109;
+	public static final int IUSERTASKNOUPDATED = -110;
 	
 	public static final String SEXCEPTION = "";
 	public static final int ILANGKEYNOTFOUND = -404;
