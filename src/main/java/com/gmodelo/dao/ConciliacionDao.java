@@ -245,20 +245,20 @@ public class ConciliacionDao {
 
 						if (mapAux.containsKey(key)) {
 
-							conci = (ConciliationPositionBean) mapAux.get(rs.getString("COU_MATNR"));
-
+							conci = (ConciliationPositionBean) mapAux.get(key);
+							
 							int total = rs.getInt("COU_TOTAL");
 							if (count == 0) {
-								total += Integer.parseInt(conci.getCount1A());
+								total += Integer.parseInt(conci.getCount1A().contains("-") ? "0" : conci.getCount1A());
 								conci.setCount1A("" + total);
 							} else if (count == 1) {
-								total += Integer.parseInt(conci.getCount1B());
+								total += Integer.parseInt(conci.getCount1B().contains("-") ? "0" : conci.getCount1B());
 								conci.setCount1B("" + total);
 							} else if (count == 2) {
-								total += Integer.parseInt(conci.getCount2());
+								total += Integer.parseInt(conci.getCount2().contains("-") ? "0" : conci.getCount2());
 								conci.setCount2("" + total);
 							} else if (count == 3) {
-								total += Integer.parseInt(conci.getCount3());
+								total += Integer.parseInt(conci.getCount3().contains("-") ? "0" : conci.getCount3());
 								conci.setCount3("" + total);
 							}
 
