@@ -230,7 +230,20 @@ public class ConciliacionDao {
 						stm.setString(2, task);
 						log.info("[getPositionsConciliationDao] TABLE_CONCILIATION_POSITIONS Temp, Executing query...");
 						rs = stm.executeQuery();
-																		
+						ResultSet rsAux = rs;
+						if(!rsAux.next()){
+							conci = new ConciliationPositionBean();
+							conci.setZoneId(pos.getZoneId());
+							conci.setZoneD(pos.getZoneD());
+							conci.setLgpla(pos.getLgpla());
+							conci.setCount1A("0");
+							conci.setCount1B("0");
+							conci.setCount2("0");
+							conci.setCount3("0");
+							conci.setMeasureUnit("-");
+							conci.setMatnrD("N/A");
+							conci.setMatnr("N/A");	
+						}												
 						while(rs.next()){ //While para sumar conteos en un map
 						
 							key = rs.getString("COU_MATNR") + rs.getString("COU_POSITION_ID_ZONE");
