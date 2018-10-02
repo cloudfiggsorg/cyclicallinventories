@@ -32,25 +32,9 @@ public class ConciliacionWorkService {
 	public Response<List<ConciliacionBean>> getConciliacion(Request request) {
 
 		log.info("[getConciliacionWS] " + request.toString());
-		ConciliacionBean tb = null;
-		String searchFilter = null;
-		String req = request.getLsObject().toString().trim();
+		ConciliacionBean tb = new Gson().fromJson(request.getLsObject().toString(), ConciliacionBean.class);
 		Response<List<ConciliacionBean>> res = new Response<List<ConciliacionBean>>();
-
-		if (!req.isEmpty()) {
-			try {
-				tb = gson.fromJson(gson.toJson(request.getLsObject()), ConciliacionBean.class);
-				log.info("[getConciliacionWS] Fue Objeto: " + tb);
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString().trim();
-				log.info("[getConciliacionWS] jsyn Intentando por String ");
-			}
-		} else {
-			searchFilter = "";
-			log.info("[getConciliacionWS] Fue cadena vacía ");
-			
-		}
-		return new ConciliacionDao().getConciliacion(tb, searchFilter);
+		return new ConciliacionDao().getConciliacion(tb);
 	}
 	
 	public Response<List<GroupBean>> getAvailableGroups(Request request) {
