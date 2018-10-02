@@ -11,6 +11,24 @@ public class LgplaValuesBean {
 	Integer um;//Cantidad de Unidad de medida
 	Integer totalConverted;
 	boolean locked;
+	long dateStart;
+	long dateEnd;
+	
+	public long getDateStart() {
+		return dateStart;
+	}
+
+	public void setDateStart(long dateStart) {
+		this.dateStart = dateStart;
+	}
+
+	public long getDateEnd() {
+		return dateEnd;
+	}
+
+	public void setDateEnd(long dateEnd) {
+		this.dateEnd = dateEnd;
+	}
 
 	public String getMatnr() {
 		return matnr;
@@ -94,7 +112,7 @@ public class LgplaValuesBean {
 	}
 
 	public LgplaValuesBean(String matnr, String vhilm, String matkx, Integer sec, Integer tarimas, Integer camas,
-			Integer um, Integer totalConverted, boolean locked) {
+			Integer um, Integer totalConverted, boolean locked, long dateStart, long dateEnd) {
 		super();
 		this.matnr = matnr;
 		this.vhilm = vhilm;
@@ -105,13 +123,15 @@ public class LgplaValuesBean {
 		this.um = um;
 		this.totalConverted = totalConverted;
 		this.locked = locked;
+		this.dateStart = dateStart;
+		this.dateEnd = dateEnd;
 	}
 
 	@Override
 	public String toString() {
 		return "LgplaValuesBean [matnr=" + matnr + ", vhilm=" + vhilm + ", matkx=" + matkx + ", sec=" + sec
 				+ ", tarimas=" + tarimas + ", camas=" + camas + ", um=" + um + ", totalConverted=" + totalConverted
-				+ ", locked=" + locked + "]";
+				+ ", locked=" + locked + ", dateStart=" + dateStart + ", dateEnd=" + dateEnd + "]";
 	}
 	
 }
