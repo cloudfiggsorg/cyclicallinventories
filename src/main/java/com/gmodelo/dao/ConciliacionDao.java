@@ -150,7 +150,7 @@ public class ConciliacionDao {
 	private static final String TASK_DOC_INV = "SELECT TASK_ID, TAS_DOC_INV_ID,  ZONE_ID, ZON_DESC, ZPO_PK_ASG_ID ,LGPLA  FROM INV_VW_TASK_DOCINV WHERE TAS_DOC_INV_ID= ? "
 			+ "ORDER BY TASK_ID ASC";
 
-	private static final String INV_COUNT = "SELECT M.MAKTX MATDESC, MA.MEINS, C.COU_TASK_ID, C.COU_MATNR, C.COU_TOTAL FROM INV_COUNT C "
+	private static final String INV_COUNT = "SELECT M.MAKTX MATDESC, MA.MEINS, C.COU_TASK_ID, C.COU_MATNR, C.COU_TOTAL, C.COU_POSITION_ID_ZONE FROM INV_COUNT C "
 			+ "INNER JOIN MAKT M ON (M.MATNR = C.COU_MATNR) " + "INNER JOIN MARA MA ON (MA.MATNR = C.COU_MATNR) "
 			+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
 
@@ -229,10 +229,10 @@ public class ConciliacionDao {
 						conci.setZoneId(pos.getZoneId());
 						conci.setZoneD(pos.getZoneD());
 						conci.setLgpla(pos.getLgpla());
-						conci.setCount1A("0");
-						conci.setCount1B("0");
-						conci.setCount2("0");
-						conci.setCount3("0");
+						conci.setCount1A("-");
+						conci.setCount1B("-");
+						conci.setCount2("-");
+						conci.setCount3("-");
 						conci.setMeasureUnit("-");
 						conci.setMatnrD("N/A");
 						conci.setMatnr("N/A");
@@ -268,10 +268,10 @@ public class ConciliacionDao {
 							conci.setZoneId(pos.getZoneId());
 							conci.setZoneD(pos.getZoneD());
 							conci.setLgpla(pos.getLgpla());
-							conci.setCount1A("0");
-							conci.setCount1B("0");
-							conci.setCount2("0");
-							conci.setCount3("0");
+							conci.setCount1A("-");
+							conci.setCount1B("-");
+							conci.setCount2("-");
+							conci.setCount3("-");
 							conci.setMeasureUnit(rs.getString("MEINS"));
 							conci.setMatnrD(rs.getString("MATDESC"));
 							conci.setMatnr(String.valueOf(rs.getInt("COU_MATNR")));
