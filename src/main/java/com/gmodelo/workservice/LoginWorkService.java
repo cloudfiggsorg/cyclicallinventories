@@ -43,24 +43,25 @@ public class LoginWorkService {
 
 			User user = new User();
 			UMEDaoE apiUME = new UMEDaoE();
-			
-			user.getEntity().setIdentyId(loginBean.getLoginId().trim());
-			user.getAccInf().setPassword(loginBean.getLoginPass().trim());
-			
-			myLog.info("[login] Check if user exists in UME");
-			// Check if user exists on UME or LDAP
-			try {
-				user = apiUME.checkUserUME(user);
-				abstractResult.setResultId(ReturnValues.ISUCCESS);
-			} catch (Exception e1) {
-				user = null;
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				myLog.log(Level.SEVERE, "Error al verificar usuario en UME", e1);
-			}
-			if(user == null){
+//			
+//			user.getEntity().setIdentyId(loginBean.getLoginId().trim());
+//			user.getAccInf().setPassword(loginBean.getLoginPass().trim());
+//			
+//			myLog.info("[login] Check if user exists in UME");
+//			// Check if user exists on UME or LDAP
+//			try {
+//				user = apiUME.checkUserUME(user);
+//				abstractResult.setResultId(ReturnValues.ISUCCESS);
+//			} catch (Exception e1) {
+//				user = null;
+//				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+//				myLog.log(Level.SEVERE, "Error al verificar usuario en UME", e1);
+//			}
+			if(true){ // si descomentan  UME (arriba) if va -> if(user == null)
+				
 				try {
 					myLog.info("[login] Check if user exists on LDAP");
-					user = new User();
+					
 					user.getEntity().setIdentyId(loginBean.getLoginId().trim());
 					user.getAccInf().setPassword(loginBean.getLoginPass().trim());
 					user = apiUME.checkUserLDAP(user);
@@ -77,8 +78,8 @@ public class LoginWorkService {
 
 				// Check if the account is locked
 				if (user.getAccInf().getLockAcc() > 0) {
-					abstractResult.setResultId(-1);
-					abstractResult.setResultMsgAbs("BLOCKED USER");
+					abstractResult.setResultId(ReturnValues.ILOCKEDUSER);
+					abstractResult.setResultMsgAbs(ReturnValues.SLOCKEDUSER);
 
 				} else {
 
