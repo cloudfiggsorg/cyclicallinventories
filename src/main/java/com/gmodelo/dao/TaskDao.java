@@ -37,6 +37,8 @@ public class TaskDao {
 
 		try {
 			
+			System.out.println(taskBean.getTaskJSON());
+			
 			con.setAutoCommit(false);
 			cs = con.prepareCall(INV_SP_ADD_TASK);
 			cs.setString(1, taskBean.getTaskId());

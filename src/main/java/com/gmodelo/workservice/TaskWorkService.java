@@ -28,6 +28,7 @@ public class TaskWorkService {
 		Response<TaskBean> res = new Response<TaskBean>();
 		try {
 			taskBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
+			log.info(taskBean.getTest().toString());
 			log.log(Level.WARNING, "[addTaskWS] ");
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE, "[addTaskWS] Error al pasar de Json a TaskBean", e);

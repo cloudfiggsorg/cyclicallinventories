@@ -10,7 +10,8 @@ public class TaskBean {
 	long dDownlad;
 	long dUpload;
 	boolean status;
-	String taskIdFather;	
+	String taskIdFather;
+	RouteUserBean test;
 	
 	public TaskBean(){
 		super();
@@ -107,6 +108,14 @@ public class TaskBean {
 
 	public void setTaskIdFather(String taskIdFather) {
 		this.taskIdFather = taskIdFather;
+	}
+
+	public RouteUserBean getTest() {
+		return test;
+	}
+
+	public void setTest(RouteUserBean test) {
+		this.test = test;
 	}
 	
 }
