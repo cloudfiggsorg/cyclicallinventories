@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.NamingException;
+
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.ConciliationPositionBean;
@@ -420,7 +422,7 @@ public class ConciliacionDao {
 			stm.close();
 
 			log.info("[getAvailableGroups] Sentence successfully executed.");
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			log.log(Level.SEVERE, "[getAvailableGroups] Some error occurred while was trying to execute the query: "
 					+ INV_VW_AVAILABLE_GROUPS, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);

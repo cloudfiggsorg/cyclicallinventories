@@ -17,20 +17,20 @@ import com.google.gson.JsonSyntaxException;
 
 public class CountsWorkService {
 
-	private Logger log = Logger.getLogger( CountsWorkService.class.getName());
+	private Logger log = Logger.getLogger(CountsWorkService.class.getName());
 	Gson gson = new Gson();
-	
-	public Response<Object> addCount(Request request, HttpSession httpSession) {
+
+	@SuppressWarnings("rawtypes")
+	public Response<Object> addCount(Request request) {
 		log.info("[addCountWS] " + request.toString());
 		RouteUserBean routeBean = null;
-		User user = (User) httpSession.getAttribute("user");
-		
+
 		Response<Object> res = new Response<Object>();
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
 			try {
 				routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteUserBean.class);
-				log.info("[addCountWS] Fue Objeto: "+ routeBean.toString());
+				log.info("[addCountWS] Fue Objeto: " + routeBean.toString());
 				System.out.println(routeBean.getPositions().get(0).toString());
 			} catch (JsonSyntaxException e) {
 				log.log(Level.SEVERE, "[addCountWS] Error al pasar de Json a RouteUserBean");
@@ -50,7 +50,42 @@ public class CountsWorkService {
 			return res;
 		}
 
-		return new CountsDao().addCount(routeBean, user);
+		return new CountsDao().addCount(routeBean, request.getTokenObject().getLoginId());
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Response<Object> addCountLegacy(Request request, HttpSession httpSession) {
+		log.info("[addCountWS] " + request.toString());
+		RouteUserBean routeBean = null;
+		User user = (User) httpSession.getAttribute("user");
+
+		Response<Object> res = new Response<Object>();
+		String req = request.getLsObject().toString().trim();
+		if (!req.isEmpty()) {
+			try {
+				routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteUserBean.class);
+				log.info("[addCountWS] Fue Objeto: " + routeBean.toString());
+				System.out.println(routeBean.getPositions().get(0).toString());
+			} catch (JsonSyntaxException e) {
+				log.log(Level.SEVERE, "[addCountWS] Error al pasar de Json a RouteUserBean");
+				routeBean = null;
+				AbstractResultsBean abstractResult = new AbstractResultsBean();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		} else {
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs("El json de tipo RouteUserBean viene vacio o nulo");
+			res.setAbstractResult(abstractResult);
+			log.log(Level.SEVERE, "[addCountWS]  " + abstractResult.getResultMsgAbs());
+			return res;
+		}
+
+		return new CountsDao().addCountLegacy(routeBean, user);
 
 	}
 

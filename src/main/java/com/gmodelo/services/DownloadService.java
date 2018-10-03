@@ -45,8 +45,8 @@ public class DownloadService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/GetMobileData")
 	public String GetMobileDataMaterial(Request request) {
-		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
-		return new DownloadWorkService().GetMobileDataWS(request, s);
+		//HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		return new DownloadWorkService().GetMobileDataWS(request, null);
 	}
 
 }

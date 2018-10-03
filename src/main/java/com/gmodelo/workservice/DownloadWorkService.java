@@ -192,8 +192,8 @@ public class DownloadWorkService {
 		try {
 			databean.setListMaterialTarimas(downloadDao.getAllMaterialCrossTarimas(con));
 			databean.setListMobileMaterial(downloadDao.getAllMaterialMobile(con));
-			abstractResult.setStrCom1(httpSession.getId());
-			abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
+			//abstractResult.setStrCom1(httpSession.getId());
+			//abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos;

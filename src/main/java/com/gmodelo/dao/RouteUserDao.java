@@ -26,7 +26,7 @@ public class RouteUserDao {
 
 	private Logger log = Logger.getLogger(RouteUserDao.class.getName());
 
-	public RouteUserBean getRoutesByUser(User user) throws SQLException {
+	public RouteUserBean getRoutesByUserLegacy(User user) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -75,6 +75,58 @@ public class RouteUserDao {
 		}
 		return routeBean;
 	}
+	
+	public RouteUserBean getRoutesByUser(String user) throws SQLException {
+
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		
+		CallableStatement cs = null;
+		RouteUserBean routeBean = null;
+		final String INV_VW_ROUTES = "INV_SP_ROUTE_USER ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		log.info(INV_VW_ROUTES);
+		log.info("[getRoutesByUserDao] Preparing sentence...");
+		try {
+			cs = con.prepareCall(INV_VW_ROUTES);
+			
+			cs.setString(1, user);
+			cs.registerOutParameter(2, Types.VARCHAR);	//routeId
+			cs.registerOutParameter(3, Types.VARCHAR);	//bukrs
+			cs.registerOutParameter(4, Types.VARCHAR);	//werks
+			cs.registerOutParameter(5, Types.VARCHAR);	//rdesc
+			cs.registerOutParameter(6, Types.VARCHAR);	//rtype
+			cs.registerOutParameter(7, Types.VARCHAR);	//bdesc
+			cs.registerOutParameter(8, Types.VARCHAR);	//wdesc
+			cs.registerOutParameter(9, Types.VARCHAR);	//taskId
+			cs.registerOutParameter(10, Types.INTEGER);	//return
+			
+			log.info("[getRoutesByUserDao] Executing query...");
+			cs.execute();
+			if (cs.getInt(10) == 1) {
+				routeBean = new RouteUserBean();
+				routeBean.setRouteId(cs.getString(2));
+				routeBean.setBukrs(cs.getString(3));
+				routeBean.setWerks(cs.getString(4));
+				routeBean.setRdesc(cs.getString(5));
+				routeBean.setType(cs.getString(6));
+				routeBean.setBdesc(cs.getString(7));
+				routeBean.setWdesc(cs.getString(8));
+				routeBean.setTaskId(cs.getString(9));
+				TaskDao task = new TaskDao();
+				routeBean.setDateIni(task.updateDowloadTask(cs.getString(9)));
+				//routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
+			}else{
+				routeBean = null;
+			}
+			cs.close();
+			log.info("[getRoutesByUserDao] Sentence successfully executed.");
+		} finally {
+			con.close();
+		}
+		return routeBean;
+	}
+	
+	
 
 	public List<RouteUserPositionBean> getPositions(String idRoute) throws SQLException {
 
