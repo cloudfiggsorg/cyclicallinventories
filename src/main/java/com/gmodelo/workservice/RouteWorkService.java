@@ -236,12 +236,12 @@ public class RouteWorkService {
 						routeResponse.setLsObject(route);
 					}else{
 						result.setResultId(ReturnValues.IUSERNOTTASK);
-						result.setResultMsgAbs("Tarea no encontrada para usuario: " + request.getTokenObject().getLoginId());
+						result.setResultMsgAbs("Tarea no encontrada para el usuario: " + request.getTokenObject().getLoginId());
 					}
 					
 				}else{
 					result.setResultId(ReturnValues.IUSERNOTTASK);
-					result.setResultMsgAbs("Tarea no encontrada para usuario: " + request.getTokenObject().getLoginId());
+					result.setResultMsgAbs("Tarea no encontrada para el usuario: " + request.getTokenObject().getLoginId());
 				}
 				
 			}

@@ -108,26 +108,27 @@ public class CountsDao {
 					}else{
 						log.log(Level.SEVERE, "[addConteo] Task no update : " + INV_SP_UPDATE_TASK);
 						abstractResult.setResultId(ReturnValues.IUSERTASKNOUPDATED);
-						abstractResult.setResultMsgAbs("Taks not updated");
+						abstractResult.setResultMsgAbs("Tarea no subida, por favor consulte con el administrador");
 						res.setAbstractResult(abstractResult);
 						return res;
 					}
 					
 				}else{
-					log.log(Level.SEVERE, "[addConteo] Task finished : " + UPDATE_TASK);
+					log.log(Level.SEVERE, "[addConteo] Task counted : " + UPDATE_TASK);
 					abstractResult.setResultId(ReturnValues.IUSERTASKFINISHED);
-					abstractResult.setResultMsgAbs("Taks not count again");
+					abstractResult.setResultMsgAbs("Tarea ya contada, por favor consulte con el administrador");
 					res.setAbstractResult(abstractResult);
 					return res;
 				}
-			}else{
+			}
+			/*else{
 				log.log(Level.SEVERE, "[addConteo] Not validated Task in : " + UPDATE_TASK);
 				abstractResult.setResultId(ReturnValues.IUSERNOTVALIDATEDTASK);
 				abstractResult.setResultMsgAbs("Not validated Getupload Task");
 				res.setAbstractResult(abstractResult);
 				return res;	
 			}
-
+*/
 			// Free resources
 			cs.close();
 			con.close();
