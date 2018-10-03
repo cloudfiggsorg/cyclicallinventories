@@ -107,7 +107,7 @@ public class TaskWorkService {
 		String req;
 		req = request.getLsObject().toString();
 		req = req.replaceAll("=", ":");
-		
+				
 		JSONObject jsonObj = new JSONObject(req);
 		
 		try {
