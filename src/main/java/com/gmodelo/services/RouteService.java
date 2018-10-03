@@ -15,7 +15,6 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
-import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.beans.RouteUserPositionBean;
 import com.gmodelo.filters.HttpSessionCollector;
 import com.gmodelo.workservice.RouteWorkService;
@@ -49,7 +48,7 @@ public class RouteService {
 	public Response<List<RouteBean>> getRoutes(Request request) {
 		return new RouteWorkService().getRoutes(request);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -63,29 +62,48 @@ public class RouteService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getRoutesByUser")
 	public String getRoutesByUser(Request request) {
+
+		return new RouteWorkService().getRoutesByUser(request);
+	}
+
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getRoutesByUserLegacy")
+	public String getRoutesByUserLegacy(Request request) {
 		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
 		User user = (User) session.getAttribute("user");
-		
-		//User user = (User) httpRequest.getSession().getAttribute("user");
-		//HttpSession session = httpRequest.getSession();
-		return new RouteWorkService().getRoutesByUser(user, session);
+
+		// User user = (User) httpRequest.getSession().getAttribute("user");
+		// HttpSession session = httpRequest.getSession();
+		return new RouteWorkService().getRoutesByUserLegacy(user, session);
 	}
-	
+
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/autoTaskByUserLegacy")
+	public String getAutoTaskByUserLegacy(Request request) {
+		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		User user = (User) session.getAttribute("user");
+		return new RouteWorkService().getAutoTaskByUserLegacy(user, session);
+	}
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/autoTaskByUser")
 	public String getAutoTaskByUser(Request request) {
-		HttpSession session = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
-		User user = (User) session.getAttribute("user");
-		return new RouteWorkService().getAutoTaskByUser(user, session);
+		return new RouteWorkService().getAutoTaskByUser(request);
 	}
+
+	
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getPositionsByIdRoute")
-	public Response<List<RouteUserPositionBean>> getPositionsByIdRoute(Request request){
+	public Response<List<RouteUserPositionBean>> getPositionsByIdRoute(Request request) {
 		return new RouteWorkService().getPositionsByIdRoute(request);
 	}
 }

@@ -14,9 +14,7 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
-import com.gmodelo.beans.ToleranceBean;
 import com.gmodelo.workservice.TaskWorkService;
-import com.gmodelo.workservice.ToleranceWorkService;
 
 @Path("/services/TaskService")
 public class TaskService {

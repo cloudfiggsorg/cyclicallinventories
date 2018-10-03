@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
@@ -108,7 +109,7 @@ public class RouteWorkService {
 		return new RouteDao().getOnlyRoutes(routeBean, searchFilter);
 	}
 
-	public String getRoutesByUser(User user, HttpSession userSession) {
+	public String getRoutesByUserLegacy(User user, HttpSession userSession) {
 
 		Response<RouteUserBean> routeResponse = new Response<>();
 		RouteUserDao routeDao = new RouteUserDao();
@@ -117,7 +118,7 @@ public class RouteWorkService {
 		result.setStrCom1(userSession.getId());
 		routeResponse.setAbstractResult(result);
 		try {
-			RouteUserBean route = routeDao.getRoutesByUser(user);
+			RouteUserBean route = routeDao.getRoutesByUserLegacy(user);
 			if (route.getRouteId() != null) {
 				route.setPositions(routeDao.getPositions(route.getRouteId()));
 				if (!route.getPositions().isEmpty()){
@@ -139,8 +140,37 @@ public class RouteWorkService {
 		return new Gson().toJson(routeResponse);
 	}
 	
+	public String getRoutesByUser(Request request) {
 
-	public String getAutoTaskByUser(User user, HttpSession userSession) {
+		Response<RouteUserBean> routeResponse = new Response<>();
+		RouteUserDao routeDao = new RouteUserDao();
+		AbstractResultsBean result = new AbstractResultsBean();
+		routeResponse.setAbstractResult(result);
+		try {
+			RouteUserBean route = routeDao.getRoutesByUser(request.getTokenObject().getLoginId());
+			if (route.getRouteId() != null) {
+				route.setPositions(routeDao.getPositions(route.getRouteId()));
+				if (!route.getPositions().isEmpty()){
+					routeResponse.setLsObject(route);	
+				}else{
+					result.setResultId(ReturnValues.IUSERNOTTASK);
+					result.setResultMsgAbs("Tarea Incompleta Contacte Administrador");
+				}
+			} else {
+				result.setResultId(ReturnValues.IUSERNOTTASK);
+				result.setResultMsgAbs("Tarea no encontrada para usuario: " + request.getTokenObject().getLoginId());
+			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgGen(e.getMessage());
+			log.log(Level.SEVERE, "[getRoutesByUserService] ",e);
+		}
+		
+		return new Gson().toJson(routeResponse);
+	}
+	
+	
+	public String getAutoTaskByUserLegacy(User user, HttpSession userSession) {
 
 		Response<RouteUserBean> routeResponse = new Response<>();
 		RouteUserDao routeDao = new RouteUserDao();
@@ -149,16 +179,16 @@ public class RouteWorkService {
 		result.setStrCom1(userSession.getId());
 		routeResponse.setAbstractResult(result);
 		try {
-			RouteUserBean route = routeDao.getRoutesByUser(user);
+			RouteUserBean route = routeDao.getRoutesByUserLegacy(user);
 			if (route.getRouteId() != null) {
 				route.setPositions(routeDao.getPositions(route.getRouteId()));
 				routeResponse.setLsObject(route);
 			} else {
 				
 				TaskUserDao taskUserDao = new TaskUserDao();
-				int resTask = taskUserDao.createAutoTask(user);
+				int resTask = taskUserDao.createAutoTaskLegacy(user);
 				if (resTask == 1){
-					route = routeDao.getRoutesByUser(user);
+					route = routeDao.getRoutesByUserLegacy(user);
 					if(route.getRouteId() != null){
 						route.setPositions(routeDao.getPositions(route.getRouteId()));
 						routeResponse.setLsObject(route);
@@ -170,6 +200,48 @@ public class RouteWorkService {
 				}else{
 					result.setResultId(ReturnValues.IUSERNOTTASK);
 					result.setResultMsgAbs("Tarea no encontrada para usuario: " + user.getEntity().getIdentyId());
+				}
+				
+			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgGen(e.getMessage());
+			log.log(Level.SEVERE, "[getRoutesByUserService] ",e);
+		}
+		
+		return new Gson().toJson(routeResponse);
+	}
+	
+	
+
+	public String getAutoTaskByUser(Request request) {
+
+		Response<RouteUserBean> routeResponse = new Response<>();
+		RouteUserDao routeDao = new RouteUserDao();
+		AbstractResultsBean result = new AbstractResultsBean();
+		routeResponse.setAbstractResult(result);
+		try {
+			RouteUserBean route = routeDao.getRoutesByUser(request.getTokenObject().getLoginId());
+			if (route.getRouteId() != null) {
+				route.setPositions(routeDao.getPositions(route.getRouteId()));
+				routeResponse.setLsObject(route);
+			} else {
+				
+				TaskUserDao taskUserDao = new TaskUserDao();
+				int resTask = taskUserDao.createAutoTask(request.getTokenObject().getLoginId());
+				if (resTask == 1){
+					route = routeDao.getRoutesByUser(request.getTokenObject().getLoginId());
+					if(route.getRouteId() != null){
+						route.setPositions(routeDao.getPositions(route.getRouteId()));
+						routeResponse.setLsObject(route);
+					}else{
+						result.setResultId(ReturnValues.IUSERNOTTASK);
+						result.setResultMsgAbs("Tarea no encontrada para usuario: " + request.getTokenObject().getLoginId());
+					}
+					
+				}else{
+					result.setResultId(ReturnValues.IUSERNOTTASK);
+					result.setResultMsgAbs("Tarea no encontrada para usuario: " + request.getTokenObject().getLoginId());
 				}
 				
 			}

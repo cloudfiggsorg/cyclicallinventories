@@ -23,9 +23,19 @@ public class CountsService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/addCountLegacy")
+	public Response addCountLegacy(Request request) {
+		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
+		return new CountsWorkService().addCountLegacy(request,s);
+	}
+	
+	
+	@SuppressWarnings("rawtypes")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addCount")
 	public Response addCount(Request request) {
-		HttpSession s = HttpSessionCollector.find(request.getTokenObject().getRelationUUID());
-		return new CountsWorkService().addCount(request,s);
+		return new CountsWorkService().addCount(request);
 	}
 }
