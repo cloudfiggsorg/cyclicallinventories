@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.naming.NamingException;
+
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
@@ -491,7 +494,7 @@ public class RouteDao{
 			rs.close();
 			stm.close();
 			log.info("[getGroupsDao] Sentence successfully executed.");
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			log.log(Level.SEVERE, "[getGroupsDao] Ocurrió un error", e);
 		}finally {
 			try {

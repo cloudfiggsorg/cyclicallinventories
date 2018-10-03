@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.NamingException;
+
 import com.bmore.ume001.beans.User;
 import com.bmore.ume001.beans.UserGenInfo;
 import com.gmodelo.beans.AbstractResultsBean;
@@ -348,7 +350,7 @@ public class GroupDao {
 			rs.close();
 			stm.close();
 			log.info("[getGroupsDao] Sentence successfully executed.");
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			log.log(Level.SEVERE,"[getGroupsDao] Some error occurred while was trying to execute the query: "+INV_VW_GET_GROUPS, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
@@ -443,7 +445,7 @@ public class GroupDao {
 		return res;
 	}
 
-	public List<User> groupUsers(String groupId, String userId) throws SQLException{
+	public List<User> groupUsers(String groupId, String userId) throws SQLException, NamingException{
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -465,10 +467,13 @@ public class GroupDao {
 		while (rs.next()){
 			log.info(rs.getString("GRU_USER_ID"));
 			User userB = new User();
+			
 			userB.getEntity().setIdentyId(rs.getString("GRU_USER_ID"));
-			UserGenInfo userInfo = ume.getUserInfo(rs.getString("GRU_USER_ID"));
-			userB.setGenInf(userInfo);
-			listUser.add(userB);
+			ArrayList<User> lista = new ArrayList<>();
+			lista.add(userB);
+			ArrayList<User> lsUser = ume.getUsersLDAPByCredentials(lista);
+			if(lsUser.size() > 0)
+			listUser.add(ume.getUsersLDAPByCredentials(lista).get(0));
 		}
 	
 		//Retrive the warnings if there're

@@ -258,7 +258,7 @@ public class GroupWorkService {
 		try {
 			res.setLsObject(new GroupDao().groupUsers(groupUser.getGroupId(),groupUser.getUserId()));
 			abstractResult.setResultId(ReturnValues.ISUCCESS);
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
