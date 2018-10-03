@@ -18,7 +18,28 @@ public class ApegosBean {
 	String creacion;
 	String ejecucion;
 	String tiempo;
+	String apegos;
+	String lgort;
+	String lgDesc;
 	
+	public String getLgDesc() {
+		return lgDesc;
+	}
+	public void setLgDesc(String lgDesc) {
+		this.lgDesc = lgDesc;
+	}
+	public String getLgort() {
+		return lgort;
+	}
+	public void setLgort(String lgort) {
+		this.lgort = lgort;
+	}
+	public String getApegos() {
+		return apegos;
+	}
+	public void setApegos(String apegos) {
+		this.apegos = apegos;
+	}
 	public String getTiempo() {
 		return tiempo;
 	}
@@ -126,17 +147,10 @@ public class ApegosBean {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	@Override
-	public String toString() {
-		return "ApegosBean [docInvId=" + docInvId + ", routeId=" + routeId + ", Rdesc=" + Rdesc + ", bukrs=" + bukrs
-				+ ", Bdesc=" + Bdesc + ", werks=" + werks + ", Wdesc=" + Wdesc + ", dType=" + dType + ", userDocInv="
-				+ userDocInv + ", userCount=" + userCount + ", dateIni=" + dateIni + ", dateFin=" + dateFin
-				+ ", taskId=" + taskId + ", grupo=" + grupo + ", creacion=" + creacion + ", ejecucion=" + ejecucion
-				+ ", tiempo=" + tiempo + "]";
-	}
 	public ApegosBean(String docInvId, String routeId, String rdesc, String bukrs, String bdesc, String werks,
 			String wdesc, String dType, String userDocInv, String userCount, String dateIni, String dateFin,
-			String taskId, String grupo, String creacion, String ejecucion, String tiempo) {
+			String taskId, String grupo, String creacion, String ejecucion, String tiempo, String apegos, String lgort,
+			String lgDesc) {
 		super();
 		this.docInvId = docInvId;
 		this.routeId = routeId;
@@ -155,7 +169,21 @@ public class ApegosBean {
 		this.creacion = creacion;
 		this.ejecucion = ejecucion;
 		this.tiempo = tiempo;
+		this.apegos = apegos;
+		this.lgort = lgort;
+		this.lgDesc = lgDesc;
 	}
+	@Override
+	public String toString() {
+		return "ApegosBean [docInvId=" + docInvId + ", routeId=" + routeId + ", Rdesc=" + Rdesc + ", bukrs=" + bukrs
+				+ ", Bdesc=" + Bdesc + ", werks=" + werks + ", Wdesc=" + Wdesc + ", dType=" + dType + ", userDocInv="
+				+ userDocInv + ", userCount=" + userCount + ", dateIni=" + dateIni + ", dateFin=" + dateFin
+				+ ", taskId=" + taskId + ", grupo=" + grupo + ", creacion=" + creacion + ", ejecucion=" + ejecucion
+				+ ", tiempo=" + tiempo + ", apegos=" + apegos + ", lgort=" + lgort + ", lgDesc=" + lgDesc + "]";
+	}
+	
+	
+	
 
 	
 

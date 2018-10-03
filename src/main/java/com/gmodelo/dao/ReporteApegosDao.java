@@ -45,7 +45,7 @@ public class ReporteApegosDao {
 			log.info("[getReporteApegosDao] Trying to convert String to Int");
 		}		
 
-		INV_VW_REP_APEGOS = "SELECT DOC_INV_ID, ROUTE_ID,RDESC, BUKRS, BDESC, WERKS, WDESC, DTYPE, USER_DOCINV, USER_COUNT, DATE_INI, DATE_FIN, GROUP_ID, CREACION, EJECUCION FROM INV_VW_REP_APEGOS WITH(NOLOCK) ";
+		INV_VW_REP_APEGOS = "SELECT DOC_INV_ID, ROUTE_ID,RDESC, BUKRS, BDESC, WERKS, WDESC, LGORT, LGORT,GDESC, TASK_ID, DTYPE, USER_DOCINV, USER_COUNT, DATE_INI, DATE_FIN, TIEMPO, GROUP_ID, CREACION, EJECUCION FROM INV_VW_REP_APEGOS WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
 			INV_VW_REP_APEGOS += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter + "%' OR DOC_INV_ID LIKE '%" + searchFilter + "%' ";
@@ -74,25 +74,19 @@ public class ReporteApegosDao {
 				apegosBean.setBdesc(rs.getString("BDESC"));
 				apegosBean.setWerks(rs.getString("WERKS"));
 				apegosBean.setWdesc(rs.getString("WDESC"));
+				apegosBean.setLgort(rs.getString("LGORT"));
+				apegosBean.setLgDesc(rs.getString("GDESC"));
 				apegosBean.setdType((rs.getString("DTYPE").equalsIgnoreCase("1")) ? "DIARIO" : "MENSUAL");
-				apegosBean.setDateIni(rs.getDate("DATE_INI").toString());
-				apegosBean.setDateFin((rs.getDate("DATE_FIN") == null) ? "" : rs.getDate("DATE_FIN").toString());
+				apegosBean.setTaskId(rs.getString("TASK_ID"));
+				apegosBean.setDateIni(rs.getString("DATE_INI"));
+				apegosBean.setDateFin((rs.getString("DATE_FIN") == null) ? "" : (rs.getString("DATE_FIN")));
+				apegosBean.setTiempo((rs.getString("TIEMPO") == null ? "": (rs.getString("TIEMPO"))));
 				apegosBean.setUserDocInv(rs.getString("USER_DOCINV"));
 				apegosBean.setUserCount(rs.getString("USER_COUNT"));
 				apegosBean.setGrupo(rs.getString("GROUP_ID"));
 				apegosBean.setCreacion(rs.getString("CREACION"));
 				apegosBean.setEjecucion(rs.getString("EJECUCION"));
-				
-				if(rs.getDate("DATE_FIN") != null){
-					  
-					long fini = rs.getDate("DATE_INI").getTime();
-					long fend = rs.getDate("DATE_FIN").getTime();
-					long fTiempo = fend-fini;
-					
-					String curDate = new SimpleDateFormat("dd-M-yyyy hh:mm:ss").format(new Date(fTiempo));
-					System.out.println("curDate: "+ curDate);
-				}
-				
+				apegosBean.setApegos((rs.getString("CREACION").equalsIgnoreCase("100%") && rs.getString("EJECUCION").equalsIgnoreCase("100%")) ? "100%" : "");
 				listApegosBean.add(apegosBean);
 			}
 
@@ -157,17 +151,5 @@ public class ReporteApegosDao {
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
-	/*
-	public static void main(String args[]){
-		ReporteApegosDao dao =  new ReporteApegosDao();
-		ApegosBean apegosBean = new ApegosBean();
-		String searchFilter =  "";
-		Response<List<ApegosBean>> x = dao.getReporteApegos(apegosBean, searchFilter );
-		
-		System.out.println("x: " + x.getAbstractResult().getResultId());
-		for(int i=0; i< x.getLsObject().size(); i++){
-			System.out.println("x: " + x.getLsObject().get(i).toString());
-		}
-	}
-*/
+
 }
