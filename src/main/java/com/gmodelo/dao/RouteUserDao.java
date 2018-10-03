@@ -13,9 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.bmore.ume001.beans.Entity;
 import com.bmore.ume001.beans.User;
-import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LgplaValuesBean;
 import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.beans.RouteUserPositionBean;
@@ -90,6 +88,7 @@ public class RouteUserDao {
 			stm.setString(1, taskId);
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
+				reconteo = new TaskBean();
 				reconteo.setTaskId(taskId);
 				reconteo.setTaskJSON(rs.getString("TAS_JSON"));
 				reconteo.setTaskIdFather(rs.getString("TASK_ID_PARENT"));
@@ -159,9 +158,9 @@ public class RouteUserDao {
 		List<RouteUserPositionBean> listPositions = new ArrayList<RouteUserPositionBean>();
 		String INV_VW_ROUTES_WITH_POSITIONS = "";
 		if (conteo.getTaskIdFather() != null && !conteo.getTaskIdFather().isEmpty()) {
-			INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? ORDER BY SECUENCY ASC";
-		} else {
 			INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? ORDER BY SECUENCY DESC";
+		} else {
+			INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? ORDER BY SECUENCY ASC";
 		}
 		try {
 			log.info(INV_VW_ROUTES_WITH_POSITIONS);
