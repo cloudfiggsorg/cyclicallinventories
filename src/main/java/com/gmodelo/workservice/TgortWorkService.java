@@ -22,8 +22,9 @@ public class TgortWorkService {
 		TgortB tgortBean;
 		Response<List<TgortB>> res = new Response<List<TgortB>>();
 		try {
+			
 			tgortBean = gson.fromJson(gson.toJson(request.getLsObject()), TgortB.class) ;
-		} catch (JsonSyntaxException e) {
+		} catch (JsonSyntaxException e	) {
 			log.log(Level.SEVERE,"Error al pasar de Json a TgortBean", e);
 			tgortBean = null;
 			AbstractResultsBean abstractResult = new AbstractResultsBean();

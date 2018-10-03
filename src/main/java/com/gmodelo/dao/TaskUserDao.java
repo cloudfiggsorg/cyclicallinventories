@@ -58,8 +58,7 @@ public class TaskUserDao {
 				docInv.setWerks(cs.getString(4));
 				docInv.setType(cs.getString(5));
 				docInv.setWerksD(cs.getString(7));
-				
-				
+					
 				DocInvDao dao = new DocInvDao();
 				Response<DocInvBean> res = dao.addDocInv(docInv, user);
 				
@@ -161,5 +160,11 @@ public class TaskUserDao {
 		}
 		return response;
 	}
-	
+	/*
+	public static void main(String args[]){
+		TaskUserDao dao = new TaskUserDao();
+		int x = dao.createAutoTask("ROD1986");
+		System.out.println("x: "+ x);
+	}
+	*/
 }

@@ -21,7 +21,7 @@ public class TgortService {
 	private HttpServletRequest httpRequest;
 	
 	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getTgort")
 	public Response<List<TgortB>> getTgort(Request request){

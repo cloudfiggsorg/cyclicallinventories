@@ -94,6 +94,7 @@ public class RouteService {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/autoTaskByUser")
 	public String getAutoTaskByUser(Request request) {
+		
 		return new RouteWorkService().getAutoTaskByUser(request);
 	}
 
