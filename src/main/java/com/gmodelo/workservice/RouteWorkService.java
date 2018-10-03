@@ -149,12 +149,17 @@ public class RouteWorkService {
 		try {
 			RouteUserBean route = routeDao.getRoutesByUser(request.getTokenObject().getLoginId());
 			if (route.getRouteId() != null) {
-				route.setPositions(routeDao.getPositions(route.getRouteId()));
-				if (!route.getPositions().isEmpty()){
-					routeResponse.setLsObject(route);	
+				String reconteo = routeDao.getTaskReconteo(route.getTaskId());
+				if(reconteo!=null && !reconteo.isEmpty()){
+					return reconteo;
 				}else{
-					result.setResultId(ReturnValues.IUSERNOTTASK);
-					result.setResultMsgAbs("Tarea Incompleta Contacte Administrador");
+					route.setPositions(routeDao.getPositions(route.getRouteId()));
+					if (!route.getPositions().isEmpty()){
+						routeResponse.setLsObject(route);	
+					}else{
+						result.setResultId(ReturnValues.IUSERNOTTASK);
+						result.setResultMsgAbs("Tarea Incompleta Contacte Administrador");
+					}
 				}
 			} else {
 				result.setResultId(ReturnValues.IUSERNOTTASK);

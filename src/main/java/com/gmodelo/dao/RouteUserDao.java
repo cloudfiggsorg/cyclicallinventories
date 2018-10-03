@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import com.bmore.ume001.beans.Entity;
 import com.bmore.ume001.beans.User;
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LgplaValuesBean;
 import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.beans.RouteUserPositionBean;
@@ -75,6 +76,28 @@ public class RouteUserDao {
 		}
 		return routeBean;
 	}
+	
+	private static final String GET_RECONTEO = "SELECT TASK_ID, TAS_JSON FROM INV_TASK WHERE TASK_ID = ?";
+	
+	public String getTaskReconteo(String taskId) throws SQLException{
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		String reconteo =  null;
+		try{
+			stm = con.prepareStatement(GET_RECONTEO);
+			stm.setString(1, taskId);
+			ResultSet rs = stm.executeQuery();
+			while(rs.next()){
+				reconteo = rs.getString("TAS_JSON");
+			}
+		}catch(SQLException e){
+			log.log(Level.SEVERE,"",e);
+			reconteo =  null;
+		}
+		return reconteo;
+	}
+	
 	
 	public RouteUserBean getRoutesByUser(String user) throws SQLException {
 
