@@ -19,6 +19,7 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LgplaValuesBean;
 import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.beans.RouteUserPositionBean;
+import com.gmodelo.beans.TaskBean;
 import com.gmodelo.beans.ZoneUserBean;
 import com.gmodelo.beans.ZoneUserPositionsBean;
 import com.gmodelo.utils.ConnectionManager;
@@ -31,7 +32,7 @@ public class RouteUserDao {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-		
+
 		CallableStatement cs = null;
 		RouteUserBean routeBean = null;
 		final String INV_VW_ROUTES = "INV_SP_ROUTE_USER ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
@@ -39,18 +40,18 @@ public class RouteUserDao {
 		log.info("[getRoutesByUserDao] Preparing sentence...");
 		try {
 			cs = con.prepareCall(INV_VW_ROUTES);
-			
+
 			cs.setString(1, user.getEntity().getIdentyId());
-			cs.registerOutParameter(2, Types.VARCHAR);	//routeId
-			cs.registerOutParameter(3, Types.VARCHAR);	//bukrs
-			cs.registerOutParameter(4, Types.VARCHAR);	//werks
-			cs.registerOutParameter(5, Types.VARCHAR);	//rdesc
-			cs.registerOutParameter(6, Types.VARCHAR);	//rtype
-			cs.registerOutParameter(7, Types.VARCHAR);	//bdesc
-			cs.registerOutParameter(8, Types.VARCHAR);	//wdesc
-			cs.registerOutParameter(9, Types.VARCHAR);	//taskId
-			cs.registerOutParameter(10, Types.INTEGER);	//return
-			
+			cs.registerOutParameter(2, Types.VARCHAR); // routeId
+			cs.registerOutParameter(3, Types.VARCHAR); // bukrs
+			cs.registerOutParameter(4, Types.VARCHAR); // werks
+			cs.registerOutParameter(5, Types.VARCHAR); // rdesc
+			cs.registerOutParameter(6, Types.VARCHAR); // rtype
+			cs.registerOutParameter(7, Types.VARCHAR); // bdesc
+			cs.registerOutParameter(8, Types.VARCHAR); // wdesc
+			cs.registerOutParameter(9, Types.VARCHAR); // taskId
+			cs.registerOutParameter(10, Types.INTEGER); // return
+
 			log.info("[getRoutesByUserDao] Executing query...");
 			cs.execute();
 			if (cs.getInt(10) == 1) {
@@ -65,8 +66,8 @@ public class RouteUserDao {
 				routeBean.setTaskId(cs.getString(9));
 				TaskDao task = new TaskDao();
 				routeBean.setDateIni(task.updateDowloadTask(cs.getString(9)));
-				//routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
-			}else{
+				// routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
+			} else {
 				routeBean = null;
 			}
 			cs.close();
@@ -76,34 +77,35 @@ public class RouteUserDao {
 		}
 		return routeBean;
 	}
-	
-	private static final String GET_RECONTEO = "SELECT TASK_ID, TAS_JSON FROM INV_TASK WHERE TASK_ID = ?";
-	
-	public String getTaskReconteo(String taskId) throws SQLException{
+
+	private static final String GET_RECONTEO = "SELECT TASK_ID, TAS_JSON, TASK_ID_PARENT FROM INV_TASK WHERE TASK_ID = ?";
+
+	public TaskBean getTaskReconteo(String taskId) throws SQLException {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		String reconteo =  null;
-		try{
+		TaskBean reconteo = null;
+		try {
 			stm = con.prepareStatement(GET_RECONTEO);
 			stm.setString(1, taskId);
 			ResultSet rs = stm.executeQuery();
-			while(rs.next()){
-				reconteo = rs.getString("TAS_JSON");
+			while (rs.next()) {
+				reconteo.setTaskId(taskId);
+				reconteo.setTaskJSON(rs.getString("TAS_JSON"));
+				reconteo.setTaskIdFather(rs.getString("TASK_ID_PARENT"));
 			}
-		}catch(SQLException e){
-			log.log(Level.SEVERE,"",e);
-			reconteo =  null;
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "", e);
+			reconteo = null;
 		}
 		return reconteo;
 	}
-	
-	
+
 	public RouteUserBean getRoutesByUser(String user) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-		
+
 		CallableStatement cs = null;
 		RouteUserBean routeBean = null;
 		final String INV_VW_ROUTES = "INV_SP_ROUTE_USER ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
@@ -111,18 +113,18 @@ public class RouteUserDao {
 		log.info("[getRoutesByUserDao] Preparing sentence...");
 		try {
 			cs = con.prepareCall(INV_VW_ROUTES);
-			
+
 			cs.setString(1, user);
-			cs.registerOutParameter(2, Types.VARCHAR);	//routeId
-			cs.registerOutParameter(3, Types.VARCHAR);	//bukrs
-			cs.registerOutParameter(4, Types.VARCHAR);	//werks
-			cs.registerOutParameter(5, Types.VARCHAR);	//rdesc
-			cs.registerOutParameter(6, Types.VARCHAR);	//rtype
-			cs.registerOutParameter(7, Types.VARCHAR);	//bdesc
-			cs.registerOutParameter(8, Types.VARCHAR);	//wdesc
-			cs.registerOutParameter(9, Types.VARCHAR);	//taskId
-			cs.registerOutParameter(10, Types.INTEGER);	//return
-			
+			cs.registerOutParameter(2, Types.VARCHAR); // routeId
+			cs.registerOutParameter(3, Types.VARCHAR); // bukrs
+			cs.registerOutParameter(4, Types.VARCHAR); // werks
+			cs.registerOutParameter(5, Types.VARCHAR); // rdesc
+			cs.registerOutParameter(6, Types.VARCHAR); // rtype
+			cs.registerOutParameter(7, Types.VARCHAR); // bdesc
+			cs.registerOutParameter(8, Types.VARCHAR); // wdesc
+			cs.registerOutParameter(9, Types.VARCHAR); // taskId
+			cs.registerOutParameter(10, Types.INTEGER); // return
+
 			log.info("[getRoutesByUserDao] Executing query...");
 			cs.execute();
 			if (cs.getInt(10) == 1) {
@@ -137,8 +139,8 @@ public class RouteUserDao {
 				routeBean.setTaskId(cs.getString(9));
 				TaskDao task = new TaskDao();
 				routeBean.setDateIni(task.updateDowloadTask(cs.getString(9)));
-				//routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
-			}else{
+				// routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
+			} else {
 				routeBean = null;
 			}
 			cs.close();
@@ -148,17 +150,19 @@ public class RouteUserDao {
 		}
 		return routeBean;
 	}
-	
-	
 
-	public List<RouteUserPositionBean> getPositions(String idRoute) throws SQLException {
+	public List<RouteUserPositionBean> getPositions(String idRoute, TaskBean conteo) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<RouteUserPositionBean> listPositions = new ArrayList<RouteUserPositionBean>();
-		final String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? ORDER BY SECUENCY ASC";
-
+		String INV_VW_ROUTES_WITH_POSITIONS = "";
+		if (conteo.getTaskIdFather() != null && !conteo.getTaskIdFather().isEmpty()) {
+			INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? ORDER BY SECUENCY ASC";
+		} else {
+			INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? ORDER BY SECUENCY DESC";
+		}
 		try {
 			log.info(INV_VW_ROUTES_WITH_POSITIONS);
 			log.info("[getRoutesUserPositionDao] Preparing sentence...");
@@ -175,7 +179,7 @@ public class RouteUserDao {
 				position.setGdesc(rs.getString("GDES"));
 				position.setSecuency(rs.getString("SECUENCY"));
 				position.setRouteId(rs.getString("ROUTE_ID"));
-				position.setZone(this.getZoneByPosition(rs.getString("ZONE_ID")));
+				position.setZone(this.getZoneByPosition(rs.getString("ZONE_ID"), conteo));
 				listPositions.add(position);
 			}
 
@@ -206,7 +210,7 @@ public class RouteUserDao {
 		return listPositions;
 	}
 
-	public ZoneUserBean getZoneByPosition(String zoneId) throws SQLException {
+	public ZoneUserBean getZoneByPosition(String zoneId, TaskBean conteo) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -223,7 +227,7 @@ public class RouteUserDao {
 			while (rs.next()) {
 				zoneBean.setZoneId(rs.getString("ZONE_ID"));
 				zoneBean.setZdesc(rs.getString("ZDESC"));
-				zoneBean.setPositionsB(this.getPositionsZone(rs.getString("ZONE_ID")));
+				zoneBean.setPositionsB(this.getPositionsZone(rs.getString("ZONE_ID"), conteo));
 			}
 			// Retrive the warnings if there're
 			SQLWarning warning = stm.getWarnings();
@@ -251,15 +255,22 @@ public class RouteUserDao {
 		return zoneBean;
 	}
 
-	public List<ZoneUserPositionsBean> getPositionsZone(String zoneId) throws SQLException {
+	public List<ZoneUserPositionsBean> getPositionsZone(String zoneId, TaskBean conteo) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneUserPositionsBean> listPositions = new ArrayList<ZoneUserPositionsBean>();
+		String INV_VW_ZONE_WITH_POSITIONS = "";
 
-		final String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ? "
-				+ "GROUP BY PK_ASG_ID,LGTYP,LGPLA,SECUENCY,IMWM ORDER BY SECUENCY ASC";
+		if (conteo.getTaskIdFather() != null && !conteo.getTaskIdFather().isEmpty()) {
+			INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ? "
+					+ "GROUP BY PK_ASG_ID,LGTYP,LGPLA,SECUENCY,IMWM ORDER BY SECUENCY DESC";
+
+		} else {
+			INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ? "
+					+ "GROUP BY PK_ASG_ID,LGTYP,LGPLA,SECUENCY,IMWM ORDER BY SECUENCY ASC";
+		}
 
 		log.info(INV_VW_ZONE_WITH_POSITIONS);
 		log.info("[getPositionsZoneDao] Preparing sentence...");
@@ -290,10 +301,8 @@ public class RouteUserDao {
 			stm.close();
 			log.info("[getPositionsZoneDao] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,
-					"[getPositionsZoneDao] Some error occurred while was trying to execute the query: "
-							+ INV_VW_ZONE_WITH_POSITIONS,
-					e);
+			log.log(Level.SEVERE, "[getPositionsZoneDao] Some error occurred while was trying to execute the query: "
+					+ INV_VW_ZONE_WITH_POSITIONS, e);
 			throw e;
 		} finally {
 			try {
