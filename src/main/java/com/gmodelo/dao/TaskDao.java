@@ -18,6 +18,7 @@ import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
+import com.google.gson.Gson;
 
 public class TaskDao {
 	
@@ -27,7 +28,7 @@ public class TaskDao {
 		Response<TaskBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
-		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?, ?"; 		
+		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?, ?, ?"; 		
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -37,15 +38,20 @@ public class TaskDao {
 
 		try {
 			
-			System.out.println(taskBean.getTaskJSON());
-			
 			con.setAutoCommit(false);
 			cs = con.prepareCall(INV_SP_ADD_TASK);
 			cs.setString(1, taskBean.getTaskId());
 			cs.setString(2, taskBean.getGroupId());
 			cs.setInt(3, taskBean.getDocInvId().getDocInvId());
-			cs.setString(4, taskBean.getTaskIdFather());
-			cs.setString(5, createdBy);
+			if(taskBean.getRub()== null){
+				
+				cs.setNull(4, Types.CHAR);
+			}else{
+				
+				cs.setString(4, new Gson().toJson(taskBean.getRub()));
+			}
+			cs.setString(5, taskBean.getTaskIdFather());
+			cs.setString(6, createdBy);
 			cs.setString(1, taskBean.getTaskIdFather());
 			cs.registerOutParameter(1, Types.INTEGER);
 			

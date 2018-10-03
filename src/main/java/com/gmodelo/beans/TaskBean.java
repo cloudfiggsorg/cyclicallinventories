@@ -11,14 +11,14 @@ public class TaskBean {
 	long dUpload;
 	boolean status;
 	String taskIdFather;
-	RouteUserBean test;
+	RouteUserBean rub;
 	
 	public TaskBean(){
 		super();
 	}
-	
+
 	public TaskBean(String taskId, String groupId, DocInvBean docInvId, String taskJSON, long dCreated, long dDownlad,
-			long dUpload, boolean status, String taskIdFather) {
+			long dUpload, boolean status, String taskIdFather, RouteUserBean rub) {
 		super();
 		this.taskId = taskId;
 		this.groupId = groupId;
@@ -29,13 +29,14 @@ public class TaskBean {
 		this.dUpload = dUpload;
 		this.status = status;
 		this.taskIdFather = taskIdFather;
+		this.rub = rub;
 	}
 
 	@Override
 	public String toString() {
 		return "TaskBean [taskId=" + taskId + ", groupId=" + groupId + ", docInvId=" + docInvId + ", taskJSON="
 				+ taskJSON + ", dCreated=" + dCreated + ", dDownlad=" + dDownlad + ", dUpload=" + dUpload + ", status="
-				+ status + ", taskIdFather=" + taskIdFather + "]";
+				+ status + ", taskIdFather=" + taskIdFather + ", rub=" + rub + "]";
 	}
 
 	public String getTaskId() {
@@ -110,12 +111,12 @@ public class TaskBean {
 		this.taskIdFather = taskIdFather;
 	}
 
-	public RouteUserBean getTest() {
-		return test;
+	public RouteUserBean getRub() {
+		return rub;
 	}
 
-	public void setTest(RouteUserBean test) {
-		this.test = test;
+	public void setRub(RouteUserBean rub) {
+		this.rub = rub;
 	}
 	
 }
