@@ -258,6 +258,7 @@ public class RouteDao{
 				INV_VW_ROUTES += condition;
 			}
 		}
+		
 		log.info(INV_VW_ROUTES);
 		log.info("[getRoutesDao] Preparing sentence...");
 		try {
@@ -339,13 +340,14 @@ public class RouteDao{
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_AVAILABLE_ROUTES WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
-			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter + "%'";
+			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter + "%' ";
 		} else {
 			String condition = buildCondition(routeBean);
 			if (condition != null) {
 				INV_VW_ROUTES += condition;
 			}
 		}
+		
 		log.info(INV_VW_ROUTES);
 		log.info("[getOnlyRoutes] Preparing sentence...");
 		try {
