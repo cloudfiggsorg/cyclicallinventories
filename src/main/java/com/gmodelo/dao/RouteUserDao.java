@@ -137,6 +137,7 @@ public class RouteUserDao {
 				routeBean.setWdesc(cs.getString(8));
 				routeBean.setTaskId(cs.getString(9));
 				TaskDao task = new TaskDao();
+				log.info("getTaskId"+routeBean.getTaskId());
 				routeBean.setDateIni(task.updateDowloadTask(cs.getString(9)));
 				// routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
 			} else {

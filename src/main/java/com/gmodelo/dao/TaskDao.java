@@ -13,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
 import com.gmodelo.utils.ConnectionManager;
@@ -335,8 +334,9 @@ public class TaskDao {
 		long date = 0;
 
 		log.info("[updateDowloadTaskDao] Preparing sentence...");
+		log.info(INV_SP_UPDATE_DOWLOAD_TASK);
 		try {
-			
+			log.info("idTask "+idTask);
 			cs = con.prepareCall(INV_SP_UPDATE_DOWLOAD_TASK);
 			cs.setString(1, idTask);
 			cs.registerOutParameter(2, Types.INTEGER);
@@ -344,7 +344,11 @@ public class TaskDao {
 			log.info("[updateDowloadTaskDao] Executing query...");
 			
 			cs.execute();
-			date = cs.getDate(3).getTime();
+			try {
+				date = cs.getDate(3).getTime();
+			} catch (Exception e) {
+				log.info("Si era eso jajajaja");
+			}
 			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[updateDowloadTask] Some error occurred while was trying to execute the query: "
