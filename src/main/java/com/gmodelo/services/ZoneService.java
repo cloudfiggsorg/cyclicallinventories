@@ -64,4 +64,12 @@ public class ZoneService {
 		return new ZoneWorkService().getZones(request);
 	}
 	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getZoneOnly")
+	public Response<List<ZoneBean>> getZoneOnly(Request request){
+		return new ZoneWorkService().getZoneOnly(request);
+	}
+	
 }
