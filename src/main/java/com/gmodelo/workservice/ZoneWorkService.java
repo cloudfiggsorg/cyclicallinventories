@@ -144,6 +144,16 @@ public class ZoneWorkService {
 		
 	}
 	
+	public Response<List<ZoneBean>> getZoneOnly(Request<?> request){
+		
+		log.info("[getZonesOnlyWorkService] "+request.toString());	
+		String searchFilter = "";
+		searchFilter = ((String) request.getLsObject()).trim();
+		
+		return new ZoneDao().getZonesOnly(searchFilter);
+		
+	}
+	
 	public Response<Object> unassignMaterialToZone(Request<?> request){
 			
 			log.info("[unassignMaterialToZoneWS] "+request.toString());

@@ -489,6 +489,76 @@ public class ZoneDao {
 		return res ;
 	}
 	
+	public Response<List<ZoneBean>> getZonesOnly(String searchFilter){
+		
+		Response<List<ZoneBean>> res = new Response<>();
+		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		int aux;		
+		ZoneBean zoneBean = null;
+		String searchFilterNumber = "";
+		
+		try {
+			aux = Integer.parseInt(searchFilter); 
+			searchFilterNumber += aux;
+		} catch (Exception e) {
+			searchFilterNumber = searchFilter;
+			log.info("Trying to convert String to Int");
+		}
+		
+		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES";
+		INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' ";
+		INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
+		log.info(INV_VW_ZONES);
+		log.info("[getZonesOnlyDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_ZONES);
+			log.info("[getZonesOnlyDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()){
+					
+				zoneBean = new ZoneBean();				
+				zoneBean.setZoneId(String.format("%08d", rs.getInt("ZONE_ID")));
+				zoneBean.setZdesc(rs.getString("ZDESC"));
+				listZone.add(zoneBean);
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.info("[getZonesOnlyDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getZonesOnlyDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONES, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getZonesOnlyDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listZone);
+		return res ;
+	}
+	
 	private List<ZonePositionsBean> getPositionsZone(String zoneId){
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
