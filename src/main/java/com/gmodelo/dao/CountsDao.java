@@ -130,7 +130,7 @@ public class CountsDao {
 			}
 */
 			// Free resources
-			cs.close();
+//			cs.close();
 			con.close();
 			abstractResult.setResultId(1);
 			res.setAbstractResult(abstractResult);
@@ -175,11 +175,12 @@ public class CountsDao {
 			//VALIDAR TAREA
 			stm = con.prepareStatement(UPDATE_TASK);
 			stm.setString(1, routeBean.getTaskId());
+			log.info("[addConteo] Ejecutando UPDATE_TASK");
 			rs = stm.executeQuery();
 			if(rs.next()){
 				
 				if(Long.parseLong(rs.getString("UPLOAD_DATE")) == 0){
-					
+					log.info("[addConteo] Entre IF UPLOAD_DATE");
 					//ACTUALIZAR TIEMPOS DE TAREA
 					cs = con.prepareCall(INV_SP_UPDATE_TASK);
 					cs.setLong(1, routeBean.getDateIni());
@@ -190,7 +191,7 @@ public class CountsDao {
 					int responseUpdateTask = cs.getInt(4);
 					
 					if(responseUpdateTask == 1){
-						
+						log.info("[addConteo] responseUpdateTask es 1");
 						// INSERTAR CONTEOS
 						for (int i = 0; i < routeBean.getPositions().size(); i++) {
 							for (int j = 0; j < routeBean.getPositions().get(i).getZone().getPositionsB().size(); j++) {
