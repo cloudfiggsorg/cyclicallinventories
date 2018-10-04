@@ -154,7 +154,7 @@ public class TaskDao {
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, "
 				+ "TAS_STATUS, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
 
-		INV_VW_TASK += "WHERE DIH_BUKRS LIKE '%" + bukrs + "%' AND DIH_WERKS LIKE '%" + werks + "%' ";
+		INV_VW_TASK += "WHERE DIH_BUKRS LIKE '%" + bukrs + "%' AND DIH_WERKS LIKE '%" + werks + "%'  AND TASK_ID_PARENT IS NULL ";
 		
 		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, " 
@@ -162,11 +162,11 @@ public class TaskDao {
 				+ "ORDER BY TASK_ID ASC";
 		
 		log.info(INV_VW_TASK);
-		log.info("[getTaskDao] Preparing sentence...");
+		log.info("[getTasksbyBukrsAndWerksDao] Preparing sentence...");
 		try {
 			stm = con.prepareStatement(INV_VW_TASK);
 
-			log.info("[getTaskDao] Executing query...");
+			log.info("[getTasksbyBukrsAndWerksDao] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
 
@@ -215,9 +215,9 @@ public class TaskDao {
 			// Free resources
 			rs.close();
 			stm.close();
-			log.info("[getTaskDao] Sentence successfully executed.");
+			log.info("[getTasksbyBukrsAndWerksDao] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getTaskDao] Some error occurred while was trying to execute the query: " + INV_VW_TASK, e);
+			log.log(Level.SEVERE,"[getTasksbyBukrsAndWerksDao] Some error occurred while was trying to execute the query: " + INV_VW_TASK, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -226,7 +226,7 @@ public class TaskDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[getTaskDao] Some error occurred while was trying to close the connection.",
+				log.log(Level.SEVERE, "[getTasksbyBukrsAndWerksDao] Some error occurred while was trying to close the connection.",
 						e);
 			}
 		}
@@ -247,7 +247,6 @@ public class TaskDao {
 		int aux;		
 		String searchFilterNumber = "";
 		DocInvDao didao = new DocInvDao();
-		
 		try {
 			aux = Integer.parseInt(searchFilter); 
 			searchFilterNumber += aux;
@@ -261,6 +260,7 @@ public class TaskDao {
 				+ "TAS_STATUS, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
+
 			INV_VW_TASK += "WHERE TASK_ID LIKE '%" + searchFilterNumber + "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%' ";			
 		} else {
 			String condition = buildCondition(taskBean);
@@ -268,7 +268,7 @@ public class TaskDao {
 				INV_VW_TASK += condition;
 			}
 		}
-		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
+		INV_VW_TASK += " AND TASK_ID_PARENT IS NULL GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, " 
 				+ "TAS_STATUS, TASK_ID_PARENT " 
 				+ "ORDER BY TASK_ID ASC";
