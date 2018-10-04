@@ -261,8 +261,7 @@ public class TaskDao {
 				+ "TAS_STATUS, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
-			INV_VW_TASK += "WHERE TASK_ID LIKE '%" + searchFilterNumber + "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%' ";
-			INV_VW_TASK += "AND TASK_ID_PARENT IS NULL";
+			INV_VW_TASK += "WHERE TASK_ID LIKE '%" + searchFilterNumber + "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%' ";			
 		} else {
 			String condition = buildCondition(taskBean);
 			if (condition != null) {
