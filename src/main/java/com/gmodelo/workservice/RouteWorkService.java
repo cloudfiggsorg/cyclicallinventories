@@ -152,7 +152,8 @@ public class RouteWorkService {
 			if (route.getRouteId() != null) {
 				TaskBean reconteo = routeDao.getTaskReconteo(route.getTaskId());
 				if (reconteo.getTaskJSON() != null && !reconteo.getTaskJSON().isEmpty()) {
-					return reconteo.getTaskJSON();
+					routeResponse.setLsObject(new Gson().fromJson(reconteo.getTaskJSON(), RouteUserBean.class));
+					return new Gson().toJson(routeResponse);
 				} else {
 					route.setPositions(routeDao.getPositions(route.getRouteId(), reconteo));
 					if (!route.getPositions().isEmpty()) {
