@@ -141,40 +141,7 @@ public class RouteWorkService {
 		return new Gson().toJson(routeResponse);
 	}
 
-	public String getRoutesByUser(Request request) {
-
-		Response<RouteUserBean> routeResponse = new Response<>();
-		RouteUserDao routeDao = new RouteUserDao();
-		AbstractResultsBean result = new AbstractResultsBean();
-		routeResponse.setAbstractResult(result);
-		try {
-			RouteUserBean route = routeDao.getRoutesByUser(request.getTokenObject().getLoginId());
-			if (route.getRouteId() != null) {
-				TaskBean reconteo = routeDao.getTaskReconteo(route.getTaskId());
-				if (reconteo.getTaskJSON() != null && !reconteo.getTaskJSON().isEmpty()) {
-					routeResponse.setLsObject(new Gson().fromJson(reconteo.getTaskJSON(), RouteUserBean.class));
-					return new Gson().toJson(routeResponse);
-				} else {
-					route.setPositions(routeDao.getPositions(route.getRouteId(), reconteo));
-					if (!route.getPositions().isEmpty()) {
-						routeResponse.setLsObject(route);
-					} else {
-						result.setResultId(ReturnValues.IUSERNOTTASK);
-						result.setResultMsgAbs("Tarea Incompleta Contacte Administrador");
-					}
-				}
-			} else {
-				result.setResultId(ReturnValues.IUSERNOTTASK);
-				result.setResultMsgAbs("Tarea no encontrada para usuario: " + request.getTokenObject().getLoginId());
-			}
-		} catch (SQLException e) {
-			result.setResultId(ReturnValues.IEXCEPTION);
-			result.setResultMsgGen(e.getMessage());
-			log.log(Level.SEVERE, "[getRoutesByUserService] ", e);
-		}
-
-		return new Gson().toJson(routeResponse);
-	}
+	
 
 	public String getAutoTaskByUserLegacy(User user, HttpSession userSession) {
 
@@ -218,6 +185,41 @@ public class RouteWorkService {
 		return new Gson().toJson(routeResponse);
 	}
 
+	public String getRoutesByUser(Request request) {
+
+		Response<RouteUserBean> routeResponse = new Response<>();
+		RouteUserDao routeDao = new RouteUserDao();
+		AbstractResultsBean result = new AbstractResultsBean();
+		routeResponse.setAbstractResult(result);
+		try {
+			RouteUserBean route = routeDao.getRoutesByUser(request.getTokenObject().getLoginId());
+			if (route.getRouteId() != null) {
+				TaskBean reconteo = routeDao.getTaskReconteo(route.getTaskId());
+				if (reconteo.getTaskJSON() != null && !reconteo.getTaskJSON().isEmpty()) {
+					routeResponse.setLsObject(new Gson().fromJson(reconteo.getTaskJSON(), RouteUserBean.class));
+					return new Gson().toJson(routeResponse);
+				} else {
+					route.setPositions(routeDao.getPositions(route.getRouteId(), reconteo));
+					if (!route.getPositions().isEmpty()) {
+						routeResponse.setLsObject(route);
+					} else {
+						result.setResultId(ReturnValues.IUSERNOTTASK);
+						result.setResultMsgAbs("Tarea Incompleta Contacte Administrador");
+					}
+				}
+			} else {
+				result.setResultId(ReturnValues.IUSERNOTTASK);
+				result.setResultMsgAbs("Tarea no encontrada para usuario: " + request.getTokenObject().getLoginId());
+			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgGen(e.getMessage());
+			log.log(Level.SEVERE, "[getRoutesByUserService] ", e);
+		}
+
+		return new Gson().toJson(routeResponse);
+	}
+	
 	public String getAutoTaskByUser(Request request) {
 
 		Response<RouteUserBean> routeResponse = new Response<>();
@@ -227,10 +229,20 @@ public class RouteWorkService {
 		try {
 			RouteUserBean route = routeDao.getRoutesByUser(request.getTokenObject().getLoginId());
 			if (route.getRouteId() != null) {
-				route.setPositions(routeDao.getPositions(route.getRouteId(), new TaskBean()));
-				routeResponse.setLsObject(route);
+				TaskBean reconteo = routeDao.getTaskReconteo(route.getTaskId());
+				if (reconteo.getTaskJSON() != null && !reconteo.getTaskJSON().isEmpty()) {
+					routeResponse.setLsObject(new Gson().fromJson(reconteo.getTaskJSON(), RouteUserBean.class));
+					return new Gson().toJson(routeResponse);
+				} else {
+					route.setPositions(routeDao.getPositions(route.getRouteId(), new TaskBean()));
+					if (!route.getPositions().isEmpty()) {
+						routeResponse.setLsObject(route);
+					} else {
+						result.setResultId(ReturnValues.IUSERNOTTASK);
+						result.setResultMsgAbs("Tarea Incompleta Contacte Administrador");
+					}
+				}
 			} else {
-
 				TaskUserDao taskUserDao = new TaskUserDao();
 				int resTask = taskUserDao.createAutoTask(request.getTokenObject().getLoginId());
 				if (resTask == 1) {
@@ -243,20 +255,17 @@ public class RouteWorkService {
 						result.setResultMsgAbs(
 								"Tarea no encontrada para el usuario: " + request.getTokenObject().getLoginId());
 					}
-
 				} else {
 					result.setResultId(ReturnValues.IUSERNOTTASK);
 					result.setResultMsgAbs(
 							"Tarea no encontrada para el usuario: " + request.getTokenObject().getLoginId());
 				}
-
 			}
 		} catch (SQLException e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgGen(e.getMessage());
 			log.log(Level.SEVERE, "[getRoutesByUserService] ", e);
 		}
-
 		return new Gson().toJson(routeResponse);
 	}
 
