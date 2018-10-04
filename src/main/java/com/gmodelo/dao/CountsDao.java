@@ -45,7 +45,7 @@ public class CountsDao {
 			stm.setString(1, routeBean.getTaskId());
 			rs = stm.executeQuery();
 			if(rs.next()){
-				
+				log.info("[addConteo] En el next");
 				if(Long.parseLong(rs.getString("UPLOAD_DATE")) == 0){
 					
 					//ACTUALIZAR TIEMPOS DE TAREA
@@ -58,7 +58,7 @@ public class CountsDao {
 					int responseUpdateTask = cs.getInt(4);
 					
 					if(responseUpdateTask == 1){
-						
+						log.info("[addConteo] responseUpdateTask es 1");
 						// INSERTAR CONTEOS
 						for (int i = 0; i < routeBean.getPositions().size(); i++) {
 							for (int j = 0; j < routeBean.getPositions().get(i).getZone().getPositionsB().size(); j++) {
@@ -101,6 +101,7 @@ public class CountsDao {
 									log.log(Level.WARNING, "[addConteo] " + warning.getMessage());
 									warning = warning.getNextWarning();
 								}
+								log.info("[addConteo] Haciendo commit");
 								con.commit();
 							}
 						}
@@ -130,7 +131,7 @@ public class CountsDao {
 			}
 */
 			// Free resources
-			cs.close();
+//			cs.close();
 			con.close();
 			abstractResult.setResultId(1);
 			res.setAbstractResult(abstractResult);
@@ -175,11 +176,12 @@ public class CountsDao {
 			//VALIDAR TAREA
 			stm = con.prepareStatement(UPDATE_TASK);
 			stm.setString(1, routeBean.getTaskId());
+			log.info("[addCountLegacy] Ejecutando UPDATE_TASK");
 			rs = stm.executeQuery();
 			if(rs.next()){
 				
 				if(Long.parseLong(rs.getString("UPLOAD_DATE")) == 0){
-					
+					log.info("[addCountLegacy] Entre IF UPLOAD_DATE");
 					//ACTUALIZAR TIEMPOS DE TAREA
 					cs = con.prepareCall(INV_SP_UPDATE_TASK);
 					cs.setLong(1, routeBean.getDateIni());
@@ -190,7 +192,7 @@ public class CountsDao {
 					int responseUpdateTask = cs.getInt(4);
 					
 					if(responseUpdateTask == 1){
-						
+						log.info("[addConteo] responseUpdateTask es 1");
 						// INSERTAR CONTEOS
 						for (int i = 0; i < routeBean.getPositions().size(); i++) {
 							for (int j = 0; j < routeBean.getPositions().get(i).getZone().getPositionsB().size(); j++) {
@@ -218,7 +220,7 @@ public class CountsDao {
 									cs.registerOutParameter(13, Types.INTEGER);
 									cs.execute();
 						
-									log.info("[addConteo] Executing query...");
+									log.info("[addCountLegacy] Executing query...");
 									int responseAddCount = cs.getInt(13);
 									
 									if (responseAddCount != 1) {
@@ -230,7 +232,7 @@ public class CountsDao {
 								// Retrive the warnings if there're
 								SQLWarning warning = cs.getWarnings();
 								while (warning != null) {
-									log.log(Level.WARNING, "[addConteo] " + warning.getMessage());
+									log.log(Level.WARNING, "[addCountLegacy] " + warning.getMessage());
 									warning = warning.getNextWarning();
 								}
 								con.commit();
@@ -238,7 +240,7 @@ public class CountsDao {
 						}
 						
 					}else{
-						log.log(Level.SEVERE, "[addConteo] Task no update : " + INV_SP_UPDATE_TASK);
+						log.log(Level.SEVERE, "[addCountLegacy] Task no update : " + INV_SP_UPDATE_TASK);
 						abstractResult.setResultId(ReturnValues.IUSERTASKNOUPDATED);
 						abstractResult.setResultMsgAbs("Taks not updated");
 						res.setAbstractResult(abstractResult);
@@ -246,14 +248,14 @@ public class CountsDao {
 					}
 					
 				}else{
-					log.log(Level.SEVERE, "[addConteo] Task finished : " + UPDATE_TASK);
+					log.log(Level.SEVERE, "[addCountLegacy] Task finished : " + UPDATE_TASK);
 					abstractResult.setResultId(ReturnValues.IUSERTASKFINISHED);
 					abstractResult.setResultMsgAbs("Taks not count again");
 					res.setAbstractResult(abstractResult);
 					return res;
 				}
 			}else{
-				log.log(Level.SEVERE, "[addConteo] Not validated Task in : " + UPDATE_TASK);
+				log.log(Level.SEVERE, "[addCountLegacy] Not validated Task in : " + UPDATE_TASK);
 				abstractResult.setResultId(ReturnValues.IUSERNOTVALIDATEDTASK);
 				abstractResult.setResultMsgAbs("Not validated Getupload Task");
 				res.setAbstractResult(abstractResult);
@@ -269,13 +271,13 @@ public class CountsDao {
 		} catch (SQLException e) {
 			try {
 				// deshace todos los cambios realizados en los datos
-				log.log(Level.WARNING, "[addConteo] Execute rollback");
+				log.log(Level.WARNING, "[addCountLegacy] Execute rollback");
 				con.rollback();
 			} catch (SQLException e1) {
-				log.log(Level.SEVERE, "[addConteo] Not rollback .", e);
+				log.log(Level.SEVERE, "[addCountLegacy] Not rollback .", e);
 			}
 			log.log(Level.SEVERE,
-					"[addConteo] Some error occurred while was trying to execute the S.P.: " + INV_SP_ADD_COUNT, e);
+					"[addCountLegacy] Some error occurred while was trying to execute the S.P.: " + INV_SP_ADD_COUNT, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
