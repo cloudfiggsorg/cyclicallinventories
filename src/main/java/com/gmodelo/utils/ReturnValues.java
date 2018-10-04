@@ -28,6 +28,8 @@ public class ReturnValues {
 	public static final int IINVALIDTOKEN = -108;
 	public static final String SINVALIDTOKEN = "INVALID TOKEN";
 	
+	public static final String SINVALIDUSER = "USUARIO Y/O PASSWORD INVALIDO";
+	
 	public static final int IUSERNOTTASK = -107;
 	public static final int IUSERNOTVALIDATEDTASK = -108;
 	public static final int IUSERTASKFINISHED = -109;

@@ -69,6 +69,7 @@ public class LoginWorkService {
 				} catch (NamingException e) {
 					user = null;
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs(ReturnValues.SINVALIDUSER);
 					myLog.log(Level.SEVERE, "Error al verificar usuario en LDAP", e);
 				}
 			}

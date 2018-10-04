@@ -344,6 +344,8 @@ public class TaskDao {
 			log.info("[updateDowloadTaskDao] Executing query...");
 			
 			cs.execute();
+			log.info("[updateDowloadTaskDao] Despues del execute");
+			log.info("con: "+con.toString());
 			try {
 				date = cs.getDate(3).getTime();
 			} catch (Exception e) {
