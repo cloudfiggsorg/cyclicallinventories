@@ -186,6 +186,7 @@ public class GroupWorkService {
 			try {
 				user.getEntity().setIdentyId(request.getLsObject().toString().trim());
 				user.getGenInf().setName(request.getLsObject().toString().trim());
+				user.getGenInf().setLastName(request.getLsObject().toString().trim());
 				lista = new ArrayList<>();
 				lista.add(user);
 				lista = UMEDao.getUsersLDAPByCredentials(lista);

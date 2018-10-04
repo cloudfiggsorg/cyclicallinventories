@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
