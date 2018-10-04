@@ -109,7 +109,7 @@ public class LgortDao {
 		PreparedStatement stm = null;
 		List<LgortBeanView> listNgort = new ArrayList<LgortBeanView>();
 		
-		String INV_VW_NGORT_WITH_GORT = "SELECT WERKS, LGORT, LGNUM, LNUMT,IMWM FROM [INV_CIC_DB].[dbo].[INV_VW_NGORT_WITH_GORT] "; //Query
+		String INV_VW_NGORT_WITH_GORT = "SELECT WERKS, LGORT, LGOBE, LGNUM, LNUMT, IMWM FROM [INV_CIC_DB].[dbo].[INV_VW_NGORT_WITH_GORT] "; //Query
 		String condition = buildConditionNgort(lgortBeanView);
 		
 		if(condition != null){
@@ -132,7 +132,10 @@ public class LgortDao {
 				
 				lgortBeanView.setWerks(rs.getString(1));
 				lgortBeanView.setLgort(rs.getString(2));
-				lgortBeanView.setImwm(rs.getString(4));
+				lgortBeanView.setLgobe(rs.getString(3));
+				lgortBeanView.setLgNum(rs.getString(4));
+				lgortBeanView.setLnumt(rs.getString(5));
+				lgortBeanView.setImwm(rs.getString(6));
 				
 				listNgort.add(lgortBeanView);
 				

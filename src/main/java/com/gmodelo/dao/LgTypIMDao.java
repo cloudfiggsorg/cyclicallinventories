@@ -48,14 +48,21 @@ public class LgTypIMDao {
 			cs.setString(3, lgTypIMBean.getBukrs());
 			cs.setString(4, lgTypIMBean.getWerks());
 			cs.setString(5, lgTypIMBean.getLgort());
-			cs.setString(6, lgTypIMBean.getLgnum());
+			if(lgTypIMBean.getLgnum() == null){
+				cs.setNull(6, Types.VARCHAR);
+			}else{
+				cs.setString(6, lgTypIMBean.getLgnum());
+			}			
 			cs.setString(7, createdBy);
+			
 			cs.registerOutParameter(1, Types.VARCHAR);
+			cs.registerOutParameter(6, Types.VARCHAR);
 
 			log.info("[addLGTYP] Executing query...");
 			cs.execute();
 			
 			lgTypIMBean.setLgTyp(cs.getString(1));
+			lgTypIMBean.setLgnum(cs.getString(6));
 						
 			//Eliminar posiciones
 			String ids = "";
