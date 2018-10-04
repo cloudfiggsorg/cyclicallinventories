@@ -36,18 +36,19 @@ public class CountsDao {
 		String UPDATE_TASK = "SELECT CAST(ISNULL(TAS_UPLOAD_DATE,0) as bigint)  UPLOAD_DATE FROM INV_TASK WHERE TASK_ID =? ";
 		String INV_SP_UPDATE_TASK =  "INV_SP_UPDATE_TASK ?,?,?,?";
 		log.info("[addConteo] Preparing sentence...");
-
+		log.info("[addConteo] Y continua.. ");
 		try {
 			con.setAutoCommit(false);
 
 			//VALIDAR TAREA
 			stm = con.prepareStatement(UPDATE_TASK);
+			log.info("[addConteo] Despues de preparar UPDATE_TASK");
 			stm.setString(1, routeBean.getTaskId());
 			rs = stm.executeQuery();
 			if(rs.next()){
 				log.info("[addConteo] En el next");
 				if(Long.parseLong(rs.getString("UPLOAD_DATE")) == 0){
-					
+					log.info("[addConteo] UPLOAD_DATE es 0");
 					//ACTUALIZAR TIEMPOS DE TAREA
 					cs = con.prepareCall(INV_SP_UPDATE_TASK);
 					cs.setLong(1, routeBean.getDateIni());
@@ -122,18 +123,17 @@ public class CountsDao {
 					return res;
 				}
 			}
-			/*else{
-				log.log(Level.SEVERE, "[addConteo] Not validated Task in : " + UPDATE_TASK);
+			else{
+				log.log(Level.SEVERE, "[addConteo] L127 Not validated Task in : " + UPDATE_TASK);
 				abstractResult.setResultId(ReturnValues.IUSERNOTVALIDATEDTASK);
 				abstractResult.setResultMsgAbs("Not validated Getupload Task");
 				res.setAbstractResult(abstractResult);
 				return res;	
 			}
-*/
+
 			// Free resources
 //			cs.close();
 			con.close();
-			abstractResult.setResultId(1);
 			res.setAbstractResult(abstractResult);
 
 		} catch (SQLException e) {
