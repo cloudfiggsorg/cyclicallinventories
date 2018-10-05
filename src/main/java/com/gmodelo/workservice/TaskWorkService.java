@@ -18,16 +18,27 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 public class TaskWorkService {
-	
+
 	private Logger log = Logger.getLogger(TaskWorkService.class.getName());
 	Gson gson = new Gson();
-	
+
 	public Response<TaskBean> addTask(Request request, User user) {
 		log.info("[addTaskWS] " + request.toString());
 		TaskBean taskBean = null;
 		Response<TaskBean> res = new Response<TaskBean>();
 		try {
 			taskBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
+			if (taskBean.getRub() != null) {
+				TaskBean subBean = taskBean;
+				subBean.setRub(null);
+				res = new TaskDao().addTask(subBean, user.getEntity().getIdentyId());
+				if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
+					taskBean.setTaskId(res.getLsObject().getTaskId());
+					res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
+				}
+			} else {
+				res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
+			}
 			log.log(Level.WARNING, "[addTaskWS] ");
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE, "[addTaskWS] Error al pasar de Json a TaskBean", e);
@@ -38,7 +49,7 @@ public class TaskWorkService {
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-		return new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
+		return res;
 	}
 
 	public Response<Object> deleteTask(Request request) {
@@ -63,7 +74,7 @@ public class TaskWorkService {
 		}
 		return new TaskDao().deleteTask(arrayIdTask);
 	}
-	
+
 	public Response<List<TaskBean>> getTasks(Request request) {
 
 		log.info("getTasksWS] " + request.toString());
@@ -94,36 +105,36 @@ public class TaskWorkService {
 				abstractResult.setResultMsgAbs(e.getMessage());
 				res.setAbstractResult(abstractResult);
 				return res;
-			}			
+			}
 		}
 		return new TaskDao().getTasks(tb, searchFilter);
 	}
-	
+
 	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request request) {
-		
+
 		log.info("[deleteTaskWS] " + request.toString());
 		String bukrs;
 		String werks;
 		String req;
 		req = request.getLsObject().toString();
 		req = req.replaceAll("=", ":");
-				
+
 		JSONObject jsonObj = new JSONObject(req);
-		
+
 		try {
-			
+
 			bukrs = jsonObj.getString("bukrs");
 		} catch (JSONException e) {
 			bukrs = "";
 		}
-		
+
 		try {
-			
+
 			werks = jsonObj.getString("werks");
 		} catch (JSONException e) {
 			werks = "";
 		}
-										
+
 		return new TaskDao().getTasksbyBukrsAndWerks(bukrs, werks);
 	}
 }
