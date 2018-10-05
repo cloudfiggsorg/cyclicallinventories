@@ -185,7 +185,6 @@ public class GroupWorkService {
 		if (!req.isEmpty()) {
 			try {
 				
-				System.out.println("here....");
 				user.getEntity().setIdentyId(request.getLsObject().toString().trim());
 				user.getGenInf().setName(request.getLsObject().toString().trim());
 				lista = new ArrayList<>();

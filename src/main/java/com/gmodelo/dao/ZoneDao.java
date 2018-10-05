@@ -222,7 +222,7 @@ public class ZoneDao {
 		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";
 				
 		if(searchFilter == null){
-			INV_VW_ZONE_BY_LGORT += "WHERE BUKRS = '" + zoneBean.getBukrs() +"' AND WERKS = '"+ zoneBean.getWerks() +"' ";
+
 			String condition = buildCondition(zoneBean);
 			if(condition != null){
 				INV_VW_ZONE_BY_LGORT += condition;
@@ -388,21 +388,18 @@ public class ZoneDao {
 		String bukrs = "";
 		String werks = "";
 		String lgort = "";
-//		String bDesc = "";
-//		String wDesc= "";
-//		String gDesc= "";
-		String condition = "";
-		zoneId = (zoneBean.getZoneId() != null ? " AND ZONE_ID = "+Integer.parseInt(zoneBean.getZoneId()) : "");
-		condition += zoneId;
-		zdesc = (zoneBean.getZdesc() != null ? " AND ZON_DESC LIKE '%"+zoneBean.getZdesc()+"%'" : "");
-		condition += zdesc;
-		bukrs = (zoneBean.getBukrs() != null ? " AND BUKRS LIKE '%"+zoneBean.getBukrs()+"%'" : "");
+		String condition = "WHERE ";
+		
+		bukrs = (zoneBean.getBukrs() != null ? " BUKRS LIKE '%"+zoneBean.getBukrs()+"%'" : "");
 		condition += bukrs;
 		werks = (zoneBean.getWerks() != null ? " AND WERKS LIKE '%"+zoneBean.getWerks()+"%'" : "");
 		condition += werks;
+		zoneId = (zoneBean.getZoneId() != null ? " AND ZONE_ID = "+Integer.parseInt(zoneBean.getZoneId()) : "");
+		condition += zoneId;
+		zdesc = (zoneBean.getZdesc() != null ? " AND ZON_DESC LIKE '%"+zoneBean.getZdesc()+"%'" : "");
+		condition += zdesc;		
 		lgort = (zoneBean.getLgort() != null ? "AND LGORT LIKE '%" + zoneBean.getLgort()+"%'" :"");
 		condition += lgort;
-//		bDesc = (zoneBean.getbDesc() != null ? "AND LGORT LIKE '%" + zoneBean.getbDesc()+"%'" :"");
 		condition = condition.isEmpty() ? null : condition;
 		
 		return condition;
@@ -426,8 +423,10 @@ public class ZoneDao {
 		}
 		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES FROM dbo.INV_VW_ZONES";
 		if(searchFilter != null){
+			
 			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' ";
 		}else{
+			
 			String condition = buildConditionZones(zoneBean);
 			if(condition != null){
 				INV_VW_ZONES += condition;
@@ -435,7 +434,7 @@ public class ZoneDao {
 		}		
 		
 		log.info(INV_VW_ZONES);
-		INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
+		//INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
 		log.info("[getZonesDao] Preparing sentence...");
 		
 		try {
