@@ -161,7 +161,7 @@ public class ConciliacionDao {
 			+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
 
 	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZPO_PK_ASG_ID, "
-			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS FROM INV_VW_TASK_DOCINV_FULL ORDER BY TASK_ID WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
+			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
 
 	@SuppressWarnings("rawtypes")
 	private List<ConciliationPositionBean> getConciliationPositions(int docInv) {
