@@ -204,6 +204,7 @@ public class ConciliacionDao {
 					}
 				} else {
 					bean = new ConciliationPositionBean();
+					
 					bean.setMeasureUnit(rs.getString("MEINS"));
 					bean.setMatnrD(rs.getString("COU_MATNR"));
 					bean.setMatnr(rs.getString("MAKTX"));
@@ -213,7 +214,10 @@ public class ConciliacionDao {
 					total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
 					bean.setCount1A("" + total);
 				}
-				hashMap.put(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"), bean);
+				if(rs.getString("COU_MATNR")!=null){
+					hashMap.put(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"), bean);	
+				}
+				
 			}
 			log.info("[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, WHile Rs next ENd Excecute query...");
 			Iterator iteAux = hashMap.entrySet().iterator();
