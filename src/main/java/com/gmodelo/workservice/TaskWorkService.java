@@ -35,6 +35,7 @@ public class TaskWorkService {
 				res = new TaskDao().addTask(subBean, user.getEntity().getIdentyId());
 				if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
 					taskBean.setTaskId(res.getLsObject().getTaskId());
+					taskBean.getRub().setTaskId(res.getLsObject().getTaskId());
 					log.log(Level.WARNING, "[addTaskWS] Previo a ejecutar New Task" + taskBean.toString() );
 					res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
 				}
