@@ -16,7 +16,7 @@ import com.gmodelo.beans.MobileMaterialBean;
 public class DownloadDao {
 
 	Logger log = Logger.getLogger(getClass().getName());
-	
+
 	public static final String GET_MATERIALES_TARIMAS = "SELECT PAT.PACKNR,  PAT.MATNR AS VHILM , MAKT.MAKTX, PAT.TRGQTY, "
 			+ "PAT.BASEUNIT, PAT.PACKITEM, PAT.PAITEMTYPE "
 			+ "FROM PACKPO PAT left JOIN MAKT MAKT ON PAT.MATNR = MAKT.MATNR WHERE MAKT.MAKTX IS NOT NULL "
@@ -37,7 +37,11 @@ public class DownloadDao {
 			while (rs.next()) {
 				MaterialTarimasBean bean = new MaterialTarimasBean();
 				bean.setPacknr(rs.getString("PACKNR"));
-				bean.setVhilm(rs.getString("VHILM"));
+				try {
+					bean.setVhilm(String.valueOf(rs.getInt("VHILM")));
+				} catch (Exception e) {
+					bean.setVhilm(rs.getString("VHILM"));
+				}
 				bean.setMaktx(rs.getString("MAKTX"));
 				bean.setTrgqty(rs.getString("TRGQTY"));
 				bean.setBaseunit(rs.getString("BASEUNIT"));
@@ -61,9 +65,9 @@ public class DownloadDao {
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				MobileMaterialBean bean = new MobileMaterialBean();
-				try{
+				try {
 					bean.setMatnr(String.valueOf(rs.getInt("MATNR")));
-				}catch(Exception e){
+				} catch (Exception e) {
 					bean.setMatnr(rs.getString("MATNR"));
 				}
 				bean.setMaktx(rs.getString("MAKTX"));
