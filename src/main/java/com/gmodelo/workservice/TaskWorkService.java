@@ -29,6 +29,7 @@ public class TaskWorkService {
 		try {
 			taskBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
 			if (taskBean.getRub() != null) {
+				log.log(Level.WARNING, "[addTaskWS] Ingreso con JSON " + taskBean.toString() );
 				TaskBean subBean = taskBean;
 				subBean.setRub(null);
 				res = new TaskDao().addTask(subBean, user.getEntity().getIdentyId());
@@ -37,6 +38,7 @@ public class TaskWorkService {
 					res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
 				}
 			} else {
+				log.log(Level.WARNING, "[addTaskWS] Ingreso sin JSON " + taskBean.toString() );
 				res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
 			}
 			log.log(Level.WARNING, "[addTaskWS] ");
