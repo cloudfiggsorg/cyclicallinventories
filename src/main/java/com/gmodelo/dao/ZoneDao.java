@@ -432,7 +432,6 @@ public class ZoneDao {
 				INV_VW_ZONES += condition;
 			}
 		}		
-		INV_VW_ZONES += "AND ZON_STATUS = 1";
 		
 		log.info(INV_VW_ZONES);
 		//INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
