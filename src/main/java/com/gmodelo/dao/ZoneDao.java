@@ -432,6 +432,7 @@ public class ZoneDao {
 				INV_VW_ZONES += condition;
 			}
 		}		
+		INV_VW_ZONES += "AND ZON_STATUS = 1";
 		
 		log.info(INV_VW_ZONES);
 		//INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
@@ -510,7 +511,7 @@ public class ZoneDao {
 		}
 		
 		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES";
-		INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%" + searchFilter + "%' ";
+		INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' AND ZON_STATUS = 1 ";
 		INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
 		log.info(INV_VW_ZONES);
 		log.info("[getZonesOnlyDao] Preparing sentence...");
