@@ -114,7 +114,7 @@ public class ConciliacionDao {
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setJustification(rs.getString("JUSTIFICATION"));
-				docInvBean.setPositions(getPositions(rs.getInt("DOC_INV_ID")));
+				docInvBean.setPositions(getConciliationPositions(rs.getInt("DOC_INV_ID")));
 				listDocInv.add(docInvBean);
 			}
 
@@ -159,6 +159,71 @@ public class ConciliacionDao {
 	private static final String INV_COUNT_TOT = "SELECT COUNT(M.MAKTX) MATDESC FROM INV_COUNT C "
 			+ "INNER JOIN MAKT M ON (M.MATNR = C.COU_MATNR) " + "INNER JOIN MARA MA ON (MA.MATNR = C.COU_MATNR) "
 			+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
+
+	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZPO_PK_ASG_ID, "
+			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS FROM INV_VW_TASK_DOCINV_FULL ORDER BY TASK_ID WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
+
+	@SuppressWarnings("rawtypes")
+	private List<ConciliationPositionBean> getConciliationPositions(int docInv) {
+		Connection con = new ConnectionManager().createConnection();
+		PreparedStatement stm = null;
+		ResultSet rs = null;
+		List<ConciliationPositionBean> listPositions = new ArrayList<ConciliationPositionBean>();
+		try {
+			stm = con.prepareStatement(INV_FULL_COUNT);
+			stm.setInt(1, docInv);
+			log.info("[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, Executing query...");
+			rs = stm.executeQuery();
+			String taskID = null;
+			int count = 0;
+			HashMap<String, ConciliationPositionBean> hashMap = new HashMap<>();
+			ConciliationPositionBean bean = new ConciliationPositionBean();
+			while (rs.next()) {
+				int total = 0;
+				if (taskID == null) {
+					taskID = rs.getString("TASK_ID");
+				} else if (!taskID.equals(rs.getString("TASK_ID"))) {
+					taskID = rs.getString("TASK_ID");
+					count++;
+				}
+				if (hashMap.containsKey(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))) {
+					bean = hashMap.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"));
+					if (count == 0) {
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCount1A("" + total);
+					} else if (count == 1) {
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCount1B("" + total);
+					} else if (count == 2) {
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCount2("" + total);
+					} else if (count == 3) {
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCount3("" + total);
+					}
+				} else {
+					bean = new ConciliationPositionBean();
+					bean.setMeasureUnit(rs.getString("MEINS"));
+					bean.setMatnrD(rs.getString("COU_MATNR"));
+					bean.setMatnr(rs.getString("MAKTX"));
+					bean.setZoneId(rs.getString("ZONE_ID"));
+					bean.setZoneD(rs.getString("ZON_DESC"));
+					bean.setLgpla(rs.getString("LGPLA"));
+					total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+					bean.setCount1A("" + total);
+				}
+				hashMap.put(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"), bean);
+			}
+			Iterator iteAux = hashMap.entrySet().iterator();
+			while (iteAux.hasNext()) {
+				Map.Entry pair = (Map.Entry) iteAux.next();
+				listPositions.add((ConciliationPositionBean) pair.getValue());
+			}
+		} catch (Exception e) {
+
+		}
+		return listPositions;
+	}
 
 	private List<ConciliationPositionBean> getPositions(int docInv) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -248,7 +313,7 @@ public class ConciliacionDao {
 						if (mapAux.containsKey(key)) {
 
 							conci = (ConciliationPositionBean) mapAux.get(key);
-							
+
 							int total = rs.getInt("COU_TOTAL");
 							if (count == 0) {
 								total += Integer.parseInt(conci.getCount1A().contains("-") ? "0" : conci.getCount1A());
