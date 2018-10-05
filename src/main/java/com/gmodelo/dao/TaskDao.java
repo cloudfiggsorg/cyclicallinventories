@@ -51,14 +51,11 @@ public class TaskDao {
 			}
 			cs.setString(5, taskBean.getTaskIdFather());
 			cs.setString(6, createdBy);
-			cs.setString(1, taskBean.getTaskIdFather());
 			cs.registerOutParameter(1, Types.INTEGER);
-			
 			log.info("[addTask] Executing query...");
 			cs.execute();
-			
 			taskBean.setTaskId(cs.getString(1));
-			
+			log.info("[addTask] After Excecute query..."+ taskBean);
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
 				log.log(Level.WARNING, "[addTask] " + warning.getMessage());
