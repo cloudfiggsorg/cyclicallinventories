@@ -178,6 +178,7 @@ public class ConciliacionDao {
 			int count = 0;
 			HashMap<String, ConciliationPositionBean> hashMap = new HashMap<>();
 			ConciliationPositionBean bean = new ConciliationPositionBean();
+			log.info("[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, After Excecute query...");
 			while (rs.next()) {
 				int total = 0;
 				if (taskID == null) {
@@ -214,14 +215,28 @@ public class ConciliacionDao {
 				}
 				hashMap.put(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"), bean);
 			}
+			log.info("[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, WHile Rs next ENd Excecute query...");
 			Iterator iteAux = hashMap.entrySet().iterator();
 			while (iteAux.hasNext()) {
 				Map.Entry pair = (Map.Entry) iteAux.next();
 				listPositions.add((ConciliationPositionBean) pair.getValue());
 			}
 		} catch (Exception e) {
-
+			log.log(Level.SEVERE,
+					"[getPositionsConciliationDao - getConciliationPositions] Some error occurred while was trying to execute the query: "
+							+ TASK_DOC_INV,
+					e);
+		}finally{
+			try{
+				
+			}catch(Exception e){
+				log.log(Level.SEVERE,
+						"[getPositionsConciliationDao - getConciliationPositions] Some error occurred while was trying to execute the query: "
+								+ TASK_DOC_INV,
+						e);
+			}
 		}
+		log.info("[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, return positions Excecute query..." + listPositions);
 		return listPositions;
 	}
 
