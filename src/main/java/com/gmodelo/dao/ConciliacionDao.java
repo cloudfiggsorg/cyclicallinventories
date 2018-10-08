@@ -114,7 +114,7 @@ public class ConciliacionDao {
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setJustification(rs.getString("JUSTIFICATION"));
-				docInvBean.setPositions(getConciliationPositions(rs.getInt("DOC_INV_ID")));
+				docInvBean.setPositions(getConciliationPositions(rs.getInt("DOC_INV_ID"), docInvBean.getRoute()));
 				listDocInv.add(docInvBean);
 			}
 
@@ -162,9 +162,11 @@ public class ConciliacionDao {
 
 	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZPO_PK_ASG_ID, "
 			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
+	
+	private static final String GET_ROUTE_CONTEO = "SELECT FROM ";
 
 	@SuppressWarnings("rawtypes")
-	private List<ConciliationPositionBean> getConciliationPositions(int docInv) {
+	private List<ConciliationPositionBean> getConciliationPositions(int docInv, String routeId) {
 		Connection con = new ConnectionManager().createConnection();
 		PreparedStatement stm = null;
 		ResultSet rs = null;
@@ -178,7 +180,8 @@ public class ConciliacionDao {
 			int count = 0;
 			HashMap<String, ConciliationPositionBean> hashMap = new HashMap<>();
 			ConciliationPositionBean bean = new ConciliationPositionBean();
-			log.info("[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, After Excecute query...");
+			log.info(
+					"[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, After Excecute query...");
 			while (rs.next()) {
 				int total = 0;
 				if (taskID == null) {
@@ -204,9 +207,9 @@ public class ConciliacionDao {
 					}
 				} else {
 					bean = new ConciliationPositionBean();
-					
+
 					bean.setMeasureUnit(rs.getString("MEINS"));
-					bean.setMatnr(rs.getString("COU_MATNR"));
+					bean.setMatnr(String.valueOf(rs.getInt("COU_MATNR")));
 					bean.setMatnrD(rs.getString("MAKTX"));
 					bean.setZoneId(rs.getString("ZONE_ID"));
 					bean.setZoneD(rs.getString("ZON_DESC"));
@@ -214,12 +217,13 @@ public class ConciliacionDao {
 					total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
 					bean.setCount1A("" + total);
 				}
-				if(rs.getString("COU_MATNR")!=null){
-					hashMap.put(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"), bean);	
+				if (rs.getString("COU_MATNR") != null) {
+					hashMap.put(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"), bean);
 				}
-				
+
 			}
-			log.info("[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, WHile Rs next ENd Excecute query...");
+			log.info(
+					"[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, WHile Rs next ENd Excecute query...");
 			Iterator iteAux = hashMap.entrySet().iterator();
 			while (iteAux.hasNext()) {
 				Map.Entry pair = (Map.Entry) iteAux.next();
@@ -230,17 +234,19 @@ public class ConciliacionDao {
 					"[getPositionsConciliationDao - getConciliationPositions] Some error occurred while was trying to execute the query: "
 							+ TASK_DOC_INV,
 					e);
-		}finally{
-			try{
-				
-			}catch(Exception e){
+		} finally {
+			try {
+
+			} catch (Exception e) {
 				log.log(Level.SEVERE,
 						"[getPositionsConciliationDao - getConciliationPositions] Some error occurred while was trying to execute the query: "
 								+ TASK_DOC_INV,
 						e);
 			}
 		}
-		log.info("[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, return positions Excecute query..." + listPositions);
+		log.info(
+				"[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, return positions Excecute query..."
+						+ listPositions);
 		return listPositions;
 	}
 
@@ -455,10 +461,12 @@ public class ConciliacionDao {
 				: "");
 		condition += ROUTE_ID;
 		bukrs = (docInvB.getBukrs() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS = '" + docInvB.getBukrs() + "' " : "");
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS = '" + docInvB.getBukrs() + "' "
+				: "");
 		condition += bukrs;
 		werks = (docInvB.getWerks() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '" + docInvB.getWerks() + "' " : "");
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '" + docInvB.getWerks() + "' "
+				: "");
 		condition += werks;
 		JUSTIFICATION = (docInvB.getJustification() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ")
 				+ "JUSTIFICATION = '=" + docInvB.getJustification() + "' " : "");
@@ -672,8 +680,8 @@ public class ConciliacionDao {
 
 	/*
 	 * public static void main(String args[]){ ConciliacionDao dao = new
-	 * ConciliacionDao(); ConciliacionBean docInvBean = new ConciliacionBean();
-	 * // docInvBean.setDocInvId(3); String searchFilter = "";
+	 * ConciliacionDao(); ConciliacionBean docInvBean = new ConciliacionBean(); //
+	 * docInvBean.setDocInvId(3); String searchFilter = "";
 	 * Response<List<ConciliacionBean>> x = dao.getConciliacion(docInvBean,
 	 * searchFilter); for(int i=0; i < x.getLsObject().size(); i++){
 	 * System.out.println(x.getLsObject().get(i).toString()); } }
