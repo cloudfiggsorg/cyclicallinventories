@@ -22,6 +22,38 @@ public class TaskWorkService {
 	private Logger log = Logger.getLogger(TaskWorkService.class.getName());
 	Gson gson = new Gson();
 
+	public Response<TaskBean> addTaskSpecial(TaskBean taskBean, User user) {
+		log.info("[addTaskWS] " + taskBean.toString());
+		Response<TaskBean> res = new Response<TaskBean>();
+		try {
+			if (taskBean.getRub() != null) {
+				log.log(Level.WARNING, "[addTaskWS] Ingreso con JSON " + taskBean.toString());
+				TaskBean subBean = taskBean;
+				subBean.setRub(null);
+				res = new TaskDao().addTask(subBean, user.getEntity().getIdentyId());
+				if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
+					taskBean.setTaskId(res.getLsObject().getTaskId());
+					taskBean.getRub().setTaskId(res.getLsObject().getTaskId());
+					log.log(Level.WARNING, "[addTaskWS] Previo a ejecutar New Task" + taskBean.toString());
+					res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
+				}
+			} else {
+				log.log(Level.WARNING, "[addTaskWS] Ingreso sin JSON " + taskBean.toString());
+				res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
+			}
+			log.log(Level.WARNING, "[addTaskWS] ");
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE, "[addTaskWS] Error al pasar de Json a TaskBean", e);
+			taskBean = null;
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		return res;
+	}
+
 	public Response<TaskBean> addTask(Request request, User user) {
 		log.info("[addTaskWS] " + request.toString());
 		TaskBean taskBean = null;
@@ -29,18 +61,19 @@ public class TaskWorkService {
 		try {
 			taskBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
 			if (taskBean.getRub() != null) {
-				log.log(Level.WARNING, "[addTaskWS] Ingreso con JSON " + taskBean.toString() );
-				TaskBean subBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);;
+				log.log(Level.WARNING, "[addTaskWS] Ingreso con JSON " + taskBean.toString());
+				TaskBean subBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
+				;
 				subBean.setRub(null);
 				res = new TaskDao().addTask(subBean, user.getEntity().getIdentyId());
 				if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
 					taskBean.setTaskId(res.getLsObject().getTaskId());
 					taskBean.getRub().setTaskId(res.getLsObject().getTaskId());
-					log.log(Level.WARNING, "[addTaskWS] Previo a ejecutar New Task" + taskBean.toString() );
+					log.log(Level.WARNING, "[addTaskWS] Previo a ejecutar New Task" + taskBean.toString());
 					res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
 				}
 			} else {
-				log.log(Level.WARNING, "[addTaskWS] Ingreso sin JSON " + taskBean.toString() );
+				log.log(Level.WARNING, "[addTaskWS] Ingreso sin JSON " + taskBean.toString());
 				res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
 			}
 			log.log(Level.WARNING, "[addTaskWS] ");
