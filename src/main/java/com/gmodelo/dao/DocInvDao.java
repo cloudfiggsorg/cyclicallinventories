@@ -157,7 +157,7 @@ public class DocInvDao {
 
 		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)";
 		if (searchFilter != null) {
-			INV_VW_DOC_INV += " WHERE DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"
+			INV_VW_DOC_INV += " WHERE TYPE != '3' AND DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"
 					+ searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' " + " OR WERKSD LIKE '%"
 					+ searchFilterNumber + "%' ";
 		} else {

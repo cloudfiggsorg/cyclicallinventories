@@ -90,13 +90,12 @@ public class ConciliacionDao {
 			+ " WHERE DOC_INV_ID = ? "
 			+ " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION";
 
-	public Response<List<ConciliacionBean>> getConciliacion(ConciliacionBean docInvBean) {
-		Response<List<ConciliacionBean>> res = new Response<>();
+	public Response<ConciliacionBean> getConciliacion(ConciliacionBean docInvBean) {
+		Response<ConciliacionBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ConciliacionBean> listDocInv = new ArrayList<ConciliacionBean>();
 		log.info(INV_VW_DOC_INV);
 		log.info("[ConciliacionDao getConciliacion] Preparing sentence...");
 		try {
@@ -115,7 +114,6 @@ public class ConciliacionDao {
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setJustification(rs.getString("JUSTIFICATION"));
 				docInvBean.setPositions(getConciliationPositions(docInvBean));
-				listDocInv.add(docInvBean);
 			}
 
 			SQLWarning warning = stm.getWarnings();
@@ -145,7 +143,7 @@ public class ConciliacionDao {
 			}
 		}
 		res.setAbstractResult(abstractResult);
-		res.setLsObject(listDocInv);
+		res.setLsObject(docInvBean);
 		return res;
 	}
 
@@ -240,6 +238,7 @@ public class ConciliacionDao {
 				}
 
 			}
+
 			log.info(
 					"[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, WHile Rs next ENd Excecute query...");
 			Iterator iteAux = hashMap.entrySet().iterator();
