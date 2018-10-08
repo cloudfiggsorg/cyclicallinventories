@@ -209,7 +209,7 @@ public class ConciliacionDao {
 					bean = new ConciliationPositionBean();
 
 					bean.setMeasureUnit(rs.getString("MEINS"));
-					bean.setMatnr(rs.getString("COU_MATNR"));
+					bean.setMatnr(String.valueOf(rs.getInt("COU_MATNR")));
 					bean.setMatnrD(rs.getString("MAKTX"));
 					bean.setZoneId(rs.getString("ZONE_ID"));
 					bean.setZoneD(rs.getString("ZON_DESC"));
