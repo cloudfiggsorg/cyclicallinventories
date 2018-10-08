@@ -48,7 +48,7 @@ public class LgTypIMDao {
 			cs.setString(3, lgTypIMBean.getBukrs());
 			cs.setString(4, lgTypIMBean.getWerks());
 			cs.setString(5, lgTypIMBean.getLgort());
-			if (lgTypIMBean.getLgnum() == null) {
+			if(lgTypIMBean.getLgnum().isEmpty()){
 				cs.setNull(6, Types.VARCHAR);
 			} else {
 				cs.setString(6, lgTypIMBean.getLgnum());
