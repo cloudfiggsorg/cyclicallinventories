@@ -1,6 +1,5 @@
 package com.gmodelo.workservice;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +18,6 @@ import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
 import com.gmodelo.dao.ConciliacionDao;
 import com.gmodelo.dao.DocInvDao;
-import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 
@@ -32,11 +30,11 @@ public class ConciliacionWorkService {
 		return new ConciliacionDao().getConciliationIDs();
 	}
 
-	public Response<List<ConciliacionBean>> getConciliacion(Request request) {
+	public Response<ConciliacionBean> getConciliacion(Request request) {
 
 		log.info("[getConciliacionWS] " + request.toString());
 		ConciliacionBean tb = new Gson().fromJson(request.getLsObject().toString(), ConciliacionBean.class);
-		Response<List<ConciliacionBean>> res = new Response<List<ConciliacionBean>>();
+		Response<ConciliacionBean> res = new Response<ConciliacionBean>();
 		return new ConciliacionDao().getConciliacion(tb);
 	}
 
