@@ -214,8 +214,20 @@ public class ConciliacionDao {
 					bean.setZoneId(rs.getString("ZONE_ID"));
 					bean.setZoneD(rs.getString("ZON_DESC"));
 					bean.setLgpla(rs.getString("LGPLA"));
-					total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-					bean.setCount1A("" + total);
+					if (count == 0) {
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCount1A("" + total);
+					} else if (count == 1) {
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCount1B("" + total);
+					} else if (count == 2) {
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCount2("" + total);
+					} else if (count == 3) {
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCount3("" + total);
+					}
+
 				}
 				if (rs.getString("COU_MATNR") != null) {
 					hashMap.put(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"), bean);
