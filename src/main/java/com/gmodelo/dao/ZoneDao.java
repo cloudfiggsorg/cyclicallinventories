@@ -462,7 +462,7 @@ public class ZoneDao {
 			log.info("[getZonesDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONES, e);
+			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: " + INV_VW_ZONES, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -500,7 +500,12 @@ public class ZoneDao {
 		}
 		
 		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES";
-		INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' ";
+		INV_VW_ZONES += " WHERE (ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%') ";
+		INV_VW_ZONES += " AND ZONE_ID NOT IN (SELECT IZ.ZONE_ID " 
+		+ "FROM INV_DOC_INVENTORY_HEADER AS IDIH "
+		+ "INNER JOIN INV_ROUTE_POSITION AS IRP ON (IDIH.DIH_ROUTE_ID = IRP.RPO_ROUTE_ID) "
+		+ "INNER JOIN INV_ZONE AS IZ ON (IZ.ZONE_ID = IRP.RPO_ZONE_ID) "
+		+ "WHERE DIH_STATUS = '1')"; 
 		INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
 		log.info(INV_VW_ZONES);
 		log.info("[getZonesOnlyDao] Preparing sentence...");
