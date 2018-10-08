@@ -31,9 +31,9 @@ public class RouteDao{
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?"; 		
-		final String INV_SP_DEL_ROUTE_POSITION = "INV_SP_DEL_ROUTE_POSITION ?, ?";				
+		final String INV_SP_DEL_ROUTE_POSITION = "INV_SP_DEL_ROUTE_POSITION ?";				
 		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?";
-		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?, ?";
+		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?";
 		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?";
 		int routeId = 0;
 		
@@ -67,22 +67,12 @@ public class RouteDao{
 			cs.execute();
 			
 			routeBean.setRouteId(String.format("%08d", cs.getInt(1))); // addZeros
-			
-			//Eliminar posiciones
-			String ids = "";
-			for (int i = 0; i < routeBean.getPositions().size(); i++) {
-								
-				if(routeBean.getPositions().get(i).getPositionId() > 0){
-					ids += routeBean.getPositions().get(i).getPositionId() + ",";
-				}				
-			}
-												
+															
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_ROUTE_POSITION);
 			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));
-			cs.setString(2, ids);
 			cs.execute();
-			
+						
 			// INSERTAR POSICIONES
 			for (int i = 0; i < routeBean.getPositions().size(); i++) {
 				
@@ -100,19 +90,10 @@ public class RouteDao{
 				routeBean.getPositions().get(i).setPositionId(cs.getInt(2));
 			}
 			
-			//Eliminar grupos
-			ids = "";
-			for (int i = 0; i < routeBean.getGroups().size(); i++) {
-				
-				if(routeBean.getGroups().get(i).getRouteGroup() > 0){
-					ids += routeBean.getGroups().get(i).getRouteGroup() + ",";
-				}
-			}
-			
+			//Eliminar grupos			
 			cs = null;
 			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_ROUTE);
 			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));
-			cs.setString(2, ids);
 			cs.execute();
 
 			// INSERTAR GRUPOS Y CONTEOS
