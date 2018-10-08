@@ -37,7 +37,7 @@ public class ConciliacionService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getConciliation")
-	public Response<List<ConciliacionBean>> getConciliacion(Request request){
+	public Response<ConciliacionBean> getConciliacion(Request request){
 		return new ConciliacionWorkService().getConciliacion(request);
 	}
 
