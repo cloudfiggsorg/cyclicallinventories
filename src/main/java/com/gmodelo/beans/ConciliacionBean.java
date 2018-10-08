@@ -1,6 +1,5 @@
 package com.gmodelo.beans;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ConciliacionBean {
@@ -152,22 +151,9 @@ public class ConciliacionBean {
 		this.positions = positions;
 	}
 
-	public ConciliacionBean(String route, String type, String bukrs, String bukrsD, String werks, String werksD,
-			String justification, int docInvId, List<ConciliationPositionBean> positions) {
-		super();
-		this.route = route;
-		this.type = type;
-		this.bukrs = bukrs;
-		this.bukrsD = bukrsD;
-		this.werks = werks;
-		this.werksD = werksD;
-		this.justification = justification;
-		this.docInvId = docInvId;
-		this.positions = positions;
-	}
-
 	public ConciliacionBean() {
 		super();
+
 		// TODO Auto-generated constructor stub
 	}
 
