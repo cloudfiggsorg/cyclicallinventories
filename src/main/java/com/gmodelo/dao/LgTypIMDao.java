@@ -28,7 +28,7 @@ public class LgTypIMDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		final String INV_SP_ADD_LGTYPE_IM = "INV_SP_ADD_LGTYPE_IM ?, ?, ?, ?, ?, ?, ?";
-		final String INV_SP_DEL_LGPLA_IM = "INV_SP_DEL_LGPLA_IM ?, ?";
+		final String INV_SP_DEL_LGPLA_IM = "INV_SP_DEL_LGPLA_IM ?";
 		final String INV_SP_ADD_LGPLA_IM = "INV_SP_ADD_LGPLA_IM ?, ?, ?, ?, ?, ?";
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -65,18 +65,9 @@ public class LgTypIMDao {
 			lgTypIMBean.setLgnum(cs.getString(6));
 
 			// Eliminar posiciones
-			String ids = "";
-			for (int i = 0; i < lgTypIMBean.getLsLgPla().size(); i++) {
-
-				if (lgTypIMBean.getLsLgPla().get(i).getLgPlaId() > 0) {
-					ids += lgTypIMBean.getLsLgPla().get(i).getLgPlaId() + ",";
-				}
-			}
-
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_LGPLA_IM);
 			cs.setString(1, lgTypIMBean.getLgTyp());
-			cs.setString(2, ids);
 			cs.execute();
 
 			// INSERTAR POSICIONES

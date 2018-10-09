@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.ConciliationsIDsBean;
 import com.gmodelo.beans.GroupBean;
@@ -36,7 +37,7 @@ public class ConciliacionService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getConciliation")
-	public Response<List<ConciliacionBean>> getConciliacion(Request request){
+	public Response<ConciliacionBean> getConciliacion(Request request){
 		return new ConciliacionWorkService().getConciliacion(request);
 	}
 
@@ -62,6 +63,15 @@ public class ConciliacionService {
 	@Path("/getZonePosition")
 	public Response<String> getZonePosition(Request request){
 		return new ConciliacionWorkService().getZonePosition(request);
+	}
+	
+	@POST 
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getSpecialCount")
+	public Response<TaskBean> getSpecialCount(Request request){
+		User user = (User) httpRequest.getSession().getAttribute("user");
+		return new ConciliacionWorkService().getSpecialCount(request, user);
 	}
 	
 }

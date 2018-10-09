@@ -32,15 +32,13 @@ public class ConnectionManager {
 		connectionBean.setPort("1433");
 		connectionBean.setUser("INV_CIC_ADMIN");
 	}
-	
+
 	public Connection createConnection() {
 
 		Connection con = null;
 		try {
 			dataSource = (DataSource) new InitialContext().lookup(connectionBean.getDatasource());
 		} catch (Exception e) {
-
-			System.out.println("Entre por Datos de Conexion");
 			try {
 				Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 				String connectionUrl = "jdbc:sqlserver://" + connectionBean.getHostname() + ":"
@@ -55,7 +53,6 @@ public class ConnectionManager {
 			return con;
 		}
 		if (dataSource != null) {
-			System.out.println("Entre por Datasource");
 			try {
 				con = dataSource.getConnection();
 				return con;

@@ -26,6 +26,8 @@ public class ZoneDao {
 	
 	public Response<ZoneBean> addZone(ZoneBean zoneBean, String createdBy){
 		
+		System.out.println("CALL...");
+		
 		Response<ZoneBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -40,8 +42,8 @@ public class ZoneDao {
 		}		
 
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?";
-		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?, ?";
-		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?, ?";
+		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?";
+		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?";
 		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?";		
 		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?";
 		log.info("[addZone] Preparing sentence...");
@@ -62,21 +64,16 @@ public class ZoneDao {
 						
 			zoneBean.setZoneId(String.format("%08d", cs.getInt(1))); // addZeroscs
 						
-			//Eliminar posiciones
-			String ids = "";
-			for (int i = 0; i < zoneBean.getPositions().size(); i++) {
-				if(zoneBean.getPositions().get(i).getPkAsgId() > 0){
-					ids += zoneBean.getPositions().get(i).getPkAsgId() + ",";
-				}				
-			}
-															
+			//Eliminar posiciones						
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_ZONE_POSITION);
 			cs.setInt(1, zoneId);
-			cs.setString(2, ids);
 			cs.execute();
 			
 			for (int i = 0; i < zoneBean.getPositions().size(); i++) {
+				
+				System.out.println("Here " + zoneBean.getPositions().size());
+				
 				zoneBean.getPositions().get(i).setZoneId(zoneBean.getZoneId());
 				cs = null;
 				cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
@@ -92,17 +89,10 @@ public class ZoneDao {
 				idPosition = cs.getInt(7);
 				zoneBean.getPositions().get(i).setPkAsgId(idPosition);
 				
-				//Eliminar materiales de posición
-				ids = "";
-				for (int j = 0; j < zoneBean.getPositions().get(i).getMaterials().size(); j++) {
-					
-					ids += zoneBean.getPositions().get(i).getMaterials().get(j).getMatnr() + ",";				
-				}
-													
+				//Eliminar materiales de posición													
 				cs = null;
 				cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ZONE);
 				cs.setInt(1, zoneBean.getPositions().get(i).getPkAsgId());
-				cs.setString(2, ids);
 				cs.execute();
 								
 				for(int k = 0; k < zoneBean.getPositions().get(i).getMaterials().size(); k++){
@@ -472,7 +462,7 @@ public class ZoneDao {
 			log.info("[getZonesDao] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: "+INV_VW_ZONES, e);
+			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: " + INV_VW_ZONES, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -510,7 +500,12 @@ public class ZoneDao {
 		}
 		
 		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES";
-		INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' ";
+		INV_VW_ZONES += " WHERE (ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%') ";
+		INV_VW_ZONES += " AND ZONE_ID NOT IN (SELECT IZ.ZONE_ID " 
+		+ "FROM INV_DOC_INVENTORY_HEADER AS IDIH "
+		+ "INNER JOIN INV_ROUTE_POSITION AS IRP ON (IDIH.DIH_ROUTE_ID = IRP.RPO_ROUTE_ID) "
+		+ "INNER JOIN INV_ZONE AS IZ ON (IZ.ZONE_ID = IRP.RPO_ZONE_ID) "
+		+ "WHERE DIH_STATUS = '1')"; 
 		INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
 		log.info(INV_VW_ZONES);
 		log.info("[getZonesOnlyDao] Preparing sentence...");
