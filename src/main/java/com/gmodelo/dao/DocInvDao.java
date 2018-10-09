@@ -47,7 +47,13 @@ public class DocInvDao {
 				cs.setString(5, docInvBean.getStatus());
 			}
 			cs.setString(6, createdBy);
-			cs.setInt(7, docInvBean.getDocInvId());
+
+			if (docInvBean.getDocFatherInvId() != null) {
+				cs.setInt(7, docInvBean.getDocInvId());
+			} else {
+				cs.setNull(7, Types.BIGINT);
+			}
+
 			if (docInvBean.getDocFatherInvId() != null) {
 				cs.setInt(8, docInvBean.getDocFatherInvId());
 			} else {
@@ -157,9 +163,9 @@ public class DocInvDao {
 
 		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)";
 		if (searchFilter != null) {
-			INV_VW_DOC_INV += " WHERE TYPE != '3' AND DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"
-					+ searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' " + " OR WERKSD LIKE '%"
-					+ searchFilterNumber + "%' ";
+			INV_VW_DOC_INV += " WHERE TYPE != '3' AND DOC_INV_ID LIKE '%" + searchFilterNumber
+					+ "%' OR ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' "
+					+ " OR WERKSD LIKE '%" + searchFilterNumber + "%' ";
 		} else {
 			String condition = buildCondition(docInvBean);
 			if (condition != null) {
@@ -313,7 +319,7 @@ public class DocInvDao {
 		String werks = "";
 		String status = "";
 
-		DOC_INV_ID = (docInvB.getDocInvId() != 0
+		DOC_INV_ID = (docInvB.getDocInvId() != null
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "DOC_INV_ID = '" + docInvB.getDocInvId() + "' "
 				: "");
 		condition += DOC_INV_ID;
