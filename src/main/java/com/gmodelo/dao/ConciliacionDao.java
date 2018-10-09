@@ -247,6 +247,7 @@ public class ConciliacionDao {
 					"[getPositionsConciliationDao - getConciliationPositions] INV_DOC_CHILDREN, prev Execute Query...");
 
 			stm = con.prepareStatement(INV_DOC_CHILDREN);
+			stm.setInt(1, docInvBean.getDocInvId());
 			ResultSet rsChl = stm.executeQuery();
 			log.info("[getPositionsConciliationDao - getConciliationPositions] After, prev Execute Query...");
 			while (rsChl.next()) {
