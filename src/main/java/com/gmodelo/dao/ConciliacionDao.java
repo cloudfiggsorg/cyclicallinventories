@@ -537,15 +537,14 @@ public class ConciliacionDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		GroupBean gb = new GroupBean();
 		GroupDao gpDao = new GroupDao();
-		
+				
 		String INV_VW_AVAILABLE_GROUPS = "SELECT IG.GROUP_ID, IG.GRP_DESC " 
 		+ "FROM INV_GROUPS_USER AS IGU "
 		+ "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
 		+ "WHERE GRU_USER_ID NOT IN (SELECT GRU_USER_ID FROM INV_GROUPS_USER "
-		+ "	WHERE GRU_GROUP_ID IN(SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
+		+ "	WHERE GRU_GROUP_ID IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
 		+ "AND GRU_GROUP_ID NOT IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)"
-		+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC"; 
-		
+		+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC"; 		
 
 		/*String INV_VW_AVAILABLE_GROUPS = "SELECT GRPS.GROUP_ID, GRPS.GRP_DESC " + "FROM INV_ROUTE_GROUPS AS IRG "
 				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IRG.RGR_ROUTE_ID = IDIH.DIH_ROUTE_ID) "
@@ -560,12 +559,12 @@ public class ConciliacionDao {
 			log.info(INV_VW_AVAILABLE_GROUPS);
 			rs = stm.executeQuery();
 
-			if (rs.next()) {
+			while (rs.next()) {
 
 				gb = new GroupBean();
 				gb.setGroupId(rs.getString(1));
 				gb.setGdesc(rs.getString(2));
-				gb.setUsers(gpDao.groupUsers(gb.getGroupId(), null));
+				//gb.setUsers(gpDao.groupUsers(gb.getGroupId(), null));
 				listGroups.add(gb);
 			}
 
@@ -574,7 +573,7 @@ public class ConciliacionDao {
 			stm.close();
 
 			log.info("[getAvailableGroups] Sentence successfully executed.");
-		} catch (SQLException | NamingException e) {
+		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[getAvailableGroups] Some error occurred while was trying to execute the query: "
 					+ INV_VW_AVAILABLE_GROUPS, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
