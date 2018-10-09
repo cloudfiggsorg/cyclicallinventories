@@ -161,6 +161,8 @@ public class ConciliacionDao {
 	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZPO_PK_ASG_ID, "
 			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
 
+	private static final String INV_DOC_CHILDREN = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_FATHER_INV_ID = ? ";
+
 	@SuppressWarnings("rawtypes")
 	private List<ConciliationPositionBean> getConciliationPositions(ConciliacionBean docInvBean) {
 		Connection con = new ConnectionManager().createConnection();
@@ -238,9 +240,42 @@ public class ConciliacionDao {
 				}
 
 			}
-
 			log.info(
 					"[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, WHile Rs next ENd Excecute query...");
+			// Check if the inventory document has children
+			log.info(
+					"[getPositionsConciliationDao - getConciliationPositions] INV_DOC_CHILDREN, prev Execute Query...");
+
+			stm = con.prepareStatement(INV_DOC_CHILDREN);
+			ResultSet rsChl = stm.executeQuery();
+			log.info("[getPositionsConciliationDao - getConciliationPositions] After, prev Execute Query...");
+			while (rsChl.next()) {
+				PreparedStatement stm2 = con.prepareStatement(INV_FULL_COUNT);
+				stm2.setString(1, rsChl.getString("DOC_INV_ID"));
+				rs = stm2.executeQuery();
+				int total = 0;
+				while (rs.next()) {
+					if (hashMap.containsKey(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))) {
+						bean = hashMap.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"));
+						docInvBean.setCountE(true);
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCountX("" + total);
+					} else {
+						bean = new ConciliationPositionBean();
+						bean.setMeasureUnit(rs.getString("MEINS"));
+						bean.setMatnr(String.valueOf(rs.getInt("COU_MATNR")));
+						bean.setMatnrD(rs.getString("MAKTX"));
+						bean.setZoneId(rs.getString("ZONE_ID"));
+						bean.setZoneD(rs.getString("ZON_DESC"));
+						bean.setLgpla(rs.getString("LGPLA"));
+						docInvBean.setCountE(true);
+						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
+						bean.setCountX("" + total);
+					}
+				}
+			}
+			log.info(
+					"[getPositionsConciliationDao - getConciliationPositions] INV_DOC_CHILDREN, WHile Rs next ENd Excecute query...");
 			Iterator iteAux = hashMap.entrySet().iterator();
 			while (iteAux.hasNext()) {
 				Map.Entry pair = (Map.Entry) iteAux.next();
