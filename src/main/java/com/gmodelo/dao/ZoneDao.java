@@ -97,8 +97,6 @@ public class ZoneDao {
 				zoneBean.setModifiedBy(cs.getString(7));
 			}
 			
-			zoneBean.setModifiedBy(cs.getString(7));
-						
 			//Eliminar posiciones						
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_ZONE_POSITION);
