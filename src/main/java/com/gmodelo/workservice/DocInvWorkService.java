@@ -101,7 +101,7 @@ public class DocInvWorkService {
 		Response response = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
 		try {
-			DocInvBean docInv = new Gson().fromJson(request.getLsObject().toString(), DocInvBean.class);
+			DocInvBean docInv = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 			if (!docInv.getDocInvPositions().isEmpty()) {
 				log.info("[conciDocInv] conciDocInv request is not Empty");
 				Connection con = new ConnectionManager().createConnection();
