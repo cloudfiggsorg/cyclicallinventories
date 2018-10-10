@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ZoneBean {
+	
 	String zoneId;
 	String zdesc;
 	String bukrs;
@@ -11,12 +12,37 @@ public class ZoneBean {
 	String lgort;
 	String bDesc;
 	String wDesc;
-	String gDesc;	
+	String gDesc;
+	String createdBy;
+	String modifiedBy;	
 	List<ZonePositionsBean> positions;
 	
 	public ZoneBean(){
 		super();
 		this.positions = new ArrayList<ZonePositionsBean>();
+	}
+	
+	public ZoneBean(String zoneId, String zdesc, String bukrs, String werks, String lgort, String bDesc, String wDesc,
+			String gDesc, String createdBy, String modifiedBy, List<ZonePositionsBean> positions) {
+		super();
+		this.zoneId = zoneId;
+		this.zdesc = zdesc;
+		this.bukrs = bukrs;
+		this.werks = werks;
+		this.lgort = lgort;
+		this.bDesc = bDesc;
+		this.wDesc = wDesc;
+		this.gDesc = gDesc;
+		this.createdBy = createdBy;
+		this.modifiedBy = modifiedBy;
+		this.positions = positions;
+	}
+
+	@Override
+	public String toString() {
+		return "ZoneBean [zoneId=" + zoneId + ", zdesc=" + zdesc + ", bukrs=" + bukrs + ", werks=" + werks + ", lgort="
+				+ lgort + ", bDesc=" + bDesc + ", wDesc=" + wDesc + ", gDesc=" + gDesc + ", createdBy=" + createdBy
+				+ ", modifiedBy=" + modifiedBy + ", positions=" + positions + "]";
 	}
 	
 	public String getbDesc() {
@@ -73,26 +99,17 @@ public class ZoneBean {
 	public void setLgort(String lgort) {
 		this.lgort = lgort;
 	}
-
-	public ZoneBean(String zoneId, String zdesc, String bukrs, String werks, String lgort, String bDesc, String wDesc,
-			String gDesc, List<ZonePositionsBean> positionsB) {
-		super();
-		this.zoneId = zoneId;
-		this.zdesc = zdesc;
-		this.bukrs = bukrs;
-		this.werks = werks;
-		this.lgort = lgort;
-		this.bDesc = bDesc;
-		this.wDesc = wDesc;
-		this.gDesc = gDesc;
-		this.positions = positionsB;
+	public String getCreatedBy() {
+		return createdBy;
 	}
-	
-	@Override
-	public String toString() {
-		return "ZoneBean [zoneId=" + zoneId + ", zdesc=" + zdesc + ", bukrs=" + bukrs + ", werks=" + werks + ", lgort="
-				+ lgort + ", bDesc=" + bDesc + ", wDesc=" + wDesc + ", gDesc=" + gDesc + ", positionsB=" + positions
-				+ "]";
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
 	}
 		
 }

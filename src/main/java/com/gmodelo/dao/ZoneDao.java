@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.naming.NamingException;
+
+import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.Response;
@@ -23,10 +27,10 @@ import com.gmodelo.utils.ReturnValues;
 public class ZoneDao {
 	
 	private Logger log = Logger.getLogger( ZoneDao.class.getName());
+	private UMEDaoE ume = new UMEDaoE();
+	private User user = new User();
 	
 	public Response<ZoneBean> addZone(ZoneBean zoneBean, String createdBy){
-		
-		System.out.println("CALL...");
 		
 		Response<ZoneBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -35,13 +39,14 @@ public class ZoneDao {
 		CallableStatement cs = null;
 		int idPosition = 0;
 		int zoneId = 0;
+		
 		try {
 			zoneId = Integer.parseInt(zoneBean.getZoneId());
 		} catch (NumberFormatException e) {
 			// TODO: handle exception
 		}		
 
-		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?";
 		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?";
 		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?";		
@@ -58,11 +63,41 @@ public class ZoneDao {
 			cs.setString(6, createdBy);
 		
 			cs.registerOutParameter(1, Types.INTEGER);
+			cs.registerOutParameter(6, Types.VARCHAR);
+			cs.registerOutParameter(7, Types.VARCHAR);
+			
 			log.info("[addZone] Executing query...");
 			
 			cs.execute();
 						
 			zoneBean.setZoneId(String.format("%08d", cs.getInt(1))); // addZeroscs
+			zoneBean.setCreatedBy(cs.getString(6));
+			user = new User();				
+			user.getEntity().setIdentyId(cs.getString(6));
+			ArrayList<User> ls = new ArrayList<>();
+			ls.add(user);
+			ls = ume.getUsersLDAPByCredentials(ls);
+			
+			if(ls.size() > 0){
+				
+				zoneBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+			}else{
+				zoneBean.setCreatedBy(cs.getString(6));
+			}
+			
+			user.getEntity().setIdentyId(cs.getString(7));
+			ls = new ArrayList<>();
+			ls.add(user);
+			ls = ume.getUsersLDAPByCredentials(ls);
+			
+			if(ls.size() > 0){
+				
+				zoneBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+			}else{
+				zoneBean.setModifiedBy(cs.getString(7));
+			}
+			
+			zoneBean.setModifiedBy(cs.getString(7));
 						
 			//Eliminar posiciones						
 			cs = null;
@@ -71,9 +106,7 @@ public class ZoneDao {
 			cs.execute();
 			
 			for (int i = 0; i < zoneBean.getPositions().size(); i++) {
-				
-				System.out.println("Here " + zoneBean.getPositions().size());
-				
+								
 				zoneBean.getPositions().get(i).setZoneId(zoneBean.getZoneId());
 				cs = null;
 				cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
@@ -125,7 +158,7 @@ public class ZoneDao {
 			
 			log.info("[addZone] Sentence successfully executed.");
 	
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			try {
 				log.log(Level.WARNING,"[addZone] Execute rollback");
 				con.rollback();
@@ -411,7 +444,7 @@ public class ZoneDao {
 			searchFilterNumber = searchFilter;
 			log.info("Trying to convert String to Int");
 		}
-		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES FROM dbo.INV_VW_ZONES";
+		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES, CREATED_BY, MODIFIED_BY FROM dbo.INV_VW_ZONES";
 		if(searchFilter != null){
 			
 			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%"+searchFilter+"%' ";
@@ -426,6 +459,9 @@ public class ZoneDao {
 		log.info(INV_VW_ZONES);
 		//INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
 		log.info("[getZonesDao] Preparing sentence...");
+		
+		ume = new UMEDaoE();
+		user = new User();
 		
 		try {
 			stm = con.prepareCall(INV_VW_ZONES);
@@ -443,6 +479,32 @@ public class ZoneDao {
 				zoneBean.setbDesc(rs.getString("BDESC"));
 				zoneBean.setwDesc(rs.getString("WDESC"));
 				zoneBean.setgDesc(rs.getString("GDES"));
+				
+				user = new User();				
+				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
+				ArrayList<User> ls = new ArrayList<>();
+				ls.add(user);
+				ls = ume.getUsersLDAPByCredentials(ls);
+				
+				if(ls.size() > 0){
+					
+					zoneBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+				}else{
+					zoneBean.setCreatedBy(rs.getString("CREATED_BY"));
+				}
+				
+				user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
+				ls = new ArrayList<>();
+				ls.add(user);
+				ls = ume.getUsersLDAPByCredentials(ls);
+				
+				if(ls.size() > 0){
+					
+					zoneBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+				}else{
+					zoneBean.setModifiedBy(rs.getString("MODIFIED_BY"));
+				}
+				
 				zoneBean.setPositions(this.getPositionsZone(rs.getString("ZONE_ID")));
 				listZone.add(zoneBean);
 				
@@ -461,7 +523,7 @@ public class ZoneDao {
 			
 			log.info("[getZonesDao] Sentence successfully executed.");
 			
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			log.log(Level.SEVERE,"[getZonesDao] Some error occurred while was trying to execute the query: " + INV_VW_ZONES, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
