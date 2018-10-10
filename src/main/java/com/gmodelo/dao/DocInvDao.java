@@ -32,7 +32,7 @@ public class DocInvDao {
 		int docInvId = 0;
 
 		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?, ?, ?";
-
+		log.info("[addDocInv] docinvBean : "+docInvBean.toString());
 		log.info("[addDocInv] Preparing sentence...");
 		try {
 			con.setAutoCommit(false);
@@ -49,7 +49,7 @@ public class DocInvDao {
 			}
 			cs.setString(6, createdBy);
 
-			if (docInvBean.getDocFatherInvId() != null) {
+			if (docInvBean.getDocInvId() != null) {
 				cs.setInt(7, docInvBean.getDocInvId());
 			} else {
 				cs.setNull(7, Types.BIGINT);

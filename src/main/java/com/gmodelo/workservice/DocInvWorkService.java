@@ -97,7 +97,7 @@ public class DocInvWorkService {
 
 	@SuppressWarnings("rawtypes")
 	public Response conciDocInv(Request request, User user) {
-		log.info("[conciDocInv] conciDocInv request");
+		log.info("[conciDocInv] conciDocInv request " +request.toString());
 		Response response = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
 		try {
