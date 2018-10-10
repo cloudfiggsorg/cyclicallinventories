@@ -18,33 +18,46 @@ import com.gmodelo.workservice.DocInvWorkService;
 
 @Path("/services/DocInvService")
 public class DocInvService {
-	
+
 	@Context
 	private HttpServletRequest httpRequest;
-	
+
+	@SuppressWarnings("rawtypes")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addDocInv")
-	public Response<DocInvBean> addDocInv(Request request){
+	public Response<DocInvBean> addDocInv(Request request) {
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new DocInvWorkService().addDocInv(request, user);
 	}
-	
+
+	@SuppressWarnings("rawtypes")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/deleteDocInv")
-	public Response<Object> deleteDocInv(Request request){
+	public Response<Object> deleteDocInv(Request request) {
 		return new DocInvWorkService().deleteDocInv(request);
 	}
-	
+
+	@SuppressWarnings("rawtypes")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getDocInv")
-	public Response<List<DocInvBean>> getDocInv(Request request){
+	public Response<List<DocInvBean>> getDocInv(Request request) {
 		return new DocInvWorkService().getDocInv(request);
 	}
-	
+
+	@SuppressWarnings("rawtypes")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/conciDocInv")
+	public Response conciDocInv(Request request) {
+		User user = (User) httpRequest.getSession().getAttribute("user");
+		return new DocInvWorkService().conciDocInv(request, user);
+	}
+
 }
