@@ -69,7 +69,15 @@ public class LoginWorkService {
 				} catch (NamingException e) {
 					user = null;
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs(ReturnValues.SINVALIDUSER);
+					if(e.toString().contains("Connection timed out")){
+						abstractResult.setResultId(ReturnValues.ILDAPTIMEOUT);
+						abstractResult.setResultMsgAbs(ReturnValues.SLDAPTIMEOUT);
+					}
+					if(e.getMessage().contains("AcceptSecurityContext")){
+						abstractResult.setResultId(ReturnValues.IPASSWORDNOTMATCH);
+						abstractResult.setResultMsgAbs(ReturnValues.SINVALIDUSER);
+					}
+					
 					myLog.log(Level.SEVERE, "Error al verificar usuario en LDAP", e);
 				}
 			}
