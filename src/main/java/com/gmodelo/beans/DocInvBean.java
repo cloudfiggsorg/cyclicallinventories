@@ -1,5 +1,7 @@
 package com.gmodelo.beans;
 
+import java.util.List;
+
 public class DocInvBean {
 
 	Integer docInvId;
@@ -13,17 +15,7 @@ public class DocInvBean {
 	String createdBy;
 	Integer docFatherInvId;
 
-	public DocInvBean() {
-		super();
-	}
-
-	public Integer getDocFatherInvId() {
-		return docFatherInvId;
-	}
-
-	public void setDocFatherInvId(Integer docFatherInvId) {
-		this.docFatherInvId = docFatherInvId;
-	}
+	List<DocInvPositionBean> docInvPositions;
 
 	public Integer getDocInvId() {
 		return docInvId;
@@ -97,8 +89,32 @@ public class DocInvBean {
 		this.createdBy = createdBy;
 	}
 
+	public Integer getDocFatherInvId() {
+		return docFatherInvId;
+	}
+
+	public void setDocFatherInvId(Integer docFatherInvId) {
+		this.docFatherInvId = docFatherInvId;
+	}
+
+	public List<DocInvPositionBean> getDocInvPositions() {
+		return docInvPositions;
+	}
+
+	public void setDocInvPositions(List<DocInvPositionBean> docInvPositions) {
+		this.docInvPositions = docInvPositions;
+	}
+
+	@Override
+	public String toString() {
+		return "DocInvBean [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
+				+ ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy="
+				+ createdBy + ", docFatherInvId=" + docFatherInvId + ", docInvPositions=" + docInvPositions + "]";
+	}
+
 	public DocInvBean(Integer docInvId, String route, String bukrs, String bukrsD, String werks, String werksD,
-			String type, String status, String createdBy, Integer docFatherInvId) {
+			String type, String status, String createdBy, Integer docFatherInvId,
+			List<DocInvPositionBean> docInvPositions) {
 		super();
 		this.docInvId = docInvId;
 		this.route = route;
@@ -110,13 +126,12 @@ public class DocInvBean {
 		this.status = status;
 		this.createdBy = createdBy;
 		this.docFatherInvId = docFatherInvId;
+		this.docInvPositions = docInvPositions;
 	}
 
-	@Override
-	public String toString() {
-		return "DocInvBean [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
-				+ ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy="
-				+ createdBy + ", docFatherInvId=" + docFatherInvId + "]";
+	public DocInvBean() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 }

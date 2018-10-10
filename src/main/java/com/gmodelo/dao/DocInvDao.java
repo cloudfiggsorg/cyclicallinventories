@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -292,12 +293,10 @@ public class DocInvDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		;
 		Connection con = iConnectionManager.createConnection();
-		int res = 0;
 		String UPDATE = "UPDATE INV_DOC_INVENTORY_HEADER SET DIH_STATUS='1' WHERE DOC_INV_ID=?";
 		try {
 			PreparedStatement stm = con.prepareStatement(UPDATE);
 			stm.setInt(1, i);
-			res = stm.executeUpdate();
 		} catch (SQLException e) {
 			try {
 				con.close();
@@ -339,4 +338,25 @@ public class DocInvDao {
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
+
+	private static final String INSERT_DOCUMENT_INVENTORY_POSITIONS = "INSERT INTO INV_DOC_INVENTORY_POSITIONS "
+			+ " (DIP_DOC_INV_ID,DIP_LGORT,DIP_LGTYP,DIP_LGPLA,DIP_MATNR,DIP_COUNTED) VALUES (?,?,?,?,?,?)";
+
+	public AbstractResultsBean addDocumentPosition(List<DocInvPositionBean> positionBean, Connection con)
+			throws SQLException {
+		AbstractResultsBean resultBean = new AbstractResultsBean();
+		PreparedStatement stm = con.prepareStatement(INSERT_DOCUMENT_INVENTORY_POSITIONS);
+		for (DocInvPositionBean singleBean : positionBean) {
+			stm.setInt(1, singleBean.getDocInvId());
+			stm.setString(2, singleBean.getLgort());
+			stm.setString(3, singleBean.getLgtyp());
+			stm.setString(4, singleBean.getLgpla());
+			stm.setString(5, singleBean.getMatnr());
+			stm.setString(6, singleBean.getCounted());
+			stm.addBatch();
+		}
+		stm.executeBatch();
+		return resultBean;
+	}
+
 }

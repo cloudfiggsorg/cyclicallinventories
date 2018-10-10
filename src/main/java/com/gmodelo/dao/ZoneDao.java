@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.naming.NamingException;
-
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
@@ -831,4 +831,54 @@ public class ZoneDao {
 		return res ;
 	}
 
+	private static final String GET_ZONE_BY_ID = "SELECT ZON_DESC, ZON_BUKRS, ZON_WERKS, ZON_LGORT, ZON_CREATED_BY,"
+			+ " ZON_CREATED_DATE, ZON_MODIFIED_BY, ZON_MODIFIED_DATE, ZON_STATUS FROM INV_ZONE WITH(NOLOCK)  WHERE ZONE_ID = ?";
+	private static final String GET_LGNUM_FROM_LGORT = "SELECT LGNUM FROM  INV_VW_CONCILIATION_LGNUM_FROM_LGORT_AND_WERKS WHERE WERKS = ? AND LGORT = ?";
+	private static final String GEZ_ZONE_POSITION_BY_ID_LGPLA = "SELECT ZPO_LGTYP FROM  "
+			+ "INV_ZONE_POSITION WITH(NOLOCK) WHERE ZPO_ZONE_ID = ? AND ZPO_LGPLA = ? ";
+
+	@SuppressWarnings("resource")
+	public DocInvPositionBean getDataForConciliation(DocInvBean headerBean, DocInvPositionBean singlePosition,
+			Connection con) throws SQLException {
+		log.info("[getDataForConciliation] Preparing ." + GET_ZONE_BY_ID);
+		PreparedStatement stm = con.prepareStatement(GET_ZONE_BY_ID);
+		stm.setInt(1, singlePosition.getZoneId());
+		ResultSet rs = stm.executeQuery();
+		log.info("[getDataForConciliation] Preparing ." + GET_ZONE_BY_ID);
+		String lgnum = "";
+		if (rs.next()) {
+			singlePosition.setLgort(rs.getString("ZON_LGORT"));
+			log.info("[getDataForConciliation] Preparing ." + GET_LGNUM_FROM_LGORT);
+			stm = con.prepareStatement(GET_LGNUM_FROM_LGORT);
+			stm.setString(1, headerBean.getWerks());
+			stm.setString(2, singlePosition.getLgort());
+			rs = stm.executeQuery();
+			log.info("[getDataForConciliation] Preparing ." + GET_LGNUM_FROM_LGORT);
+			if (rs.next()) {
+				lgnum = rs.getString("LGNUM");
+			}
+			log.info("[getDataForConciliation] is Lgnum: ." + lgnum);
+			if (!lgnum.isEmpty()) {
+				log.info("[getDataForConciliation] is preparing: ." + GEZ_ZONE_POSITION_BY_ID_LGPLA
+						+ " AND ZPO_LGNUM = ?");
+				stm = con.prepareStatement(GEZ_ZONE_POSITION_BY_ID_LGPLA + " AND ZPO_LGNUM = ?");
+				stm.setInt(1, singlePosition.getZoneId());
+				stm.setString(2, singlePosition.getLgpla());
+				stm.setString(3, lgnum);
+			} else {
+				log.info("[getDataForConciliation] is preparing: ." + GEZ_ZONE_POSITION_BY_ID_LGPLA);
+				stm = con.prepareStatement(GEZ_ZONE_POSITION_BY_ID_LGPLA);
+				stm.setInt(1, singlePosition.getZoneId());
+				stm.setString(2, singlePosition.getLgpla());
+			}
+			rs = stm.executeQuery();
+			log.info("[getDataForConciliation] is Executed: ." + GEZ_ZONE_POSITION_BY_ID_LGPLA);
+			if (rs.next()) {
+				singlePosition.setLgtyp(rs.getString("ZPO_LGTYP"));
+			}
+		}
+		return singlePosition;
+	}
+
+	
 }
