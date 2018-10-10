@@ -54,7 +54,7 @@ public class DocInvDao {
 			}
 			cs.setString(6, createdBy);
 
-			if (docInvBean.getDocFatherInvId() != null) {
+			if (docInvBean.getDocInvId() != null) {
 				cs.setInt(7, docInvBean.getDocInvId());
 			} else {
 				cs.setNull(7, Types.BIGINT);
