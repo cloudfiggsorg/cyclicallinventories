@@ -27,8 +27,8 @@ import com.gmodelo.utils.ReturnValues;
 public class ZoneDao {
 	
 	private Logger log = Logger.getLogger( ZoneDao.class.getName());
-	private UMEDaoE ume = new UMEDaoE();
-	private User user = new User();
+	private UMEDaoE ume;
+	private User user;
 	
 	public Response<ZoneBean> addZone(ZoneBean zoneBean, String createdBy){
 		
@@ -72,7 +72,8 @@ public class ZoneDao {
 						
 			zoneBean.setZoneId(String.format("%08d", cs.getInt(1))); // addZeroscs
 			zoneBean.setCreatedBy(cs.getString(6));
-			user = new User();				
+			user = new User();
+			ume = new UMEDaoE();
 			user.getEntity().setIdentyId(cs.getString(6));
 			ArrayList<User> ls = new ArrayList<>();
 			ls.add(user);
