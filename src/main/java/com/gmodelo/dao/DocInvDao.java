@@ -36,8 +36,8 @@ public class DocInvDao {
 		CallableStatement cs = null;
 		int docInvId = 0;
 
-		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?, ?, ?, ?";
-		log.info("[addDocInv] docinvBean : "+docInvBean.toString());
+		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?, ?, ?";
+
 		log.info("[addDocInv] Preparing sentence...");
 		try {
 			con.setAutoCommit(false);
@@ -54,7 +54,7 @@ public class DocInvDao {
 			}
 			cs.setString(6, createdBy);
 
-			if (docInvBean.getDocInvId() != null) {
+			if (docInvBean.getDocFatherInvId() != null) {
 				cs.setInt(7, docInvBean.getDocInvId());
 			} else {
 				cs.setNull(7, Types.BIGINT);
@@ -65,40 +65,13 @@ public class DocInvDao {
 			} else {
 				cs.setNull(8, Types.BIGINT);
 			}
-			cs.registerOutParameter(6, Types.VARCHAR);
-			cs.registerOutParameter(7, Types.VARCHAR);
-			cs.registerOutParameter(8, Types.INTEGER);
+
+			cs.registerOutParameter(7, Types.INTEGER);
 			log.info("[addDocInv] Executing query...");
 
 			cs.execute();
-			docInvId = cs.getInt(8);
+			docInvId = cs.getInt(7);
 			docInvBean.setDocInvId(docInvId);
-			
-			user = new User();	
-			ume = new UMEDaoE();
-			user.getEntity().setIdentyId(cs.getString(6));
-			ArrayList<User> ls = new ArrayList<>();
-			ls.add(user);
-			ls = ume.getUsersLDAPByCredentials(ls);
-			
-			if(ls.size() > 0){
-				
-				docInvBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-			}else{
-				docInvBean.setCreatedBy(cs.getString(6));
-			}
-			
-			user.getEntity().setIdentyId(cs.getString(7));
-			ls = new ArrayList<>();
-			ls.add(user);
-			ls = ume.getUsersLDAPByCredentials(ls);
-			
-			if(ls.size() > 0){
-				
-				docInvBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-			}else{
-				docInvBean.setModifiedBy(cs.getString(7));
-			}
 
 			// Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -109,7 +82,7 @@ public class DocInvDao {
 			con.commit();
 			cs.close();
 			log.info("[addDocInv] Sentence successfully executed.");
-		} catch (SQLException | NamingException e) {
+		} catch (SQLException e) {
 			try {
 				log.log(Level.WARNING, "[addDocInv] Execute rollback");
 				con.rollback();
@@ -132,7 +105,9 @@ public class DocInvDao {
 		res.setLsObject(docInvBean);
 		return res;
 	}
-
+	
+	
+	
 	public Response<Object> deleteDocInvId(String arrayIdDocInv) {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
