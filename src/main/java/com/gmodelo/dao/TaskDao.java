@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.NamingException;
+
+import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
@@ -22,12 +25,14 @@ import com.google.gson.Gson;
 public class TaskDao {
 	
 	private Logger log = Logger.getLogger(TaskDao.class.getName());
+	private UMEDaoE ume;
+	private User user;
 
 	public Response<TaskBean> addTask(TaskBean taskBean, String createdBy) {
 		Response<TaskBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
-		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?, ?, ?"; 		
+		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?, ?, ?, ?"; 		
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -51,10 +56,41 @@ public class TaskDao {
 			}
 			cs.setString(5, taskBean.getTaskIdFather());
 			cs.setString(6, createdBy);
+			
 			cs.registerOutParameter(1, Types.INTEGER);
+			cs.registerOutParameter(6, Types.VARCHAR);
+			cs.registerOutParameter(7, Types.VARCHAR);
+			
 			log.info("[addTask] Executing query...");
 			cs.execute();
+			
 			taskBean.setTaskId(cs.getString(1));
+			user = new User();
+			ume = new UMEDaoE();
+			user.getEntity().setIdentyId(cs.getString(6));
+			ArrayList<User> ls = new ArrayList<>();
+			ls.add(user);
+			ls = ume.getUsersLDAPByCredentials(ls);
+			
+			if(ls.size() > 0){
+				
+				taskBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+			}else{
+				taskBean.setCreatedBy(cs.getString(6));
+			}
+			
+			user.getEntity().setIdentyId(cs.getString(7));
+			ls = new ArrayList<>();
+			ls.add(user);
+			ls = ume.getUsersLDAPByCredentials(ls);
+			
+			if(ls.size() > 0){
+				
+				taskBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+			}else{
+				taskBean.setModifiedBy(cs.getString(7));
+			}
+			
 			log.info("[addTask] After Excecute query..."+ taskBean);
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -65,7 +101,7 @@ public class TaskDao {
 			con.commit();
 			cs.close();
 			
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			try {
 				log.log(Level.WARNING,"[addTask] Execute rollback");
 				con.rollback();
@@ -148,13 +184,13 @@ public class TaskDao {
 
 		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, "
-				+ "TAS_STATUS, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
+				+ "TAS_STATUS, TASK_ID_PARENT, CREATED_BY, MODIFIED_BY FROM INV_VW_TASK WITH(NOLOCK) ";
 
 		INV_VW_TASK += "WHERE DIH_BUKRS LIKE '%" + bukrs + "%' AND DIH_WERKS LIKE '%" + werks + "%'  AND TASK_ID_PARENT IS NULL ";
 		
 		INV_VW_TASK += "GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, " 
-				+ "TAS_STATUS, TASK_ID_PARENT " 
+				+ "TAS_STATUS, TASK_ID_PARENT, CREATED_BY, MODIFIED_BY " 
 				+ "ORDER BY TASK_ID ASC";
 		
 		log.info(INV_VW_TASK);
@@ -165,7 +201,7 @@ public class TaskDao {
 			log.info("[getTasksbyBukrsAndWerksDao] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
-
+			ume = new UMEDaoE();
 			while (rs.next()) {
 				taskBean = new TaskBean();
 				taskBean.setTaskId(rs.getString("TASK_ID"));
@@ -198,6 +234,37 @@ public class TaskDao {
 					taskBean.setTaskIdFather(null);
 				}
 				
+				user = new User();				
+				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
+				ArrayList<User> ls = new ArrayList<>();
+				ls.add(user);
+				ls = ume.getUsersLDAPByCredentials(ls);
+				
+				if(ls.size() > 0){
+					
+					taskBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+				}else{
+					taskBean.setCreatedBy(rs.getString("CREATED_BY"));
+				}
+				
+				
+				try {
+					
+					user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
+					ls = new ArrayList<>();
+					ls.add(user);
+					ls = ume.getUsersLDAPByCredentials(ls);
+					
+					if(ls.size() > 0){
+						
+						taskBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+					}else{
+						taskBean.setModifiedBy(rs.getString("MODIFIED_BY"));
+					}					
+				} catch (Exception e) {
+					taskBean.setCreatedBy(null);
+				}				
+				
 				listTaskBean.add(taskBean);
 			}
 
@@ -212,7 +279,7 @@ public class TaskDao {
 			rs.close();
 			stm.close();
 			log.info("[getTasksbyBukrsAndWerksDao] Sentence successfully executed.");
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			log.log(Level.SEVERE,"[getTasksbyBukrsAndWerksDao] Some error occurred while was trying to execute the query: " + INV_VW_TASK, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());

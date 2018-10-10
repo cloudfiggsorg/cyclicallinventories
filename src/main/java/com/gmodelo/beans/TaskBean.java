@@ -12,13 +12,15 @@ public class TaskBean {
 	boolean status;
 	String taskIdFather;
 	RouteUserBean rub;
+	String createdBy;
+	String modifiedBy;
 	
-	public TaskBean(){
-		super();
+	public TaskBean(){		
+		super();		
 	}
 
 	public TaskBean(String taskId, String groupId, DocInvBean docInvId, String taskJSON, long dCreated, long dDownlad,
-			long dUpload, boolean status, String taskIdFather, RouteUserBean rub) {
+			long dUpload, boolean status, String taskIdFather, RouteUserBean rub, String createdBy, String modifiedBy) {
 		super();
 		this.taskId = taskId;
 		this.groupId = groupId;
@@ -30,13 +32,16 @@ public class TaskBean {
 		this.status = status;
 		this.taskIdFather = taskIdFather;
 		this.rub = rub;
+		this.createdBy = createdBy;
+		this.modifiedBy = modifiedBy;
 	}
 
 	@Override
 	public String toString() {
 		return "TaskBean [taskId=" + taskId + ", groupId=" + groupId + ", docInvId=" + docInvId + ", taskJSON="
 				+ taskJSON + ", dCreated=" + dCreated + ", dDownlad=" + dDownlad + ", dUpload=" + dUpload + ", status="
-				+ status + ", taskIdFather=" + taskIdFather + ", rub=" + rub + "]";
+				+ status + ", taskIdFather=" + taskIdFather + ", rub=" + rub + ", createdBy=" + createdBy
+				+ ", modifiedBy=" + modifiedBy + "]";
 	}
 
 	public String getTaskId() {
@@ -117,6 +122,22 @@ public class TaskBean {
 
 	public void setRub(RouteUserBean rub) {
 		this.rub = rub;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
 	}
 	
 }
