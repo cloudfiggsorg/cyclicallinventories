@@ -26,8 +26,8 @@ import com.gmodelo.utils.ReturnValues;
 public class RouteDao {
 
 	private Logger log = Logger.getLogger(RouteDao.class.getName());
-	private UMEDaoE ume = new UMEDaoE();
-	private User user = new User();
+	private UMEDaoE ume;  
+	private User user;  
 
 	private static final String GET_ROUTE_TYPE_BY_ID = "SELECT ROUTE_ID, ROU_DESC, ROU_TYPE FROM INV_ROUTE WITH(NOLOCK) WHERE ROUTE_ID = ?";
 
@@ -89,7 +89,8 @@ public class RouteDao {
 
 			routeBean.setRouteId(String.format("%08d", cs.getInt(1))); // addZeros
 			
-			user = new User();				
+			user = new User();	
+			ume = new UMEDaoE();
 			user.getEntity().setIdentyId(cs.getString(5));
 			ArrayList<User> ls = new ArrayList<>();
 			ls.add(user);
@@ -306,7 +307,8 @@ public class RouteDao {
 				routeBean.setBdesc(rs.getString(6));
 				routeBean.setWdesc(rs.getString(7));
 				
-				user = new User();				
+				user = new User();	
+				ume = new UMEDaoE();
 				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
 				ArrayList<User> ls = new ArrayList<>();
 				ls.add(user);

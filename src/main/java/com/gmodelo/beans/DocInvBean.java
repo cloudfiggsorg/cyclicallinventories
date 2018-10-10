@@ -13,6 +13,7 @@ public class DocInvBean {
 	String type;
 	String status;
 	String createdBy;
+	String modifiedBy;
 	Integer docFatherInvId;
 
 	List<DocInvPositionBean> docInvPositions;
@@ -89,6 +90,14 @@ public class DocInvBean {
 		this.createdBy = createdBy;
 	}
 
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
+
 	public Integer getDocFatherInvId() {
 		return docFatherInvId;
 	}
@@ -105,15 +114,8 @@ public class DocInvBean {
 		this.docInvPositions = docInvPositions;
 	}
 
-	@Override
-	public String toString() {
-		return "DocInvBean [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
-				+ ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy="
-				+ createdBy + ", docFatherInvId=" + docFatherInvId + ", docInvPositions=" + docInvPositions + "]";
-	}
-
 	public DocInvBean(Integer docInvId, String route, String bukrs, String bukrsD, String werks, String werksD,
-			String type, String status, String createdBy, Integer docFatherInvId,
+			String type, String status, String createdBy, String modifiedBy, Integer docFatherInvId,
 			List<DocInvPositionBean> docInvPositions) {
 		super();
 		this.docInvId = docInvId;
@@ -125,6 +127,7 @@ public class DocInvBean {
 		this.type = type;
 		this.status = status;
 		this.createdBy = createdBy;
+		this.modifiedBy = modifiedBy;
 		this.docFatherInvId = docFatherInvId;
 		this.docInvPositions = docInvPositions;
 	}
@@ -133,5 +136,15 @@ public class DocInvBean {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+
+	@Override
+	public String toString() {
+		return "DocInvBean [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
+				+ ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy="
+				+ createdBy + ", modifiedBy=" + modifiedBy + ", docFatherInvId=" + docFatherInvId + ", docInvPositions="
+				+ docInvPositions + "]";
+	}
+
+	
 
 }
