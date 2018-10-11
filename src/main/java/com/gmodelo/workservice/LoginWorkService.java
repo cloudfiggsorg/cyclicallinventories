@@ -44,20 +44,20 @@ public class LoginWorkService {
 			User user = new User();
 			UMEDaoE apiUME = new UMEDaoE();
 //			
-//			user.getEntity().setIdentyId(loginBean.getLoginId().trim());
-//			user.getAccInf().setPassword(loginBean.getLoginPass().trim());
-//			
-//			myLog.info("[login] Check if user exists in UME");
-//			// Check if user exists on UME or LDAP
-//			try {
-//				user = apiUME.checkUserUME(user);
-//				abstractResult.setResultId(ReturnValues.ISUCCESS);
-//			} catch (Exception e1) {
-//				user = null;
-//				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-//				myLog.log(Level.SEVERE, "Error al verificar usuario en UME", e1);
-//			}
-			if(true){ // si descomentan  UME (arriba) if va -> if(user == null)
+			user.getEntity().setIdentyId(loginBean.getLoginId().trim());
+			user.getAccInf().setPassword(loginBean.getLoginPass().trim());
+			
+			myLog.info("[login] Check if user exists in UME");
+			// Check if user exists on UME or LDAP
+			try {
+				user = apiUME.checkUserUME(user);
+				abstractResult.setResultId(ReturnValues.ISUCCESS);
+			} catch (Exception e1) {
+				user = null;
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				myLog.log(Level.SEVERE, "Error al verificar usuario en UME", e1);
+			}
+			if(user == null){ // si descomentan  UME (arriba) if va -> if(user == null) si no va en true
 				
 				try {
 					myLog.info("[login] Check if user exists on LDAP");
