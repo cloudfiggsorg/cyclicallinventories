@@ -94,6 +94,30 @@ public class DocInvWorkService {
 		}
 		return new DocInvDao().getDocInv(tb, searchFilter);
 	}
+	
+	@SuppressWarnings({ "rawtypes" })
+	public Response<List<DocInvBean>> getOnlyDocInv(Request request) {
+
+		log.info("[getOnlyDocInvWS] " + request.toString());
+		DocInvBean tb = null;
+		String searchFilter = null;
+		String req = request.getLsObject().toString().trim();
+
+		if (!req.isEmpty()) {
+			try {
+				tb = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+				log.info("[getOnlyDocInvWS] Fue Objeto: " + tb);
+			} catch (JsonSyntaxException e) {
+				searchFilter = request.getLsObject().toString().trim();
+				log.info("[getOnlyDocInvWS] jsyn Intentando por String ");
+			}
+		} else {
+			searchFilter = "";
+			log.info("[getOnlyDocInvWS] Fue cadena vacía ");
+
+		}
+		return new DocInvDao().getOnlyDocInv(tb, searchFilter);
+	}
 
 	@SuppressWarnings("rawtypes")
 	public Response conciDocInv(Request request, User user) {
