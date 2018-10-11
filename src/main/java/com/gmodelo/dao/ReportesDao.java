@@ -15,6 +15,10 @@ import java.util.logging.Logger;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ApegosBean;
+import com.gmodelo.beans.ConciliacionBean;
+import com.gmodelo.beans.ConciliationPositionBean;
+import com.gmodelo.beans.ReporteCalidadBean;
+import com.gmodelo.beans.ReporteCalidadConteosBean;
 import com.gmodelo.beans.ReporteConteosBean;
 import com.gmodelo.beans.ReporteDocInvBean;
 import com.gmodelo.beans.Response;
@@ -509,6 +513,176 @@ public class ReportesDao {
 		return res;
 	}
 	
+	public Response<List<ReporteCalidadBean>> getReporteCalidad(ReporteCalidadBean bean, String searchFilter) {
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+
+		Response<List<ReporteCalidadBean>> res = new Response<List<ReporteCalidadBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<ReporteCalidadBean> list = new ArrayList<ReporteCalidadBean>();
+		String INV_VW_REP = null;
+		int aux;		
+		String searchFilterNumber = "";
+		
+		try {
+			aux = Integer.parseInt(searchFilter); 
+			searchFilterNumber += aux;
+		} catch (Exception e) {
+			searchFilterNumber = searchFilter;
+			log.info("[getReporteCalidadDao] Trying to convert String to Int");
+		}		
+
+		INV_VW_REP = "SELECT TAS_DOC_INV_ID,TASK_ID, TAS_GROUP_ID, COU_USER_ID,TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE FROM INV_VW_REPORTE_CALIDAD_CABECERA WITH(NOLOCK) ";
+
+		if (searchFilter != null) {
+			INV_VW_REP += "WHERE TAS_GROUP_ID LIKE '%" + searchFilterNumber + "%' OR COU_USER_ID LIKE '%" + searchFilter + "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%' OR TAS_DOWLOAD_DATE LIKE '%" + searchFilter + "%' OR TAS_UPLOAD_DATE LIKE '%" + searchFilter + "%' ";
+		} else {
+			String condition = buildConditionCalidad(bean);
+			if (condition != null) {
+				INV_VW_REP += condition;
+			}
+		}
+		log.info(INV_VW_REP);
+		INV_VW_REP+= "GROUP BY TAS_DOC_INV_ID,TASK_ID, TAS_GROUP_ID, COU_USER_ID,TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE";
+		log.info("[getReporteCalidadDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_REP);
+
+			log.info("[getReporteCalidadDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+				
+				bean = new ReporteCalidadBean();
+				bean.setDocInvId(rs.getString("TAS_DOC_INV_ID"));
+				bean.setTaskId(rs.getString("TASK_ID"));
+				bean.setGroupId(rs.getString("TAS_GROUP_ID"));
+				bean.setUserId(rs.getString("COU_USER_ID"));
+				bean.setDateDowload(rs.getString("TAS_DOWLOAD_DATE"));
+				bean.setDateUpload(rs.getString("TAS_UPLOAD_DATE"));
+				bean.setConteos(this.getConteos(rs.getInt("TAS_DOC_INV_ID")));
+				list.add(bean);
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[getReporteCalidadDao] Sentence successfully executed.");
+		} catch (SQLException  e) {
+			log.log(Level.SEVERE,
+					"[getReporteCalidadDao] Some error occurred while was trying to execute the query: " + INV_VW_REP, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getReporteCalidadDao] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(list);
+		return res;
+	}
+	
+	private List<ReporteCalidadConteosBean> getConteos(int docInvId){
+		List<ReporteCalidadConteosBean> list = new ArrayList<>();
+		
+		ConciliacionBean docInvBean = new ConciliacionBean(); 
+		docInvBean.setDocInvId(docInvId);
+		ConciliacionDao dao = new ConciliacionDao();
+		List<ConciliationPositionBean> conteos = dao.getConciliationPositions(docInvBean);
+		
+		if(conteos.size()> 0){
+			for(int i=0; i<conteos.size(); i++){
+				ConciliationPositionBean row = conteos.get(i);
+				ReporteCalidadConteosBean bean = new ReporteCalidadConteosBean();
+				
+				bean.setZoneId(row.getZoneId());
+				bean.setZoneD(row.getZoneD());
+				bean.setMatnr(row.getMatnr());
+				bean.setMatnrD(row.getMatnrD());
+				bean.setLgpla(row.getLgpla());
+				bean.setMeasureUnit(row.getMeasureUnit());
+				
+				bean.setCount1A(row.getCount1A());
+				bean.setCount1B(row.getCount1B());
+				bean.setCount2(row.getCount2());
+				bean.setCount3(row.getCount3());
+				
+				String calidad = "-";
+				String count1A = bean.getCount1A() != null ? bean.getCount1A() : "";
+				String count1B = bean.getCount1B() != null ? bean.getCount1B() : "";
+				String count2 = bean.getCount2() != null ? bean.getCount2() : "";
+				
+				if(count1A.equalsIgnoreCase(count1B) && count1A.length() > 0 && count1B.length() > 0){
+					calidad = "1A-1B";
+				}else{
+					if(!count1A.equalsIgnoreCase(count1B) && count1A.equalsIgnoreCase(count2) && count1A.length() > 0 && count2.length() > 0){
+						calidad = "1A";
+					}else{
+						if(!count1A.equalsIgnoreCase(count1B) && count1B.equalsIgnoreCase(count2) && count1B.length() > 0 && count2.length() >0){
+							calidad = "1B";
+						}	
+					} 
+				} 
+							
+				bean.setCalidad(calidad);
+				list.add(bean);
+			}
+		}
+		
+		return list;
+	}
+	
+	private String buildConditionCalidad(ReporteCalidadBean bean) {
+		String docInvId = "";
+		String taskId = "";
+		String groupId = "";
+		String user = "";
+		String dowload = "";
+		String upload = "";
+		
+		String condition = "";
+		
+		docInvId = (bean.getDocInvId() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + bean.getDocInvId() + "' "
+				: "";
+		condition += docInvId;
+		taskId = (bean.getTaskId() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS = '" + bean.getTaskId() + "' " : "";
+		condition += taskId;
+		groupId = (bean.getGroupId() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + bean.getGroupId() + "' " : "";
+		condition += groupId;
+		user = (bean.getUserId() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + bean.getUserId() + "' " : "";
+		condition += user;
+		dowload = (bean.getDateDowload() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " USER_COUNT = '" + bean.getDateDowload() + "' " : "";
+		condition += dowload;
+		upload = (bean.getDateUpload() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DOC_INV_ID = '" + bean.getDateUpload() + "' " : "";
+		condition += upload;
+				
+		condition = condition.isEmpty() ? null : condition;
+		return condition;
+	}
+
 	private String buildConditionApegos(ApegosBean apegosB) {
 		String routeId = "";
 		String bukrs = "";
@@ -723,4 +897,16 @@ public class ReportesDao {
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
+	
+	/*
+	public static void main(String args[]){
+		ReportesDao dao = new ReportesDao();
+		ReporteCalidadBean bean = new ReporteCalidadBean();
+		String searchFilter = "";
+		Response<List<ReporteCalidadBean>> x = dao.getReporteCalidad(bean, searchFilter);
+		for(int i = 0;i < x.getLsObject().size();i++){
+			System.out.println(x.getLsObject().get(i));
+		}
+	}
+	*/
 }

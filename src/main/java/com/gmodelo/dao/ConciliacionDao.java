@@ -164,7 +164,7 @@ public class ConciliacionDao {
 	private static final String INV_DOC_CHILDREN = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_FATHER_INV_ID = ? ";
 
 	@SuppressWarnings("rawtypes")
-	private List<ConciliationPositionBean> getConciliationPositions(ConciliacionBean docInvBean) {
+	public List<ConciliationPositionBean> getConciliationPositions(ConciliacionBean docInvBean) {
 		Connection con = new ConnectionManager().createConnection();
 		PreparedStatement stm = null;
 		ResultSet rs = null;
@@ -738,11 +738,17 @@ public class ConciliacionDao {
 	}
 
 	/*
-	 * public static void main(String args[]){ ConciliacionDao dao = new
-	 * ConciliacionDao(); ConciliacionBean docInvBean = new ConciliacionBean();
-	 * // docInvBean.setDocInvId(3); String searchFilter = "";
-	 * Response<List<ConciliacionBean>> x = dao.getConciliacion(docInvBean,
-	 * searchFilter); for(int i=0; i < x.getLsObject().size(); i++){
-	 * System.out.println(x.getLsObject().get(i).toString()); } }
+	  public static void main(String args[]){ 
+		  ConciliacionDao dao = new ConciliacionDao(); 
+		  ConciliacionBean docInvBean = new ConciliacionBean();
+		 
+		 docInvBean.setDocInvId(22); 
+		 String searchFilter = "";
+		 List<ConciliationPositionBean> x = dao.getConciliationPositions(docInvBean);
+		  //Response<List<ConciliacionBean>> x = dao.getConciliacion(docInvBean,searchFilter ); 
+		  for(int i=0; i < x.size(); i++){
+			  System.out.println(x.get(i).toString());
+		  } 
+	  }
 	 */
 }

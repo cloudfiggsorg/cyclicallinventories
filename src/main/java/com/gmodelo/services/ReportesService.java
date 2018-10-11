@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.gmodelo.beans.ApegosBean;
+import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteConteosBean;
 import com.gmodelo.beans.ReporteDocInvBean;
 import com.gmodelo.beans.Request;
@@ -64,5 +65,13 @@ public class ReportesService {
 	@Path("/getReporteTareasTiemposZonas")
 	public Response<List<TareasTiemposZonasBean>> getReporteTareasTiemposZonas(Request request) {
 		return new ReportesWorkService().getReporteTiemposTareasZonas(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getReporteCalidad")
+	public Response<List<ReporteCalidadBean>> getReporteCalidad(Request request) {
+		return new ReportesWorkService().getReporteCalidad(request);
 	}
 }
