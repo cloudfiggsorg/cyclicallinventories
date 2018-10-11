@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.gmodelo.beans.ApegosBean;
+import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteConteosBean;
 import com.gmodelo.beans.ReporteDocInvBean;
 import com.gmodelo.beans.Request;
@@ -20,7 +21,7 @@ public class ReportesWorkService {
 	Gson gson = new Gson();
 	
 	public Response<List<ApegosBean>> getReporteApegos(Request request) {
-		log.info("[getReporteApegosService] " + request.toString());
+		log.info("[getReporteApegosWorkService] " + request.toString());
 		ApegosBean apegosBean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
@@ -42,7 +43,7 @@ public class ReportesWorkService {
 
 	public Response<List<ReporteConteosBean>> getReporteConteos(Request request) {
 		
-		log.info("[getReporteConteosService] " + request.toString());
+		log.info("[getReporteConteosWorkService] " + request.toString());
 		ReporteConteosBean bean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
@@ -64,7 +65,7 @@ public class ReportesWorkService {
 	}
 	
 	public Response<List<ReporteDocInvBean>> getReporteDocInv(Request request) {
-		log.info("[getReporteDocInvService] " + request.toString());
+		log.info("[getReporteDocInvWorkService] " + request.toString());
 		ReporteDocInvBean bean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
@@ -85,7 +86,7 @@ public class ReportesWorkService {
 	}
 
 	public Response<List<TareasTiemposLgplaBean>> getReporteTiemposTareasLgpla(Request request) {
-		log.info("[getReporteTiemposTareasService] " + request.toString());
+		log.info("[getReporteTiemposTareasWorkService] " + request.toString());
 		TareasTiemposLgplaBean tareasBean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
@@ -106,7 +107,7 @@ public class ReportesWorkService {
 	}
 	
 	public Response<List<TareasTiemposZonasBean>> getReporteTiemposTareasZonas(Request request) {
-		log.info("[getReporteTiemposTareasZonasService] " + request.toString());
+		log.info("[getReporteTiemposTareasZonasWorkService] " + request.toString());
 		TareasTiemposZonasBean tareasBean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
@@ -124,5 +125,26 @@ public class ReportesWorkService {
 		}
 
 		return new ReportesDao().getReporteTareasTiemposZonas(tareasBean, searchFilter);
+	}
+
+	public Response<List<ReporteCalidadBean>> getReporteCalidad(Request request) {
+		log.info("[getReporteCalidadWorkService] " + request.toString());
+		ReporteCalidadBean bean = null;
+		String searchFilter = null;
+		String req = request.getLsObject().toString().trim();
+		if (!req.isEmpty()) {
+			try {
+				bean = gson.fromJson(gson.toJson(request.getLsObject()), ReporteCalidadBean.class);
+
+				log.info("Fue objeto");
+			} catch (JsonSyntaxException e) {
+				searchFilter = request.getLsObject().toString();
+				log.info("Fue cadena");
+			}
+		} else {
+			searchFilter = "";
+		}
+
+		return new ReportesDao().getReporteCalidad(bean, searchFilter);
 	}
 }
