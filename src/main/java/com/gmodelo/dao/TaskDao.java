@@ -234,37 +234,8 @@ public class TaskDao {
 					taskBean.setTaskIdFather(null);
 				}
 				
-				user = new User();				
-				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
-				ArrayList<User> ls = new ArrayList<>();
-				ls.add(user);
-				ls = ume.getUsersLDAPByCredentials(ls);
-				
-				if(ls.size() > 0){
-					
-					taskBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-				}else{
-					taskBean.setCreatedBy(rs.getString("CREATED_BY"));
-				}
-				
-				
-				try {
-					
-					user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
-					ls = new ArrayList<>();
-					ls.add(user);
-					ls = ume.getUsersLDAPByCredentials(ls);
-					
-					if(ls.size() > 0){
-						
-						taskBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-					}else{
-						taskBean.setModifiedBy(rs.getString("MODIFIED_BY"));
-					}					
-				} catch (Exception e) {
-					taskBean.setCreatedBy(null);
-				}				
-				
+				taskBean.setCreatedBy(rs.getString("CREATED_BY"));
+				taskBean.setModifiedBy(rs.getString("MODIFIED_BY"));
 				listTaskBean.add(taskBean);
 			}
 
@@ -279,7 +250,7 @@ public class TaskDao {
 			rs.close();
 			stm.close();
 			log.info("[getTasksbyBukrsAndWerksDao] Sentence successfully executed.");
-		} catch (SQLException | NamingException e) {
+		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getTasksbyBukrsAndWerksDao] Some error occurred while was trying to execute the query: " + INV_VW_TASK, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
@@ -306,25 +277,16 @@ public class TaskDao {
 		Response<List<TaskBean>> res = new Response<List<TaskBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TaskBean> listTaskBean = new ArrayList<TaskBean>();
-		String INV_VW_TASK = null;
-		int aux;		
-		String searchFilterNumber = "";
-		DocInvDao didao = new DocInvDao();
-		try {
-			aux = Integer.parseInt(searchFilter); 
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("[getTaskDao] Trying to convert String to Int");
-		}		
+		String INV_VW_TASK = null;		
+		DocInvDao didao = new DocInvDao();				
 
 		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, "
-				+ "TAS_STATUS, TASK_ID_PARENT FROM INV_VW_TASK WITH(NOLOCK) ";
+				+ "TAS_STATUS, TASK_ID_PARENT, CREATED_BY, MODIFIED_BY FROM INV_VW_TASK WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
 
-			INV_VW_TASK += "WHERE TASK_ID LIKE '%" + searchFilterNumber + "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%' ";			
+			INV_VW_TASK += "WHERE TASK_ID LIKE '%" + searchFilter + "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%' ";			
 		} else {
 			String condition = buildCondition(taskBean);
 			if (condition != null) {
@@ -333,7 +295,7 @@ public class TaskDao {
 		}
 		INV_VW_TASK += " AND TASK_ID_PARENT IS NULL GROUP BY TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, " 
-				+ "TAS_STATUS, TASK_ID_PARENT " 
+				+ "TAS_STATUS, TASK_ID_PARENT, CREATED_BY, MODIFIED_BY " 
 				+ "ORDER BY TASK_ID ASC";
 		
 		log.info(INV_VW_TASK);
@@ -344,17 +306,69 @@ public class TaskDao {
 			log.info("[getTaskDao] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
+			ume = new UMEDaoE();
 
 			while (rs.next()) {
 				taskBean = new TaskBean();
 				taskBean.setTaskId(rs.getString("TASK_ID"));
 				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));
 				taskBean.setDocInvId(didao.getDocInvById(rs.getInt("TAS_DOC_INV_ID")));
-				taskBean.setdCreated(rs.getDate("AS_CREATED_DATE").getTime());
-				taskBean.setdDownlad(rs.getDate("TAS_DOWLOAD_DATE").getTime());
-				taskBean.setdUpload(rs.getDate("TAS_UPLOAD_DATE").getTime());
-				taskBean.setStatus(rs.getBoolean("TAS_STATUS"));
+				try {
+					taskBean.setdCreated(rs.getDate("AS_CREATED_DATE").getTime());
+				} catch (Exception e) {
+					taskBean.setdCreated(0);
+				}
+				
+				try {
+					taskBean.setdDownlad(rs.getDate("TAS_DOWLOAD_DATE").getTime());
+				} catch (Exception e) {
+					taskBean.setdDownlad(0);
+				}
+				
+				try {
+					taskBean.setdUpload(rs.getDate("TAS_UPLOAD_DATE").getTime());
+				} catch (Exception e) {
+					taskBean.setdUpload(0);
+				}
+				
+				try {
+					taskBean.setStatus(rs.getString("TAS_STATUS").equals("1")?true:false);
+				} catch (Exception e) {
+					taskBean.setStatus(false);
+				}
+				
 				taskBean.setTaskIdFather(rs.getString("TASK_ID_PARENT"));
+				
+				user = new User();				
+				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
+				ArrayList<User> ls = new ArrayList<>();
+				ls.add(user);
+				ls = ume.getUsersLDAPByCredentials(ls);
+				
+				if(ls.size() > 0){
+					
+					taskBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+				}else{
+					taskBean.setCreatedBy(rs.getString("CREATED_BY"));
+				}				
+				
+				try {
+					
+					user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
+					ls = new ArrayList<>();
+					ls.add(user);
+					ls = ume.getUsersLDAPByCredentials(ls);
+					
+					if(ls.size() > 0){
+						
+						taskBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+					}else{
+						taskBean.setModifiedBy(rs.getString("MODIFIED_BY"));
+					}					
+				} catch (Exception e) {
+					taskBean.setCreatedBy(null);
+				}	
+				
 				listTaskBean.add(taskBean);
 			}
 
@@ -369,7 +383,7 @@ public class TaskDao {
 			rs.close();
 			stm.close();
 			log.info("[getTaskDao] Sentence successfully executed.");
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			log.log(Level.SEVERE,"[getTaskDao] Some error occurred while was trying to execute the query: " + INV_VW_TASK, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
