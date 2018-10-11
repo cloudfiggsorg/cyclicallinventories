@@ -42,16 +42,17 @@ public class GroupDao {
 		try {
 			cs = con.prepareCall(INV_SP_ADD_GROUP);
 			
-			cs.setString(1,groupBean.getGroupId());
-			
-			cs.setString(2,groupBean.getGdesc());
-			
+			cs.setString(1, groupBean.getGroupId());			
+			cs.setString(2, groupBean.getGdesc());			
 			cs.setString(3, createdBy);
+			
+			cs.registerOutParameter(1, Types.VARCHAR);
 			log.info("[addGroup] Executing query...");
 			
-			 cs.execute();
+			cs.execute();
+			groupBean.setGroupId(cs.getString(1));
+			abstractResult.setResultId(ReturnValues.ISUCCESS);
 			
-			 abstractResult.setResultId(ReturnValues.ISUCCESS);
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
@@ -63,7 +64,6 @@ public class GroupDao {
 			cs.close();	
 			
 			log.info("[addGroup] Sentence successfully executed.");
-			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[addGroup] Some error occurred while was trying to execute the S.P.: "+INV_SP_ADD_GROUP, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -79,6 +79,7 @@ public class GroupDao {
 		}
 	
 		res.setAbstractResult(abstractResult);
+		res.setLsObject(groupBean);
 		return res ;
 	}
 

@@ -1,5 +1,7 @@
 package com.gmodelo.beans;
 
+import java.util.List;
+
 public class DocInvBean {
 
 	Integer docInvId;
@@ -11,19 +13,10 @@ public class DocInvBean {
 	String type;
 	String status;
 	String createdBy;
+	String modifiedBy;
 	Integer docFatherInvId;
 
-	public DocInvBean() {
-		super();
-	}
-
-	public Integer getDocFatherInvId() {
-		return docFatherInvId;
-	}
-
-	public void setDocFatherInvId(Integer docFatherInvId) {
-		this.docFatherInvId = docFatherInvId;
-	}
+	List<DocInvPositionBean> docInvPositions;
 
 	public Integer getDocInvId() {
 		return docInvId;
@@ -97,8 +90,33 @@ public class DocInvBean {
 		this.createdBy = createdBy;
 	}
 
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
+
+	public Integer getDocFatherInvId() {
+		return docFatherInvId;
+	}
+
+	public void setDocFatherInvId(Integer docFatherInvId) {
+		this.docFatherInvId = docFatherInvId;
+	}
+
+	public List<DocInvPositionBean> getDocInvPositions() {
+		return docInvPositions;
+	}
+
+	public void setDocInvPositions(List<DocInvPositionBean> docInvPositions) {
+		this.docInvPositions = docInvPositions;
+	}
+
 	public DocInvBean(Integer docInvId, String route, String bukrs, String bukrsD, String werks, String werksD,
-			String type, String status, String createdBy, Integer docFatherInvId) {
+			String type, String status, String createdBy, String modifiedBy, Integer docFatherInvId,
+			List<DocInvPositionBean> docInvPositions) {
 		super();
 		this.docInvId = docInvId;
 		this.route = route;
@@ -109,14 +127,24 @@ public class DocInvBean {
 		this.type = type;
 		this.status = status;
 		this.createdBy = createdBy;
+		this.modifiedBy = modifiedBy;
 		this.docFatherInvId = docFatherInvId;
+		this.docInvPositions = docInvPositions;
+	}
+
+	public DocInvBean() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public String toString() {
 		return "DocInvBean [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
 				+ ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy="
-				+ createdBy + ", docFatherInvId=" + docFatherInvId + "]";
+				+ createdBy + ", modifiedBy=" + modifiedBy + ", docFatherInvId=" + docFatherInvId + ", docInvPositions="
+				+ docInvPositions + "]";
 	}
+
+	
 
 }

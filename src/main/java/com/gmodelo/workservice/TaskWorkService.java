@@ -63,7 +63,6 @@ public class TaskWorkService {
 			if (taskBean.getRub() != null) {
 				log.log(Level.WARNING, "[addTaskWS] Ingreso con JSON " + taskBean.toString());
 				TaskBean subBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
-				;
 				subBean.setRub(null);
 				res = new TaskDao().addTask(subBean, user.getEntity().getIdentyId());
 				if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {

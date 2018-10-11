@@ -12,8 +12,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.NamingException;
+
+import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -21,6 +25,8 @@ import com.gmodelo.utils.ReturnValues;
 public class DocInvDao {
 
 	private Logger log = Logger.getLogger(DocInvDao.class.getName());
+	private UMEDaoE ume;  
+	private User user; 
 
 	public Response<DocInvBean> addDocInv(DocInvBean docInvBean, String createdBy) {
 		Response<DocInvBean> res = new Response<>();
@@ -48,7 +54,7 @@ public class DocInvDao {
 			}
 			cs.setString(6, createdBy);
 
-			if (docInvBean.getDocFatherInvId() != null) {
+			if (docInvBean.getDocInvId() != null) {
 				cs.setInt(7, docInvBean.getDocInvId());
 			} else {
 				cs.setNull(7, Types.BIGINT);
@@ -99,7 +105,9 @@ public class DocInvDao {
 		res.setLsObject(docInvBean);
 		return res;
 	}
-
+	
+	
+	
 	public Response<Object> deleteDocInvId(String arrayIdDocInv) {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -161,7 +169,7 @@ public class DocInvDao {
 			log.info("Is String");
 		}
 
-		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)";
+		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION, CREATED_BY, MODIFIED_BY FROM INV_VW_DOC_INV WITH(NOLOCK)";
 		if (searchFilter != null) {
 			INV_VW_DOC_INV += " WHERE TYPE != '3' AND DOC_INV_ID LIKE '%" + searchFilterNumber
 					+ "%' OR ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' "
@@ -174,16 +182,17 @@ public class DocInvDao {
 		}
 
 		log.info(INV_VW_DOC_INV);
-		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";
+		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION, CREATED_BY, MODIFIED_BY";
 		log.info("[getDocInvDao] Preparing sentence...");
 
 		try {
 			stm = con.prepareCall(INV_VW_DOC_INV);
 			log.info("[getDocInvDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
+			ume = new UMEDaoE();
 			while (rs.next()) {
+				
 				docInvBean = new DocInvBean();
-				System.out.println("**********************HERE**********************");
 				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
@@ -192,6 +201,32 @@ public class DocInvDao {
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setType(rs.getString("TYPE"));
 				docInvBean.setStatus(rs.getString("STATUS"));
+				
+				user = new User();	
+				
+				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
+				ArrayList<User> ls = new ArrayList<>();
+				ls.add(user);
+				ls = ume.getUsersLDAPByCredentials(ls);
+				
+				if(ls.size() > 0){
+					
+					docInvBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+				}else{
+					docInvBean.setCreatedBy(rs.getString("CREATED_BY"));
+				}
+				
+				user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
+				ls = new ArrayList<>();
+				ls.add(user);
+				ls = ume.getUsersLDAPByCredentials(ls);
+				
+				if(ls.size() > 0){
+					
+					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+				}else{
+					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY"));
+				}
 				listDocInv.add(docInvBean);
 			}
 
@@ -208,7 +243,7 @@ public class DocInvDao {
 
 			log.info("[getDocInvDao] Sentence successfully executed.");
 
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			log.log(Level.SEVERE,
 					"[getDocInvDao] Some error occurred while was trying to execute the query: " + INV_VW_DOC_INV, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -292,12 +327,10 @@ public class DocInvDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		;
 		Connection con = iConnectionManager.createConnection();
-		int res = 0;
 		String UPDATE = "UPDATE INV_DOC_INVENTORY_HEADER SET DIH_STATUS='1' WHERE DOC_INV_ID=?";
 		try {
 			PreparedStatement stm = con.prepareStatement(UPDATE);
 			stm.setInt(1, i);
-			res = stm.executeUpdate();
 		} catch (SQLException e) {
 			try {
 				con.close();
@@ -339,4 +372,25 @@ public class DocInvDao {
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}
+
+	private static final String INSERT_DOCUMENT_INVENTORY_POSITIONS = "INSERT INTO INV_DOC_INVENTORY_POSITIONS "
+			+ " (DIP_DOC_INV_ID,DIP_LGORT,DIP_LGTYP,DIP_LGPLA,DIP_MATNR,DIP_COUNTED) VALUES (?,?,?,?,?,?)";
+
+	public AbstractResultsBean addDocumentPosition(List<DocInvPositionBean> positionBean, Connection con)
+			throws SQLException {
+		AbstractResultsBean resultBean = new AbstractResultsBean();
+		PreparedStatement stm = con.prepareStatement(INSERT_DOCUMENT_INVENTORY_POSITIONS);
+		for (DocInvPositionBean singleBean : positionBean) {
+			stm.setInt(1, singleBean.getDocInvId());
+			stm.setString(2, singleBean.getLgort());
+			stm.setString(3, singleBean.getLgtyp());
+			stm.setString(4, singleBean.getLgpla());
+			stm.setString(5, singleBean.getMatnr());
+			stm.setString(6, singleBean.getCounted());
+			stm.addBatch();
+		}
+		stm.executeBatch();
+		return resultBean;
+	}
+
 }
