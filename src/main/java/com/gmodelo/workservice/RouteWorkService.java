@@ -239,7 +239,7 @@ public class RouteWorkService {
 				} else {
 					result.setResultId(ReturnValues.IUSERNOTTASK);
 					result.setResultMsgAbs(
-							"Tarea no encontrada para el usuario: " + request.getTokenObject().getLoginId());
+							"Tarea no generada para el usuario: " + request.getTokenObject().getLoginId() + " \n Ya que no cuenta con conteos diarios definidos");
 				}
 			}
 		} catch (Exception e) {
