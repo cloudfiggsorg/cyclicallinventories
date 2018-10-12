@@ -20,16 +20,21 @@ import com.gmodelo.beans.Response;
 import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteGroupBean;
 import com.gmodelo.beans.RoutePositionBean;
+import com.gmodelo.beans.TaskBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
 public class RouteDao {
 
 	private Logger log = Logger.getLogger(RouteDao.class.getName());
-	private UMEDaoE ume;  
-	private User user;  
+	private UMEDaoE ume;
+	private User user;
 
 	private static final String GET_ROUTE_TYPE_BY_ID = "SELECT ROUTE_ID, ROU_DESC, ROU_TYPE FROM INV_ROUTE WITH(NOLOCK) WHERE ROUTE_ID = ?";
+	private static final String CHECK_EXISTING_GROUP = "SELECT COUNT(*) AS TOTAL  FROM INV_ROUTE_GROUPS WHERE RGR_ROUTE_ID = ? AND RGR_COUNT_NUM = ?";
+	private static final String RECOVER_EXISTING_PK_ASG_ID = "SELECT PK_ASG_ID, RGR_ROUTE_ID, RGR_GROUP_ID, RGR_COUNT_NUM FROM INV_ROUTE_GROUPS WITH(NOLOCK)"
+			+ " WHERE RGR_ROUTE_ID = ? AND RGR_COUNT_NUM = ?";
+	private static final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?";
 
 	public RouteBean getRouteTypeById(String routeId, Connection con) throws SQLException {
 		PreparedStatement stm = con.prepareStatement(GET_ROUTE_TYPE_BY_ID);
@@ -49,11 +54,11 @@ public class RouteDao {
 		Response<RouteBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
-		final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?, ?"; 		
-		final String INV_SP_DEL_ROUTE_POSITION = "INV_SP_DEL_ROUTE_POSITION ?";				
+		final String INV_SP_ADD_ROUTE = "INV_SP_ADD_ROUTE ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_DEL_ROUTE_POSITION = "INV_SP_DEL_ROUTE_POSITION ?";
 		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?";
 		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?";
-		final String INV_SP_ASSIGN_GROUP_TO_ROUTE = "INV_SP_ASSIGN_GROUP_TO_ROUTE ?, ?, ?, ?, ?";
+
 		int routeId = 0;
 
 		try {
@@ -88,38 +93,40 @@ public class RouteDao {
 			cs.execute();
 
 			routeBean.setRouteId(String.format("%08d", cs.getInt(1))); // addZeros
-			
-			user = new User();	
+
+			user = new User();
 			ume = new UMEDaoE();
 			user.getEntity().setIdentyId(cs.getString(5));
 			ArrayList<User> ls = new ArrayList<>();
 			ls.add(user);
 			ls = ume.getUsersLDAPByCredentials(ls);
-			
-			if(ls.size() > 0){
-				
-				routeBean.setCreatedBy(cs.getString(5) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-			}else{
+
+			if (ls.size() > 0) {
+
+				routeBean.setCreatedBy(cs.getString(5) + " - " + ls.get(0).getGenInf().getName() + " "
+						+ ls.get(0).getGenInf().getLastName());
+			} else {
 				routeBean.setCreatedBy(cs.getString(5));
 			}
-			
+
 			user.getEntity().setIdentyId(cs.getString(6));
 			ls = new ArrayList<>();
 			ls.add(user);
 			ls = ume.getUsersLDAPByCredentials(ls);
-			
-			if(ls.size() > 0){
-				
-				routeBean.setModifiedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-			}else{
+
+			if (ls.size() > 0) {
+
+				routeBean.setModifiedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " "
+						+ ls.get(0).getGenInf().getLastName());
+			} else {
 				routeBean.setModifiedBy(cs.getString(6));
 			}
-						
+
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_ROUTE_POSITION);
-			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));			
+			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));
 			cs.execute();
-			
+
 			// INSERTAR POSICIONES
 			for (int i = 0; i < routeBean.getPositions().size(); i++) {
 
@@ -136,7 +143,7 @@ public class RouteDao {
 				cs.execute();
 				routeBean.getPositions().get(i).setPositionId(cs.getInt(2));
 			}
-			
+
 			cs = null;
 			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_ROUTE);
 			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));
@@ -197,6 +204,67 @@ public class RouteDao {
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(routeBean);
 		return res;
+	}
+
+	public AbstractResultsBean assingRecountGroup(TaskBean task, User user) {
+		AbstractResultsBean result = new AbstractResultsBean();
+		Connection con = new ConnectionManager().createConnection();
+		try {
+			PreparedStatement stm = con.prepareStatement(CHECK_EXISTING_GROUP);
+			CallableStatement cs = con.prepareCall(INV_SP_ASSIGN_GROUP_TO_ROUTE);
+			stm.setString(1, task.getRub().getRouteId());
+			stm.setString(2, task.getRecount());
+			log.info("[assingRecountGroup] Excecuting Sentence" + CHECK_EXISTING_GROUP);
+			ResultSet rs = stm.executeQuery();
+			log.info("[assingRecountGroup] Sentence successfully executed.");
+			boolean execute = false;
+			if (rs.next()) {
+				if (rs.getInt("TOTAL") > 0) {
+					log.info("[assingRecountGroup] Existing count group executed.");
+					stm = con.prepareStatement(RECOVER_EXISTING_PK_ASG_ID);
+					stm.setString(1, task.getRub().getRouteId());
+					stm.setString(2, task.getRecount());
+					log.info("[assingRecountGroup] Executing Sentence" + CHECK_EXISTING_GROUP);
+					rs = stm.executeQuery();
+					log.info("[assingRecountGroup] Sentence successfully executed.");
+					if (rs.next()) {
+						cs.setString(1, task.getRub().getRouteId());
+						cs.setString(2, task.getGroupId());
+						cs.setString(3, task.getRecount());
+						cs.setString(4, user.getEntity().getIdentyId());
+						cs.setInt(5, rs.getInt("PK_ASG_ID"));
+						execute = true;
+					}
+				} else {
+					log.info("[assingRecountGroup] Unexisting count group executed.");
+					cs.setString(1, task.getRub().getRouteId());
+					cs.setString(2, task.getGroupId());
+					cs.setString(3, task.getRecount());
+					cs.setString(4, user.getEntity().getIdentyId());
+					cs.setInt(5, 0);
+					execute = true;
+				}
+
+				if (execute) {
+					log.info("[assingRecountGroup] Executing Sentence" + CHECK_EXISTING_GROUP);
+					cs.execute();
+					log.info("[assingRecountGroup] Sentence successfully executed.");
+				} else {
+					log.info("[assingRecountGroup] Sentence " + CHECK_EXISTING_GROUP + "not Executed Sentence");
+					result.setResultId(ReturnValues.IERROR);
+				}
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[assingRecountGroup] Some error occurred while Excecuting sentences:", e);
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE,
+						"[assingRecountGroup] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		return result;
 	}
 
 	public Response<Object> deleteRoute(String arrayIdRoutes) {
@@ -306,33 +374,35 @@ public class RouteDao {
 				routeBean.setType(rs.getString(5));
 				routeBean.setBdesc(rs.getString(6));
 				routeBean.setWdesc(rs.getString(7));
-				
-				user = new User();	
+
+				user = new User();
 				ume = new UMEDaoE();
 				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
 				ArrayList<User> ls = new ArrayList<>();
 				ls.add(user);
 				ls = ume.getUsersLDAPByCredentials(ls);
-				
-				if(ls.size() > 0){
-					
-					routeBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-				}else{
+
+				if (ls.size() > 0) {
+
+					routeBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
+							+ ls.get(0).getGenInf().getLastName());
+				} else {
 					routeBean.setCreatedBy(rs.getString("CREATED_BY"));
 				}
-				
+
 				user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
 				ls = new ArrayList<>();
 				ls.add(user);
 				ls = ume.getUsersLDAPByCredentials(ls);
-				
-				if(ls.size() > 0){
-					
-					routeBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-				}else{
+
+				if (ls.size() > 0) {
+
+					routeBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
+							+ ls.get(0).getGenInf().getLastName());
+				} else {
 					routeBean.setModifiedBy(rs.getString("MODIFIED_BY"));
 				}
-				
+
 				routeBean.setPositions(this.getPositions(rs.getString(1)));
 				routeBean.setGroups(this.getGroups(rs.getString(1)));
 
@@ -396,8 +466,7 @@ public class RouteDao {
 		if (searchFilter != null) {
 			INV_VW_ROUTES += "WHERE (ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter
 					+ "%') ";
-			INV_VW_ROUTES += "AND ROUTE_ID NOT IN (SELECT DIH_ROUTE_ID "
-					+ " FROM INV_DOC_INVENTORY_HEADER "
+			INV_VW_ROUTES += "AND ROUTE_ID NOT IN (SELECT DIH_ROUTE_ID " + " FROM INV_DOC_INVENTORY_HEADER "
 					+ " WHERE DIH_STATUS = '1') ";
 		} else {
 			String condition = buildCondition(routeBean);

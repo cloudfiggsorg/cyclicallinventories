@@ -1,9 +1,9 @@
 package com.gmodelo.beans;
 
 public class TaskBean {
-	
+
 	String taskId;
-	String groupId; 
+	String groupId;
 	DocInvBean docInvId;
 	String taskJSON;
 	long dCreated;
@@ -14,13 +14,11 @@ public class TaskBean {
 	RouteUserBean rub;
 	String createdBy;
 	String modifiedBy;
-	
-	public TaskBean(){		
-		super();		
-	}
+	String recount;
 
 	public TaskBean(String taskId, String groupId, DocInvBean docInvId, String taskJSON, long dCreated, long dDownlad,
-			long dUpload, boolean status, String taskIdFather, RouteUserBean rub, String createdBy, String modifiedBy) {
+			long dUpload, boolean status, String taskIdFather, RouteUserBean rub, String createdBy, String modifiedBy,
+			String recount) {
 		super();
 		this.taskId = taskId;
 		this.groupId = groupId;
@@ -34,6 +32,7 @@ public class TaskBean {
 		this.rub = rub;
 		this.createdBy = createdBy;
 		this.modifiedBy = modifiedBy;
+		this.recount = recount;
 	}
 
 	@Override
@@ -41,7 +40,11 @@ public class TaskBean {
 		return "TaskBean [taskId=" + taskId + ", groupId=" + groupId + ", docInvId=" + docInvId + ", taskJSON="
 				+ taskJSON + ", dCreated=" + dCreated + ", dDownlad=" + dDownlad + ", dUpload=" + dUpload + ", status="
 				+ status + ", taskIdFather=" + taskIdFather + ", rub=" + rub + ", createdBy=" + createdBy
-				+ ", modifiedBy=" + modifiedBy + "]";
+				+ ", modifiedBy=" + modifiedBy + ", recount=" + recount + "]";
+	}
+
+	public TaskBean() {
+		super();
 	}
 
 	public String getTaskId() {
@@ -139,5 +142,13 @@ public class TaskBean {
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
 	}
-	
+
+	public String getRecount() {
+		return recount;
+	}
+
+	public void setRecount(String recount) {
+		this.recount = recount;
+	}
+
 }

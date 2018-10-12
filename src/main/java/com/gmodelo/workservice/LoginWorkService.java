@@ -58,7 +58,7 @@ public class LoginWorkService {
 				myLog.log(Level.SEVERE, "Error al verificar usuario en UME", e1);
 			}
 			if(user == null){ // si descomentan  UME (arriba) if va -> if(user == null) si no va en true
-				
+				user = new User();
 				try {
 					myLog.info("[login] Check if user exists on LDAP");
 					

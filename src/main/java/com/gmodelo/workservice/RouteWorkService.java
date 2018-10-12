@@ -229,7 +229,7 @@ public class RouteWorkService {
 			if (routeResponse.getAbstractResult().getResultId() != ReturnValues.ISUCCESS) {
 				TaskUserDao taskUserDao = new TaskUserDao();
 				int resTask = taskUserDao.createAutoTask(request.getTokenObject().getLoginId());
-				if (resTask == 1) {
+				if (resTask == ReturnValues.ISUCCESS) {
 					routeResponse = new Gson().fromJson(getRoutesByUser(request), Response.class);
 					if (routeResponse.getAbstractResult().getResultId() != ReturnValues.ISUCCESS) {
 						result.setResultId(ReturnValues.IUSERNOTTASK);
@@ -238,8 +238,8 @@ public class RouteWorkService {
 					}
 				} else {
 					result.setResultId(ReturnValues.IUSERNOTTASK);
-					result.setResultMsgAbs(
-							"Tarea no encontrada para el usuario: " + request.getTokenObject().getLoginId());
+					result.setResultMsgAbs("Tarea no generada para el usuario: " + request.getTokenObject().getLoginId()
+							+ " \n Ya que no cuenta con conteos diarios definidos");
 				}
 			}
 		} catch (Exception e) {
