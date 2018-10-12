@@ -78,13 +78,15 @@ public class CountsDao {
 								cs.setString(3,
 										String.format("%018d", Integer.parseInt(entrada.getValue().getMatnr())));
 								cs.setString(4, entrada.getValue().getVhilm());
-								cs.setInt(5, entrada.getValue().getSec() != null ? entrada.getValue().getSec() : 0);
-								cs.setInt(6,
-										entrada.getValue().getTarimas() != null ? entrada.getValue().getTarimas() : 0);
-								cs.setInt(7, entrada.getValue().getCamas() != null ? entrada.getValue().getCamas() : 0);
-								cs.setInt(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : 0);
-								cs.setInt(9, entrada.getValue().getTotalConverted() != null
-										? entrada.getValue().getTotalConverted() : 0);
+								cs.setString(5,
+										entrada.getValue().getSec() != null ? entrada.getValue().getSec() : "0");
+								cs.setString(6, entrada.getValue().getTarimas() != null
+										? entrada.getValue().getTarimas() : "0");
+								cs.setString(7,
+										entrada.getValue().getCamas() != null ? entrada.getValue().getCamas() : "0");
+								cs.setString(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : "0");
+								cs.setString(9, entrada.getValue().getTotalConverted() != null
+										? entrada.getValue().getTotalConverted() : "0");
 								cs.setString(10, user);
 								cs.setLong(11, entrada.getValue().getDateStart());
 								cs.setLong(12, entrada.getValue().getDateEnd());
@@ -204,14 +206,16 @@ public class CountsDao {
 									cs.setString(3,
 											String.format("%018d", Integer.parseInt(entrada.getValue().getMatnr())));
 									cs.setString(4, entrada.getValue().getVhilm());
-									cs.setInt(5, entrada.getValue().getSec() != null ? entrada.getValue().getSec() : 0);
-									cs.setInt(6, entrada.getValue().getTarimas() != null
-											? entrada.getValue().getTarimas() : 0);
-									cs.setInt(7,
-											entrada.getValue().getCamas() != null ? entrada.getValue().getCamas() : 0);
-									cs.setInt(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : 0);
-									cs.setInt(9, entrada.getValue().getTotalConverted() != null
-											? entrada.getValue().getTotalConverted() : 0);
+									cs.setString(5,
+											entrada.getValue().getSec() != null ? entrada.getValue().getSec() : "0");
+									cs.setString(6, entrada.getValue().getTarimas() != null
+											? entrada.getValue().getTarimas() : "0");
+									cs.setString(7, entrada.getValue().getCamas() != null
+											? entrada.getValue().getCamas() : "0");
+									cs.setString(8,
+											entrada.getValue().getUm() != null ? entrada.getValue().getUm() : "0");
+									cs.setString(9, entrada.getValue().getTotalConverted() != null
+											? entrada.getValue().getTotalConverted() : "0");
 									cs.setString(10, user.getEntity().getIdentyId());
 									cs.setLong(11, entrada.getValue().getDateStart());
 									cs.setLong(12, entrada.getValue().getDateEnd());
