@@ -36,7 +36,7 @@ public class DocInvDao {
 		CallableStatement cs = null;
 		int docInvId = 0;
 
-		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?, ?, ?, ?";
 
 		log.info("[addDocInv] Preparing sentence...");
 		try {
@@ -52,26 +52,57 @@ public class DocInvDao {
 			} else {
 				cs.setString(5, docInvBean.getStatus());
 			}
+			
 			cs.setString(6, createdBy);
+			cs.setNull(7, Types.CHAR);
 
 			if (docInvBean.getDocInvId() != null) {
-				cs.setInt(7, docInvBean.getDocInvId());
-			} else {
-				cs.setNull(7, Types.BIGINT);
-			}
-
-			if (docInvBean.getDocFatherInvId() != null) {
-				cs.setInt(8, docInvBean.getDocFatherInvId());
+				cs.setInt(8, docInvBean.getDocInvId());
 			} else {
 				cs.setNull(8, Types.BIGINT);
 			}
 
-			cs.registerOutParameter(7, Types.INTEGER);
+			if (docInvBean.getDocFatherInvId() != null) {
+				cs.setInt(9, docInvBean.getDocFatherInvId());
+			} else {
+				cs.setNull(9, Types.BIGINT);
+			}
+
+			cs.registerOutParameter(6, Types.VARCHAR);
+			cs.registerOutParameter(7, Types.VARCHAR);
+			cs.registerOutParameter(8, Types.INTEGER);
 			log.info("[addDocInv] Executing query...");
 
 			cs.execute();
-			docInvId = cs.getInt(7);
-			docInvBean.setDocInvId(docInvId);
+			
+			user = new User();	
+			ume = new UMEDaoE();
+			user.getEntity().setIdentyId(cs.getString(6));
+			ArrayList<User> ls = new ArrayList<>();
+			ls.add(user);
+			ls = ume.getUsersLDAPByCredentials(ls);
+			
+			if(ls.size() > 0){
+				
+				docInvBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+			}else{
+				docInvBean.setCreatedBy(cs.getString(6));
+			}
+			
+			user.getEntity().setIdentyId(cs.getString(7));
+			ls = new ArrayList<>();
+			ls.add(user);
+			ls = ume.getUsersLDAPByCredentials(ls);
+			
+			if(ls.size() > 0){
+				
+				docInvBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+			}else{
+				docInvBean.setModifiedBy(cs.getString(7));
+			}
+			
+			docInvId = cs.getInt(8);
+			docInvBean.setDocInvId(docInvId);			
 
 			// Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -82,7 +113,7 @@ public class DocInvDao {
 			con.commit();
 			cs.close();
 			log.info("[addDocInv] Sentence successfully executed.");
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			try {
 				log.log(Level.WARNING, "[addDocInv] Execute rollback");
 				con.rollback();
