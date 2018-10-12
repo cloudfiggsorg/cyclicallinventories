@@ -14,17 +14,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 public class LgTypIMWorkService {
-	
+
 	private Logger log = Logger.getLogger(LgTypIMWorkService.class.getName());
 	Gson gson = new Gson();
 
 	public Response<LgTypIMBean> saveLgTypIM(Request request, User user) {
-		
+
 		log.info("[addLgTypWS] " + request.toString());
 		LgTypIMBean lgTypIMBean;
 		Response<LgTypIMBean> res = new Response<LgTypIMBean>();
-		
-		try {								
+
+		try {
 			lgTypIMBean = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIMBean.class);
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE, "[addLgTypWS] Error al pasar de Json a RouteBean");
@@ -39,9 +39,9 @@ public class LgTypIMWorkService {
 		return new LgTypIMDao().saveLgTypIM(lgTypIMBean, user.getEntity().getIdentyId());
 
 	}
-	
+
 	public Response<List<LgTypIMBean>> getLgTypsIM(Request request) {
-		
+
 		log.info("[getLgTypIMService] " + request.toString());
 		LgTypIMBean lgTypIMBean = null;
 		String searchFilter = null;
@@ -49,13 +49,11 @@ public class LgTypIMWorkService {
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
 			try {
-				
 				lgTypIMBean = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIMBean.class);
-
-				log.info("Fue objeto");
+				log.info("[getLgTypsIM] Fue objeto");
 			} catch (JsonSyntaxException e) {
 				searchFilter = request.getLsObject().toString();
-				log.info("Fue cadena");
+				log.info("[getLgTypsIM] Fue cadena");
 			}
 		} else {
 			searchFilter = "";
@@ -71,5 +69,5 @@ public class LgTypIMWorkService {
 		arrayToDelete = request.getLsObject().toString();
 		return new LgTypIMDao().deleteLgTypIM(arrayToDelete);
 	}
-	
+
 }

@@ -30,15 +30,31 @@ public class RouteUserDao {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-
+		PreparedStatement stm = null;
 		CallableStatement cs = null;
 		RouteUserBean routeBean = null;
 		final String INV_VW_ROUTES = "INV_SP_ROUTE_USER ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		log.info(INV_VW_ROUTES);
 		log.info("[getRoutesByUserDao] Preparing sentence...");
 		try {
-			cs = con.prepareCall(INV_VW_ROUTES);
+			stm = con.prepareStatement(INV_LAST_GENERATED_ROUTE);
+			stm.setString(1, user.getEntity().getIdentyId());
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) {
+				routeBean = new RouteUserBean();
+				routeBean.setRouteId(rs.getString("ROUTE_ID"));
+				routeBean.setBukrs(rs.getString("BUKRS"));
+				routeBean.setWerks(rs.getString("WERKS"));
+				routeBean.setRdesc(rs.getString("RDESC"));
+				routeBean.setType(rs.getString("RTYPE"));
+				routeBean.setBdesc(rs.getString("BDESC"));
+				routeBean.setWdesc(rs.getString("WDESC"));
+				routeBean.setTaskId(rs.getString("TASK_ID"));
+				TaskDao task = new TaskDao();
+				routeBean.setDateIni(task.updateDowloadTask(routeBean.getTaskId()));
+			}
 
+			cs = con.prepareCall(INV_VW_ROUTES);
 			cs.setString(1, user.getEntity().getIdentyId());
 			cs.registerOutParameter(2, Types.VARCHAR); // routeId
 			cs.registerOutParameter(3, Types.VARCHAR); // bukrs
@@ -64,6 +80,7 @@ public class RouteUserDao {
 				routeBean.setTaskId(cs.getString(9));
 				TaskDao task = new TaskDao();
 				routeBean.setDateIni(task.updateDowloadTask(cs.getString(9)));
+				//
 				// routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
 			} else {
 				routeBean = null;
@@ -100,50 +117,38 @@ public class RouteUserDao {
 		return reconteo;
 	}
 
+	public static String INV_LAST_GENERATED_ROUTE = "SELECT TOP 1 ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID, MAX(TAS_CREATED_DATE) AS LAST_DATE "
+			+ " FROM dbo.INV_VW_TASK_ROUTES_USER WITH(NOLOCK)  WHERE USER_ID = ? "
+			+ " GROUP BY ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID";
+
 	public RouteUserBean getRoutesByUser(String user) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-
-		CallableStatement cs = null;
+		PreparedStatement stm = null;
 		RouteUserBean routeBean = null;
-		final String INV_VW_ROUTES = "INV_SP_ROUTE_USER ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
-		log.info(INV_VW_ROUTES);
+		log.info(INV_LAST_GENERATED_ROUTE);
 		log.info("[getRoutesByUserDao] Preparing sentence...");
 		try {
-			cs = con.prepareCall(INV_VW_ROUTES);
-
-			cs.setString(1, user);
-			cs.registerOutParameter(2, Types.VARCHAR); // routeId
-			cs.registerOutParameter(3, Types.VARCHAR); // bukrs
-			cs.registerOutParameter(4, Types.VARCHAR); // werks
-			cs.registerOutParameter(5, Types.VARCHAR); // rdesc
-			cs.registerOutParameter(6, Types.VARCHAR); // rtype
-			cs.registerOutParameter(7, Types.VARCHAR); // bdesc
-			cs.registerOutParameter(8, Types.VARCHAR); // wdesc
-			cs.registerOutParameter(9, Types.VARCHAR); // taskId
-			cs.registerOutParameter(10, Types.INTEGER); // return
-
-			log.info("[getRoutesByUserDao] Executing query...");
-			cs.execute();
-			if (cs.getInt(10) == 1) {
+			stm = con.prepareStatement(INV_LAST_GENERATED_ROUTE);
+			stm.setString(1, user);
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) {
 				routeBean = new RouteUserBean();
-				routeBean.setRouteId(cs.getString(2));
-				routeBean.setBukrs(cs.getString(3));
-				routeBean.setWerks(cs.getString(4));
-				routeBean.setRdesc(cs.getString(5));
-				routeBean.setType(cs.getString(6));
-				routeBean.setBdesc(cs.getString(7));
-				routeBean.setWdesc(cs.getString(8));
-				routeBean.setTaskId(cs.getString(9));
+				routeBean.setRouteId(rs.getString("ROUTE_ID"));
+				routeBean.setBukrs(rs.getString("BUKRS"));
+				routeBean.setWerks(rs.getString("WERKS"));
+				routeBean.setRdesc(rs.getString("RDESC"));
+				routeBean.setType(rs.getString("RTYPE"));
+				routeBean.setBdesc(rs.getString("BDESC"));
+				routeBean.setWdesc(rs.getString("WDESC"));
+				routeBean.setTaskId(rs.getString("TASK_ID"));
 				TaskDao task = new TaskDao();
-				log.info("getTaskId"+routeBean.getTaskId());
-				routeBean.setDateIni(task.updateDowloadTask(cs.getString(9)));
-				// routeBean.setPositions(this.getPositions(rs.getString("ROUTE_ID")));
+				log.info("getTaskId" + routeBean.getTaskId());
+				routeBean.setDateIni(task.updateDowloadTask(routeBean.getTaskId()));
 			} else {
 				routeBean = null;
 			}
-			cs.close();
 			log.info("[getRoutesByUserDao] Sentence successfully executed.");
 		} finally {
 			con.close();

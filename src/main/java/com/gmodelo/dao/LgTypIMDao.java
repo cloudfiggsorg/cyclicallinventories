@@ -48,7 +48,7 @@ public class LgTypIMDao {
 			cs.setString(3, lgTypIMBean.getBukrs());
 			cs.setString(4, lgTypIMBean.getWerks());
 			cs.setString(5, lgTypIMBean.getLgort());
-			if(lgTypIMBean.getLgnum().isEmpty()){
+			if (lgTypIMBean.getLgnum().isEmpty()) {
 				cs.setNull(6, Types.VARCHAR);
 			} else {
 				cs.setString(6, lgTypIMBean.getLgnum());
@@ -152,11 +152,11 @@ public class LgTypIMDao {
 		}
 		INV_VW_LGTYPE_IM += " GROUP BY LGTYP, LTYPT, BUKRS, BDESC, WERKS, WDESC, LGORT, LGOBE, LGNUM, IMWM, STATUS";
 		log.info(INV_VW_LGTYPE_IM);
-		log.info("[getRoutesDao] Preparing sentence...");
+		log.info("[LgTypImDAo getLgTypsIM] Preparing sentence...");
 		try {
 			stm = con.prepareStatement(INV_VW_LGTYPE_IM);
 
-			log.info("[getRoutesDao] Executing query...");
+			log.info("[LgTypImDAo getLgTypsIM] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
 
@@ -174,7 +174,7 @@ public class LgTypIMDao {
 				lgTypIMAux.setLgnum(rs.getString(9));
 				lgTypIMAux.setImwm(rs.getString(10));
 				lgTypIMAux.setStatus(rs.getBoolean(11));
-				lgTypIMAux.setLsLgPla(this.getPositions(rs.getString(1)));
+				lgTypIMAux.setLsLgPla(this.getPositions(rs.getString(1), con));
 
 				listLgTypIM.add(lgTypIMAux);
 			}
@@ -189,10 +189,10 @@ public class LgTypIMDao {
 			// Free resources
 			rs.close();
 			stm.close();
-			log.info("[getRoutesDao] Sentence successfully executed.");
+			log.info("[LgTypImDAo getLgTypsIM] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,
-					"[getRoutesDao] Some error occurred while was trying to execute the query: " + INV_VW_LGTYPE_IM, e);
+			log.log(Level.SEVERE, "[LgTypImDAo getLgTypsIM] Some error occurred while was trying to execute the query: "
+					+ INV_VW_LGTYPE_IM, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -201,8 +201,8 @@ public class LgTypIMDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[getRoutesDao] Some error occurred while was trying to close the connection.",
-						e);
+				log.log(Level.SEVERE,
+						"[LgTypImDAo getPositions] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 
@@ -211,27 +211,20 @@ public class LgTypIMDao {
 		return res;
 	}
 
-	public List<LgplaIMBean> getPositions(String lgtyp) throws SQLException {
+	private static final String INV_VW_LGPLA_IM = "SELECT LGPLA_ID, LGP_DESC, LGP_STATUS FROM dbo.INV_VW_LGPLA_IM WITH(NOLOCK) WHERE LGTYP_ID = ?";
 
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
+	public List<LgplaIMBean> getPositions(String lgtyp, Connection con) throws SQLException {
+
 		PreparedStatement stm = null;
-
 		List<LgplaIMBean> listPositions = new ArrayList<LgplaIMBean>();
-
-		String INV_VW_LGPLA_IM = "SELECT LGPLA_ID, LGP_DESC, LGP_STATUS FROM dbo.INV_VW_LGPLA_IM WITH(NOLOCK) WHERE LGTYP_ID = ?";
-
 		log.info(INV_VW_LGPLA_IM);
-		log.info("[getPositionsDao] Preparing sentence...");
-
+		log.info("[LgTypImDAo getPositions] Preparing sentence...");
 		stm = con.prepareStatement(INV_VW_LGPLA_IM);
 		stm.setString(1, lgtyp);
-		log.info("[getPositionsDao] Executing query...");
-
+		log.info("[LgTypImDAo getPositions] Executing query...");
+		log.info("[LgTypImDAo getPositions]..." + lgtyp);
 		ResultSet rs = stm.executeQuery();
-
 		while (rs.next()) {
-
 			LgplaIMBean position = new LgplaIMBean();
 			position.setGltypId(lgtyp);
 			position.setLgPlaId(rs.getInt(1));
@@ -248,11 +241,7 @@ public class LgTypIMDao {
 		}
 
 		// Free resources
-		rs.close();
-		stm.close();
-		log.info("[getPositionsDao] Sentence successfully executed.");
-		con.close();
-
+		log.info("[LgTypImDAo getPositions] Sentence successfully executed.");
 		return listPositions;
 	}
 
