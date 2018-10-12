@@ -4,6 +4,7 @@ public class ReturnValues {
 
 	public static final int ISUCCESS = 1;
 	public static final int ISESSIONCREATED = 2;
+	public static final int IERROR = -999;
 
 	public static final int IEMPTY = 3;
 	public static final String SEMPTY = "EMPTY";

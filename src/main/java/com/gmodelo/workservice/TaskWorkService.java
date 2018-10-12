@@ -12,6 +12,7 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
+import com.gmodelo.dao.RouteDao;
 import com.gmodelo.dao.TaskDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -58,18 +59,26 @@ public class TaskWorkService {
 		log.info("[addTaskWS] " + request.toString());
 		TaskBean taskBean = null;
 		Response<TaskBean> res = new Response<TaskBean>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		try {
 			taskBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
 			if (taskBean.getRub() != null) {
 				log.log(Level.WARNING, "[addTaskWS] Ingreso con JSON " + taskBean.toString());
-				TaskBean subBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
-				subBean.setRub(null);
-				res = new TaskDao().addTask(subBean, user.getEntity().getIdentyId());
-				if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
-					taskBean.setTaskId(res.getLsObject().getTaskId());
-					taskBean.getRub().setTaskId(res.getLsObject().getTaskId());
-					log.log(Level.WARNING, "[addTaskWS] Previo a ejecutar New Task" + taskBean.toString());
-					res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
+				if ((new RouteDao().assingRecountGroup(taskBean, user)).getResultId() == ReturnValues.ISUCCESS) {
+					TaskBean subBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
+					subBean.setRub(null);
+					res = new TaskDao().addTask(subBean, user.getEntity().getIdentyId());
+					if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
+						taskBean.setTaskId(res.getLsObject().getTaskId());
+						taskBean.getRub().setTaskId(res.getLsObject().getTaskId());
+						log.log(Level.WARNING, "[addTaskWS] Previo a ejecutar New Task" + taskBean.toString());
+						res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
+					}
+				} else {
+					log.log(Level.WARNING, "[addTaskWS] Fallo al Ingresar el grupo a la ruta " + taskBean.toString());
+					abstractResult.setResultId(ReturnValues.IERROR);
+					abstractResult.setResultMsgAbs("Fallo al Ingresar el grupo a la ruta");
+					res.setAbstractResult(abstractResult);
 				}
 			} else {
 				log.log(Level.WARNING, "[addTaskWS] Ingreso sin JSON " + taskBean.toString());
@@ -79,7 +88,6 @@ public class TaskWorkService {
 		} catch (JsonSyntaxException e) {
 			log.log(Level.SEVERE, "[addTaskWS] Error al pasar de Json a TaskBean", e);
 			taskBean = null;
-			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
