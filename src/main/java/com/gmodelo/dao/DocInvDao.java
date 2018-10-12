@@ -262,6 +262,92 @@ public class DocInvDao {
 		res.setLsObject(listDocInv);
 		return res;
 	}
+	
+	public Response<List<DocInvBean>> getOnlyDocInv(DocInvBean docInvBean, String searchFilter) {
+		Response<List<DocInvBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		List<DocInvBean> listDocInv = new ArrayList<DocInvBean>();
+		int aux;
+		String searchFilterNumber = "";
+		try {
+			aux = Integer.parseInt(searchFilter);
+			searchFilterNumber += aux;
+		} catch (Exception e) {
+			searchFilterNumber = searchFilter;
+			log.info("Is String");
+		}
+
+		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)";
+		if (searchFilter != null) {
+			INV_VW_DOC_INV += " WHERE TYPE != '3' AND DOC_INV_ID LIKE '%" + searchFilterNumber
+					+ "%' OR ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' "
+					+ " OR WERKSD LIKE '%" + searchFilterNumber + "%' ";
+		} else {
+			String condition = buildCondition(docInvBean);
+			if (condition != null) {
+				INV_VW_DOC_INV += condition;
+			}
+		}
+
+		log.info(INV_VW_DOC_INV);
+		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";
+		log.info("[getOnlyDocInv] Preparing sentence...");
+
+		try {
+			stm = con.prepareCall(INV_VW_DOC_INV);
+			log.info("[getOnlyDocInv] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				
+				docInvBean = new DocInvBean();
+				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
+				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
+				docInvBean.setBukrs(rs.getString("BUKRS"));
+				docInvBean.setBukrsD(rs.getString("BDESC"));
+				docInvBean.setWerks(rs.getString("WERKS"));
+				docInvBean.setWerksD(rs.getString("WERKSD"));
+				docInvBean.setType(rs.getString("TYPE"));
+				docInvBean.setStatus(rs.getString("STATUS"));
+				
+				listDocInv.add(docInvBean);
+				
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+
+			log.info("[getOnlyDocInv] Sentence successfully executed.");
+
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getOnlyDocInv] Some error occurred while was trying to execute the query: " + INV_VW_DOC_INV, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getOnlyDocInv] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listDocInv);
+		return res;
+	}
 
 	public DocInvBean getDocInvById(int docInvId) throws SQLException {
 		ConnectionManager iConnectionManager = new ConnectionManager();
