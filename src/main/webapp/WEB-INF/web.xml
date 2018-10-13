@@ -16,4 +16,12 @@
     <servlet-name>Jersey Web Application</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
+   <servlet>
+    <servlet-name>ReportesServlet</servlet-name>
+    <servlet-class>com.gmodelo.servlets.ReportesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ReportesServlet</servlet-name>
+    <url-pattern>/ReportesServlet</url-pattern>
+  </servlet-mapping>
 </web-app>
