@@ -129,4 +129,14 @@ public class ReporteDocInvBean {
 				+ counted + ", diff=" + diff + ", imwmMarker=" + imwmMarker + "]";
 	}
 
+	public String supString() {
+		return lgort + "," + lgortD + "," + lgtyp + "," + ltypt + "," + lgpla + "," + matnr + "," + matnrD + ","
+				+ theoric + "," + counted + "," + diff + "," + imwmMarker;
+	}
+
+	public String supHeadString() {
+		return "Almacen, Descripcion Almacen,Tipo Almacen,Desc. Tipo Almacen,Carril,"
+				+ "Material,Desc. Material,Teorico,Contado,Diferencia(Teorico/Contado),Marcador Tipo Almacen";
+	}
+
 }
