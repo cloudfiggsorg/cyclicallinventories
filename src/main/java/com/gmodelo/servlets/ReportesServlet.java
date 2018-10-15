@@ -99,7 +99,7 @@ public class ReportesServlet extends HttpServlet {
 		String filePath = "DocumentoInventario" + reportInv.getDocInvId() + ".csv";
 		try {
 			writer = new PrintWriter(
-					new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(filePath)), "UTF-8"));
+					new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(filePath)), "ISO-8859-1"));
 			writer.append("Documento de Inventario:," + reportInv.getDocInvId()).println();
 			writer.append("Sociedad:, " + reportInv.getBukrs() + "-" + reportInv.getBukrsD()).println();
 			writer.append("Centro:," + reportInv.getWerks() + "-" + reportInv.getWerksD()).println();

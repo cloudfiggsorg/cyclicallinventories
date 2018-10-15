@@ -273,9 +273,9 @@ public class ReportesDao {
 				bean.setDocInvId(docInvBean.getDocInvId());
 				bean.setBukrs(rs.getString("DIH_BUKRS"));
 				bean.setBukrsD(rs.getString("BUTXT"));
-				bean.setRoute(rs.getString("DIH_WERKS"));
-				bean.setWerks(rs.getString("NAME1"));
-				bean.setWerksD(rs.getString("ROU_DESC"));
+				bean.setRoute(rs.getString("ROU_DESC"));
+				bean.setWerks(rs.getString("DIH_WERKS"));
+				bean.setWerksD(rs.getString("NAME1"));
 				bean.setType(rs.getString("DIH_TYPE"));
 				bean.setCreationDate(rs.getString("DIH_CREATED_DATE"));
 				bean.setConciliationDate(rs.getString("DIH_MODIFIED_DATE"));
@@ -295,9 +295,16 @@ public class ReportesDao {
 					positionBean.setMatnr(rs.getString("DIP_MATNR"));
 					positionBean.setMatnrD(rs.getString("MAKTX"));
 					positionBean.setImwmMarker(rs.getString("IMWM"));
-					positionBean.setTheoric(rs.getString("DIP_THEORIC"));
+					if (rs.getString("DIP_THEORIC") != null)
+						positionBean.setTheoric(rs.getString("DIP_THEORIC"));
+					else
+						positionBean.setTheoric("");
 					positionBean.setCounted(rs.getString("DIP_COUNTED"));
-					positionBean.setDiff(rs.getString("DIP_DIFF_COUNTED"));
+					if (rs.getString("DIP_DIFF_COUNTED") != null)
+						positionBean.setDiff(rs.getString("DIP_DIFF_COUNTED"));
+					else
+						positionBean.setDiff("");
+
 					listBean.add(positionBean);
 				}
 
@@ -332,14 +339,27 @@ public class ReportesDao {
 						while (iteAux.hasNext()) {
 							Map.Entry pair = (Map.Entry) iteAux.next();
 							ReporteDocInvBean supportBean = null;
-							BigDecimal supportValue = new BigDecimal(0);
+							log.info("[getReporteDocInvDao] Iterating hashmap key..." + pair.getKey());
+							BigDecimal supportValue = new BigDecimal("0");
 							for (ReporteDocInvBean singleIM : (List<ReporteDocInvBean>) pair.getValue()) {
 								if (supportBean == null) {
+									log.info("[getReporteDocInvDao] support bean null... ");
 									supportBean = singleIM;
 								}
-								supportValue.add(new BigDecimal(singleIM.getCounted()));
+								log.info("[getReporteDocInvDao] singleImbean: " + singleIM);
+								log.info("[getReporteDocInvDao] supportValue prevAssigned: " + supportValue);
+								BigDecimal toAdd = new BigDecimal(singleIM.getCounted());
+								log.info("[getReporteDocInvDao] toAdd prevAssigned: " + toAdd);
+								log.info("[getReporteDocInvDao] singleIM.getCounted() value: " + singleIM.getCounted());
+								supportValue.add(toAdd);
+								log.info("[getReporteDocInvDao] supportValue afterAssign: " + supportValue);
 							}
+							log.info("[getReporteDocInvDao] supportValue toAssign: " + supportValue);
+							supportBean.setLgtyp("");
+							supportBean.setLtypt("");
+							supportBean.setLgpla("");
 							supportBean.setCounted(String.valueOf(supportValue));
+							log.info("[getReporteDocInvDao] final object toAdd: " + supportBean);
 							imPList.add(supportBean);
 						}
 						listBean = new ArrayList<>();
