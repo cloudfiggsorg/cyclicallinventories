@@ -330,7 +330,7 @@ public class ReportesDao {
 						}
 						Iterator iteAux = supportMap.entrySet().iterator();
 						while (iteAux.hasNext()) {
-							Map.Entry pair = (Map.Entry) iteAux;
+							Map.Entry pair = (Map.Entry) iteAux.next();
 							ReporteDocInvBean supportBean = null;
 							BigDecimal supportValue = new BigDecimal(0);
 							for (ReporteDocInvBean singleIM : (List<ReporteDocInvBean>) pair.getValue()) {
@@ -353,7 +353,8 @@ public class ReportesDao {
 			} else {
 				bean = null;
 				abstractResult.setResultId(ReturnValues.IERROR);
-				abstractResult.setResultMsgAbs("Ocurrio un Error al recuperar los datos de Documento de Invetnario ó Documento Inexistente");
+				abstractResult.setResultMsgAbs(
+						"Ocurrio un Error al recuperar los datos de Documento de Invetnario ó Documento Inexistente");
 			}
 			log.info("[getReporteDocInvDao] Sentence successfully executed.");
 		} catch (SQLException e) {
