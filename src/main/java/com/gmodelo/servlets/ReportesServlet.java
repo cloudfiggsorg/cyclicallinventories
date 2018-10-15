@@ -109,7 +109,7 @@ public class ReportesServlet extends HttpServlet {
 			writer.append("Tipo de Documento:," + (reportInv.getType().equals("1") ? "Diario" : "Mensual")).println();
 			writer.println();
 			writer.println();
-			writer.print(new ReporteDocInvBean().supHeadString());
+			writer.append(new ReporteDocInvBean().supHeadString()).println();
 			for (ReporteDocInvBean singleBean : reportInv.getDocInvPosition()) {
 				writer.append(singleBean.supString()).println();
 			}
