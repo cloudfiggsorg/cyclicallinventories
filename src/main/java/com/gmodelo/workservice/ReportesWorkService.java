@@ -133,11 +133,14 @@ public class ReportesWorkService {
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
-			try {
+			System.out.println("bean wos: " +bean);
+			try {System.out.println("entro al try");
+				
 				bean = gson.fromJson(gson.toJson(request.getLsObject()), ReporteCalidadBean.class);
 
 				log.info("Fue objeto");
 			} catch (JsonSyntaxException e) {
+				System.out.println("entro al cathc");
 				searchFilter = request.getLsObject().toString();
 				log.info("Fue cadena");
 			}
