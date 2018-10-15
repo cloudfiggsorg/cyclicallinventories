@@ -54,6 +54,7 @@ public class ReportesServlet extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doPost(request, response);
+
 	}
 
 	/**
@@ -64,6 +65,7 @@ public class ReportesServlet extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		// doGet(request, response);
+		doIdentifyRequest(request, response);
 	}
 
 	protected void doIdentifyRequest(HttpServletRequest request, HttpServletResponse response)
@@ -76,9 +78,9 @@ public class ReportesServlet extends HttpServlet {
 			try {
 				DocInvBean docInvBean = new DocInvBean();
 				docInvBean.setDocInvId(Integer.parseInt(doRequest));
-				Request<DocInvBean> requestDoc =  new Request<>();
+				Request<DocInvBean> requestDoc = new Request<>();
 				requestDoc.setLsObject(docInvBean);
-				requestDoc.setTokenObject(null);	
+				requestDoc.setTokenObject(null);
 				Response<ReporteDocInvBeanHeader> reportInv = new ReportesService().getReporteDocInv(requestDoc);
 				generateDocInvReporte(request, response, reportInv.getLsObject());
 			} catch (Exception e) {
