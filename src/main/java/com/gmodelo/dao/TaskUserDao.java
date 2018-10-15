@@ -20,8 +20,8 @@ public class TaskUserDao {
 
 	private Logger log = Logger.getLogger(TaskUserDao.class.getName());
 
-	private static final String INV_LAST_TASK = "SELECT ROUTE_ID, BUKRS, WERKS,  DTYPE, GROUP_ID, max(TAS_UPLOAD_DATE) AS LAST_UPLOAD "
-			+ " FROM dbo.INV_VW_TASK_ROUTES_USER_UPLOAD WITH(NOLOCK) WHERE USER_ID = ? "
+	private static final String INV_LAST_TASK = "SELECT TOP 1 ROUTE_ID, BUKRS, WERKS,  DTYPE, GROUP_ID, max(TAS_UPLOAD_DATE) AS LAST_UPLOAD "
+			+ " FROM dbo.INV_VW_TASK_ROUTES_USER_UPLOAD WITH(NOLOCK) WHERE USER_ID = ? AND TAS_UPLOAD_DATE is not null "
 			+ " GROUP BY ROUTE_ID, BUKRS, WERKS, DTYPE, GROUP_ID  ORDER BY ROUTE_ID DESC  ";
 
 	public int createAutoTask(String user) {

@@ -190,7 +190,7 @@ public class RouteWorkService {
 		routeResponse.setAbstractResult(result);
 		try {
 			RouteUserBean route = routeDao.getRoutesByUser(request.getTokenObject().getLoginId());
-			if (route.getRouteId() != null) {
+			if (route != null) {
 				TaskBean reconteo = routeDao.getTaskReconteo(route.getTaskId());
 				if (reconteo.getTaskJSON() != null && !reconteo.getTaskJSON().isEmpty()) {
 					routeResponse.setLsObject(new Gson().fromJson(reconteo.getTaskJSON(), RouteUserBean.class));

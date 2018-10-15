@@ -1,25 +1,30 @@
 package com.gmodelo.workservice;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ApegosBean;
+import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteConteosBean;
 import com.gmodelo.beans.ReporteDocInvBean;
+import com.gmodelo.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TareasTiemposLgplaBean;
 import com.gmodelo.beans.TareasTiemposZonasBean;
 import com.gmodelo.dao.ReportesDao;
+import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 public class ReportesWorkService {
-	
+
 	private Logger log = Logger.getLogger(ReportesWorkService.class.getName());
 	Gson gson = new Gson();
-	
+
 	public Response<List<ApegosBean>> getReporteApegos(Request request) {
 		log.info("[getReporteApegosWorkService] " + request.toString());
 		ApegosBean apegosBean = null;
@@ -42,7 +47,7 @@ public class ReportesWorkService {
 	}
 
 	public Response<List<ReporteConteosBean>> getReporteConteos(Request request) {
-		
+
 		log.info("[getReporteConteosWorkService] " + request.toString());
 		ReporteConteosBean bean = null;
 		String searchFilter = null;
@@ -61,28 +66,25 @@ public class ReportesWorkService {
 		}
 
 		return new ReportesDao().getReporteConteos(bean, searchFilter);
-		
+
 	}
-	
-	public Response<List<ReporteDocInvBean>> getReporteDocInv(Request request) {
-		log.info("[getReporteDocInvWorkService] " + request.toString());
-		ReporteDocInvBean bean = null;
-		String searchFilter = null;
-		String req = request.getLsObject().toString().trim();
-		if (!req.isEmpty()) {
-			try {
-				bean = gson.fromJson(gson.toJson(request.getLsObject()), ReporteDocInvBean.class);
 
-				log.info("Fue objeto");
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString();
-				log.info("Fue cadena");
-			}
-		} else {
-			searchFilter = "";
+	public Response<ReporteDocInvBeanHeader> getReporteDocInv(Request request) {
+		log.info("[ReporteWorkService getReporteDocInv] " + request.toString());
+		Response<ReporteDocInvBeanHeader> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
+		DocInvBean bean = null;
+		try {
+			log.info("[ReporteWorkService getReporteDocInv] try");
+			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+			response = new ReportesDao().getReporteDocInv(bean);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInv] catch", e);
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
 		}
-
-		return new ReportesDao().getReporteDocInv(bean, searchFilter);
+		response.setAbstractResult(result);
+		return response;
 	}
 
 	public Response<List<TareasTiemposLgplaBean>> getReporteTiemposTareasLgpla(Request request) {
@@ -105,7 +107,7 @@ public class ReportesWorkService {
 
 		return new ReportesDao().getReporteTareasTiemposLgpla(tareasBean, searchFilter);
 	}
-	
+
 	public Response<List<TareasTiemposZonasBean>> getReporteTiemposTareasZonas(Request request) {
 		log.info("[getReporteTiemposTareasZonasWorkService] " + request.toString());
 		TareasTiemposZonasBean tareasBean = null;

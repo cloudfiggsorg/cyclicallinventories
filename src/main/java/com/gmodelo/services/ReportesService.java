@@ -14,6 +14,7 @@ import com.gmodelo.beans.ApegosBean;
 import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteConteosBean;
 import com.gmodelo.beans.ReporteDocInvBean;
+import com.gmodelo.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TareasTiemposLgplaBean;
@@ -22,10 +23,10 @@ import com.gmodelo.workservice.ReportesWorkService;
 
 @Path("/services/ReportesService")
 public class ReportesService {
-	
+
 	@Context
 	private HttpServletRequest httpRequest;
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -33,8 +34,7 @@ public class ReportesService {
 	public Response<List<ApegosBean>> getRoutes(Request request) {
 		return new ReportesWorkService().getReporteApegos(request);
 	}
-	
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -47,10 +47,10 @@ public class ReportesService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getReporteDocInv")
-	public Response<List<ReporteDocInvBean>> getReporteDocInv(Request request) {
+	public Response<ReporteDocInvBeanHeader> getReporteDocInv(Request request) {
 		return new ReportesWorkService().getReporteDocInv(request);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -58,7 +58,7 @@ public class ReportesService {
 	public Response<List<TareasTiemposLgplaBean>> getReporteTareasTiempos(Request request) {
 		return new ReportesWorkService().getReporteTiemposTareasLgpla(request);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -66,7 +66,7 @@ public class ReportesService {
 	public Response<List<TareasTiemposZonasBean>> getReporteTareasTiemposZonas(Request request) {
 		return new ReportesWorkService().getReporteTiemposTareasZonas(request);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
