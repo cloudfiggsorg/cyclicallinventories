@@ -6,18 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.annotation.processing.SupportedOptions;
 
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ApegosBean;
@@ -34,13 +29,12 @@ import com.gmodelo.beans.TareasTiemposLgplaBean;
 import com.gmodelo.beans.TareasTiemposZonasBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
-import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 
 public class ReportesDao {
 
 	private Logger log = Logger.getLogger(ReportesDao.class.getName());
 
-	public Response<List<ApegosBean>> getReporteApegos(ApegosBean apegosBean, String searchFilter) {
+	public Response<List<ApegosBean>> getReporteApegos(ApegosBean apegosBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -50,29 +44,14 @@ public class ReportesDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<ApegosBean> listApegosBean = new ArrayList<ApegosBean>();
 		String INV_VW_REP_APEGOS = null;
-		int aux;
-		String searchFilterNumber = "";
-
-		try {
-			aux = Integer.parseInt(searchFilter);
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("[getReporteApegosDao] Trying to convert String to Int");
-		}
-
+		
 		INV_VW_REP_APEGOS = "SELECT DOC_INV_ID, ROUTE_ID,RDESC, BUKRS, BDESC, WERKS, WDESC, LGORT,GDESC, TASK_ID, DTYPE, USER_DOCINV, USER_COUNT, DATE_INI, DATE_FIN, TIEMPO, GROUP_ID, CREACION, EJECUCION FROM INV_VW_REP_APEGOS WITH(NOLOCK) ";
 
-		if (searchFilter != null) {
-			INV_VW_REP_APEGOS += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter
-					+ "%' OR DOC_INV_ID LIKE '%" + searchFilter + "%' OR LGORT '%" + searchFilter
-					+ "%' OR WERKS LIKE '%" + searchFilter + "%'";
-		} else {
-			String condition = buildConditionApegos(apegosBean);
-			if (condition != null) {
-				INV_VW_REP_APEGOS += condition;
-			}
+		String condition = buildConditionApegos(apegosBean);
+		if (condition != null) {
+			INV_VW_REP_APEGOS += condition;
 		}
+		
 		log.info(INV_VW_REP_APEGOS);
 		log.info("[getReporteApegosDao] Preparing sentence...");
 		try {
@@ -141,7 +120,7 @@ public class ReportesDao {
 		return res;
 	}
 
-	public Response<List<ReporteConteosBean>> getReporteConteos(ReporteConteosBean conteosBean, String searchFilter) {
+	public Response<List<ReporteConteosBean>> getReporteConteos(ReporteConteosBean conteosBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -151,29 +130,15 @@ public class ReportesDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<ReporteConteosBean> listBean = new ArrayList<ReporteConteosBean>();
 		String INV_VW_REP = null;
-		int aux;
-		String searchFilterNumber = "";
-
-		try {
-			aux = Integer.parseInt(searchFilter);
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("[getReporteConteosDao] Trying to convert String to Int");
-		}
 
 		INV_VW_REP = "SELECT ZONE_ID, ZONE_DESC, LGTYP, LTYPT, LGPLA,MAKTX,COU_MATNR, COU_VHILM, COU_SECUENCY, COU_TARIMAS, COU_CAMAS, COU_CANTIDAD_UNI_MED, COU_TOTAL,"
 				+ " COU_START_DATE, COU_END_DATE,COU_USER_ID, TAS_GROUP_ID,TAS_DOC_INV_ID,ROUTE_ID, RDESC, BUKRS, WERKS, BDESC, WDESC FROM INV_VW_REPORTE_CONTEOS WITH(NOLOCK) ";
 
-		if (searchFilter != null) {
-			INV_VW_REP += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter
-					+ "%' OR DOC_INV_ID LIKE '%" + searchFilter + "%' OR COU_USER_ID LIKE '%" + searchFilter + "%' ";
-		} else {
-			String condition = buildConditionConteos(conteosBean);
-			if (condition != null) {
-				INV_VW_REP += condition;
-			}
+		String condition = buildConditionConteos(conteosBean);
+		if (condition != null) {
+			INV_VW_REP += condition;
 		}
+	
 		log.info(INV_VW_REP);
 		log.info("[getReporteConteosDao] Preparing sentence...");
 		try {
@@ -376,8 +341,7 @@ public class ReportesDao {
 		return res;
 	}
 
-	public Response<List<TareasTiemposLgplaBean>> getReporteTareasTiemposLgpla(TareasTiemposLgplaBean tareasBean,
-			String searchFilter) {
+	public Response<List<TareasTiemposLgplaBean>> getReporteTareasTiemposLgpla(TareasTiemposLgplaBean tareasBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -387,29 +351,13 @@ public class ReportesDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TareasTiemposLgplaBean> listTareasBean = new ArrayList<TareasTiemposLgplaBean>();
 		String INV_VW_REP_TAREAS = null;
-		int aux;
-		String searchFilterNumber = "";
-
-		try {
-			aux = Integer.parseInt(searchFilter);
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("[getReporteTiemposTareasDao] Trying to convert String to Int");
-		}
-
 		INV_VW_REP_TAREAS = "SELECT DOC_INV_ID,ROUTE_ID,RDESC,BUKRS,BDESC,TAS_GROUP_ID,WERKS,WDESC,TASK_ID,ZPO_LGPLA,COU_START_DATE,COU_END_DATE,COU_USER_ID,TIEMPO FROM INV_VW_REPORTE_TAREAS_CARRIL WITH(NOLOCK) ";
 
-		if (searchFilter != null) {
-			INV_VW_REP_TAREAS += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter
-					+ "%' OR DOC_INV_ID LIKE '%" + searchFilter + "%' OR ZPO_LGPLA LIKE '%" + searchFilter
-					+ "%' OR COU_START_DATE LIKE '%" + searchFilter + "%',COU_END_DATE %'" + searchFilter + "%'";
-		} else {
-			String condition = buildConditionTiemposLgpla(tareasBean);
-			if (condition != null) {
-				INV_VW_REP_TAREAS += condition;
-			}
+		String condition = buildConditionTiemposLgpla(tareasBean);
+		if (condition != null) {
+			INV_VW_REP_TAREAS += condition;
 		}
+	
 		log.info(INV_VW_REP_TAREAS);
 		log.info("[getReporteTiemposTareasDao] Preparing sentence...");
 		try {
@@ -474,8 +422,7 @@ public class ReportesDao {
 		return res;
 	}
 
-	public Response<List<TareasTiemposZonasBean>> getReporteTareasTiemposZonas(TareasTiemposZonasBean tareasBean,
-			String searchFilter) {
+	public Response<List<TareasTiemposZonasBean>> getReporteTareasTiemposZonas(TareasTiemposZonasBean tareasBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -485,30 +432,14 @@ public class ReportesDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TareasTiemposZonasBean> listTareasBean = new ArrayList<TareasTiemposZonasBean>();
 		String INV_VW_REP_TAREAS = null;
-		int aux;
-		String searchFilterNumber = "";
-
-		try {
-			aux = Integer.parseInt(searchFilter);
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("[getReporteTiemposTareasZonasDao] Trying to convert String to Int");
-		}
 
 		INV_VW_REP_TAREAS = "SELECT DOC_INV_ID,ROUTE_ID,RDESC,BUKRS,BDESC,WERKS,WDESC,TASK_ID,GROUP_ID,ZONE_ID,ZON_DESC,COU_START_DATE,COU_END_DATE,COU_USER_ID,TIEMPO FROM INV_TAREAS_TIEMPOS_ZONAS  WITH(NOLOCK) ";
 
-		if (searchFilter != null) {
-			INV_VW_REP_TAREAS += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter
-					+ "%' OR DOC_INV_ID LIKE '%" + searchFilter + "%' OR ZONE_ID LIKE '%" + searchFilter
-					+ "%' OR ZON_DESC LIKE '%" + searchFilter + "%' OR COU_START_DATE LIKE '%" + searchFilter
-					+ "%' OR COU_END_DATE LIKE '%" + searchFilter + "%'  ";
-		} else {
-			String condition = buildConditionTiemposZonas(tareasBean);
-			if (condition != null) {
-				INV_VW_REP_TAREAS += condition;
-			}
+		String condition = buildConditionTiemposZonas(tareasBean);
+		if (condition != null) {
+			INV_VW_REP_TAREAS += condition;
 		}
+
 		log.info(INV_VW_REP_TAREAS);
 		log.info("[getReporteTiemposTareasZonasDao] Preparing sentence...");
 		try {
@@ -574,7 +505,7 @@ public class ReportesDao {
 		return res;
 	}
 
-	public Response<List<ReporteCalidadBean>> getReporteCalidad(ReporteCalidadBean bean, String searchFilter) {
+	public Response<List<ReporteCalidadBean>> getReporteCalidad(ReporteCalidadBean bean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -584,29 +515,13 @@ public class ReportesDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<ReporteCalidadBean> list = new ArrayList<ReporteCalidadBean>();
 		String INV_VW_REP = null;
-		int aux;
-		String searchFilterNumber = "";
-
-		try {
-			aux = Integer.parseInt(searchFilter);
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("[getReporteCalidadDao] Trying to convert String to Int");
-		}
-
 		INV_VW_REP = "SELECT TAS_DOC_INV_ID,TASK_ID, TAS_GROUP_ID, COU_USER_ID,TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE FROM INV_VW_REPORTE_CALIDAD_CABECERA WITH(NOLOCK) ";
 
-		if (searchFilter != null) {
-			INV_VW_REP += "WHERE TAS_GROUP_ID LIKE '%" + searchFilterNumber + "%' OR COU_USER_ID LIKE '%" + searchFilter
-					+ "%' OR TAS_DOC_INV_ID LIKE '%" + searchFilter + "%' OR TAS_DOWLOAD_DATE LIKE '%" + searchFilter
-					+ "%' OR TAS_UPLOAD_DATE LIKE '%" + searchFilter + "%' ";
-		} else {
-			String condition = buildConditionCalidad(bean);
-			if (condition != null) {
-				INV_VW_REP += condition;
-			}
+		String condition = buildConditionCalidad(bean);
+		if (condition != null) {
+			INV_VW_REP += condition;
 		}
+	
 		log.info(INV_VW_REP);
 		INV_VW_REP += "GROUP BY TAS_DOC_INV_ID,TASK_ID, TAS_GROUP_ID, COU_USER_ID,TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE";
 		log.info("[getReporteCalidadDao] Preparing sentence...");
@@ -939,12 +854,4 @@ public class ReportesDao {
 		return condition;
 	}
 
-	/*
-	 * public static void main(String args[]){ ReportesDao dao = new
-	 * ReportesDao(); ReporteCalidadBean bean = new ReporteCalidadBean(); String
-	 * searchFilter = ""; Response<List<ReporteCalidadBean>> x =
-	 * dao.getReporteCalidad(bean, searchFilter); for(int i = 0;i <
-	 * x.getLsObject().size();i++){ System.out.println(x.getLsObject().get(i));
-	 * } }
-	 */
 }
