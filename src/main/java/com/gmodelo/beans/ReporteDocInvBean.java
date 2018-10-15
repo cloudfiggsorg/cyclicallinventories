@@ -8,6 +8,7 @@ public class ReporteDocInvBean {
 	String lgpla;
 	String matnr;
 	String matnrD;
+	String meins;
 	String theoric;
 	String counted;
 	String diff;
@@ -69,6 +70,14 @@ public class ReporteDocInvBean {
 		this.matnrD = matnrD;
 	}
 
+	public String getMeins() {
+		return meins;
+	}
+
+	public void setMeins(String meins) {
+		this.meins = meins;
+	}
+
 	public String getTheoric() {
 		return theoric;
 	}
@@ -102,7 +111,7 @@ public class ReporteDocInvBean {
 	}
 
 	public ReporteDocInvBean(String lgort, String lgortD, String lgtyp, String ltypt, String lgpla, String matnr,
-			String matnrD, String theoric, String counted, String diff, String imwmMarker) {
+			String matnrD, String meins, String theoric, String counted, String diff, String imwmMarker) {
 		super();
 		this.lgort = lgort;
 		this.lgortD = lgortD;
@@ -111,6 +120,7 @@ public class ReporteDocInvBean {
 		this.lgpla = lgpla;
 		this.matnr = matnr;
 		this.matnrD = matnrD;
+		this.meins = meins;
 		this.theoric = theoric;
 		this.counted = counted;
 		this.diff = diff;
@@ -125,18 +135,18 @@ public class ReporteDocInvBean {
 	@Override
 	public String toString() {
 		return "ReporteDocInvBean [lgort=" + lgort + ", lgortD=" + lgortD + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt
-				+ ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", theoric=" + theoric + ", counted="
-				+ counted + ", diff=" + diff + ", imwmMarker=" + imwmMarker + "]";
+				+ ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", meins=" + meins + ", theoric="
+				+ theoric + ", counted=" + counted + ", diff=" + diff + ", imwmMarker=" + imwmMarker + "]";
 	}
 
 	public String supString() {
-		return lgort + "," + lgortD + "," + lgtyp + "," + ltypt + "," + lgpla + "," + matnr + "," + matnrD + ","
-				+ theoric + "," + counted + "," + diff + "," + imwmMarker;
+		return lgort + "," + lgortD + "," + lgtyp + "," + ltypt + "," + lgpla + "," + matnr + "," + matnrD + "," + meins
+				+ "," + theoric + "," + counted + "," + diff + "," + imwmMarker;
 	}
 
 	public String supHeadString() {
 		return "Almacen, Descripcion Almacen,Tipo Almacen,Desc. Tipo Almacen,Carril,"
-				+ "Material,Desc. Material,Teorico,Contado,Diferencia(Teorico/Contado),Marcador Tipo Almacen";
+				+ "Material,Desc. Material,Unidad de Medida,Teorico,Contado,Diferencia(Teorico/Contado),Marcador Tipo Almacen";
 	}
 
 }

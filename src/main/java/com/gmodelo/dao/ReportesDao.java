@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,14 +46,14 @@ public class ReportesDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<ApegosBean> listApegosBean = new ArrayList<ApegosBean>();
 		String INV_VW_REP_APEGOS = null;
-		
+
 		INV_VW_REP_APEGOS = "SELECT DOC_INV_ID, ROUTE_ID,RDESC, BUKRS, BDESC, WERKS, WDESC, LGORT,GDESC, TASK_ID, DTYPE, USER_DOCINV, USER_COUNT, DATE_INI, DATE_FIN, TIEMPO, GROUP_ID, CREACION, EJECUCION FROM INV_VW_REP_APEGOS WITH(NOLOCK) ";
 
 		String condition = buildConditionApegos(apegosBean);
 		if (condition != null) {
 			INV_VW_REP_APEGOS += condition;
 		}
-		
+
 		log.info(INV_VW_REP_APEGOS);
 		log.info("[getReporteApegosDao] Preparing sentence...");
 		try {
@@ -138,7 +140,7 @@ public class ReportesDao {
 		if (condition != null) {
 			INV_VW_REP += condition;
 		}
-	
+
 		log.info(INV_VW_REP);
 		log.info("[getReporteConteosDao] Preparing sentence...");
 		try {
@@ -216,7 +218,7 @@ public class ReportesDao {
 			+ "DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE FROM INV_VW_DOC_INV_REP_HEADER WHERE  DOC_INV_ID = ?";
 
 	private static final String INV_VW_REP_POSITIONS = "SELECT DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, DIP_MATNR, "
-			+ " MAKTX, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+			+ " MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	public Response<ReporteDocInvBeanHeader> getReporteDocInv(DocInvBean docInvBean) {
 
@@ -234,6 +236,7 @@ public class ReportesDao {
 			stm.setInt(1, docInvBean.getDocInvId());
 			log.info("[getReporteDocInvDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss");
 			if (rs.next()) {
 				bean.setDocInvId(docInvBean.getDocInvId());
 				bean.setBukrs(rs.getString("DIH_BUKRS"));
@@ -242,9 +245,8 @@ public class ReportesDao {
 				bean.setWerks(rs.getString("DIH_WERKS"));
 				bean.setWerksD(rs.getString("NAME1"));
 				bean.setType(rs.getString("DIH_TYPE"));
-				bean.setCreationDate(rs.getString("DIH_CREATED_DATE"));
-				bean.setConciliationDate(rs.getString("DIH_MODIFIED_DATE"));
-
+				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
+				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
 				log.info(INV_VW_REP_POSITIONS);
 				log.info("[getReporteDocInvDao] Preparing sentence...");
 				stm = con.prepareStatement(INV_VW_REP_POSITIONS);
@@ -259,6 +261,7 @@ public class ReportesDao {
 					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
 					positionBean.setMatnr(rs.getString("DIP_MATNR"));
 					positionBean.setMatnrD(rs.getString("MAKTX"));
+					positionBean.setMeins(rs.getString("MEINS"));
 					positionBean.setImwmMarker(rs.getString("IMWM"));
 					if (rs.getString("DIP_THEORIC") != null)
 						positionBean.setTheoric(rs.getString("DIP_THEORIC"));
@@ -305,25 +308,20 @@ public class ReportesDao {
 							Map.Entry pair = (Map.Entry) iteAux.next();
 							ReporteDocInvBean supportBean = null;
 							log.info("[getReporteDocInvDao] Iterating hashmap key..." + pair.getKey());
-							BigDecimal supportValue = new BigDecimal("0");
 							for (ReporteDocInvBean singleIM : (List<ReporteDocInvBean>) pair.getValue()) {
 								if (supportBean == null) {
 									log.info("[getReporteDocInvDao] support bean null... ");
 									supportBean = singleIM;
+								} else {
+									supportBean.setCounted(String.valueOf(new BigDecimal(supportBean.getCounted())
+											.add(new BigDecimal(singleIM.getCounted()))));
 								}
-								log.info("[getReporteDocInvDao] singleImbean: " + singleIM);
-								log.info("[getReporteDocInvDao] supportValue prevAssigned: " + supportValue);
-								BigDecimal toAdd = new BigDecimal(singleIM.getCounted());
-								log.info("[getReporteDocInvDao] toAdd prevAssigned: " + toAdd);
-								log.info("[getReporteDocInvDao] singleIM.getCounted() value: " + singleIM.getCounted());
-								supportValue.add(toAdd);
-								log.info("[getReporteDocInvDao] supportValue afterAssign: " + supportValue);
+								log.info("[getReporteDocInvDao] fos Single IM : " + singleIM);
+								log.info("[getReporteDocInvDao] for supportBean: " + supportBean);
 							}
-							log.info("[getReporteDocInvDao] supportValue toAssign: " + supportValue);
 							supportBean.setLgtyp("");
 							supportBean.setLtypt("");
 							supportBean.setLgpla("");
-							supportBean.setCounted(String.valueOf(supportValue));
 							log.info("[getReporteDocInvDao] final object toAdd: " + supportBean);
 							imPList.add(supportBean);
 						}
@@ -378,7 +376,7 @@ public class ReportesDao {
 		if (condition != null) {
 			INV_VW_REP_TAREAS += condition;
 		}
-	
+
 		log.info(INV_VW_REP_TAREAS);
 		log.info("[getReporteTiemposTareasDao] Preparing sentence...");
 		try {
@@ -542,7 +540,7 @@ public class ReportesDao {
 		if (condition != null) {
 			INV_VW_REP += condition;
 		}
-	
+
 		log.info(INV_VW_REP);
 		INV_VW_REP += "GROUP BY TAS_DOC_INV_ID,TASK_ID, TAS_GROUP_ID, COU_USER_ID,TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE";
 		log.info("[getReporteCalidadDao] Preparing sentence...");
