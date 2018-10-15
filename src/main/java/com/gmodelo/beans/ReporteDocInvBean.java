@@ -131,7 +131,7 @@ public class ReporteDocInvBean {
 
 	public String supString() {
 		return lgort + "," + lgortD + "," + lgtyp + "," + ltypt + "," + lgpla + "," + matnr + "," + matnrD + ","
-				+ theoric + "," + counted + "," + diff + "," + imwmMarker;
+				+ theoric==null?"":theoric + "," + counted + "," + diff==null?"":diff + "," + imwmMarker;
 	}
 
 	public String supHeadString() {
