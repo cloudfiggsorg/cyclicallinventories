@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.bmore.ume001.beans.User;
+import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.ReporteDocInvBean;
 import com.gmodelo.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.beans.Request;
@@ -73,8 +74,12 @@ public class ReportesServlet extends HttpServlet {
 		if (user != null) {
 			String doRequest = request.getParameter("REQUEST");
 			try {
-				Request docinv = new Gson().fromJson(new Gson().toJson(doRequest), Request.class);
-				Response<ReporteDocInvBeanHeader> reportInv = new ReportesService().getReporteDocInv(docinv);
+				DocInvBean docInvBean = new DocInvBean();
+				docInvBean.setDocInvId(Integer.parseInt(doRequest));
+				Request<DocInvBean> requestDoc =  new Request<>();
+				requestDoc.setLsObject(docInvBean);
+				requestDoc.setTokenObject(null);	
+				Response<ReporteDocInvBeanHeader> reportInv = new ReportesService().getReporteDocInv(requestDoc);
 				generateDocInvReporte(request, response, reportInv.getLsObject());
 			} catch (Exception e) {
 				// Fill With Another Object Report
