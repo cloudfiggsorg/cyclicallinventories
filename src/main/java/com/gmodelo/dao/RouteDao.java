@@ -77,31 +77,32 @@ public class RouteDao {
 			
 			rpb = routeBean.getPositions().get(i);
 			
-			if(rpb.getGdesc() == null){
-				
-				zb = new ZoneBean();
-				zb.setBukrs(routeBean.getBukrs());
-				zb.setWerks(routeBean.getWerks());
-				zb.setZoneId(rpb.getZoneId());
-				zbAux = new ZoneDao().getZoneById(zb, con);
-				
-				if(zbAux == null){
-					
-					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs("Zona inválida: \" "+ zb.getZoneId() 
-					+ " \" para los datos definidos en \"Sociedad\" y \"Centro\".");
-					res.setAbstractResult(abstractResult);
-					return res;
-					
-				}else{
-					
-					rpb.setZoneId(zbAux.getZoneId());
-					rpb.setZdesc(zbAux.getZdesc());
-					rpb.setLgort(zbAux.getLgort());
-					rpb.setGdesc(zbAux.getgDesc());					
-					routeBean.getPositions().set(i, rpb);
-				}
+			if(rpb.getGdesc() != null){				
+				continue;
 			}
+			
+			zb = new ZoneBean();
+			zb.setBukrs(routeBean.getBukrs());
+			zb.setWerks(routeBean.getWerks());
+			zb.setZoneId(rpb.getZoneId());
+			zbAux = new ZoneDao().getZoneById(zb, con);
+			
+			if(zbAux == null){
+				
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("Zona inválida: \" "+ zb.getZoneId() 
+				+ " \" para los datos definidos en \"Sociedad\" y \"Centro\".");
+				res.setAbstractResult(abstractResult);
+				return res;
+				
+			}else{
+				
+				rpb.setZoneId(zbAux.getZoneId());
+				rpb.setZdesc(zbAux.getZdesc());
+				rpb.setLgort(zbAux.getLgort());
+				rpb.setGdesc(zbAux.getgDesc());					
+				routeBean.getPositions().set(i, rpb);
+			}			
 		}
 				
 		log.info("[addRoute] Preparing sentence...");

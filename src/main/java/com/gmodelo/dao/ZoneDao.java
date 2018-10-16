@@ -41,34 +41,22 @@ public class ZoneDao {
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		int idPosition = 0;
-		int zoneId = 0;
-		boolean flagValidate = false;
+		int zoneId = 0;		
 		
 		try {
 			zoneId = Integer.parseInt(zoneBean.getZoneId());
 		} catch (NumberFormatException e) {
-			// TODO: handle exception
-		}		
-		
-		for(ZonePositionsBean zpb: zoneBean.getPositions()){
-		
-			if(zpb.getImwm() == null){
-				flagValidate = true;
-				break;
-			}
-		}		
-		
-		if(flagValidate){
 			
-			Response<ZoneBean> resZoneBean = validateZonePositions(zoneBean);
+		}		
+				
+		Response<ZoneBean> resZoneBean = validateZonePositions(zoneBean);
+		
+		if(resZoneBean.getAbstractResult().getResultId() == 1){
 			
-			if(resZoneBean.getAbstractResult().getResultId() == 1){
-				
-				zoneBean = resZoneBean.getLsObject();
-			}else{
-				
-				return resZoneBean;
-			}			
+			zoneBean = resZoneBean.getLsObject();
+		}else{
+			
+			return resZoneBean;
 		}
 				
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?, ?";
@@ -724,6 +712,10 @@ public class ZoneDao {
 		ZonePositionMaterialsBean zpmb;		
 		
 		for(int i = 0; i < size; i++){
+			
+			if(lsZpb.get(i).getImwm() != null){
+				continue;
+			}
 			
 			zpb = lsZpb.get(i);
 			tgb = new TgortB();
