@@ -89,6 +89,71 @@ public class TgortDao {
 		return res;
 	}
 	
+	public TgortB getLgTypByWerksAndLgort(TgortB tgortBean, Connection con){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		try {
+			con = con.isValid(3)? iConnectionManager.createConnection(): con;
+		} catch (SQLException e1) {
+			log.log(Level.SEVERE,"[getLgTypByBukrsAndWerksDao] Some error ocurred while was trying to check the connection");
+			return null;
+		}
+		PreparedStatement stm = null;
+		TgortB tgortBeanAux = null;
+				 
+		String INV_VW_TGORT_BY_NGORT = "SELECT WERKS, LGORT, LGNUM, LGTYP, LTYPT, IMWM  FROM [INV_CIC_DB].[dbo].[INV_VW_TGORT_BY_NGORT] WITH(NOLOCK) ";
+		String condition = buildCondition(tgortBean);
+		
+		if(condition != null){
+			INV_VW_TGORT_BY_NGORT += condition;
+			
+		}
+		log.info(INV_VW_TGORT_BY_NGORT);
+		log.info("[getLgTypByBukrsAndWerksDao] Preparing sentence...");
+		try {
+			
+			stm = con.prepareStatement(INV_VW_TGORT_BY_NGORT);		
+			
+			log.info("[getLgTypByBukrsAndWerksDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				
+				tgortBeanAux = new TgortB();				
+				tgortBeanAux.setWerks(rs.getString(1));
+				tgortBeanAux.setLgort(rs.getString(2));
+				tgortBeanAux.setLgNum(rs.getString(3));
+				tgortBeanAux.setLgTyp(rs.getString(4));
+				tgortBeanAux.setLtypt(rs.getString(5));
+				tgortBeanAux.setImwm(rs.getString(6));
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();
+			log.info("[getLgTypByBukrsAndWerksDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getLgTypByBukrsAndWerksDao] Some error occurred while was trying to execute the query: " + INV_VW_TGORT_BY_NGORT, e);
+			return null;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getLgTypByBukrsAndWerksDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		
+		return tgortBeanAux;
+	}
+	
 	private String buildCondition(TgortB tgortB){
 		String werks = "";
 		String lgort = "";

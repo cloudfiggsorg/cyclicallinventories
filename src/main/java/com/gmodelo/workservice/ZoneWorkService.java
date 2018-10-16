@@ -10,6 +10,7 @@ import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
+import com.gmodelo.beans.ZonePositionsBean;
 import com.gmodelo.dao.ZoneDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -142,7 +143,7 @@ public class ZoneWorkService {
 		}
 		return new ZoneDao().getZones(zoneBean,searchFilter);
 		
-	}
+	}	
 	
 	public Response<List<ZoneBean>> getZoneOnly(Request<?> request){
 		
@@ -151,6 +152,30 @@ public class ZoneWorkService {
 		searchFilter = ((String) request.getLsObject()).trim();
 		
 		return new ZoneDao().getZonesOnly(searchFilter);
+		
+	}
+	
+	public Response<ZoneBean> validateZonePositions(Request<?> request){
+		
+		log.info("[validateZonePositions] " + request.toString());
+		ZoneBean zb = null;	
+		
+		try {
+			
+			zb = gson.fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
+			
+		} catch (JsonSyntaxException e) {
+			
+			log.log(Level.SEVERE,"[validateZonePositions] Error al pasar de Json a ZonePositionsBean");
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
+			Response<ZoneBean> res = new Response<ZoneBean>();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;				
+		}
+		
+		return new ZoneDao().validateZonePositions(zb);
 		
 	}
 	

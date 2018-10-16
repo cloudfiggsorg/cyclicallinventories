@@ -14,6 +14,7 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.MatnrBeanView;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TmatnrBean;
+import com.gmodelo.beans.ZonePositionMaterialsBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -160,6 +161,64 @@ public class MatnrDao {
 		return res;
 	}
 	
+	public ZonePositionMaterialsBean getTmatnrByTmatnr(ZonePositionMaterialsBean zpmb, Connection con){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		
+		try {
+			con = con.isValid(3)? iConnectionManager.createConnection(): con;
+		} catch (SQLException e1) {
+			log.log(Level.SEVERE,"[getTmatnrByTmatnr] Some error ocurred while was trying to check the connection");
+			return null;
+		}
+		PreparedStatement stm = null;		
+		ZonePositionMaterialsBean zpmbAux = null; 
+		 
+		String INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, MAKTX FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) ";
+		INV_VW_TYPMATNR_BY_MATNR += "WHERE MATNR = '" + zpmb.getMatnr() + "'";
+		
+		log.info(INV_VW_TYPMATNR_BY_MATNR);
+				
+		log.info("[getTmatnrByTmatnr] Preparing sentence...");
+		try {
+			
+			stm = con.prepareStatement(INV_VW_TYPMATNR_BY_MATNR);		
+			
+			log.info("[getTmatnrByTmatnr] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				zpmbAux = new ZonePositionMaterialsBean();				
+				zpmbAux.setMatnr(rs.getString("MATNR"));
+				zpmbAux.setDescM(rs.getString("MAKTX"));
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();
+			log.info("[getTmatnrByTmatnr] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getTmatnrByTmatnr] Some error occurred while was trying to execute the query: " + INV_VW_TYPMATNR_BY_MATNR, e);
+			return null;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getTmatnrByTmatnr] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		
+		return zpmbAux;
+	}
+	
 	private String buildCondition(TmatnrBean tmatnrBean){
 		String matnr = "";
 		String tmat = "";
@@ -176,22 +235,5 @@ public class MatnrDao {
 		return condition;
 	}
 	
-	private String buildCondition(MatnrBeanView mantrB){
-		String werks = "";
-		String matnr = "";
-		String maktx = "";
-		
-		String condition = "";
-		
-		werks = (mantrB.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")+" WERKS LIKE '"+ mantrB.getWerks() + "' "  : "";
-		condition+=werks;
-		matnr = (mantrB.getMatnr() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " MATNR LIKE '%" + mantrB.getMatnr() +"%' " : "";
-		condition+=matnr;
-		maktx = (mantrB.getMaktx() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " MAKTX LIKE '%" + mantrB.getMaktx() +"%' " : "";
-		condition+=maktx;
-		condition = condition.isEmpty() ? null : condition;
-		return condition;
-	}
-
 
 }
