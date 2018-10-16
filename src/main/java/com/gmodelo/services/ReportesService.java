@@ -30,7 +30,7 @@ public class ReportesService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getReporteApegos")
-	public Response<List<ApegosBean>> getRoutes(Request request) {
+	public Response<List<ApegosBean>> getReporteApegos(Request request) {
 		return new ReportesWorkService().getReporteApegos(request);
 	}
 
