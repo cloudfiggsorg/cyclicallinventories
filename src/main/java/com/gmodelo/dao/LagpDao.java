@@ -94,6 +94,65 @@ public class LagpDao {
 		return res;
 	}
 	
+	public LagpEntity getLgpla(LagpEntity lgplaBean, Connection con){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		try {
+			con = con.isValid(3)? iConnectionManager.createConnection(): con;
+		} catch (SQLException e1) {
+			log.log(Level.SEVERE,"[getLgplaDao] Some error ocurred while was trying to check the connection");
+			return null;
+		}
+		PreparedStatement stm = null;		
+		LagpEntity lgplaBeanAux = null; 
+		 
+		String INV_VW_LAGP = "SELECT LGNUM, LGTYP, LGPLA, IMWM FROM INV_CIC_DB.dbo.INV_VW_LAGP WITH(NOLOCK) ";
+		INV_VW_LAGP += buildCondition(lgplaBean);		
+
+		log.info(INV_VW_LAGP);
+		log.info("[getLgplaDao] Preparing sentence...");
+		try {
+			
+			stm = con.prepareStatement(INV_VW_LAGP);		
+			
+			log.info("[getLgplaDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				lgplaBeanAux = new LagpEntity();
+				
+				lgplaBeanAux.setLgNum(rs.getString(1));
+				lgplaBeanAux.setLgTyp(rs.getString(2));
+				lgplaBeanAux.setLgPla(rs.getString(3));
+				lgplaBeanAux.setImwm(rs.getString(4));
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();
+			log.info("[getLgplaDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getLgplaDao] Some error occurred while was trying to execute the query: " + INV_VW_LAGP, e);
+			return null;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getLgplaDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		
+		return lgplaBeanAux;
+	}
+	
 	private String buildCondition(LagpEntity lgplaB){
 				
 		String lgNum = "";

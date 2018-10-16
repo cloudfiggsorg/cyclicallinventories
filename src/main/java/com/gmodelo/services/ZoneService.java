@@ -14,6 +14,7 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
+import com.gmodelo.beans.ZonePositionsBean;
 import com.gmodelo.workservice.ZoneWorkService;
 
 @Path("/services/ZoneService")
@@ -72,4 +73,12 @@ public class ZoneService {
 		return new ZoneWorkService().getZoneOnly(request);
 	}
 	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/validateZonePositions")
+	public Response<ZoneBean> validateZonePositions(Request request){
+		return new ZoneWorkService().validateZonePositions(request);
+	}
+		
 }

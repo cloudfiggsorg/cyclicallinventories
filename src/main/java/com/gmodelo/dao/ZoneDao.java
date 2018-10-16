@@ -16,8 +16,11 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.DocInvPositionBean;
+import com.gmodelo.beans.LagpEntity;
 import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.TgortB;
+import com.gmodelo.beans.TmatnrBean;
 import com.gmodelo.beans.ZoneBean;
 import com.gmodelo.beans.ZonePositionMaterialsBean;
 import com.gmodelo.beans.ZonePositionsBean;
@@ -613,6 +616,106 @@ public class ZoneDao {
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(listZone);
 		return res ;
+	}
+	
+	public Response<ZoneBean> validateZonePositions(ZoneBean zb){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Response<ZoneBean> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		Connection con = iConnectionManager.createConnection();		
+		List<ZonePositionsBean> lsZpb = zb.getPositions();
+		List<ZonePositionMaterialsBean> lsmatNr = null;
+		int size = lsZpb.size();
+		int sizeAux = 0;
+		ZonePositionsBean zpb;
+		TgortB tgb, tgbAux;
+		LagpEntity lgpla, lgplaAux;
+		ZonePositionMaterialsBean zpmb;		
+		
+		for(int i = 0; i < size; i++){
+			
+			zpb = lsZpb.get(i);
+			tgb = new TgortB();
+			tgb.setWerks(zb.getWerks());
+			tgb.setLgort(zb.getLgort());
+			tgb.setLgNum(zpb.getLgnum());
+			tgb.setLgTyp(zpb.getLgtyp());
+			tgbAux = new TgortDao().getLgTypByWerksAndLgort(tgb, con);
+			
+			//Check lgtyp
+			if(tgbAux == null){
+				
+				log.log(Level.SEVERE,"Invalid data...");
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("Datos no válidos para \"LGNUM\": " + zpb.getLgnum() + " y "
+						+ "\"Tipo de Almacén\": " + zpb.getLgtyp());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+			
+			lsZpb.get(i).setImwm(tgbAux.getImwm());
+			lsZpb.get(i).setLgtypDesc(tgbAux.getLtypt());
+			
+			lgpla = new LagpEntity();
+			lgpla.setLgNum(tgbAux.getLgNum());
+			lgpla.setLgTyp(tgbAux.getLgTyp());
+			lgpla.setLgPla(zpb.getLgpla());
+			lgpla.setImwm(tgbAux.getImwm());
+			
+			lgplaAux = new LagpDao().getLgpla(lgpla, con);
+			
+			//Check lgpla
+			if(lgplaAux == null){
+				
+				log.log(Level.SEVERE,"Invalid data...");
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("Datos no válidos para \"LGNUM\": " + zpb.getLgnum() + " y "
+						+ "\"Tipo de Almacén\": " + zpb.getLgtyp() 
+						+ "\"Ubicación\": " + zpb.getLgpla());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+						
+			lsmatNr = zpb.getMaterials();
+			sizeAux = lsmatNr.size();
+			
+			for(int j = 0; j < sizeAux; j++){
+				
+				zpmb = new MatnrDao().getTmatnrByTmatnr(lsmatNr.get(j), con);
+				
+				if(zpmb == null){
+					
+					log.log(Level.SEVERE,"Invalid data...");
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs("Material inválido: \"" + lsmatNr.get(j).getMatnr() + " \" "
+							+ "para la secuencia: " + zpb.getSecuency());
+					res.setAbstractResult(abstractResult);
+					return res;
+				}
+				
+				lsmatNr.get(j).setDescM(zpmb.getDescM());
+			}
+			
+			zpb.setMaterials(lsmatNr);			
+			lsZpb.set(i, zpb);
+			
+		}
+		
+		zb.setPositions(lsZpb);
+		
+		try {
+			con.close();
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[validateZonePositions] Some error occurred while was trying to close the connection.", e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			res.setAbstractResult(abstractResult);
+		}
+		
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(zb);
+		
+		return res;
 	}
 	
 	private List<ZonePositionsBean> getPositionsZone(String zoneId){
