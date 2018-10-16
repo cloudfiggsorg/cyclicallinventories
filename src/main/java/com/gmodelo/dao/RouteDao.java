@@ -21,6 +21,7 @@ import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteGroupBean;
 import com.gmodelo.beans.RoutePositionBean;
 import com.gmodelo.beans.TaskBean;
+import com.gmodelo.beans.ZoneBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -58,8 +59,9 @@ public class RouteDao {
 		final String INV_SP_DEL_ROUTE_POSITION = "INV_SP_DEL_ROUTE_POSITION ?";
 		final String INV_SP_ADD_ROUTE_POSITION = "INV_SP_ADD_ROUTE_POSITION ?, ?, ?, ?";
 		final String INV_SP_DESASSIGN_GROUP_TO_ROUTE = "INV_SP_DESASSIGN_GROUP_TO_ROUTE ?";
-
 		int routeId = 0;
+		ZoneBean zb, zbAux = null; 
+		RoutePositionBean rpb;
 
 		try {
 			routeId = Integer.parseInt(routeBean.getRouteId());
@@ -70,7 +72,39 @@ public class RouteDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
-
+		
+		for(int i = 0; i < routeBean.getPositions().size(); i++){
+			
+			rpb = routeBean.getPositions().get(i);
+			
+			if(rpb.getGdesc() != null){				
+				continue;
+			}
+			
+			zb = new ZoneBean();
+			zb.setBukrs(routeBean.getBukrs());
+			zb.setWerks(routeBean.getWerks());
+			zb.setZoneId(rpb.getZoneId());
+			zbAux = new ZoneDao().getZoneById(zb, con);
+			
+			if(zbAux == null){
+				
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("Zona inválida: \" "+ zb.getZoneId() 
+				+ " \" para los datos definidos en \"Sociedad\" y \"Centro\".");
+				res.setAbstractResult(abstractResult);
+				return res;
+				
+			}else{
+				
+				rpb.setZoneId(zbAux.getZoneId());
+				rpb.setZdesc(zbAux.getZdesc());
+				rpb.setLgort(zbAux.getLgort());
+				rpb.setGdesc(zbAux.getgDesc());					
+				routeBean.getPositions().set(i, rpb);
+			}			
+		}
+				
 		log.info("[addRoute] Preparing sentence...");
 
 		try {
@@ -205,7 +239,7 @@ public class RouteDao {
 		res.setLsObject(routeBean);
 		return res;
 	}
-
+	
 	public AbstractResultsBean assingRecountGroup(TaskBean task, User user) {
 		AbstractResultsBean result = new AbstractResultsBean();
 		Connection con = new ConnectionManager().createConnection();

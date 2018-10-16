@@ -50,6 +50,16 @@ public class ZoneDao {
 			// TODO: handle exception
 		}
 
+		Response<ZoneBean> resZoneBean = validateZonePositions(zoneBean);
+
+		if (resZoneBean.getAbstractResult().getResultId() == 1) {
+
+			zoneBean = resZoneBean.getLsObject();
+		} else {
+
+			return resZoneBean;
+		}
+
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?";
 		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?";
@@ -332,7 +342,78 @@ public class ZoneDao {
 		}
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(listZone);
+
 		return res;
+	}
+
+	public ZoneBean getZoneById(ZoneBean zoneBean, Connection con) {
+
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		try {
+			con = con.isValid(3) ? iConnectionManager.createConnection() : con;
+		} catch (SQLException e1) {
+			log.log(Level.SEVERE, "[getZoneById] Some error ocurred while was trying to check the connection");
+			return null;
+		}
+		PreparedStatement stm = null;
+		ZoneBean zb = null;
+
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";
+		INV_VW_ZONE_BY_LGORT += "WHERE ZONE_ID LIKE '" + zoneBean.getZoneId() + "' ";
+		INV_VW_ZONE_BY_LGORT += "AND BUKRS = '" + zoneBean.getBukrs() + "' ";
+		INV_VW_ZONE_BY_LGORT += "AND WERKS = '" + zoneBean.getWerks() + "' ";
+		INV_VW_ZONE_BY_LGORT += "GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
+		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
+
+		log.info(INV_VW_ZONE_BY_LGORT);
+
+		log.info("[getZoneById] Preparing sentence...");
+
+		try {
+			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
+
+			log.info("[getZoneById] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+
+				zb = new ZoneBean();
+
+				zb.setLgort(rs.getString("LGORT"));
+				zb.setgDesc(rs.getString("LGOBE"));
+				zb.setZoneId(String.format("%08d", Integer.parseInt(rs.getString("ZONE_ID"))));
+				zb.setZdesc(rs.getString("ZON_DESC"));
+				zb.setBukrs(rs.getString("BUKRS"));
+				zb.setWerks(rs.getString("WERKS"));
+
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+
+			log.info("[getZoneById] Sentence successfully executed.");
+
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getZoneById] Some error occurred while was trying to execute the query: " + INV_VW_ZONE_BY_LGORT,
+					e);
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getZoneById] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		return zb;
 	}
 
 	public Response<List<ZoneBean>> validateZone(ZoneBean zoneBean) {
@@ -651,8 +732,11 @@ public class ZoneDao {
 		TgortB tgb, tgbAux;
 		LagpEntity lgpla, lgplaAux;
 		ZonePositionMaterialsBean zpmb;
-
 		for (int i = 0; i < size; i++) {
+
+			if (lsZpb.get(i).getImwm() != null) {
+				continue;
+			}
 
 			zpb = lsZpb.get(i);
 			tgb = new TgortB();
@@ -699,6 +783,10 @@ public class ZoneDao {
 			sizeAux = lsmatNr.size();
 
 			for (int j = 0; j < sizeAux; j++) {
+
+				if (lsmatNr.get(j).getMatnr().trim().length() == 0) {
+					continue;
+				}
 
 				zpmb = new MatnrDao().getTmatnrByTmatnr(lsmatNr.get(j), con);
 
