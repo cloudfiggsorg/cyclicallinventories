@@ -62,8 +62,6 @@ public class ZoneDao {
 			
 			Response<ZoneBean> resZoneBean = validateZonePositions(zoneBean);
 			
-			System.out.println("validating");
-			
 			if(resZoneBean.getAbstractResult().getResultId() == 1){
 				
 				zoneBean = resZoneBean.getLsObject();
@@ -705,6 +703,10 @@ public class ZoneDao {
 			sizeAux = lsmatNr.size();
 			
 			for(int j = 0; j < sizeAux; j++){
+				
+				if(lsmatNr.get(j).getMatnr().trim().length() == 0){
+					continue;
+				}
 				
 				zpmb = new MatnrDao().getTmatnrByTmatnr(lsmatNr.get(j), con);
 				
