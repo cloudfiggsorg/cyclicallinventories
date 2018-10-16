@@ -158,7 +158,7 @@ public class ConciliacionDao {
 			+ "INNER JOIN MAKT M ON (M.MATNR = C.COU_MATNR) " + "INNER JOIN MARA MA ON (MA.MATNR = C.COU_MATNR) "
 			+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
 
-	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZPO_PK_ASG_ID, "
+	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZON_LGORT, LGOBE, ZPO_PK_ASG_ID, "
 			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
 
 	private static final String INV_DOC_CHILDREN = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_FATHER_INV_ID = ? ";
@@ -216,6 +216,8 @@ public class ConciliacionDao {
 					bean.setZoneId(rs.getString("ZONE_ID"));
 					bean.setZoneD(rs.getString("ZON_DESC"));
 					bean.setLgpla(rs.getString("LGPLA"));
+					bean.setLgort(rs.getString("ZON_LGORT"));
+					bean.setLgobe(rs.getString("LGOBE"));
 					if (count == 0) {
 						docInvBean.setCountA(true);
 						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
@@ -537,20 +539,25 @@ public class ConciliacionDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		GroupBean gb = new GroupBean();
 		GroupDao gpDao = new GroupDao();
-				
-		String INV_VW_AVAILABLE_GROUPS = "SELECT IG.GROUP_ID, IG.GRP_DESC " 
-		+ "FROM INV_GROUPS_USER AS IGU "
-		+ "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
-		+ "WHERE GRU_USER_ID NOT IN (SELECT GRU_USER_ID FROM INV_GROUPS_USER "
-		+ "	WHERE GRU_GROUP_ID IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
-		+ "AND GRU_GROUP_ID NOT IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)"
-		+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC"; 		
 
-		/*String INV_VW_AVAILABLE_GROUPS = "SELECT GRPS.GROUP_ID, GRPS.GRP_DESC " + "FROM INV_ROUTE_GROUPS AS IRG "
-				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IRG.RGR_ROUTE_ID = IDIH.DIH_ROUTE_ID) "
-				+ "INNER JOIN INV_GROUPS AS GRPS ON(GRPS.GROUP_ID = IRG.RGR_GROUP_ID) "
-				+ "AND RGR_GROUP_ID NOT IN(SELECT TAS_GROUP_ID " + "FROM INV_TASK " + "WHERE TAS_DOC_INV_ID = ?) "
-				+ "WHERE IDIH.DOC_INV_ID = ? " + "ORDER BY IRG.RGR_COUNT_NUM ASC";*/
+		String INV_VW_AVAILABLE_GROUPS = "SELECT IG.GROUP_ID, IG.GRP_DESC " + "FROM INV_GROUPS_USER AS IGU "
+				+ "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
+				+ "WHERE GRU_USER_ID NOT IN (SELECT GRU_USER_ID FROM INV_GROUPS_USER "
+				+ "	WHERE GRU_GROUP_ID IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
+				+ "AND GRU_GROUP_ID NOT IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)"
+				+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
+
+		/*
+		 * String INV_VW_AVAILABLE_GROUPS =
+		 * "SELECT GRPS.GROUP_ID, GRPS.GRP_DESC " +
+		 * "FROM INV_ROUTE_GROUPS AS IRG " +
+		 * "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IRG.RGR_ROUTE_ID = IDIH.DIH_ROUTE_ID) "
+		 * +
+		 * "INNER JOIN INV_GROUPS AS GRPS ON(GRPS.GROUP_ID = IRG.RGR_GROUP_ID) "
+		 * + "AND RGR_GROUP_ID NOT IN(SELECT TAS_GROUP_ID " + "FROM INV_TASK " +
+		 * "WHERE TAS_DOC_INV_ID = ?) " + "WHERE IDIH.DOC_INV_ID = ? " +
+		 * "ORDER BY IRG.RGR_COUNT_NUM ASC";
+		 */
 
 		try {
 			stm = con.prepareCall(INV_VW_AVAILABLE_GROUPS);
@@ -564,7 +571,7 @@ public class ConciliacionDao {
 				gb = new GroupBean();
 				gb.setGroupId(rs.getString(1));
 				gb.setGdesc(rs.getString(2));
-				//gb.setUsers(gpDao.groupUsers(gb.getGroupId(), null));
+				// gb.setUsers(gpDao.groupUsers(gb.getGroupId(), null));
 				listGroups.add(gb);
 			}
 
@@ -738,17 +745,14 @@ public class ConciliacionDao {
 	}
 
 	/*
-	  public static void main(String args[]){ 
-		  ConciliacionDao dao = new ConciliacionDao(); 
-		  ConciliacionBean docInvBean = new ConciliacionBean();
-		 
-		 docInvBean.setDocInvId(22); 
-		 String searchFilter = "";
-		 List<ConciliationPositionBean> x = dao.getConciliationPositions(docInvBean);
-		  //Response<List<ConciliacionBean>> x = dao.getConciliacion(docInvBean,searchFilter ); 
-		  for(int i=0; i < x.size(); i++){
-			  System.out.println(x.get(i).toString());
-		  } 
-	  }
+	 * public static void main(String args[]){ ConciliacionDao dao = new
+	 * ConciliacionDao(); ConciliacionBean docInvBean = new ConciliacionBean();
+	 * 
+	 * docInvBean.setDocInvId(22); String searchFilter = "";
+	 * List<ConciliationPositionBean> x =
+	 * dao.getConciliationPositions(docInvBean);
+	 * //Response<List<ConciliacionBean>> x =
+	 * dao.getConciliacion(docInvBean,searchFilter ); for(int i=0; i < x.size();
+	 * i++){ System.out.println(x.get(i).toString()); } }
 	 */
 }

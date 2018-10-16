@@ -9,7 +9,6 @@ import com.gmodelo.beans.ApegosBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteConteosBean;
-import com.gmodelo.beans.ReporteDocInvBean;
 import com.gmodelo.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
@@ -18,7 +17,6 @@ import com.gmodelo.beans.TareasTiemposZonasBean;
 import com.gmodelo.dao.ReportesDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 
 public class ReportesWorkService {
 
@@ -27,46 +25,38 @@ public class ReportesWorkService {
 
 	public Response<List<ApegosBean>> getReporteApegos(Request request) {
 		log.info("[getReporteApegosWorkService] " + request.toString());
+		Response<List<ApegosBean>> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
 		ApegosBean apegosBean = null;
-		String searchFilter = null;
-		String req = request.getLsObject().toString().trim();
-		if (!req.isEmpty()) {
-			try {
-				apegosBean = gson.fromJson(gson.toJson(request.getLsObject()), ApegosBean.class);
-
-				log.info("Fue objeto");
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString();
-				log.info("Fue cadena");
-			}
-		} else {
-			searchFilter = "";
+		try {
+			log.info("[getReporteApegosWorkService] try");
+			apegosBean = gson.fromJson(gson.toJson(request.getLsObject()), ApegosBean.class);
+			response = new ReportesDao().getReporteApegos(apegosBean);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "getReporteApegosWorkService] catch", e);
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
 		}
-
-		return new ReportesDao().getReporteApegos(apegosBean, searchFilter);
+		response.setAbstractResult(result);
+		return response;
 	}
 
 	public Response<List<ReporteConteosBean>> getReporteConteos(Request request) {
-
 		log.info("[getReporteConteosWorkService] " + request.toString());
+		Response<List<ReporteConteosBean>> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
 		ReporteConteosBean bean = null;
-		String searchFilter = null;
-		String req = request.getLsObject().toString().trim();
-		if (!req.isEmpty()) {
-			try {
-				bean = gson.fromJson(gson.toJson(request.getLsObject()), ReporteConteosBean.class);
-
-				log.info("Fue objeto");
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString();
-				log.info("Fue cadena");
-			}
-		} else {
-			searchFilter = "";
+		try {
+			log.info("[getReporteConteosWorkService] try");
+			bean = gson.fromJson(gson.toJson(request.getLsObject()), ReporteConteosBean.class);
+			response = new ReportesDao().getReporteConteos(bean);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[getReporteConteosWorkService] catch", e);
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
 		}
-
-		return new ReportesDao().getReporteConteos(bean, searchFilter);
-
+		response.setAbstractResult(result);
+		return response;
 	}
 
 	public Response<ReporteDocInvBeanHeader> getReporteDocInv(Request request) {
@@ -89,64 +79,55 @@ public class ReportesWorkService {
 
 	public Response<List<TareasTiemposLgplaBean>> getReporteTiemposTareasLgpla(Request request) {
 		log.info("[getReporteTiemposTareasWorkService] " + request.toString());
+		Response<List<TareasTiemposLgplaBean>> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
 		TareasTiemposLgplaBean tareasBean = null;
-		String searchFilter = null;
-		String req = request.getLsObject().toString().trim();
-		if (!req.isEmpty()) {
-			try {
-				tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), TareasTiemposLgplaBean.class);
-
-				log.info("Fue objeto");
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString();
-				log.info("Fue cadena");
-			}
-		} else {
-			searchFilter = "";
+		try {
+			log.info("[getReporteTiemposTareasWorkService] try");
+			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), TareasTiemposLgplaBean.class);
+			response = new ReportesDao().getReporteTareasTiemposLgpla(tareasBean);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[getReporteTiemposTareasWorkService] catch", e );
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
 		}
-
-		return new ReportesDao().getReporteTareasTiemposLgpla(tareasBean, searchFilter);
+		response.setAbstractResult(result);
+		return response;
 	}
 
 	public Response<List<TareasTiemposZonasBean>> getReporteTiemposTareasZonas(Request request) {
 		log.info("[getReporteTiemposTareasZonasWorkService] " + request.toString());
+		Response<List<TareasTiemposZonasBean>> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
 		TareasTiemposZonasBean tareasBean = null;
-		String searchFilter = null;
-		String req = request.getLsObject().toString().trim();
-		if (!req.isEmpty()) {
-			try {
-				tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), TareasTiemposZonasBean.class);
-
-				log.info("Fue objeto");
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString();
-				log.info("Fue cadena");
-			}
-		} else {
-			searchFilter = "";
+		try {
+			log.info("[getReporteTiemposTareasZonasWorkService] try");
+			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), TareasTiemposZonasBean.class);
+			response = new ReportesDao().getReporteTareasTiemposZonas(tareasBean); 
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[getReporteTiemposTareasZonasWorkService] catch", e );
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
 		}
-
-		return new ReportesDao().getReporteTareasTiemposZonas(tareasBean, searchFilter);
+		response.setAbstractResult(result);
+		return response;
 	}
 
 	public Response<List<ReporteCalidadBean>> getReporteCalidad(Request request) {
 		log.info("[getReporteCalidadWorkService] " + request.toString());
+		Response<List<ReporteCalidadBean>> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
 		ReporteCalidadBean bean = null;
-		String searchFilter = null;
-		String req = request.getLsObject().toString().trim();
-		if (!req.isEmpty()) {
-			try {
-				bean = gson.fromJson(gson.toJson(request.getLsObject()), ReporteCalidadBean.class);
-
-				log.info("Fue objeto");
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString();
-				log.info("Fue cadena");
-			}
-		} else {
-			searchFilter = "";
+		try {
+			log.info("[getReporteCalidadWorkService] try");
+			bean = gson.fromJson(gson.toJson(request.getLsObject()), ReporteCalidadBean.class);
+			response = new ReportesDao().getReporteCalidad(bean);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[getReporteCalidadWorkService] catch", e);
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
 		}
-
-		return new ReportesDao().getReporteCalidad(bean, searchFilter);
+		response.setAbstractResult(result);
+		return response;
 	}
 }

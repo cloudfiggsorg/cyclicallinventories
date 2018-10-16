@@ -13,7 +13,9 @@ import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
+import com.gmodelo.beans.RoutePositionBean;
 import com.gmodelo.dao.DocInvDao;
+import com.gmodelo.dao.RouteDao;
 import com.gmodelo.dao.ZoneDao;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
@@ -27,23 +29,33 @@ public class DocInvWorkService {
 
 	@SuppressWarnings("rawtypes")
 	public Response<DocInvBean> addDocInv(Request request, User user) {
-
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		log.info("[addDocInvWS] " + request.toString());
 		DocInvBean docInvBean;
 		Response<DocInvBean> res = new Response<DocInvBean>();
-
 		try {
 			docInvBean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
-		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE, "[addDocInvWS] Error al pasar de Json a DocInvB");
-			docInvBean = null;
-			AbstractResultsBean abstractResult = new AbstractResultsBean();
+			List<RoutePositionBean> positionRoute = new RouteDao().getPositions(docInvBean.getRoute());
+			if (!positionRoute.isEmpty()) {
+				res = new DocInvDao().addDocInv(docInvBean, user.getEntity().getIdentyId());
+			} else {
+				abstractResult.setResultId(ReturnValues.IERROR);
+				abstractResult.setResultMsgAbs("Ruta no seleccionable, favor de agregar posiciones de conteo");
+				res.setAbstractResult(abstractResult);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[addDocInvWS] Error al consultar Datos de la ruta");
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
-			return res;
+
+		} catch (JsonSyntaxException e) {
+			log.log(Level.SEVERE, "[addDocInvWS] Error al pasar de Json a DocInvB");
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
 		}
-		return new DocInvDao().addDocInv(docInvBean, user.getEntity().getIdentyId());
+		return res;
 
 	}
 
@@ -94,7 +106,7 @@ public class DocInvWorkService {
 		}
 		return new DocInvDao().getDocInv(tb, searchFilter);
 	}
-	
+
 	@SuppressWarnings({ "rawtypes" })
 	public Response<List<DocInvBean>> getOnlyDocInv(Request request) {
 
@@ -121,7 +133,7 @@ public class DocInvWorkService {
 
 	@SuppressWarnings("rawtypes")
 	public Response conciDocInv(Request request, User user) {
-		log.info("[conciDocInv] conciDocInv request " +request.toString());
+		log.info("[conciDocInv] conciDocInv request " + request.toString());
 		Response response = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
 		try {

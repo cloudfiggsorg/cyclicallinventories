@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.bmore.ume001.beans.User;
+import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.ReporteDocInvBean;
 import com.gmodelo.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.beans.Request;
@@ -62,6 +63,7 @@ public class ReportesServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		doIdentifyRequest(request, response);
 		// doGet(request, response);
 	}
 
@@ -73,8 +75,12 @@ public class ReportesServlet extends HttpServlet {
 		if (user != null) {
 			String doRequest = request.getParameter("REQUEST");
 			try {
-				Request docinv = new Gson().fromJson(new Gson().toJson(doRequest), Request.class);
-				Response<ReporteDocInvBeanHeader> reportInv = new ReportesService().getReporteDocInv(docinv);
+				DocInvBean docInvBean = new DocInvBean();
+				docInvBean.setDocInvId(Integer.parseInt(doRequest));
+				Request<DocInvBean> requestDoc =  new Request<>();
+				requestDoc.setLsObject(docInvBean);
+				requestDoc.setTokenObject(null);	
+				Response<ReporteDocInvBeanHeader> reportInv = new ReportesService().getReporteDocInv(requestDoc);
 				generateDocInvReporte(request, response, reportInv.getLsObject());
 			} catch (Exception e) {
 				// Fill With Another Object Report
@@ -93,7 +99,7 @@ public class ReportesServlet extends HttpServlet {
 		String filePath = "DocumentoInventario" + reportInv.getDocInvId() + ".csv";
 		try {
 			writer = new PrintWriter(
-					new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(filePath)), "UTF-8"));
+					new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(filePath)), "ISO-8859-1"));
 			writer.append("Documento de Inventario:," + reportInv.getDocInvId()).println();
 			writer.append("Sociedad:, " + reportInv.getBukrs() + "-" + reportInv.getBukrsD()).println();
 			writer.append("Centro:," + reportInv.getWerks() + "-" + reportInv.getWerksD()).println();
@@ -103,7 +109,7 @@ public class ReportesServlet extends HttpServlet {
 			writer.append("Tipo de Documento:," + (reportInv.getType().equals("1") ? "Diario" : "Mensual")).println();
 			writer.println();
 			writer.println();
-			writer.print(new ReporteDocInvBean().supHeadString());
+			writer.append(new ReporteDocInvBean().supHeadString()).println();
 			for (ReporteDocInvBean singleBean : reportInv.getDocInvPosition()) {
 				writer.append(singleBean.supString()).println();
 			}

@@ -13,7 +13,6 @@ import javax.ws.rs.core.MediaType;
 import com.gmodelo.beans.ApegosBean;
 import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteConteosBean;
-import com.gmodelo.beans.ReporteDocInvBean;
 import com.gmodelo.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
