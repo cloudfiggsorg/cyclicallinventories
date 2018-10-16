@@ -30,6 +30,11 @@ public class ConciliacionDao {
 
 	private Logger log = Logger.getLogger(ConciliacionDao.class.getName());
 
+	private static final String GENERATE_IDDESC_CONCILIATION = "select DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION "
+			+ " from INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK) "
+			+ " Inner join INV_ROUTE inr WITH(NOLOCK) on idih.DIH_ROUTE_ID = inr.routE_ID WHERE idih.DIH_STATUS = '1'"
+			+ " AND idih.DOC_FATHER_INV_ID is null";
+
 	public Response<List<ConciliationsIDsBean>> getConciliationIDs() {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -38,7 +43,6 @@ public class ConciliacionDao {
 		PreparedStatement stm = null;
 		List<ConciliationsIDsBean> listConIds = new ArrayList<ConciliationsIDsBean>();
 		ConciliationsIDsBean conciliationIDsBean;
-		final String GENERATE_IDDESC_CONCILIATION = "select DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION from INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK)  Inner join INV_ROUTE inr WITH(NOLOCK) on idih.DIH_ROUTE_ID = inr.routE_ID WHERE idih.DIH_STATUS = '1'";
 
 		try {
 			stm = con.prepareCall(GENERATE_IDDESC_CONCILIATION);
@@ -181,7 +185,7 @@ public class ConciliacionDao {
 			log.info(
 					"[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, After Excecute query...");
 			while (rs.next()) {
-				int total = 0;
+				String total = "0";
 				if (taskID == null) {
 					taskID = rs.getString("TASK_ID");
 				} else if (!taskID.equals(rs.getString("TASK_ID"))) {
@@ -192,20 +196,20 @@ public class ConciliacionDao {
 					bean = hashMap.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"));
 					if (count == 0) {
 						docInvBean.setCountA(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCount1A("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCount1A(total);
 					} else if (count == 1) {
 						docInvBean.setCountB(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCount1B("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCount1B(total);
 					} else if (count == 2) {
 						docInvBean.setCount2(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCount2("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCount2(total);
 					} else if (count == 3) {
 						docInvBean.setCount3(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCount3("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCount3(total);
 					}
 				} else {
 					bean = new ConciliationPositionBean();
@@ -220,20 +224,20 @@ public class ConciliacionDao {
 					bean.setLgobe(rs.getString("LGOBE"));
 					if (count == 0) {
 						docInvBean.setCountA(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCount1A("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCount1A(total);
 					} else if (count == 1) {
 						docInvBean.setCountB(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCount1B("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCount1B(total);
 					} else if (count == 2) {
 						docInvBean.setCount2(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCount2("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCount2(total);
 					} else if (count == 3) {
 						docInvBean.setCount3(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCount3("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCount3(total);
 					}
 
 				}
@@ -256,13 +260,13 @@ public class ConciliacionDao {
 				PreparedStatement stm2 = con.prepareStatement(INV_FULL_COUNT);
 				stm2.setString(1, rsChl.getString("DOC_INV_ID"));
 				rs = stm2.executeQuery();
-				int total = 0;
+				String total = "";
 				while (rs.next()) {
 					if (hashMap.containsKey(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))) {
 						bean = hashMap.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"));
 						docInvBean.setCountE(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCountX("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCountX(total);
 					} else {
 						bean = new ConciliationPositionBean();
 						bean.setMeasureUnit(rs.getString("MEINS"));
@@ -271,9 +275,11 @@ public class ConciliacionDao {
 						bean.setZoneId(rs.getString("ZONE_ID"));
 						bean.setZoneD(rs.getString("ZON_DESC"));
 						bean.setLgpla(rs.getString("LGPLA"));
+						bean.setCount1A("0");
+						bean.setCount1B("0");
 						docInvBean.setCountE(true);
-						total += rs.getString("COU_TOTAL") != null ? rs.getInt("COU_TOTAL") : 0;
-						bean.setCountX("" + total);
+						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
+						bean.setCountX(total);
 					}
 				}
 			}
