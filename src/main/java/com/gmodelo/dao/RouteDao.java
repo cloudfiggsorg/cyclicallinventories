@@ -571,13 +571,9 @@ public class RouteDao {
 			log.log(Level.WARNING, warning.getMessage());
 			warning = warning.getNextWarning();
 		}
-
 		// Free resources
-		rs.close();
-		stm.close();
 		log.info("[getPositionsDao] Sentence successfully executed.");
 		con.close();
-
 		return listPositions;
 	}
 
