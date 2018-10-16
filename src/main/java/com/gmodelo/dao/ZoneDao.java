@@ -346,6 +346,74 @@ public class ZoneDao {
 		return res ;
 	}
 	
+	public ZoneBean getZoneById(ZoneBean zoneBean, Connection con){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		try {
+			con = con.isValid(3)? iConnectionManager.createConnection(): con;
+		} catch (SQLException e1) {
+			log.log(Level.SEVERE,"[getZoneById] Some error ocurred while was trying to check the connection");
+			return null;
+		}
+		PreparedStatement stm = null;
+		ZoneBean zb = null;
+		
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";				
+		INV_VW_ZONE_BY_LGORT += "WHERE ZONE_ID LIKE '" + zoneBean.getZoneId() + "' ";
+		INV_VW_ZONE_BY_LGORT += "AND BUKRS = '" + zoneBean.getBukrs() + "' ";
+		INV_VW_ZONE_BY_LGORT += "AND WERKS = '" + zoneBean.getWerks() + "' ";
+		INV_VW_ZONE_BY_LGORT += "GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
+		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
+		
+		log.info(INV_VW_ZONE_BY_LGORT);
+		
+		log.info("[getZoneById] Preparing sentence...");
+		
+		try {
+			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
+			
+			log.info("[getZoneById] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				
+				zb = new ZoneBean();
+				
+				zb.setLgort(rs.getString("LGORT"));
+				zb.setgDesc(rs.getString("LGOBE"));
+				zb.setZoneId(String.format("%08d",Integer.parseInt(rs.getString("ZONE_ID"))));
+				zb.setZdesc(rs.getString("ZON_DESC"));
+				zb.setBukrs(rs.getString("BUKRS"));
+				zb.setWerks(rs.getString("WERKS"));
+								
+			}
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			rs.close();
+			stm.close();	
+			
+			log.info("[getZoneById] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getZoneById] Some error occurred while was trying to execute the query: " + INV_VW_ZONE_BY_LGORT, e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getZoneById] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		return zb ;
+	}
+	
 	public Response<List<ZoneBean>> validateZone(ZoneBean zoneBean){
 		
 		Response<List<ZoneBean>> res = new Response<>();
