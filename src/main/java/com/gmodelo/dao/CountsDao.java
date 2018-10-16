@@ -50,75 +50,71 @@ public class CountsDao {
 				nDate = rs.getDate("TAS_UPLOAD_DATE");
 			}
 			if (nDate == null) {
-				log.info("[addConteo] UPLOAD_DATE es 0");
-				// ACTUALIZAR TIEMPOS DE TAREA
-				cs = con.prepareCall(INV_SP_UPDATE_TASK);
-				cs.setLong(1, routeBean.getDateIni());
-				cs.setLong(2, routeBean.getDateEnd());
-				cs.setString(3, routeBean.getTaskId());
-				cs.registerOutParameter(4, Types.INTEGER);
-				cs.execute();
-				int responseUpdateTask = cs.getInt(4);
-				if (responseUpdateTask == 1) {
-					log.info("[addConteo] responseUpdateTask es 1");
-					// INSERTAR CONTEOS
-					for (int i = 0; i < routeBean.getPositions().size(); i++) {
-						for (int j = 0; j < routeBean.getPositions().get(i).getZone().getPositionsB().size(); j++) {
-							cs = con.prepareCall(INV_SP_ADD_COUNT);
-							HashMap<String, LgplaValuesBean> materials = routeBean.getPositions().get(i).getZone()
-									.getPositionsB().get(j).getLgplaValues();
-							for (Entry<String, LgplaValuesBean> entrada : materials.entrySet()) {
-								log.log(Level.WARNING, "RouteBean Task: " + routeBean.getTaskId());
-								log.log(Level.WARNING, "RouteBean ZonePosition: " + routeBean.getPositions().get(i)
-										.getZone().getPositionsB().get(j).getPkAsgId());
-								cs.setString(1, routeBean.getTaskId());
-								cs.setInt(2,
-										routeBean.getPositions().get(i).getZone().getPositionsB().get(j).getPkAsgId());
-								log.log(Level.WARNING, "values: " + entrada.getValue().toString());
-								cs.setString(3,
-										String.format("%018d", Integer.parseInt(entrada.getValue().getMatnr())));
-								cs.setString(4, entrada.getValue().getVhilm());
-								cs.setString(5,
-										entrada.getValue().getSec() != null ? entrada.getValue().getSec() : "0");
-								cs.setString(6, entrada.getValue().getTarimas() != null
-										? entrada.getValue().getTarimas() : "0");
-								cs.setString(7,
-										entrada.getValue().getCamas() != null ? entrada.getValue().getCamas() : "0");
-								cs.setString(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : "0");
-								cs.setString(9, entrada.getValue().getTotalConverted() != null
-										? entrada.getValue().getTotalConverted() : "0");
-								cs.setString(10, user);
-								cs.setLong(11, entrada.getValue().getDateStart());
-								cs.setLong(12, entrada.getValue().getDateEnd());
-								cs.registerOutParameter(13, Types.INTEGER);
-								cs.execute();
 
-								log.info("[addConteo] Executing query...");
-								int responseAddCount = cs.getInt(13);
+				log.info("[addConteo] responseUpdateTask es 1");
+				// INSERTAR CONTEOS
+				for (int i = 0; i < routeBean.getPositions().size(); i++) {
+					for (int j = 0; j < routeBean.getPositions().get(i).getZone().getPositionsB().size(); j++) {
+						cs = con.prepareCall(INV_SP_ADD_COUNT);
+						HashMap<String, LgplaValuesBean> materials = routeBean.getPositions().get(i).getZone()
+								.getPositionsB().get(j).getLgplaValues();
+						for (Entry<String, LgplaValuesBean> entrada : materials.entrySet()) {
+							log.log(Level.WARNING, "RouteBean Task: " + routeBean.getTaskId());
+							log.log(Level.WARNING, "RouteBean ZonePosition: "
+									+ routeBean.getPositions().get(i).getZone().getPositionsB().get(j).getPkAsgId());
+							cs.setString(1, routeBean.getTaskId());
+							cs.setInt(2, routeBean.getPositions().get(i).getZone().getPositionsB().get(j).getPkAsgId());
+							log.log(Level.WARNING, "values: " + entrada.getValue().toString());
+							cs.setString(3, String.format("%018d", Integer.parseInt(entrada.getValue().getMatnr())));
+							cs.setString(4, entrada.getValue().getVhilm());
+							cs.setString(5, entrada.getValue().getSec() != null ? entrada.getValue().getSec() : "0");
+							cs.setString(6,
+									entrada.getValue().getTarimas() != null ? entrada.getValue().getTarimas() : "0");
+							cs.setString(7,
+									entrada.getValue().getCamas() != null ? entrada.getValue().getCamas() : "0");
+							cs.setString(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : "0");
+							cs.setString(9, entrada.getValue().getTotalConverted() != null
+									? entrada.getValue().getTotalConverted() : "0");
+							cs.setString(10, user);
+							cs.setLong(11, entrada.getValue().getDateStart());
+							cs.setLong(12, entrada.getValue().getDateEnd());
+							cs.registerOutParameter(13, Types.INTEGER);
+							cs.execute();
 
-								if (responseAddCount != 1) {
-									abstractResult.setResultId(0);
-									break;
-								}
+							log.info("[addConteo] Executing query...");
+							int responseAddCount = cs.getInt(13);
+
+							if (responseAddCount != 1) {
+								abstractResult.setResultId(ReturnValues.IERROR);
+								break;
 							}
-							// Retrive the warnings if there're
-							SQLWarning warning = cs.getWarnings();
-							while (warning != null) {
-								log.log(Level.WARNING, "[addConteo] " + warning.getMessage());
-								warning = warning.getNextWarning();
-							}
-							log.info("[addConteo] Haciendo commit");
-							con.commit();
 						}
+						// Retrive the warnings if there're
+						log.info("[addConteo] Haciendo commit");
+						con.commit();
 					}
-
-					res.setLsObject(routeBean);
+				}
+				if (abstractResult.getResultId() == ReturnValues.ISUCCESS) {
+					log.info("[addConteo] Se ingresaron los conteos correctamente ");
+					cs = con.prepareCall(INV_SP_UPDATE_TASK);
+					cs.setLong(1, routeBean.getDateIni());
+					cs.setLong(2, routeBean.getDateEnd());
+					cs.setString(3, routeBean.getTaskId());
+					cs.registerOutParameter(4, Types.INTEGER);
+					cs.execute();
+					int responseUpdateTask = cs.getInt(4);
+					con.commit();
+					if (responseUpdateTask != ReturnValues.ISUCCESS) {
+						abstractResult.setResultId(ReturnValues.IUSERTASKNOUPDATED);
+						abstractResult.setResultMsgAbs("Tarea no actualizada, por favor consulte con el administrador");
+						res.setAbstractResult(abstractResult);
+					}
 				} else {
 					log.log(Level.SEVERE, "[addConteo] Task no update : " + INV_SP_UPDATE_TASK);
 					abstractResult.setResultId(ReturnValues.IUSERTASKNOUPDATED);
-					abstractResult.setResultMsgAbs("Tarea no subida, por favor consulte con el administrador");
+					abstractResult.setResultMsgAbs(
+							"Objetos de Tarea cargados Incorrectamente, por favor consulte con el administrador");
 					res.setAbstractResult(abstractResult);
-					return res;
 				}
 
 			} else {
@@ -126,7 +122,6 @@ public class CountsDao {
 				abstractResult.setResultId(ReturnValues.IUSERTASKFINISHED);
 				abstractResult.setResultMsgAbs("Tarea ya contada, por favor consulte con el administrador");
 				res.setAbstractResult(abstractResult);
-				return res;
 			}
 		} catch (SQLException e) {
 			try {
@@ -140,7 +135,6 @@ public class CountsDao {
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
-			return res;
 		} finally {
 			try {
 				con.close();
@@ -149,7 +143,6 @@ public class CountsDao {
 						"[addConteo] Some error occurred while was trying to execute the S.P.: " + INV_SP_ADD_COUNT, e);
 			}
 		}
-
 		return res;
 	}
 
