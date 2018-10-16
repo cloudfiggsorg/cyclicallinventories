@@ -42,13 +42,37 @@ public class ZoneDao {
 		CallableStatement cs = null;
 		int idPosition = 0;
 		int zoneId = 0;
+		boolean flagValidate = false;
 		
 		try {
 			zoneId = Integer.parseInt(zoneBean.getZoneId());
 		} catch (NumberFormatException e) {
 			// TODO: handle exception
 		}		
-
+		
+		for(ZonePositionsBean zpb: zoneBean.getPositions()){
+		
+			if(zpb.getImwm() == null){
+				flagValidate = true;
+				break;
+			}
+		}		
+		
+		if(flagValidate){
+			
+			Response<ZoneBean> resZoneBean = validateZonePositions(zoneBean);
+			
+			System.out.println("validating");
+			
+			if(resZoneBean.getAbstractResult().getResultId() == 1){
+				
+				zoneBean = resZoneBean.getLsObject();
+			}else{
+				
+				return resZoneBean;
+			}			
+		}
+				
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?";
 		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?";
