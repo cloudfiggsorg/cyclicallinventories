@@ -39,7 +39,7 @@ public class DocInvWorkService {
 			if (!positionRoute.isEmpty()) {
 				res = new DocInvDao().addDocInv(docInvBean, user.getEntity().getIdentyId());
 			} else {
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultId(ReturnValues.IERROR);
 				abstractResult.setResultMsgAbs("Ruta no seleccionable, favor de agregar posiciones de conteo");
 				res.setAbstractResult(abstractResult);
 			}
