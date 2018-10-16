@@ -84,7 +84,7 @@ public class ConciliacionWorkService {
 	public Response<TaskBean> getSpecialCount(Request request, User user) {
 		log.info("[getSpecialCount] " + request.toString());
 		Response<TaskBean> res = new Response<>();
-		TaskBean taskBean = new Gson().fromJson(request.getLsObject().toString(), TaskBean.class);
+		TaskBean taskBean = new Gson().fromJson(new Gson().toJson(request.getLsObject()), TaskBean.class);
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		res.setAbstractResult(abstractResult);
 		DocInvBean docInvBean = new DocInvBean();
