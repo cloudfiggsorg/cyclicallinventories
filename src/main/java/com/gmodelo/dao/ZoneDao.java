@@ -263,10 +263,13 @@ public class ZoneDao {
 		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT]"
 				+ " WHERE BUKRS = ? AND WERKS = ? ";
 		if (zoneBean.getZdesc() == null && zoneBean.getZoneId() == null) {
+			log.info("[getZoneByLgortDao] null Params...");
 			INV_VW_ZONE_BY_LGORT += "";
 		} else if (zoneBean.getZdesc() == null && zoneBean.getZoneId() != null) {
+			log.info("[getZoneByLgortDao] not Null zoneID Object...");
 			INV_VW_ZONE_BY_LGORT += " AND ZONE_ID = " + zoneBean.getZoneId();
 		} else {
+			log.info("[getZoneByLgortDao] not null Params...");
 			INV_VW_ZONE_BY_LGORT += " AND ( ZONE_ID LIKE '%"
 					+ (zoneBean.getZoneId() != null ? zoneBean.getZoneId() : "") + "%'  OR ZONE_DESC LIKE '%"
 					+ (zoneBean.getZdesc() != null ? zoneBean.getZdesc() : "") + "%' ) ";
