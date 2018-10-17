@@ -59,14 +59,23 @@ public class ReportesDao {
 		try {
 			stm = con.prepareStatement(INV_VW_REP_APEGOS);
 			if(apegosBean.getDateIni() != null && apegosBean.getDateFin() == null){
-				stm.setDate(1,(java.sql.Date) new Date(Long.parseLong(apegosBean.getDateIni())));
+				java.util.Date utilDate = new java.util.Date(Long.parseLong(apegosBean.getDateIni()));
+			    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+				stm.setDate(1, sqlDate);
 			}
 			if(apegosBean.getDateIni() != null && apegosBean.getDateFin() != null){
-				stm.setDate(1,(java.sql.Date) new Date(Long.parseLong(apegosBean.getDateIni())));
-				stm.setDate(2,(java.sql.Date) new Date(Long.parseLong(apegosBean.getDateFin())));
+				java.util.Date utilDate = new java.util.Date(Long.parseLong(apegosBean.getDateIni()));
+			    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+				stm.setDate(1,sqlDate);
+				
+				java.util.Date utilDate2 = new java.util.Date(Long.parseLong(apegosBean.getDateFin()));
+			    java.sql.Date sqlDate2 = new java.sql.Date(utilDate2.getTime());
+				stm.setDate(2,sqlDate2);
 			}
 			if(apegosBean.getDateIni() == null && apegosBean.getDateFin() != null){
-				stm.setDate(1,(java.sql.Date) new Date(Long.parseLong(apegosBean.getDateFin())));
+				java.util.Date utilDate2 = new java.util.Date(Long.parseLong(apegosBean.getDateFin()));
+			    java.sql.Date sqlDate2 = new java.sql.Date(utilDate2.getTime());
+				stm.setDate(1,sqlDate2);
 			}
 
 			log.info("[getReporteApegosDao] Executing query...");
