@@ -262,15 +262,17 @@ public class ZoneDao {
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
 		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT]"
 				+ " WHERE BUKRS = ? AND WERKS = ? ";
-		if (zoneBean.getZdesc() == null && zoneBean.getZoneId() != null) {
+		if (zoneBean.getZdesc() == null && zoneBean.getZoneId() == null) {
+			INV_VW_ZONE_BY_LGORT += "";
+		} else if (zoneBean.getZdesc() == null && zoneBean.getZoneId() != null) {
 			INV_VW_ZONE_BY_LGORT += " AND ZONE_ID = " + zoneBean.getZoneId();
 		} else {
-			INV_VW_ZONE_BY_LGORT += " AND ( ZONE_ID LIKE '%" + zoneBean.getZoneId() == null ? ""
-					: zoneBean.getZoneId() + "%'  OR ZONE_DESC LIKE '%" + zoneBean.getZdesc() == null ? ""
-							: zoneBean.getZdesc() + "%' ) ";
+			INV_VW_ZONE_BY_LGORT += " AND ( ZONE_ID LIKE '%"
+					+ (zoneBean.getZoneId() != null ? zoneBean.getZoneId() : "") + "%'  OR ZONE_DESC LIKE '%"
+					+ (zoneBean.getZdesc() != null ? zoneBean.getZdesc() : "") + "%' ) ";
 		}
 		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
-		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
+		INV_VW_ZONE_BY_LGORT += " ORDER BY [ZONE_ID]";
 		log.info(INV_VW_ZONE_BY_LGORT);
 		log.info("[getZoneByLgortDao] Preparing sentence...");
 		try {
