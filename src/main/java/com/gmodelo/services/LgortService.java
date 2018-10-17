@@ -35,4 +35,13 @@ public class LgortService {
 	public Response<List<LgortBeanView>> getNgorts(Request request){
 		return new LgortWorkService().getNgorts(request);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getNgortsIM")
+	public Response<List<LgortBeanView>> getNgortsIM(Request request){
+		return new LgortWorkService().getNgortsIM(request);
+	}
+
 }
