@@ -167,6 +167,8 @@ public class ConciliacionDao {
 
 	private static final String INV_DOC_CHILDREN = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_FATHER_INV_ID = ? ";
 
+	private static final String TASK_ASSIGNED_FOR_DOC_INV = "SELECT COUNT(*) AS COUNTED FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?";
+
 	@SuppressWarnings("rawtypes")
 	public List<ConciliationPositionBean> getConciliationPositions(ConciliacionBean docInvBean) {
 		Connection con = new ConnectionManager().createConnection();
@@ -180,7 +182,6 @@ public class ConciliacionDao {
 			rs = stm.executeQuery();
 			String taskID = null;
 			int count = 0;
-			int counted = 1;
 			HashMap<String, ConciliationPositionBean> hashMap = new HashMap<>();
 			ConciliationPositionBean bean = new ConciliationPositionBean();
 			log.info(
@@ -192,7 +193,6 @@ public class ConciliacionDao {
 				} else if (!taskID.equals(rs.getString("TASK_ID"))) {
 					taskID = rs.getString("TASK_ID");
 					count++;
-					counted++;
 				}
 				if (hashMap.containsKey(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))) {
 					bean = hashMap.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"));
@@ -248,7 +248,14 @@ public class ConciliacionDao {
 				}
 
 			}
-			docInvBean.setCounted(counted);
+
+			stm = con.prepareStatement(TASK_ASSIGNED_FOR_DOC_INV);
+			stm.setInt(1, docInvBean.getDocInvId());
+			rs = stm.executeQuery();
+			if (rs.next()) {
+				docInvBean.setCounted(rs.getInt("COUNTED"));
+			}
+
 			log.info(
 					"[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, WHile Rs next ENd Excecute query...");
 			// Check if the inventory document has children
