@@ -274,6 +274,8 @@ public class ZoneDao {
 		log.info("[getZoneByLgortDao] Preparing sentence...");
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
+			stm.setString(1, zoneBean.getBukrs());
+			stm.setString(2, zoneBean.getWerks());
 			log.info("[getZoneByLgortDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
