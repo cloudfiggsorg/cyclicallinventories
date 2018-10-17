@@ -349,7 +349,7 @@ public class ZoneDao {
 
 				zb.setLgort(rs.getString("LGORT"));
 				zb.setgDesc(rs.getString("LGOBE"));
-				zb.setZoneId(String.format("%08d", Integer.parseInt(rs.getString("ZONE_ID"))));
+				zb.setZoneId(rs.getString("ZONE_ID"));
 				zb.setZdesc(rs.getString("ZON_DESC"));
 				zb.setBukrs(rs.getString("BUKRS"));
 				zb.setWerks(rs.getString("WERKS"));
