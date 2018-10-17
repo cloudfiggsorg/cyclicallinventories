@@ -271,7 +271,7 @@ public class ZoneDao {
 		} else {
 			log.info("[getZoneByLgortDao] not null Params...");
 			INV_VW_ZONE_BY_LGORT += " AND ( ZONE_ID LIKE '%"
-					+ (zoneBean.getZoneId() != null ? zoneBean.getZoneId() : "") + "%'  OR ZONE_DESC LIKE '%"
+					+ (zoneBean.getZoneId() != null ? zoneBean.getZoneId() : "") + "%'  OR ZON_DESC LIKE '%"
 					+ (zoneBean.getZdesc() != null ? zoneBean.getZdesc() : "") + "%' ) ";
 		}
 		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
