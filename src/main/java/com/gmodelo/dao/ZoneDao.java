@@ -253,85 +253,45 @@ public class ZoneDao {
 
 	// vista se agrega LGOBE y query se modifica para que siempre incluya AND de
 	// bukrs y werks y un OR de idZone y ZoneDesc
-	public Response<List<ZoneBean>> getLgortByZone(ZoneBean zoneBean, String searchFilter) {
-
+	public Response<List<ZoneBean>> getLgortByZone(ZoneBean zoneBean) {
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
-
-		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";
-
-		if (searchFilter == null) {
-
-			String condition = buildCondition(zoneBean);
-			if (condition != null) {
-				INV_VW_ZONE_BY_LGORT += condition;
-			}
+		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT]"
+				+ " WHERE BUKRS = ? AND WERKS = ? ";
+		if (zoneBean.getZdesc() == null) {
+			INV_VW_ZONE_BY_LGORT += " ZONE_ID = " + zoneBean.getZoneId();
 		} else {
-			String searchFilterNumber = "";
-			try {
-				int aux = Integer.parseInt(searchFilter);
-				searchFilterNumber += aux;
-			} catch (Exception e) {
-				searchFilterNumber = searchFilter;
-				log.info("Trying to convert String to Int");
-			}
-			INV_VW_ZONE_BY_LGORT += "WHERE  ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZON_DESC LIKE '%"
-					+ searchFilter + "%' ";
+			INV_VW_ZONE_BY_LGORT += " (ZONE_ID LIKE '%" + zoneBean.getZoneId() + "%'  OR ZONE_DESC LIKE '%"
+					+ zoneBean.getZdesc() + "%' ) ";
 		}
-
 		INV_VW_ZONE_BY_LGORT += " GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
 		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
-
 		log.info(INV_VW_ZONE_BY_LGORT);
-
 		log.info("[getZoneByLgortDao] Preparing sentence...");
-
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
-
 			log.info("[getZoneByLgortDao] Executing query...");
-
 			ResultSet rs = stm.executeQuery();
-
 			while (rs.next()) {
-
 				zoneBean = new ZoneBean();
-
 				zoneBean.setLgort(rs.getString("LGORT"));
 				zoneBean.setgDesc(rs.getString("LGOBE"));
 				zoneBean.setZoneId(rs.getString("ZONE_ID"));
 				zoneBean.setZdesc(rs.getString("ZON_DESC"));
 				zoneBean.setBukrs(rs.getString("BUKRS"));
 				zoneBean.setWerks(rs.getString("WERKS"));
-
 				listZone.add(zoneBean);
-
 			}
-
-			// Retrive the warnings if there're
-			SQLWarning warning = stm.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING, warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-
-			// Free resources
-			rs.close();
-			stm.close();
-
 			log.info("[getZoneByLgortDao] Sentence successfully executed.");
-
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[getZoneByLgortDao] Some error occurred while was trying to execute the query: "
 					+ INV_VW_ZONE_BY_LGORT, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
 		} finally {
 			try {
 				con.close();
@@ -342,7 +302,6 @@ public class ZoneDao {
 		}
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(listZone);
-
 		return res;
 	}
 
@@ -510,9 +469,9 @@ public class ZoneDao {
 		String lgort = "";
 		String condition = "WHERE ";
 
-		bukrs = (zoneBean.getBukrs() != null ? " BUKRS LIKE '%" + zoneBean.getBukrs() + "%'" : "");
+		bukrs = (zoneBean.getBukrs() != null ? " BUKRS = '" + zoneBean.getBukrs() + "'" : "");
 		condition += bukrs;
-		werks = (zoneBean.getWerks() != null ? " AND WERKS LIKE '%" + zoneBean.getWerks() + "%'" : "");
+		werks = (zoneBean.getWerks() != null ? " AND WERKS = '" + zoneBean.getWerks() + "'" : "");
 		condition += werks;
 		zoneId = (zoneBean.getZoneId() != null ? " AND ZONE_ID = " + Integer.parseInt(zoneBean.getZoneId()) : "");
 		condition += zoneId;
