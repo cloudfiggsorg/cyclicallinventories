@@ -10,12 +10,12 @@ public class ConciliacionBean {
 	String werks;
 	String werksD;
 	String justification;
+	Integer counted;
 	boolean countA;
 	boolean countB;
 	boolean count2;
 	boolean count3;
 	boolean countE;
-
 	int docInvId;
 	List<ConciliationPositionBean> positions;
 
@@ -131,9 +131,25 @@ public class ConciliacionBean {
 		this.countE = countE;
 	}
 
+	public Integer getCounted() {
+		return counted;
+	}
+
+	public void setCounted(Integer counted) {
+		this.counted = counted;
+	}
+
+	@Override
+	public String toString() {
+		return "ConciliacionBean [route=" + route + ", type=" + type + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
+				+ ", werks=" + werks + ", werksD=" + werksD + ", justification=" + justification + ", counted="
+				+ counted + ", countA=" + countA + ", countB=" + countB + ", count2=" + count2 + ", count3=" + count3
+				+ ", countE=" + countE + ", docInvId=" + docInvId + ", positions=" + positions + "]";
+	}
+
 	public ConciliacionBean(String route, String type, String bukrs, String bukrsD, String werks, String werksD,
-			String justification, boolean countA, boolean countB, boolean count2, boolean count3, boolean countE,
-			int docInvId, List<ConciliationPositionBean> positions) {
+			String justification, Integer counted, boolean countA, boolean countB, boolean count2, boolean count3,
+			boolean countE, int docInvId, List<ConciliationPositionBean> positions) {
 		super();
 		this.route = route;
 		this.type = type;
@@ -142,6 +158,7 @@ public class ConciliacionBean {
 		this.werks = werks;
 		this.werksD = werksD;
 		this.justification = justification;
+		this.counted = counted;
 		this.countA = countA;
 		this.countB = countB;
 		this.count2 = count2;
@@ -153,16 +170,7 @@ public class ConciliacionBean {
 
 	public ConciliacionBean() {
 		super();
-
 		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public String toString() {
-		return "ConciliacionBean [route=" + route + ", type=" + type + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
-				+ ", werks=" + werks + ", werksD=" + werksD + ", justification=" + justification + ", countA=" + countA
-				+ ", countB=" + countB + ", count2=" + count2 + ", count3=" + count3 + ", countE=" + countE
-				+ ", docInvId=" + docInvId + ", positions=" + positions + "]";
 	}
 
 }

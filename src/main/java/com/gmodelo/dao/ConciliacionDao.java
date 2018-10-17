@@ -180,6 +180,7 @@ public class ConciliacionDao {
 			rs = stm.executeQuery();
 			String taskID = null;
 			int count = 0;
+			int counted = 1;
 			HashMap<String, ConciliationPositionBean> hashMap = new HashMap<>();
 			ConciliationPositionBean bean = new ConciliationPositionBean();
 			log.info(
@@ -191,6 +192,7 @@ public class ConciliacionDao {
 				} else if (!taskID.equals(rs.getString("TASK_ID"))) {
 					taskID = rs.getString("TASK_ID");
 					count++;
+					counted++;
 				}
 				if (hashMap.containsKey(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))) {
 					bean = hashMap.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"));
@@ -246,6 +248,7 @@ public class ConciliacionDao {
 				}
 
 			}
+			docInvBean.setCounted(counted);
 			log.info(
 					"[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, WHile Rs next ENd Excecute query...");
 			// Check if the inventory document has children
