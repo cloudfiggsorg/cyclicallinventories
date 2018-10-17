@@ -58,6 +58,16 @@ public class ReportesDao {
 		log.info("[getReporteApegosDao] Preparing sentence...");
 		try {
 			stm = con.prepareStatement(INV_VW_REP_APEGOS);
+			if(apegosBean.getDateIni() != null && apegosBean.getDateFin() == null){
+				stm.setDate(1,(java.sql.Date) new Date(Long.parseLong(apegosBean.getDateIni())));
+			}
+			if(apegosBean.getDateIni() != null && apegosBean.getDateFin() != null){
+				stm.setDate(1,(java.sql.Date) new Date(Long.parseLong(apegosBean.getDateIni())));
+				stm.setDate(2,(java.sql.Date) new Date(Long.parseLong(apegosBean.getDateFin())));
+			}
+			if(apegosBean.getDateIni() == null && apegosBean.getDateFin() != null){
+				stm.setDate(1,(java.sql.Date) new Date(Long.parseLong(apegosBean.getDateFin())));
+			}
 
 			log.info("[getReporteApegosDao] Executing query...");
 
@@ -696,7 +706,9 @@ public class ReportesDao {
 		String lgort = "";
 		String lgortD = "";
 		String condition = "";
-
+		String dateIni = "";
+		String dateFin = "";
+		
 		routeId = (apegosB.getRouteId() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + apegosB.getRouteId() + "' "
 				: "";
@@ -725,6 +737,14 @@ public class ReportesDao {
 		lgortD = (apegosB.getLgDesc() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC = '" + apegosB.getLgDesc() + "' " : "";
 		condition += lgortD;
+		
+		dateIni = (apegosB.getDateIni() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DATE_INI = ? " : "";
+		condition += dateIni;
+		
+		dateFin = (apegosB.getDateFin() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DATE_FIN = ? " : "";
+		condition += dateFin;
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
