@@ -128,7 +128,7 @@ public class ZoneDao {
 				cs.setString(1, zoneBean.getZoneId());
 				cs.setString(2, zoneBean.getPositions().get(i).getLgtyp());
 				cs.setString(3, zoneBean.getPositions().get(i).getLgpla());
-				cs.setString(4, zoneBean.getPositions().get(i).getSecuency());
+				cs.setInt(4, zoneBean.getPositions().get(i).getSecuency());
 				cs.setString(5, zoneBean.getPositions().get(i).getImwm());
 				cs.setString(6, zoneBean.getPositions().get(i).getLgnum());
 				cs.registerOutParameter(7, Types.INTEGER);
@@ -844,7 +844,7 @@ public class ZoneDao {
 				position.setPkAsgId(rs.getInt("PK_ASG_ID"));
 				position.setLgtyp(rs.getString("LGTYP"));
 				position.setLgpla(rs.getString("LGPLA"));
-				position.setSecuency(rs.getString("SECUENCY"));
+				position.setSecuency(rs.getInt("SECUENCY"));
 				position.setImwm(rs.getString("IMWM"));
 				position.setLgtypDesc(rs.getString("LTYPT"));
 				position.setLgnum(rs.getString("ZPO_LGNUM"));
