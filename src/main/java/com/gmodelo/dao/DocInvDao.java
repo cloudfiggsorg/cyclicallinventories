@@ -313,9 +313,9 @@ public class DocInvDao {
 
 		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";
 		if (searchFilter != null) {
-			INV_VW_DOC_INV += " AND TYPE != '3' AND DOC_INV_ID LIKE '%" + searchFilterNumber
+			INV_VW_DOC_INV += " AND TYPE != '3' AND (DOC_INV_ID LIKE '%" + searchFilterNumber
 					+ "%' OR ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' "
-					+ " OR WERKSD LIKE '%" + searchFilterNumber + "%' ";
+					+ " OR WERKSD LIKE '%" + searchFilterNumber + "%') ";
 		} else {
 			String condition = buildCondition(docInvBean);
 			if (condition != null) {
