@@ -80,25 +80,8 @@ public class LgortDao {
 		
 	}
 	
-	private String buildCondition(LgortBeanView lgortBean){
-			
-			String werks = "";
-			String lgort = "";
-			String lgobe = "";
-			String lgNum = "";
-			String condition = "";
-			
-			werks = (lgortBean.getWerks() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS LIKE '%" + lgortBean.getWerks() +"%' " : "";
-			condition += werks;
-			lgort = (lgortBean.getLgort() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT LIKE '%" + lgortBean.getLgort() +"%' " : "";
-			condition += lgort;
-			lgobe = (lgortBean.getLgobe() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGOBE LIKE '%" + lgortBean.getLgobe() +"%' " : "";
-			condition += lgobe;
-			lgNum = (lgortBean.getLgobe() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGNUM LIKE '%" + lgortBean.getLgNum() +"%' " : "";
-			condition += lgNum;
-			condition = (condition.isEmpty() ? null : condition);
-			return condition;
-		}
+	private static final String INV_VW_NGORT_WITH_GORT = "SELECT WERKS, LGORT, LGOBE, LGNUM, LNUMT,"
+			+ " IMWM FROM [INV_CIC_DB].[dbo].[INV_VW_NGORT_WITH_GORT] WHERE WERKS = ?"; //Query
 
 	public Response<List<LgortBeanView>> getNgorts(LgortBeanView lgortBeanView){
 		
@@ -109,18 +92,13 @@ public class LgortDao {
 		PreparedStatement stm = null;
 		List<LgortBeanView> listNgort = new ArrayList<LgortBeanView>();
 		
-		String INV_VW_NGORT_WITH_GORT = "SELECT WERKS, LGORT, LGOBE, LGNUM, LNUMT, IMWM FROM [INV_CIC_DB].[dbo].[INV_VW_NGORT_WITH_GORT] "; //Query
-		String condition = buildConditionNgort(lgortBeanView);
 		
-		if(condition != null){
-			INV_VW_NGORT_WITH_GORT += condition;
-			log.info(INV_VW_NGORT_WITH_GORT);
-		}
-		
+	
 		log.info("[getNgortsDao] Preparing sentence...");
 		
 		try {
-			stm = con.prepareCall(INV_VW_NGORT_WITH_GORT);
+			stm = con.prepareStatement(INV_VW_NGORT_WITH_GORT);
+			stm.setString(1, lgortBeanView.getWerks());
 			
 			log.info("[getNgortsDao] Executing query...");
 			
@@ -172,23 +150,59 @@ public class LgortDao {
 		
 	}
 
-	private String buildConditionNgort(LgortBeanView lgortBeanView){
-		String werks = "";
-		String lgort = "";
-		String lnumt = "";
-		String imwm = "";
-		String condition = "";
+public Response<List<LgortBeanView>> getNgortsIM(LgortBeanView lgortBeanView){
 		
-		werks = (lgortBeanView.getWerks() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '"		+ lgortBeanView.getWerks() + "' ": "");
-		condition+=werks;
-		lgort = (lgortBeanView.getLgort() 	!= null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGORT = '"		+ lgortBeanView.getLgort() + "' ": "");
-		condition+=lgort;
-		lnumt = (lgortBeanView.getLnumt() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LNUMT = '" 	+ lgortBeanView.getLnumt() + "' " : "");
-		condition+=lnumt;
-		imwm = (lgortBeanView.getImwm() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "IMWM = '"+ lgortBeanView.getImwm() + "' ": "");
-		condition+=imwm;
-		condition = condition.isEmpty() ? null : condition;	
-		return condition;
+		Response<List<LgortBeanView>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		List<LgortBeanView> listNgort = new ArrayList<LgortBeanView>();
+		
+		
+	
+		log.info("[getNgortsDao] Preparing sentence...");
+		
+		try {
+			stm = con.prepareStatement(INV_VW_NGORT_WITH_GORT);
+			stm.setString(1, lgortBeanView.getWerks());
+			
+			log.info("[getNgortsDao] Executing query...");
+			
+			ResultSet rs = stm.executeQuery();
+			
+			while (rs.next()){
+				
+				lgortBeanView = new LgortBeanView();
+				
+				lgortBeanView.setWerks(rs.getString(1));
+				lgortBeanView.setLgort(rs.getString(2));
+				lgortBeanView.setLgobe(rs.getString(3));
+				lgortBeanView.setLgNum(rs.getString(4));
+				lgortBeanView.setLnumt(rs.getString(5));
+				lgortBeanView.setImwm(rs.getString(6));
+				
+				listNgort.add(lgortBeanView);
+				
+			}
+			
+			log.info("[getNgortsDao] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[getNgortsDao] Some error occurred while was trying to execute the query: "+ INV_VW_NGORT_WITH_GORT, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			res.setAbstractResult(abstractResult);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[getLgortByWerks] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listNgort);
+		return res ;
+		
 	}
 
 }
