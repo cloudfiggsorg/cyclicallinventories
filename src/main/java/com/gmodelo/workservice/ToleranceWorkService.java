@@ -139,6 +139,7 @@ public class ToleranceWorkService {
 			if (!requestBeanList.isEmpty()) {
 				res = new ToleranceDao().getToleranceByMatnrs(requestBeanList);
 			} else {
+				log.log(Level.WARNING, "[getToleranceByMatnr]: Lista VAcia");
 				abstractResult.setResultId(ReturnValues.IEMPTY);
 				abstractResult.setResultMsgAbs("La lista solicitada viene vacia");
 				res.setAbstractResult(abstractResult);
