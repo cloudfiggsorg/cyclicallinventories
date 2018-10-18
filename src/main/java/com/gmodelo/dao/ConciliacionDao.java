@@ -163,7 +163,7 @@ public class ConciliacionDao {
 			+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
 
 	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZON_LGORT, LGOBE, ZPO_PK_ASG_ID, "
-			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
+			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS, ZPO_PK_ASG_ID FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
 
 	private static final String INV_DOC_CHILDREN = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_FATHER_INV_ID = ? ";
 
@@ -224,6 +224,7 @@ public class ConciliacionDao {
 					bean.setLgpla(rs.getString("LGPLA"));
 					bean.setLgort(rs.getString("ZON_LGORT"));
 					bean.setLgobe(rs.getString("LGOBE"));
+					bean.setPkAsgId(rs.getString("ZPO_PK_ASG_ID"));
 					if (count == 0) {
 						docInvBean.setCountA(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";

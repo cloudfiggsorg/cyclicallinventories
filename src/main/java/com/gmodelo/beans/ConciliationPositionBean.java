@@ -15,6 +15,7 @@ public class ConciliationPositionBean {
 	String count2;
 	String count3;
 	String countX;
+	String pkAsgId;
 
 	public String getZoneId() {
 		return zoneId;
@@ -120,17 +121,17 @@ public class ConciliationPositionBean {
 		this.lgobe = lgobe;
 	}
 
-	@Override
-	public String toString() {
-		return "ConciliationPositionBean [zoneId=" + zoneId + ", zoneD=" + zoneD + ", lgort=" + lgort + ", lgobe="
-				+ lgobe + ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", measureUnit="
-				+ measureUnit + ", count1A=" + count1A + ", count1B=" + count1B + ", count2=" + count2 + ", count3="
-				+ count3 + ", countX=" + countX + "]";
+	public String getPkAsgId() {
+		return pkAsgId;
+	}
+
+	public void setPkAsgId(String pkAsgId) {
+		this.pkAsgId = pkAsgId;
 	}
 
 	public ConciliationPositionBean(String zoneId, String zoneD, String lgort, String lgobe, String lgpla, String matnr,
 			String matnrD, String measureUnit, String count1a, String count1b, String count2, String count3,
-			String countX) {
+			String countX, String pkAsgId) {
 		super();
 		this.zoneId = zoneId;
 		this.zoneD = zoneD;
@@ -145,11 +146,20 @@ public class ConciliationPositionBean {
 		this.count2 = count2;
 		this.count3 = count3;
 		this.countX = countX;
+		this.pkAsgId = pkAsgId;
 	}
 
 	public ConciliationPositionBean() {
 		super();
 		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public String toString() {
+		return "ConciliationPositionBean [zoneId=" + zoneId + ", zoneD=" + zoneD + ", lgort=" + lgort + ", lgobe="
+				+ lgobe + ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", measureUnit="
+				+ measureUnit + ", count1A=" + count1A + ", count1B=" + count1B + ", count2=" + count2 + ", count3="
+				+ count3 + ", countX=" + countX + ", pkAsgId=" + pkAsgId + "]";
 	}
 
 	@Override
@@ -167,6 +177,7 @@ public class ConciliationPositionBean {
 		result = prime * result + ((matnr == null) ? 0 : matnr.hashCode());
 		result = prime * result + ((matnrD == null) ? 0 : matnrD.hashCode());
 		result = prime * result + ((measureUnit == null) ? 0 : measureUnit.hashCode());
+		result = prime * result + ((pkAsgId == null) ? 0 : pkAsgId.hashCode());
 		result = prime * result + ((zoneD == null) ? 0 : zoneD.hashCode());
 		result = prime * result + ((zoneId == null) ? 0 : zoneId.hashCode());
 		return result;
@@ -235,6 +246,11 @@ public class ConciliationPositionBean {
 			if (other.measureUnit != null)
 				return false;
 		} else if (!measureUnit.equals(other.measureUnit))
+			return false;
+		if (pkAsgId == null) {
+			if (other.pkAsgId != null)
+				return false;
+		} else if (!pkAsgId.equals(other.pkAsgId))
 			return false;
 		if (zoneD == null) {
 			if (other.zoneD != null)
