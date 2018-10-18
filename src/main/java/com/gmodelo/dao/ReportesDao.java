@@ -58,11 +58,26 @@ public class ReportesDao {
 		log.info("[getReporteApegosDao] Preparing sentence...");
 		try {
 			stm = con.prepareStatement(INV_VW_REP_APEGOS);
+			
 			if(apegosBean.getDateIni() != null && apegosBean.getDateFin() == null){
 				java.util.Date utilDate = new java.util.Date(Long.parseLong(apegosBean.getDateIni()));
 			    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-			    //System.out.println("fecha: "+sqlDate);
 				stm.setString(1, sqlDate + "%");
+			}
+			
+			if(apegosBean.getDateIni() == null && apegosBean.getDateFin() != null){
+				java.util.Date utilDate = new java.util.Date(Long.parseLong(apegosBean.getDateFin()));
+			    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+				stm.setString(1, sqlDate + "%");
+			}
+			
+			if(apegosBean.getDateIni() != null && apegosBean.getDateFin() != null){
+				java.util.Date utilDate = new java.util.Date(Long.parseLong(apegosBean.getDateIni()));
+			    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+				stm.setString(1, sqlDate + "");
+				java.util.Date utilDate2 = new java.util.Date(Long.parseLong(apegosBean.getDateFin()));
+			    java.sql.Date sqlDate2 = new java.sql.Date(utilDate2.getTime());
+				stm.setString(2, sqlDate2 + "");
 			}
 			
 			log.info("[getReporteApegosDao] Executing query...");
@@ -704,6 +719,7 @@ public class ReportesDao {
 		String condition = "";
 		String dateIni = "";
 		String dateFin = "";
+		String fechas = "";
 		
 		routeId = (apegosB.getRouteId() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + apegosB.getRouteId() + "' "
@@ -734,9 +750,17 @@ public class ReportesDao {
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " GDESC = '" + apegosB.getLgDesc() + "' " : "";
 		condition += lgortD;
 		
-		dateIni = (apegosB.getDateIni() != null)
+		dateIni = (apegosB.getDateIni() != null && apegosB.getDateFin() == null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CONVERT(VARCHAR(25), DATE_INI, 126) LIKE ? " : "";
 		condition += dateIni;
+		
+		dateFin = (apegosB.getDateIni() == null && apegosB.getDateFin() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CONVERT(VARCHAR(25), DATE_FIN, 126) LIKE ? " : "";
+		condition += dateFin;
+
+		fechas = (apegosB.getDateIni() != null && apegosB.getDateFin() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CONVERT(VARCHAR(25), DATE_INI, 126) >= ? AND CONVERT(VARCHAR(25), DATE_FIN, 126) <= ? " : "";
+		condition += fechas;
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
