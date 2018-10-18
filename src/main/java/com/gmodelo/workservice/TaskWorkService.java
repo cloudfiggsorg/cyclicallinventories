@@ -156,7 +156,7 @@ public class TaskWorkService {
 
 	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request request) {
 
-		log.info("[deleteTaskWS] " + request.toString());
+		log.info("[getTasksByBukrsAndWerks] " + request.toString());
 		String bukrs;
 		String werks;
 		String req;

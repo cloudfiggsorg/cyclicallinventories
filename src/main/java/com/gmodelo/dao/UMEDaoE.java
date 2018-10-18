@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import org.jboss.logging.Logger;
 import com.bmore.ume001.dao.UMEdao;
 import com.gmodelo.Exception.InvCicException;
+import com.gmodelo.beans.Response;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 import com.gmodelo.utils.Utilities;
@@ -59,6 +60,12 @@ public class UMEDaoE extends UMEdao{
 		super.setLDAPSecurityAuthentication(UMEDaoE.LDAPSecurityAuthentication);
 		super.setLDAPSecurityPrincipal(UMEDaoE.LDAPSecurityPrincipal);		
 		super.setDataSourceName(UMEDaoE.DS_UME);
+	}
+	
+	public Response<Object> saveUserWerks(String userId, String werks){
+		
+		
+		return null;
 	}
 
 }

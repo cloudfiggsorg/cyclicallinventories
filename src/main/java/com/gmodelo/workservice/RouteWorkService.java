@@ -220,7 +220,6 @@ public class RouteWorkService {
 	public String getAutoTaskByUser(Request request) {
 
 		Response<RouteUserBean> routeResponse = new Response<>();
-		RouteUserDao routeDao = new RouteUserDao();
 		AbstractResultsBean result = new AbstractResultsBean();
 		routeResponse.setAbstractResult(result);
 		RouteUserBean route = new RouteUserBean();
