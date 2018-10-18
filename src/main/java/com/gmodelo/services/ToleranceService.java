@@ -21,45 +21,53 @@ public class ToleranceService {
 
 	@Context
 	private HttpServletRequest httpRequest;
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getMATKL")
-	public Response<List<ToleranceBean>> getMATKL(Request request){
+	public Response<List<ToleranceBean>> getMATKL(Request request) {
 		return new ToleranceWorkService().getMATKL(request);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addTolerance")
-	public Response<Object> addTolerance(Request request){
+	public Response<Object> addTolerance(Request request) {
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new ToleranceWorkService().addTolerance(request, user);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/deleteTolerance")
-	public Response<Object> deleteTolerance(Request request){
+	public Response<Object> deleteTolerance(Request request) {
 		return new ToleranceWorkService().deleteTolerance(request);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getTolerances")
-	public Response<List<ToleranceBean>> getTolerances(Request request){
+	public Response<List<ToleranceBean>> getTolerances(Request request) {
 		return new ToleranceWorkService().getTolerances(request);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getToleranceByMatnr")
-	public Response<ToleranceBean> getToleranceByMatnr(Request request){
+	public Response<ToleranceBean> getToleranceByMatnr(Request request) {
 		return new ToleranceWorkService().getToleranceByMatnr(request);
+	}
+
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getToleranceByMatnrs")
+	public Response<List<ToleranceBean>> getToleranceByMatnrs(Request request) {
+		return new ToleranceWorkService().getToleranceByMatnrs(request);
 	}
 }
