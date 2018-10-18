@@ -144,6 +144,7 @@ public class ToleranceWorkService {
 				res.setAbstractResult(abstractResult);
 			}
 		} catch (Exception e) {
+			log.log(Level.SEVERE, "[getToleranceByMatnr]", e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
