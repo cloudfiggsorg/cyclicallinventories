@@ -1,5 +1,7 @@
 package com.gmodelo.workservice;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,6 +15,7 @@ import com.gmodelo.dao.ToleranceDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 public class ToleranceWorkService {
 
@@ -112,15 +115,42 @@ public class ToleranceWorkService {
 		} else {
 			searchFilter = "";
 			log.info("[getTolerancesWS] Fue cadena vacía ");
-			
+
 		}
 		return new ToleranceDao().getTolerances(tb, searchFilter);
 	}
-	
-	public Response<ToleranceBean> getToleranceByMatnr(Request request){
+
+	public Response<ToleranceBean> getToleranceByMatnr(Request request) {
 		String matnr;
-		log.info("getToleranceByMatnrWS] matnr = " +request.getLsObject().toString());
+		log.info("getToleranceByMatnrWS] matnr = " + request.getLsObject().toString());
 		matnr = request.getLsObject().toString().trim();
 		return new ToleranceDao().getToleranceByMatnr(matnr);
 	}
+
+	public Response<List<ToleranceBean>> getToleranceByMatnrs(Request request) {
+		Response<List<ToleranceBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		log.info("getToleranceByMatnrWS] matnr = " + request.getLsObject().toString());
+		try {
+			Type listType = new TypeToken<ArrayList<ToleranceBean>>() {
+			}.getType();
+			List<ToleranceBean> requestBeanList = new Gson().fromJson(new Gson().toJson(request.getLsObject()),
+					listType);
+			if (!requestBeanList.isEmpty()) {
+				res = new ToleranceDao().getToleranceByMatnrs(requestBeanList);
+			} else {
+				log.log(Level.WARNING, "[getToleranceByMatnr]: Lista VAcia");
+				abstractResult.setResultId(ReturnValues.IEMPTY);
+				abstractResult.setResultMsgAbs("La lista solicitada viene vacia");
+				res.setAbstractResult(abstractResult);
+			}
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[getToleranceByMatnr]", e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+		}
+		return res;
+	}
+
 }
