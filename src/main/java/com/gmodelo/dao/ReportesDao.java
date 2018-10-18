@@ -61,23 +61,10 @@ public class ReportesDao {
 			if(apegosBean.getDateIni() != null && apegosBean.getDateFin() == null){
 				java.util.Date utilDate = new java.util.Date(Long.parseLong(apegosBean.getDateIni()));
 			    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-				stm.setDate(1, sqlDate);
+			    //System.out.println("fecha: "+sqlDate);
+				stm.setString(1, sqlDate + "%");
 			}
-			if(apegosBean.getDateIni() != null && apegosBean.getDateFin() != null){
-				java.util.Date utilDate = new java.util.Date(Long.parseLong(apegosBean.getDateIni()));
-			    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-				stm.setDate(1,sqlDate);
-				
-				java.util.Date utilDate2 = new java.util.Date(Long.parseLong(apegosBean.getDateFin()));
-			    java.sql.Date sqlDate2 = new java.sql.Date(utilDate2.getTime());
-				stm.setDate(2,sqlDate2);
-			}
-			if(apegosBean.getDateIni() == null && apegosBean.getDateFin() != null){
-				java.util.Date utilDate2 = new java.util.Date(Long.parseLong(apegosBean.getDateFin()));
-			    java.sql.Date sqlDate2 = new java.sql.Date(utilDate2.getTime());
-				stm.setDate(1,sqlDate2);
-			}
-
+			
 			log.info("[getReporteApegosDao] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
@@ -748,12 +735,8 @@ public class ReportesDao {
 		condition += lgortD;
 		
 		dateIni = (apegosB.getDateIni() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DATE_INI = ? " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " CONVERT(VARCHAR(25), DATE_INI, 126) LIKE ? " : "";
 		condition += dateIni;
-		
-		dateFin = (apegosB.getDateFin() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DATE_FIN = ? " : "";
-		condition += dateFin;
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
