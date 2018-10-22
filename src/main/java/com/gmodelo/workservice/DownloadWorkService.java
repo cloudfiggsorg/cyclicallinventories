@@ -44,21 +44,20 @@ public class DownloadWorkService {
 	 * 
 	 * @ParamType1 @Null this will return all data in the table
 	 * 
-	 * @ParamType2 @List<RfcTableBean> this will return all the tables
-	 * enumerated on the table_name value in the RfcTableBean object contained
-	 * in the list
+	 * @ParamType2 @List<RfcTableBean> this will return all the tables enumerated on
+	 * the table_name value in the RfcTableBean object contained in the list
 	 * 
-	 * @ParamType3 @RfcTableBean object, this object will pass the following
-	 * filters one or all may applies.
+	 * @ParamType3 @RfcTableBean object, this object will pass the following filters
+	 * one or all may applies.
 	 * 
-	 * @ParamType3 @FilterValues #TABLE_NAME if you want only information for
-	 * the defined table.
+	 * @ParamType3 @FilterValues #TABLE_NAME if you want only information for the
+	 * defined table.
 	 * 
 	 * @ParamType3 @FilterValues #DEVICE this will give you information of wich
 	 * tables will be downloaded to device.
 	 * 
-	 * @ParamType3 @FilterValues #LAST_UPDATE will give you the information that
-	 * is updated after the specified date.
+	 * @ParamType3 @FilterValues #LAST_UPDATE will give you the information that is
+	 * updated after the specified date.
 	 * 
 	 */
 
@@ -97,8 +96,8 @@ public class DownloadWorkService {
 	 * tables.
 	 * 
 	 * @Param @List<RfcTablesBean> with #Last_Request values to get info of the
-	 * tables that are recently updated Pending TODO change the dynamic query
-	 * for the views, but the view needs to be exact in names that table
+	 * tables that are recently updated Pending TODO change the dynamic query for
+	 * the views, but the view needs to be exact in names that table
 	 */
 
 	public String GetMasterDataWS(Request request, HttpSession httpSession) {
@@ -192,8 +191,8 @@ public class DownloadWorkService {
 		try {
 			databean.setListMaterialTarimas(downloadDao.getAllMaterialCrossTarimas(con));
 			databean.setListMobileMaterial(downloadDao.getAllMaterialMobile(con));
-			//abstractResult.setStrCom1(httpSession.getId());
-			//abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
+			// abstractResult.setStrCom1(httpSession.getId());
+			// abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos;
@@ -218,6 +217,52 @@ public class DownloadWorkService {
 				con.close();
 			} catch (Exception e) {
 				log.log(Level.SEVERE, "GetMobileDatalWS", e);
+			}
+		}
+		log.info("Before Response" + response.getAbstractResult());
+		return new Gson().toJson(response);
+	}
+
+	public String GetDeltaMobileDataWS(Request request, HttpSession httpSession) {
+		log.log(Level.WARNING, "Init... GetDeltaMobileDataWS(Request<LoginBean<?>> request)");
+		log.log(Level.WARNING, "Request Data" + request.toString());
+		// Get from lsobject request last updated long date
+		Date lastUpdatedDate = new Date(new Long((String) request.getLsObject()));
+		Response<String> response = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		DownloadDao downloadDao = new DownloadDao();
+		DownloadDataBean databean = new DownloadDataBean();
+		Connection con = new ConnectionManager().createConnection();
+		response.setAbstractResult(abstractResult);
+		try {
+			databean.setListMaterialTarimas(downloadDao.getDeltaAllMaterialCrossTarimas(lastUpdatedDate, con));
+			databean.setListMobileMaterial(downloadDao.getDeltaAllMaterialMobile(lastUpdatedDate, con));
+			// abstractResult.setStrCom1(httpSession.getId());
+			// abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos;
+			try {
+				oos = new ObjectOutputStream(baos);
+				oos.writeObject(databean);
+				oos.close();
+				response.setLsObject(Base64.getEncoder().encodeToString(baos.toByteArray()));
+			} catch (IOException e) {
+				response.setLsObject(null);
+				log.log(Level.SEVERE, "Before Adding to List" + e);
+			}
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "GetDeltaMobileDataWS Error", e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			abstractResult.setStrCom1(httpSession.getId());
+			abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
+			response.setLsObject(null);
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "GetDeltaMobileDataWS", e);
 			}
 		}
 		log.info("Before Response" + response.getAbstractResult());

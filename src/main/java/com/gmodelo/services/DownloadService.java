@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.jboss.logging.Logger;
 
+import com.gmodelo.beans.DownloadDataBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.filters.HttpSessionCollector;
 import com.gmodelo.workservice.DownloadWorkService;
@@ -49,4 +50,20 @@ public class DownloadService {
 		return new DownloadWorkService().GetMobileDataWS(request, null);
 	}
 
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/GetDeltaMobileData")
+	public String GetDeltaModileData(Request request){
+		return new DownloadWorkService().GetDeltaMobileDataWS(request, null);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/CustomMobileData")
+	public String CustomMobileData(Request request){
+		return new DownloadWorkService().GetDeltaMobileDataWS(request, null);
+	}
 }
