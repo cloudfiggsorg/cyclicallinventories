@@ -30,10 +30,12 @@ public class LgTypIMDao {
 		final String INV_SP_ADD_LGTYPE_IM = "INV_SP_ADD_LGTYPE_IM ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_LGPLA_IM = "INV_SP_DEL_LGPLA_IM ?";
 		final String INV_SP_ADD_LGPLA_IM = "INV_SP_ADD_LGPLA_IM ?, ?, ?, ?, ?, ?";
+		final String INV_GET_POSITION_LGPLA_IM = "SELECT LGPLA_ID, LGP_DESC FROM INV_LGPLA_IM WITH(NOLOCK) WHERE LGTYP_ID = ?";
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
+		PreparedStatement stm = null;
 
 		log.info("[addRoute] Preparing sentence...");
 
@@ -71,37 +73,46 @@ public class LgTypIMDao {
 			cs.execute();
 
 			// INSERTAR POSICIONES
-			for (int i = 0; i < lgTypIMBean.getLsLgPla().size(); i++) {
+			cs = null;
+			cs = con.prepareCall(INV_SP_ADD_LGPLA_IM);
+			log.info("[addLGTYPPosition] Preparing sentence..." + INV_SP_ADD_LGPLA_IM);
+			for (LgplaIMBean lgplaIm : lgTypIMBean.getLsLgPla()) {
+				if (lgplaIm.getDescription() != null) {
+					cs.setInt(1, lgplaIm.getLgPlaId());
+					cs.setString(2, lgTypIMBean.getLgTyp());
+					cs.setString(3, lgTypIMBean.getLgnum());
+					cs.setString(4, lgplaIm.getDescription());
+					cs.setByte(5, (byte) (lgplaIm.isStatus() ? 1 : 0));
+					cs.setString(6, createdBy);
+					// cs.registerOutParameter(1, Types.INTEGER);
+					cs.addBatch();
+					// lgplaIm.setLgPlaId(cs.getInt(1));
+				} else {
+					log.info("[addLGTYPPosition] The null One..." + lgplaIm);
+				}
 
-				cs = null;
-				log.info("[addLGTYPPosition] Preparing sentence...");
-				cs = con.prepareCall(INV_SP_ADD_LGPLA_IM);
-				cs.setInt(1, lgTypIMBean.getLsLgPla().get(i).getLgPlaId());
-				cs.setString(2, lgTypIMBean.getLgTyp());
-				cs.setString(3, lgTypIMBean.getLgnum());
-				cs.setString(4, lgTypIMBean.getLsLgPla().get(i).getDescription());
-				cs.setByte(5, (byte) (lgTypIMBean.getLsLgPla().get(i).isStatus() ? 1 : 0));
-				cs.setString(6, createdBy);
-				cs.registerOutParameter(1, Types.INTEGER);
-
-				log.info("[addLGTYPPosition] Executing query...");
-				cs.execute();
-				lgTypIMBean.getLsLgPla().get(i).setLgPlaId(cs.getInt(1));
 			}
-
+			log.info("[addLGTYPPosition] Executing query...");
+			cs.executeBatch();
 			log.info("[addLGTYP] Sentence successfully executed.");
-
 			// Retrive the warnings if there're
-			SQLWarning warning = cs.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING, "[addRoute] " + warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-
 			con.commit();
-			// Free resources
 			cs.close();
 
+			log.info("[addLGTYPPosition] Executing query..." + INV_GET_POSITION_LGPLA_IM);
+			stm = con.prepareStatement(INV_GET_POSITION_LGPLA_IM);
+			stm.setString(1, lgTypIMBean.getLgTyp());
+			ResultSet rs = stm.executeQuery();
+			List<LgplaIMBean> lgplaIMBeans = new ArrayList<>();
+			while (rs.next()) {
+				LgplaIMBean bean = new LgplaIMBean();
+				bean.setDescription(rs.getString("LGP_DESC"));
+				bean.setLgPlaId(rs.getInt("LGPLA_ID"));
+				lgplaIMBeans.add(bean);
+			}
+			if (!lgplaIMBeans.isEmpty()) {
+				lgTypIMBean.setLsLgPla(lgplaIMBeans);
+			}
 		} catch (SQLException e) {
 			try {
 				// deshace todos los cambios realizados en los datos
