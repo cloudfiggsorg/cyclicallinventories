@@ -39,29 +39,54 @@ public class LgTypIMWorkService {
 		return new LgTypIMDao().saveLgTypIM(lgTypIMBean, user.getEntity().getIdentyId());
 
 	}
+	
+	public Response<List<LgTypIMBean>> getLgTypsOnly(Request request) {
+
+		log.info("[getLgTypIMService] " + request.toString());
+		LgTypIMBean lgTypIMBean = null;
+		Response<List<LgTypIMBean>> res = new Response<List<LgTypIMBean>>();
+		
+		try {
+			
+			lgTypIMBean = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIMBean.class);
+			log.info("[getLgTypsIM] Fue objeto");
+		} catch (JsonSyntaxException e) {
+			
+			log.log(Level.SEVERE, "[getLgTypsIM] Error al pasar de Json a LgTypIMBean");
+			lgTypIMBean = null;
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+
+		return new LgTypIMDao().getLgTypsOnly(lgTypIMBean);
+	}
 
 	public Response<List<LgTypIMBean>> getLgTypsIM(Request request) {
 
 		log.info("[getLgTypIMService] " + request.toString());
 		LgTypIMBean lgTypIMBean = null;
-		String searchFilter = null;
 		Response<List<LgTypIMBean>> res = new Response<List<LgTypIMBean>>();
-		String req = request.getLsObject().toString().trim();
-		if (!req.isEmpty()) {
-			try {
-				lgTypIMBean = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIMBean.class);
-				log.info("[getLgTypsIM] Fue objeto");
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString();
-				log.info("[getLgTypsIM] Fue cadena");
-			}
-		} else {
-			searchFilter = "";
+		
+		try {
+			lgTypIMBean = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIMBean.class);
+			log.info("[getLgTypsIM] Fue objeto");
+		} catch (JsonSyntaxException e) {
+			
+			log.log(Level.SEVERE, "[getLgTypIMService] Error al pasar de Json a LgTypIMBean");
+			lgTypIMBean = null;
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
 		}
 
-		return new LgTypIMDao().getLgTypsIM(lgTypIMBean, searchFilter);
+		return new LgTypIMDao().getLgTypsIM(lgTypIMBean);
 	}
-
+	
 	public Response<Object> deleteLgTypsIM(Request request) {
 
 		log.info("[deleteRouteWS] " + request.toString());

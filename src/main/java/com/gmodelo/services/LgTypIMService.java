@@ -34,6 +34,14 @@ public class LgTypIMService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getLgTypsOnly")
+	public Response<List<LgTypIMBean>> getLgTypsOnly(Request request){
+		return new LgTypIMWorkService().getLgTypsOnly(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getLgTypsIM")
 	public Response<List<LgTypIMBean>> getLgTypsIM(Request request){
 		return new LgTypIMWorkService().getLgTypsIM(request);

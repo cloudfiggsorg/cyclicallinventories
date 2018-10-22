@@ -126,8 +126,78 @@ public class LgTypIMDao {
 		res.setLsObject(lgTypIMBean);
 		return res;
 	}
+	
+	public Response<List<LgTypIMBean>> getLgTypsOnly(LgTypIMBean ltib) {
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
 
-	public Response<List<LgTypIMBean>> getLgTypsIM(LgTypIMBean lgTypIMBean, String searchFilter) {
+		Response<List<LgTypIMBean>> res = new Response<List<LgTypIMBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<LgTypIMBean> listLgTypIM = new ArrayList<LgTypIMBean>();
+		String INV_VW_LGTYPE_IM = null;
+		LgTypIMBean lgTypIMAux;
+
+		INV_VW_LGTYPE_IM = "SELECT LGTYP, LTYPT FROM dbo.INV_VW_LGTYPE_IM WITH(NOLOCK) ";
+		INV_VW_LGTYPE_IM = buildCondition(ltib, INV_VW_LGTYPE_IM);
+		INV_VW_LGTYPE_IM += INV_VW_LGTYPE_IM.contains("WHERE")?" AND ":" ";
+		INV_VW_LGTYPE_IM += "(LGTYP LIKE '%" + (ltib.getLgTyp()==null?"":ltib.getLgTyp()) + "%' "; 
+		INV_VW_LGTYPE_IM += "OR LTYPT LIKE '%" + (ltib.getLtypt()==null?"":ltib.getLtypt()) + "%') ";
+		INV_VW_LGTYPE_IM += "AND STATUS = 1 ";
+		INV_VW_LGTYPE_IM += "GROUP BY LGTYP, LTYPT ";
+		
+		log.info(INV_VW_LGTYPE_IM);
+		log.info("[LgTypImDAo getLgTypsOnly] Preparing sentence...");
+		
+		try {
+			stm = con.prepareStatement(INV_VW_LGTYPE_IM);
+
+			log.info("[LgTypImDAo getLgTypsOnly] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+
+				lgTypIMAux = new LgTypIMBean();
+				lgTypIMAux.setLgTyp(rs.getString(1));
+				lgTypIMAux.setLtypt(rs.getString(2));
+				listLgTypIM.add(lgTypIMAux);
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[LgTypImDAo getLgTypsOnly] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[LgTypImDAo getLgTypsOnly] Some error occurred while was trying to execute the query: "
+					+ INV_VW_LGTYPE_IM, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[LgTypImDAo getLgTypsOnly] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listLgTypIM);
+		return res;
+	}	
+
+	public Response<List<LgTypIMBean>> getLgTypsIM(LgTypIMBean lgTypIMBean) {
+		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
@@ -139,17 +209,9 @@ public class LgTypIMDao {
 		LgTypIMBean lgTypIMAux;
 
 		INV_VW_LGTYPE_IM = "SELECT LGTYP, LTYPT, BUKRS, BDESC, WERKS, WDESC, LGORT, LGOBE, LGNUM, IMWM, STATUS FROM dbo.INV_VW_LGTYPE_IM WITH(NOLOCK) WHERE  STATUS = 1 ";
+		INV_VW_LGTYPE_IM += " AND (LGTYP LIKE '%" + lgTypIMBean.getLgTyp() + "%') ";
+		INV_VW_LGTYPE_IM = buildCondition(lgTypIMBean, INV_VW_LGTYPE_IM);
 
-		if (searchFilter != null) {
-			INV_VW_LGTYPE_IM += " AND (LGTYP LIKE '%" + searchFilter + "%' OR LTYPT LIKE '%" + searchFilter + "%')   ";
-		} else {
-
-			INV_VW_LGTYPE_IM += " AND (LGTYP LIKE '%" + lgTypIMBean.getLgTyp() + "%' OR LTYPT LIKE '%"
-					+ lgTypIMBean.getLtypt() + "%') ";
-
-			INV_VW_LGTYPE_IM = buildCondition(lgTypIMBean, INV_VW_LGTYPE_IM);
-
-		}
 		INV_VW_LGTYPE_IM += " GROUP BY LGTYP, LTYPT, BUKRS, BDESC, WERKS, WDESC, LGORT, LGOBE, LGNUM, IMWM, STATUS";
 		log.info(INV_VW_LGTYPE_IM);
 		log.info("[LgTypImDAo getLgTypsIM] Preparing sentence...");
@@ -202,7 +264,7 @@ public class LgTypIMDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[LgTypImDAo getPositions] Some error occurred while was trying to close the connection.", e);
+						"[LgTypImDAo getLgTypsIM] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 
