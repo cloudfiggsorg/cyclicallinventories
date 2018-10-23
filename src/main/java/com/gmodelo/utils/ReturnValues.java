@@ -17,7 +17,7 @@ public class ReturnValues {
 	public static final String SUSERNOTEXISTS = "INV_CIC_USER_NOT_FOUND";
 
 	public static final int INOTROLE = -104;
-	public static final String SNOTROLE = "INV_CIC_ROLE_NOT_FOUND";
+	public static final String SNOTROLE = "USUARIO SIN PERMISOS PARA ACCEDER";
 
 	public static final int ILDAPTIMEOUT = -103;
 	public static final String SLDAPTIMEOUT = "INV_CIC_LDAP_CON_TIMEOUT";
