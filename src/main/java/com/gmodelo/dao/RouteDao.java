@@ -126,7 +126,7 @@ public class RouteDao {
 			log.info("[addRoute] Executing query...");
 			cs.execute();
 
-			routeBean.setRouteId(String.format("%08d", cs.getInt(1))); // addZeros
+			routeBean.setRouteId(cs.getString(1)); // addZeros
 
 			user = new User();
 			ume = new UMEDaoE();
