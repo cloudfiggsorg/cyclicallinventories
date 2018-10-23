@@ -1,6 +1,5 @@
 package com.gmodelo.beans;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ZonePositionsBean {
@@ -17,7 +16,6 @@ public class ZonePositionsBean {
 
 	public ZonePositionsBean() {
 		super();
-		this.materials = new ArrayList<ZonePositionMaterialsBean>();
 	}
 
 	public String getZoneD() {

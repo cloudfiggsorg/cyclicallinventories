@@ -8,7 +8,10 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +44,7 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
+		CallableStatement csBatch = null;
 		int idPosition = 0;
 		int zoneId = 0;
 
@@ -50,7 +54,9 @@ public class ZoneDao {
 			// TODO: handle exception
 		}
 
+		log.info("[addZone] Prev Validate Position");
 		Response<ZoneBean> resZoneBean = validateZonePositions(zoneBean);
+		log.info("[addZone] After validate positions" + zoneBean);
 
 		if (resZoneBean.getAbstractResult().getResultId() == 1) {
 
@@ -59,15 +65,16 @@ public class ZoneDao {
 
 			return resZoneBean;
 		}
-
+		String CURRENTSP = "";
 		final String INV_SP_ADD_ZONE = "INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_ZONE_POSITION = "INV_SP_DEL_ZONE_POSITION ?";
-		final String INV_SP_DESASSIGN_MATERIAL_TO_ZONE = "INV_SP_DESASSIGN_MATERIAL_TO_ZONE ?";
 		final String INV_SP_ADD_POSITION_ZONE = "INV_SP_ADD_POSITION_ZONE ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ASSIGN_MATERIAL_TO_ZONE = "INV_SP_ASSIGN_MATERIAL_TO_ZONE ?, ?, ?";
 		log.info("[addZone] Preparing sentence...");
 		try {
 			con.setAutoCommit(false);
+
+			CURRENTSP = INV_SP_ADD_ZONE;
 			cs = con.prepareCall(INV_SP_ADD_ZONE);
 			cs.setString(1, zoneBean.getZoneId());
 			cs.setString(2, zoneBean.getZdesc());
@@ -115,50 +122,59 @@ public class ZoneDao {
 			}
 
 			// Eliminar posiciones
+			CURRENTSP = INV_SP_DEL_ZONE_POSITION;
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_ZONE_POSITION);
 			cs.setInt(1, zoneId);
 			cs.execute();
 
-			for (int i = 0; i < zoneBean.getPositions().size(); i++) {
+			CURRENTSP = INV_SP_ADD_POSITION_ZONE;
+			csBatch = null;
+			csBatch = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
 
-				zoneBean.getPositions().get(i).setZoneId(zoneBean.getZoneId());
-				cs = null;
-				cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
-				cs.setString(1, zoneBean.getZoneId());
-				cs.setString(2, zoneBean.getPositions().get(i).getLgtyp());
-				cs.setString(3, zoneBean.getPositions().get(i).getLgpla());
-				cs.setInt(4, zoneBean.getPositions().get(i).getSecuency());
-				cs.setString(5, zoneBean.getPositions().get(i).getImwm());
-				cs.setString(6, zoneBean.getPositions().get(i).getLgnum());
-				cs.registerOutParameter(7, Types.INTEGER);
-				log.info("[addPositionZone] Executing query...");
-				cs.execute();
-				idPosition = cs.getInt(7);
-				zoneBean.getPositions().get(i).setPkAsgId(idPosition);
+			for (ZonePositionsBean zonePos : zoneBean.getPositions()) {
 
-				// Eliminar materiales de posición
-				cs = null;
-				cs = con.prepareCall(INV_SP_DESASSIGN_MATERIAL_TO_ZONE);
-				cs.setInt(1, zoneBean.getPositions().get(i).getPkAsgId());
-				cs.execute();
-
-				for (int k = 0; k < zoneBean.getPositions().get(i).getMaterials().size(); k++) {
-					zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(idPosition);
-
+				zonePos.setZoneId(zoneBean.getZoneId());
+				if (zonePos.getMaterials() != null && !zonePos.getMaterials().isEmpty()) {
+					CURRENTSP = INV_SP_ADD_POSITION_ZONE;
 					cs = null;
-					cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
-
-					cs.setInt(1, zoneBean.getPositions().get(i).getMaterials().get(k).getPosMat());
-					cs.setString(2, zoneBean.getPositions().get(i).getMaterials().get(k).getMatnr());
-					cs.registerOutParameter(3, Types.INTEGER);
-
-					log.info("[assignMaterialToZoneDao] Executing query...");
+					cs = con.prepareCall(INV_SP_ADD_POSITION_ZONE);
+					cs.setString(1, zoneBean.getZoneId());
+					cs.setString(2, zonePos.getLgtyp());
+					cs.setString(3, zonePos.getLgpla());
+					cs.setInt(4, zonePos.getSecuency());
+					cs.setString(5, zonePos.getImwm());
+					cs.setString(6, zonePos.getLgnum());
+					cs.registerOutParameter(7, Types.INTEGER);
+					log.info("[addPositionZone] Executing query...");
 					cs.execute();
-					zoneBean.getPositions().get(i).getMaterials().get(k).setPosMat(cs.getInt(3));
-				}
+					idPosition = cs.getInt(7);
+					zonePos.setPkAsgId(idPosition);
+					// Eliminar materiales de posición
+					for (ZonePositionMaterialsBean zoneMaterial : zonePos.getMaterials()) {
+						CURRENTSP = INV_SP_ASSIGN_MATERIAL_TO_ZONE;
+						zoneMaterial.setPosMat(idPosition);
+						cs = null;
+						cs = con.prepareCall(INV_SP_ASSIGN_MATERIAL_TO_ZONE);
+						cs.setInt(1, zoneMaterial.getPosMat());
+						cs.setString(2, zoneMaterial.getMatnr());
+						cs.registerOutParameter(3, Types.INTEGER);
+						log.info("[assignMaterialToZoneDao] Executing query...");
 
+						cs.execute();
+					}
+				} else {
+					csBatch.setString(1, zoneBean.getZoneId());
+					csBatch.setString(2, zonePos.getLgtyp());
+					csBatch.setString(3, zonePos.getLgpla());
+					csBatch.setInt(4, zonePos.getSecuency());
+					csBatch.setString(5, zonePos.getImwm());
+					csBatch.setString(6, zonePos.getLgnum());
+					csBatch.setNull(7, Types.INTEGER);
+					csBatch.addBatch();
+				}
 			}
+			log.info("[addPositionZone] Executing batch..." + csBatch.executeBatch());
 
 			// Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -181,8 +197,7 @@ public class ZoneDao {
 				log.log(Level.SEVERE, "[addZone] Not rollback .", e);
 			}
 
-			log.log(Level.SEVERE,
-					"[addZone] Some error occurred while was trying to execute the S.P.: INV_SP_ADD_ZONE ?, ?, ?, ?, ?, ?",
+			log.log(Level.SEVERE, "[addZone] Some error occurred while was trying to execute the S.P.: " + CURRENTSP,
 					e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			res.setAbstractResult(abstractResult);
@@ -692,114 +707,153 @@ public class ZoneDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		Connection con = iConnectionManager.createConnection();
 		List<ZonePositionsBean> lsZpb = zb.getPositions();
-		List<ZonePositionMaterialsBean> lsmatNr = null;
-		int size = lsZpb.size();
-		int sizeAux = 0;
-		ZonePositionsBean zpb;
 		TgortB tgb, tgbAux;
-		LagpEntity lgpla, lgplaAux;
-		ZonePositionMaterialsBean zpmb;
-		for (int i = 0; i < size; i++) {
-
-			if (lsZpb.get(i).getImwm() != null) {
-				continue;
-			}
-
-			zpb = lsZpb.get(i);
-			tgb = new TgortB();
-			tgb.setWerks(zb.getWerks());
-			tgb.setLgort(zb.getLgort());
-			tgb.setLgNum(zpb.getLgnum());
-			tgb.setLgTyp(zpb.getLgtyp());
-			tgbAux = new TgortDao().getLgTypByWerksAndLgort(tgb, con);
-
-			// Check lgtyp
-			if (tgbAux == null) {
-
-				log.log(Level.SEVERE, "Invalid data...");
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs("Datos no válidos para \"LGNUM\": " + zpb.getLgnum() + " y "
-						+ "\"Tipo de Almacén\": " + zpb.getLgtyp());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-
-			lsZpb.get(i).setImwm(tgbAux.getImwm());
-			lsZpb.get(i).setLgtypDesc(tgbAux.getLtypt());
-
-			lgpla = new LagpEntity();
-			lgpla.setLgNum(tgbAux.getLgNum());
-			lgpla.setLgTyp(tgbAux.getLgTyp());
-			lgpla.setLgPla(zpb.getLgpla());
-			lgpla.setImwm(tgbAux.getImwm());
-
-			lgplaAux = new LagpDao().getLgpla(lgpla, con);
-
-			// Check lgpla
-			if (lgplaAux == null) {
-
-				log.log(Level.SEVERE, "Invalid data...");
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs("Datos no válidos para \"LGNUM\": " + zpb.getLgnum() + " y "
-						+ "\"Tipo de Almacén\": " + zpb.getLgtyp() + "\"Ubicación\": " + zpb.getLgpla());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-
-			lsmatNr = zpb.getMaterials();
-			sizeAux = lsmatNr.size();
-
-			for (int j = 0; j < sizeAux; j++) {
-
-				if (lsmatNr.get(j).getMatnr().trim().length() == 0) {
+		String zpmb;
+		HashMap<String, TgortB> evalMap = new HashMap<>();
+		try {
+			// Fill Unique Map
+			log.info("[validateZonePositions] Fill Unique Map.");
+			for (ZonePositionsBean zpToEval : lsZpb) {
+				String key = zb.getWerks() + zb.getLgort() + zpToEval.getLgnum() + zpToEval.getLgtyp();
+				if (zpToEval.getImwm() != null) {
 					continue;
+				} else {
+					if (!evalMap.containsKey(key)) {
+						tgb = new TgortB();
+						tgb.setWerks(zb.getWerks());
+						tgb.setLgort(zb.getLgort());
+						tgb.setLgNum(zpToEval.getLgnum());
+						tgb.setLgTyp(zpToEval.getLgtyp());
+						evalMap.put(key, tgb);
+					}
+				}
+			}
+			log.info("[validateZonePositions] Get Correct Values for Unique Map.");
+			if (!evalMap.isEmpty()) {
+				Iterator iteEval = evalMap.entrySet().iterator();
+				while (iteEval.hasNext()) {
+					Map.Entry pair = (Map.Entry) iteEval.next();
+					TgortB tgmpAux = (TgortB) pair.getValue();
+					tgbAux = new TgortDao().getLgTypByWerksAndLgort(tgmpAux, con);
+					if (tgbAux == null) {
+						log.log(Level.SEVERE, "Invalid data...");
+						abstractResult.setResultId(ReturnValues.IEXCEPTION);
+						abstractResult.setResultMsgAbs("Datos no válidos para \"LGNUM\": " + tgmpAux.getLgNum() + " y "
+								+ "\"Tipo de Almacén\": " + tgmpAux.getLgTyp());
+						res.setAbstractResult(abstractResult);
+						return res;
+					} else {
+						tgmpAux.setLtypt(tgbAux.getLtypt());
+						tgmpAux.setImwm(tgbAux.getImwm());
+						evalMap.put(pair.getKey().toString(), tgmpAux);
+					}
 				}
 
-				zpmb = new MatnrDao().getTmatnrByTmatnr(lsmatNr.get(j), con);
+			} else {
+				log.log(Level.SEVERE, "Invalid data...");
+				abstractResult.setResultId(ReturnValues.IEMPTY);
+				abstractResult.setResultMsgAbs("Datos ingresados no validos para el proceso");
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
 
-				if (zpmb == null) {
-
+			Iterator iteEval = evalMap.entrySet().iterator();
+			HashMap<String, String> mapMatWer = new MatnrDao().getTmatnrByTmatnr(zb, con);
+			log.info("[validateZonePositions] Empieza lo weno." + mapMatWer.size());
+			while (iteEval.hasNext()) {
+				Map.Entry pair = (Map.Entry) iteEval.next();
+				TgortB tgmpAux = (TgortB) pair.getValue();
+				List<String> lgplaValues = new ArrayList<>();
+				LagpEntity lagpEntity = new LagpEntity();
+				lagpEntity.setLgNum(tgmpAux.getLgNum());
+				lagpEntity.setLgTyp(tgmpAux.getLgTyp());
+				lagpEntity.setImwm(tgmpAux.getImwm());
+				log.info("LagpEntity:" + lagpEntity);
+				lgplaValues = new LagpDao().getLgplaList(lagpEntity, con);
+				if (lgplaValues != null) {
+					for (ZonePositionsBean zpToEval : lsZpb) {
+						if (zpToEval.getImwm() == null) {
+							if (zpToEval.getLgnum().equals(tgmpAux.getLgNum())
+									&& zpToEval.getLgtyp().equals(tgmpAux.getLgTyp())) {
+								zpToEval.setImwm(tgmpAux.getImwm());
+								zpToEval.setLgtypDesc(tgmpAux.getLtypt());
+								if (lgplaValues.contains(zpToEval.getLgpla())) {
+									lgplaValues.remove(zpToEval.getLgpla());
+									if (zpToEval.getMaterials() != null && !zpToEval.getMaterials().isEmpty()) {
+										boolean hasData = false;
+										for (ZonePositionMaterialsBean materialBean : zpToEval.getMaterials()) {
+											if (materialBean.getMatnr().trim().length() == 0) {
+												continue;
+											}
+											hasData = true;
+											zpmb = mapMatWer.get(materialBean.getMatnr());
+											if (zpmb == null) {
+												log.log(Level.SEVERE, "Invalid data...");
+												abstractResult.setResultId(ReturnValues.IEXCEPTION);
+												abstractResult.setResultMsgAbs(
+														"Material inválido: \"" + materialBean.getMatnr() + " \" "
+																+ "para la secuencia: " + zpToEval.getSecuency());
+												res.setAbstractResult(abstractResult);
+												return res;
+											}
+											materialBean.setDescM(zpmb);
+										}
+										if (!hasData) {
+											zpToEval.setMaterials(null);
+										}
+									}
+								} else {
+									log.log(Level.SEVERE, "Invalid data...");
+									abstractResult.setResultId(ReturnValues.IEXCEPTION);
+									abstractResult.setResultMsgAbs("Datos no válidos para \"LGNUM\": "
+											+ zpToEval.getLgnum() + " y " + " \"Tipo de Almacén\": "
+											+ zpToEval.getLgtyp() + " \"Ubicación\": " + zpToEval.getLgpla());
+									res.setAbstractResult(abstractResult);
+									return res;
+								}
+							}
+						}
+					}
+				} else {
 					log.log(Level.SEVERE, "Invalid data...");
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
-					abstractResult.setResultMsgAbs("Material inválido: \"" + lsmatNr.get(j).getMatnr() + " \" "
-							+ "para la secuencia: " + zpb.getSecuency());
+					abstractResult.setResultMsgAbs("Datos no válidos para \"LGNUM\": " + tgmpAux.getLgNum() + " y "
+							+ "\"Tipo de Almacén\": " + tgmpAux.getLgTyp());
 					res.setAbstractResult(abstractResult);
 					return res;
 				}
-
-				lsmatNr.get(j).setDescM(zpmb.getDescM());
 			}
-
-			zpb.setMaterials(lsmatNr);
-			lsZpb.set(i, zpb);
-
-		}
-
-		zb.setPositions(lsZpb);
-
-		try {
-			con.close();
-		} catch (SQLException e) {
-			log.log(Level.SEVERE,
-					"[validateZonePositions] Some error occurred while was trying to close the connection.", e);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "Invalid data...", e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs("Ocurrio un error de ejecucion");
 			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[validateZonePositions] Some error occurred while was trying to close the connection.", e);
+			}
 		}
-
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(zb);
-
 		return res;
 	}
+
+	private static final String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, LTYPT FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?"
+			+ " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, LTYPT";
 
 	private List<ZonePositionsBean> getPositionsZone(String zoneId) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
-		String INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, LTYPT FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ?";
-		INV_VW_ZONE_WITH_POSITIONS += " GROUP BY PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM, ZPO_LGNUM, LTYPT";
+
 		try {
+			HashMap<String, List<ZonePositionMaterialsBean>> mapPosition = this.getPositionMaterials();
+			log.info("[getZonesDao] mapPosition " + mapPosition.size());
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
 			log.info(INV_VW_ZONE_WITH_POSITIONS);
@@ -815,7 +869,7 @@ public class ZoneDao {
 				position.setImwm(rs.getString("IMWM"));
 				position.setLgtypDesc(rs.getString("LTYPT"));
 				position.setLgnum(rs.getString("ZPO_LGNUM"));
-				position.setMaterials(this.getPositionMaterials(rs.getString(1)));
+				position.setMaterials(mapPosition.get(rs.getString("PK_ASG_ID")));
 				listPositions.add(position);
 			}
 
@@ -845,49 +899,44 @@ public class ZoneDao {
 		return listPositions;
 	}
 
-	private List<ZonePositionMaterialsBean> getPositionMaterials(String pkAsgId) {
+	private static final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT PK_POS_MAT, POSITION_ID, MATNR, MAKTX FROM INV_VW_ZONE_POSITIONS_MATERIALS WITH(NOLOCK) GROUP BY PK_POS_MAT, POSITION_ID, MATNR, MAKTX";
+
+	private HashMap<String, List<ZonePositionMaterialsBean>> getPositionMaterials() {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ZonePositionMaterialsBean> listMaterials = new ArrayList<ZonePositionMaterialsBean>();
-
-		String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT PK_POS_MAT, MATNR ,MAKTX FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ?";
+		HashMap<String, List<ZonePositionMaterialsBean>> posMatMap = new HashMap<>();
 
 		log.info(INV_VW_ZONE_POSITIONS_MATERIALS);
 		log.info("[getZonesDao] Preparing sentence...");
-		INV_VW_ZONE_POSITIONS_MATERIALS += " GROUP BY PK_POS_MAT, MATNR ,MAKTX";
 
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
-			stm.setString(1, pkAsgId);
 			log.info("[getZonesDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
-
-				ZonePositionMaterialsBean material = new ZonePositionMaterialsBean();
-
-				material.setPosMat(rs.getInt("PK_POS_MAT"));
-				material.setMatnr(rs.getString("MATNR"));
-				material.setDescM(rs.getString("MAKTX"));
-
-				listMaterials.add(material);
+				if (posMatMap.containsKey(rs.getString("POSITION_ID"))) {
+					ZonePositionMaterialsBean material = new ZonePositionMaterialsBean();
+					material.setPosMat(rs.getInt("PK_POS_MAT"));
+					material.setMatnr(rs.getString("MATNR"));
+					material.setDescM(rs.getString("MAKTX"));
+					posMatMap.get(rs.getString("POSITION_ID")).add(material);
+				} else {
+					List<ZonePositionMaterialsBean> listMaterials = new ArrayList<ZonePositionMaterialsBean>();
+					ZonePositionMaterialsBean material = new ZonePositionMaterialsBean();
+					material.setPosMat(rs.getInt("PK_POS_MAT"));
+					material.setMatnr(rs.getString("MATNR"));
+					material.setDescM(rs.getString("MAKTX"));
+					listMaterials.add(material);
+					posMatMap.put(rs.getString("POSITION_ID"), listMaterials);
+				}
 
 			}
-
-			// Retrive the warnings if there're
-			SQLWarning warning = stm.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING, warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-
 			// Free resources
 			rs.close();
 			stm.close();
-
 			log.info("[getZonesDao] Sentence successfully executed.");
-
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[getZonesDao] Some error occurred while was trying to execute the query: "
 					+ INV_VW_ZONE_POSITIONS_MATERIALS, e);
@@ -898,7 +947,7 @@ public class ZoneDao {
 				log.log(Level.SEVERE, "[getZonesDao] Some error occurred while was trying to close the connection.", e);
 			}
 		}
-		return listMaterials;
+		return posMatMap;
 	}
 
 	private String buildConditionZones(ZoneBean zoneB) {

@@ -126,7 +126,7 @@ public class RouteDao {
 			log.info("[addRoute] Executing query...");
 			cs.execute();
 
-			routeBean.setRouteId(String.format("%08d", cs.getInt(1))); // addZeros
+			routeBean.setRouteId(cs.getString(1)); // addZeros
 
 			user = new User();
 			ume = new UMEDaoE();
@@ -401,7 +401,7 @@ public class RouteDao {
 			while (rs.next()) {
 
 				routeBean = new RouteBean();
-				routeBean.setRouteId(String.format("%08d", rs.getInt(1)));
+				routeBean.setRouteId(rs.getString(1));
 				routeBean.setBukrs(rs.getString(2));
 				routeBean.setWerks(rs.getString(3));
 				routeBean.setRdesc(rs.getString(4));
@@ -521,7 +521,7 @@ public class RouteDao {
 			while (rs.next()) {
 
 				routeBean = new RouteBean();
-				routeBean.setRouteId(String.format("%08d", rs.getInt(1)));
+				routeBean.setRouteId(rs.getString(1));
 				routeBean.setBukrs(rs.getString(2));
 				routeBean.setWerks(rs.getString(3));
 				routeBean.setRdesc(rs.getString(4));
@@ -593,7 +593,7 @@ public class RouteDao {
 			position.setPositionId(rs.getInt(1));
 			position.setLgort(rs.getString(2));
 			position.setGdesc(rs.getString(3));
-			position.setZoneId(String.format("%08d", rs.getInt(4)));
+			position.setZoneId(rs.getString(4));
 			position.setSecuency(rs.getString(5));
 			position.setZdesc(rs.getString(6));
 			listPositions.add(position);
