@@ -498,10 +498,7 @@ public class RouteDao {
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_AVAILABLE_ROUTES WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
-			INV_VW_ROUTES += "WHERE (ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter
-					+ "%') ";
-			INV_VW_ROUTES += "AND ROUTE_ID NOT IN (SELECT DIH_ROUTE_ID " + " FROM INV_DOC_INVENTORY_HEADER "
-					+ " WHERE DIH_STATUS = '1') ";
+			INV_VW_ROUTES += "WHERE (ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter + "%') ";
 		} else {
 			String condition = buildCondition(routeBean);
 			if (condition != null) {
