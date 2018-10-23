@@ -25,8 +25,8 @@ import com.gmodelo.utils.ReturnValues;
 public class DocInvDao {
 
 	private Logger log = Logger.getLogger(DocInvDao.class.getName());
-	private UMEDaoE ume;  
-	private User user; 
+	private UMEDaoE ume;
+	private User user;
 
 	public Response<DocInvBean> addDocInv(DocInvBean docInvBean, String createdBy) {
 		Response<DocInvBean> res = new Response<>();
@@ -52,7 +52,7 @@ public class DocInvDao {
 			} else {
 				cs.setString(5, docInvBean.getStatus());
 			}
-			
+
 			cs.setString(6, createdBy);
 			cs.setNull(7, Types.CHAR);
 
@@ -74,35 +74,37 @@ public class DocInvDao {
 			log.info("[addDocInv] Executing query...");
 
 			cs.execute();
-			
-			user = new User();	
+
+			user = new User();
 			ume = new UMEDaoE();
 			user.getEntity().setIdentyId(cs.getString(6));
 			ArrayList<User> ls = new ArrayList<>();
 			ls.add(user);
 			ls = ume.getUsersLDAPByCredentials(ls);
-			
-			if(ls.size() > 0){
-				
-				docInvBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-			}else{
+
+			if (ls.size() > 0) {
+
+				docInvBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " "
+						+ ls.get(0).getGenInf().getLastName());
+			} else {
 				docInvBean.setCreatedBy(cs.getString(6));
 			}
-			
+
 			user.getEntity().setIdentyId(cs.getString(7));
 			ls = new ArrayList<>();
 			ls.add(user);
 			ls = ume.getUsersLDAPByCredentials(ls);
-			
-			if(ls.size() > 0){
-				
-				docInvBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-			}else{
+
+			if (ls.size() > 0) {
+
+				docInvBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " "
+						+ ls.get(0).getGenInf().getLastName());
+			} else {
 				docInvBean.setModifiedBy(cs.getString(7));
 			}
-			
+
 			docInvId = cs.getInt(8);
-			docInvBean.setDocInvId(docInvId);			
+			docInvBean.setDocInvId(docInvId);
 
 			// Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -136,9 +138,7 @@ public class DocInvDao {
 		res.setLsObject(docInvBean);
 		return res;
 	}
-	
-	
-	
+
 	public Response<Object> deleteDocInvId(String arrayIdDocInv) {
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -202,9 +202,9 @@ public class DocInvDao {
 
 		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION, CREATED_BY, MODIFIED_BY FROM INV_VW_DOC_INV WITH(NOLOCK) WHERE DOC_FATHER_INV_ID IS NULL ";
 		if (searchFilter != null) {
-			INV_VW_DOC_INV += " AND TYPE != '3' AND DOC_INV_ID LIKE '%" + searchFilterNumber
-					+ "%' OR ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' "
-					+ " OR WERKSD LIKE '%" + searchFilterNumber + "%' ";
+			INV_VW_DOC_INV += " AND TYPE != '3' AND DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"
+					+ searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' " + " OR WERKSD LIKE '%"
+					+ searchFilterNumber + "%' ";
 		} else {
 			String condition = buildCondition(docInvBean);
 			if (condition != null) {
@@ -222,7 +222,7 @@ public class DocInvDao {
 			ResultSet rs = stm.executeQuery();
 			ume = new UMEDaoE();
 			while (rs.next()) {
-				
+
 				docInvBean = new DocInvBean();
 				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
@@ -232,30 +232,32 @@ public class DocInvDao {
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setType(rs.getString("TYPE"));
 				docInvBean.setStatus(rs.getString("STATUS"));
-				
-				user = new User();	
-				
+
+				user = new User();
+
 				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
 				ArrayList<User> ls = new ArrayList<>();
 				ls.add(user);
 				ls = ume.getUsersLDAPByCredentials(ls);
-				
-				if(ls.size() > 0){
-					
-					docInvBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-				}else{
+
+				if (ls.size() > 0) {
+
+					docInvBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
+							+ ls.get(0).getGenInf().getLastName());
+				} else {
 					docInvBean.setCreatedBy(rs.getString("CREATED_BY"));
 				}
-				
+
 				user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
 				ls = new ArrayList<>();
 				ls.add(user);
 				ls = ume.getUsersLDAPByCredentials(ls);
-				
-				if(ls.size() > 0){
-					
-					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
-				}else{
+
+				if (ls.size() > 0) {
+
+					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
+							+ ls.get(0).getGenInf().getLastName());
+				} else {
 					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY"));
 				}
 				listDocInv.add(docInvBean);
@@ -293,7 +295,7 @@ public class DocInvDao {
 		res.setLsObject(listDocInv);
 		return res;
 	}
-	
+
 	public Response<List<DocInvBean>> getOnlyDocInv(DocInvBean docInvBean, String searchFilter) {
 		Response<List<DocInvBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -313,9 +315,9 @@ public class DocInvDao {
 
 		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";
 		if (searchFilter != null) {
-			INV_VW_DOC_INV += " AND TYPE != '3' AND (DOC_INV_ID LIKE '%" + searchFilterNumber
-					+ "%' OR ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' "
-					+ " OR WERKSD LIKE '%" + searchFilterNumber + "%') ";
+			INV_VW_DOC_INV += " AND TYPE != '3' AND (DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"
+					+ searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' " + " OR WERKSD LIKE '%"
+					+ searchFilterNumber + "%') ";
 		} else {
 			String condition = buildCondition(docInvBean);
 			if (condition != null) {
@@ -332,7 +334,7 @@ public class DocInvDao {
 			log.info("[getOnlyDocInv] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
-				
+
 				docInvBean = new DocInvBean();
 				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
@@ -342,9 +344,9 @@ public class DocInvDao {
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setType(rs.getString("TYPE"));
 				docInvBean.setStatus(rs.getString("STATUS"));
-				
+
 				listDocInv.add(docInvBean);
-				
+
 			}
 
 			// Retrive the warnings if there're
@@ -469,22 +471,16 @@ public class DocInvDao {
 		String werks = "";
 		String status = "";
 
-		DOC_INV_ID = (docInvB.getDocInvId() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "DOC_INV_ID = '" + docInvB.getDocInvId() + "' "
-				: "");
+		DOC_INV_ID = (docInvB.getDocInvId() != null ? " AND DOC_INV_ID = '" + docInvB.getDocInvId() + "' " : "");
 		condition += DOC_INV_ID;
-		ROUTE_ID = (docInvB.getRoute() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ROUTE_ID = '" + docInvB.getRoute() + "' "
-				: "");
+		ROUTE_ID = (docInvB.getRoute() != null ? " AND ROUTE_ID = '" + docInvB.getRoute() + "' " : "");
 		condition += ROUTE_ID;
-		bukrs = (docInvB.getBukrs() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS = '" + docInvB.getBukrs() + "' " : "");
+		bukrs = (docInvB.getBukrs() != null ? " AND BUKRS = '" + docInvB.getBukrs() + "' " : "");
 		condition += bukrs;
-		werks = (docInvB.getWerks() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '" + docInvB.getWerks() + "' " : "");
+		werks = (docInvB.getWerks() != null ? " AND WERKS = '" + docInvB.getWerks() + "' " : "");
 		condition += werks;
-		status = (docInvB.getStatus() == null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "STATUS IS NULL "
-				: (condition.contains("WHERE") ? " AND " : " WHERE ") + " STATUS = '" + docInvB.getStatus() + "'");
+		status = (docInvB.getStatus() == null ? " AND STATUS IS NULL "
+				: " AND  STATUS = '" + docInvB.getStatus() + "'");
 		condition += status;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
