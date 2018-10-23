@@ -715,17 +715,13 @@ public class ZoneDao {
 			log.info("[validateZonePositions] Fill Unique Map.");
 			for (ZonePositionsBean zpToEval : lsZpb) {
 				String key = zb.getWerks() + zb.getLgort() + zpToEval.getLgnum() + zpToEval.getLgtyp();
-				if (zpToEval.getImwm() != null) {
-					continue;
-				} else {
-					if (!evalMap.containsKey(key)) {
-						tgb = new TgortB();
-						tgb.setWerks(zb.getWerks());
-						tgb.setLgort(zb.getLgort());
-						tgb.setLgNum(zpToEval.getLgnum());
-						tgb.setLgTyp(zpToEval.getLgtyp());
-						evalMap.put(key, tgb);
-					}
+				if (!evalMap.containsKey(key)) {
+					tgb = new TgortB();
+					tgb.setWerks(zb.getWerks());
+					tgb.setLgort(zb.getLgort());
+					tgb.setLgNum(zpToEval.getLgnum());
+					tgb.setLgTyp(zpToEval.getLgtyp());
+					evalMap.put(key, tgb);
 				}
 			}
 			log.info("[validateZonePositions] Get Correct Values for Unique Map.");
@@ -772,47 +768,48 @@ public class ZoneDao {
 				lgplaValues = new LagpDao().getLgplaList(lagpEntity, con);
 				if (lgplaValues != null) {
 					for (ZonePositionsBean zpToEval : lsZpb) {
-						if (zpToEval.getImwm() == null) {
-							if (zpToEval.getLgnum().equals(tgmpAux.getLgNum())
-									&& zpToEval.getLgtyp().equals(tgmpAux.getLgTyp())) {
+						if (zpToEval.getLgnum().equals(tgmpAux.getLgNum())
+								&& zpToEval.getLgtyp().equals(tgmpAux.getLgTyp())) {
+							if (zpToEval.getImwm() == null) {
 								zpToEval.setImwm(tgmpAux.getImwm());
 								zpToEval.setLgtypDesc(tgmpAux.getLtypt());
-								if (lgplaValues.contains(zpToEval.getLgpla())) {
-									lgplaValues.remove(zpToEval.getLgpla());
-									if (zpToEval.getMaterials() != null && !zpToEval.getMaterials().isEmpty()) {
-										boolean hasData = false;
-										for (ZonePositionMaterialsBean materialBean : zpToEval.getMaterials()) {
-											if (materialBean.getMatnr().trim().length() == 0) {
-												continue;
-											}
-											hasData = true;
-											zpmb = mapMatWer.get(materialBean.getMatnr());
-											if (zpmb == null) {
-												log.log(Level.SEVERE, "Invalid data...");
-												abstractResult.setResultId(ReturnValues.IEXCEPTION);
-												abstractResult.setResultMsgAbs(
-														"Material inválido: \"" + materialBean.getMatnr() + " \" "
-																+ "para la secuencia: " + zpToEval.getSecuency());
-												res.setAbstractResult(abstractResult);
-												return res;
-											}
-											materialBean.setDescM(zpmb);
+							}
+							if (lgplaValues.contains(zpToEval.getLgpla())) {
+								lgplaValues.remove(zpToEval.getLgpla());
+								if (zpToEval.getMaterials() != null && !zpToEval.getMaterials().isEmpty()) {
+									boolean hasData = false;
+									for (ZonePositionMaterialsBean materialBean : zpToEval.getMaterials()) {
+										if (materialBean.getMatnr().trim().length() == 0) {
+											continue;
 										}
-										if (!hasData) {
-											zpToEval.setMaterials(null);
+										hasData = true;
+										zpmb = mapMatWer.get(materialBean.getMatnr());
+										if (zpmb == null) {
+											log.log(Level.SEVERE, "Invalid data...");
+											abstractResult.setResultId(ReturnValues.IEXCEPTION);
+											abstractResult
+													.setResultMsgAbs("Material inválido: \"" + materialBean.getMatnr()
+															+ " \" " + "para la secuencia: " + zpToEval.getSecuency());
+											res.setAbstractResult(abstractResult);
+											return res;
 										}
+										materialBean.setDescM(zpmb);
 									}
-								} else {
-									log.log(Level.SEVERE, "Invalid data...");
-									abstractResult.setResultId(ReturnValues.IEXCEPTION);
-									abstractResult.setResultMsgAbs("Datos no válidos para \"LGNUM\": "
-											+ zpToEval.getLgnum() + " y " + " \"Tipo de Almacén\": "
-											+ zpToEval.getLgtyp() + " \"Ubicación\": " + zpToEval.getLgpla());
-									res.setAbstractResult(abstractResult);
-									return res;
+									if (!hasData) {
+										zpToEval.setMaterials(null);
+									}
 								}
+							} else {
+								log.log(Level.SEVERE, "Invalid data...");
+								abstractResult.setResultId(ReturnValues.IEXCEPTION);
+								abstractResult.setResultMsgAbs("Datos no válidos para \"LGNUM\": " + zpToEval.getLgnum()
+										+ " y " + " \"Tipo de Almacén\": " + zpToEval.getLgtyp() + " \"Ubicación\": "
+										+ zpToEval.getLgpla());
+								res.setAbstractResult(abstractResult);
+								return res;
 							}
 						}
+
 					}
 				} else {
 					log.log(Level.SEVERE, "Invalid data...");
