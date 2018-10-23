@@ -1076,5 +1076,54 @@ public class ZoneDao {
 		}
 		return singlePosition;
 	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public Response<List<ZoneBean>> getZoneByLgortAndWerk(ZoneBean zoneBean) {
+		Response<List<ZoneBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		List<ZoneBean> listZone = new ArrayList<ZoneBean>(); 
+		String INV_VW_ZONE_BY_LGORT = "SELECT [ZONE_ID], [ZON_DESC] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";
+		if (zoneBean.getWerks() == null && zoneBean.getLgort() == null) {
+			log.info("[getZoneByLgortAndWerkDao] null Params...");
+			INV_VW_ZONE_BY_LGORT += "";
+		} else if (zoneBean.getWerks() != null && zoneBean.getLgort() != null) {
+			log.info("getZoneByLgortAndWerkDao] not Null zoneID Object...");
+			INV_VW_ZONE_BY_LGORT += " WHERE [LGORT] = '" + zoneBean.getLgort() +"' AND [WERKS] = '"+ zoneBean.getWerks()+"'";
+		} 
+		INV_VW_ZONE_BY_LGORT += " GROUP BY [ZONE_ID], [ZON_DESC] ";
+		INV_VW_ZONE_BY_LGORT += " ORDER BY [ZONE_ID]";
+		log.info(INV_VW_ZONE_BY_LGORT);
+		log.info("[getZoneByLgortAndWerkDao] Preparing sentence...");
+		try {
+			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
+			log.info("[getZoneByLgortAndWerkDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				zoneBean = new ZoneBean();
+				zoneBean.setZoneId(rs.getString("ZONE_ID"));
+				zoneBean.setZdesc(rs.getString("ZON_DESC"));
+				listZone.add(zoneBean);
+			}
+			log.info("[getZoneByLgortAndWerkDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[getZoneByLgortAndWerkDao] Some error occurred while was trying to execute the query: "
+					+ INV_VW_ZONE_BY_LGORT, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getZoneByLgortAndWerkDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listZone);
+		return res;
+	}
 
 }

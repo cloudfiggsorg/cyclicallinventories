@@ -80,5 +80,13 @@ public class ZoneService {
 	public Response<ZoneBean> validateZonePositions(Request request){
 		return new ZoneWorkService().validateZonePositions(request);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getZoneByLgortAndWerk")
+	public Response<List<ZoneBean>> getZoneByLgortAndWerk(Request request){
+		return new ZoneWorkService().getZoneByLgortAndWerk(request);
+	}
 		
 }

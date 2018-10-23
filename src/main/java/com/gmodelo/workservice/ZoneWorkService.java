@@ -10,7 +10,6 @@ import com.gmodelo.beans.MaterialToZoneBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.ZoneBean;
-import com.gmodelo.beans.ZonePositionsBean;
 import com.gmodelo.dao.ZoneDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -202,6 +201,28 @@ public class ZoneWorkService {
 		}
 
 		return new ZoneDao().unassignMaterialToZone(materialToZoneBean);
+
+	}
+	
+	
+	public Response<List<ZoneBean>> getZoneByLgortAndWerk(Request<?> request) {
+		log.info("[getZoneByLgortAndWerkWorkService] " + request.toString());
+		ZoneBean zoneBean = null;
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		Response<List<ZoneBean>> res = new Response<>();
+		try {
+			zoneBean = gson.fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
+			res = new ZoneDao().getZoneByLgortAndWerk(zoneBean);
+		} catch (Exception e) {
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			
+			log.log(Level.SEVERE,"[getZoneByLgortAndWerkWorkService] Error al pasar de json a objeto");
+			e.printStackTrace();
+		}
+
+		return res;
 
 	}
 
