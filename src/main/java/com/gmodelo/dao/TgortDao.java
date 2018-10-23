@@ -91,13 +91,14 @@ public class TgortDao {
 	
 	public TgortB getLgTypByWerksAndLgort(TgortB tgortBean, Connection con){
 		
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		try {
-			con = con.isValid(3)? iConnectionManager.createConnection(): con;
-		} catch (SQLException e1) {
-			log.log(Level.SEVERE,"[getLgTypByBukrsAndWerksDao] Some error ocurred while was trying to check the connection");
-			return null;
-		}
+		// ConnectionManager iConnectionManager = new ConnectionManager();
+		// try {
+		// con = con.isValid(3)? iConnectionManager.createConnection(): con;
+		// } catch (SQLException e1) {
+		// log.log(Level.SEVERE,"[getLgTypByBukrsAndWerksDao] Some error ocurred
+		// while was trying to check the connection");
+		// return null;
+		// }
 		PreparedStatement stm = null;
 		TgortB tgortBeanAux = null;
 				 
@@ -129,13 +130,6 @@ public class TgortDao {
 				tgortBeanAux.setImwm(rs.getString(6));
 			}
 			
-			//Retrive the warnings if there're
-			SQLWarning warning = stm.getWarnings();
-			while (warning != null) {
-				log.log(Level.WARNING,warning.getMessage());
-				warning = warning.getNextWarning();
-			}
-			
 			//Free resources
 			rs.close();
 			stm.close();
@@ -143,14 +137,7 @@ public class TgortDao {
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,"[getLgTypByBukrsAndWerksDao] Some error occurred while was trying to execute the query: " + INV_VW_TGORT_BY_NGORT, e);
 			return null;
-		}finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[getLgTypByBukrsAndWerksDao] Some error occurred while was trying to close the connection.", e);
-			}
 		}
-		
 		return tgortBeanAux;
 	}
 	
