@@ -18,6 +18,7 @@ import com.gmodelo.beans.LgplaValuesBean;
 import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.beans.RouteUserPositionBean;
 import com.gmodelo.beans.TaskBean;
+import com.gmodelo.beans.ZonePositionMaterialsBean;
 import com.gmodelo.beans.ZoneUserBean;
 import com.gmodelo.beans.ZoneUserPositionsBean;
 import com.gmodelo.utils.ConnectionManager;
@@ -280,6 +281,7 @@ public class RouteUserDao {
 		log.info(INV_VW_ZONE_WITH_POSITIONS);
 		log.info("[getPositionsZoneDao] Preparing sentence...");
 		try {
+			HashMap<String, HashMap<String, LgplaValuesBean>> mapPosition = this.getPositionMaterials();
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
 			log.info("[getPositionsZoneDao] Executing query...");
@@ -292,7 +294,7 @@ public class RouteUserDao {
 				position.setSecuency(rs.getString("SECUENCY"));
 				position.setImwm(rs.getString("IMWM"));
 				position.setZoneId(zoneId);
-				position.setLgplaValues(this.getPositionMaterials(rs.getString("PK_ASG_ID")));
+				position.setLgplaValues(mapPosition.get(rs.getString("PK_ASG_ID")));
 				listPositions.add(position);
 			}
 			// Retrive the warnings if there're
@@ -320,30 +322,38 @@ public class RouteUserDao {
 		return listPositions;
 	}
 
-	private HashMap<String, LgplaValuesBean> getPositionMaterials(String pkAsgId) throws SQLException {
+	private static final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT POSITION_ID, MATNR, MAKTX FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WITH(NOLOCK) GROUP BY POSITION_ID, MATNR, MAKTX";
+
+	private HashMap<String, HashMap<String, LgplaValuesBean>> getPositionMaterials() throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		HashMap<String, LgplaValuesBean> listMaterials = new HashMap<String, LgplaValuesBean>();
-
-		final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT MATNR, MAKTX FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WHERE POSITION_ID = ? GROUP BY MATNR ,MAKTX";
+		HashMap<String, HashMap<String, LgplaValuesBean>> mapMaterials = new HashMap<>();
 
 		log.info(INV_VW_ZONE_POSITIONS_MATERIALS);
 		log.info("[getPositionMaterialsDao] Preparing sentence...");
 		try {
 			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
-			stm.setString(1, pkAsgId);
 			log.info("[getPositionMaterialsDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
-
-				LgplaValuesBean material = new LgplaValuesBean();
-
-				material.setMatnr(rs.getString("MATNR").replaceFirst("^0*", ""));
-				material.setMatkx(rs.getString("MAKTX"));
-				material.setLocked(true);
-				listMaterials.put(material.toKey(pkAsgId), material);
+				if (mapMaterials.containsKey(rs.getString("POSITION_ID"))) {
+					LgplaValuesBean material = new LgplaValuesBean();
+					material.setMatnr(rs.getString("MATNR").replaceFirst("^0*", ""));
+					material.setMatkx(rs.getString("MAKTX"));
+					material.setLocked(true);
+					mapMaterials.get(rs.getString("POSITION_ID")).put(material.toKey(rs.getString("POSITION_ID")),
+							material);
+				} else {
+					HashMap<String, LgplaValuesBean> listMaterials = new HashMap<>();
+					LgplaValuesBean material = new LgplaValuesBean();
+					material.setMatnr(rs.getString("MATNR").replaceFirst("^0*", ""));
+					material.setMatkx(rs.getString("MAKTX"));
+					material.setLocked(true);
+					listMaterials.put(material.toKey(rs.getString("POSITION_ID")), material);
+					mapMaterials.put(rs.getString("POSITION_ID"), listMaterials);
+				}
 			}
 
 			// Retrive the warnings if there're
@@ -373,7 +383,7 @@ public class RouteUserDao {
 						"[getPositionMaterialsDao] Some error occurred while was trying to close the connection.", e);
 			}
 		}
-		return listMaterials;
+		return mapMaterials;
 	}
 
 	// public List<RouteGroupBean> getGroups(String idRoute) throws SQLException
