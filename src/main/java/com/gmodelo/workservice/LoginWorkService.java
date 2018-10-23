@@ -103,6 +103,7 @@ public class LoginWorkService {
 					if (!lsRolesAux.contains("EXECUTE_INV_CIC_APP")) {
 						abstractResult.setResultId(ReturnValues.INOTROLE);
 						abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
+						myLog.log(Level.SEVERE,loginBean.getLoginId().trim()+" : "+ ReturnValues.SNOTROLE);
 						resp.setAbstractResult(abstractResult);
 
 						return resp;
