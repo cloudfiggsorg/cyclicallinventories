@@ -288,6 +288,10 @@ public class RouteUserDao {
 			log.info("[getPositionsZoneDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
+				HashMap<String, LgplaValuesBean> insertMap =  new HashMap<>();
+				if(mapPosition.containsKey("PK_ASG_ID")){
+					insertMap = mapPosition.get(rs.getString("PK_ASG_ID")); 
+				}
 				ZoneUserPositionsBean position = new ZoneUserPositionsBean();
 				position.setPkAsgId(rs.getInt("PK_ASG_ID"));
 				position.setLgtyp(rs.getString("LGTYP"));
@@ -295,7 +299,7 @@ public class RouteUserDao {
 				position.setSecuency(rs.getString("SECUENCY"));
 				position.setImwm(rs.getString("IMWM"));
 				position.setZoneId(zoneId);
-				position.setLgplaValues(mapPosition.get(rs.getString("PK_ASG_ID")));
+				position.setLgplaValues(insertMap);
 				listPositions.add(position);
 			}
 			// Retrive the warnings if there're
