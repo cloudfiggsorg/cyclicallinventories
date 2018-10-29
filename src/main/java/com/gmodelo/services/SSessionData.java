@@ -11,13 +11,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.jboss.logging.Logger;
-import org.json.JSONObject;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.google.gson.Gson;
 
 /**
  * Root resource (exposed at "sessiondata" path)
@@ -37,39 +34,38 @@ public class SSessionData {
 	 */
 	@SuppressWarnings("unchecked")
 	@POST
-//	@Consumes(MediaType.APPLICATION_JSON)
+	// @Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response<List<Object>> getSessionData() {
 		Response<List<Object>> resp = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<Object> listObject = new ArrayList<Object>();
-//		log.warn(request);		
-//		session = httpRequest.getSession();
-////		 String newSession = (String) session.getAttribute("newSession");
-//		 
+		// log.warn(request);
+		// session = httpRequest.getSession();
+		//// String newSession = (String) session.getAttribute("newSession");
+		//
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		log.warn(user);
 		ArrayList<String> roles = (ArrayList<String>) httpRequest.getSession().getAttribute("roles");
 		log.warn(roles);
-//		JSONObject job = new JSONObject();
+		// JSONObject job = new JSONObject();
 		user.getAccInf().setPassword(null);
-		
+
 		log.warn("SSessionData ...");
-		log.warn("id: "+httpRequest.getSession().getId());
-		log.warn("attribute user: "+httpRequest.getSession().getAttribute("user"));
-		log.warn("attribute roles: "+httpRequest.getSession().getAttribute("roles"));
-		
-//		job.put("user",user);
-//		job.put("roles",roles);
+		log.warn("id: " + httpRequest.getSession().getId());
+		log.warn("attribute user: " + httpRequest.getSession().getAttribute("user"));
+		log.warn("attribute roles: " + httpRequest.getSession().getAttribute("roles"));
+
+		// job.put("user",user);
+		// job.put("roles",roles);
+
 		listObject.add(user);
 		listObject.add(roles);
-//		listObject.add(job);
+		// listObject.add(job);
 		resp.setLsObject(listObject);
 		resp.setAbstractResult(abstractResult);
-		
+
 		return resp;
 	}
-
-	
 
 }

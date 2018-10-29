@@ -156,8 +156,15 @@ public class RouteDao {
 				routeBean.setModifiedBy(cs.getString(6));
 			}
 
+			//Delete route position			
 			cs = null;
 			cs = con.prepareCall(INV_SP_DEL_ROUTE_POSITION);
+			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));
+			cs.execute();
+			
+			//Delete groups to route
+			cs = null;
+			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_ROUTE);
 			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));
 			cs.execute();
 
@@ -177,11 +184,6 @@ public class RouteDao {
 				cs.execute();
 				routeBean.getPositions().get(i).setPositionId(cs.getInt(2));
 			}
-
-			cs = null;
-			cs = con.prepareCall(INV_SP_DESASSIGN_GROUP_TO_ROUTE);
-			cs.setInt(1, Integer.parseInt(routeBean.getRouteId()));
-			cs.execute();
 
 			// INSERTAR GRUPOS Y CONTEOS
 			for (int i = 0; i < routeBean.getGroups().size(); i++) {

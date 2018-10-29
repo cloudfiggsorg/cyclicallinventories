@@ -1,7 +1,11 @@
 package com.gmodelo.workservice;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -9,11 +13,14 @@ import javax.servlet.http.HttpSession;
 
 import com.bmore.ume001.beans.Role;
 import com.bmore.ume001.beans.User;
+import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LoginBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.UMEDaoE;
+import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
+import com.gmodelo.utils.Utilities;
 
 public class LoginWorkService {
 
@@ -96,10 +103,45 @@ public class LoginWorkService {
 					ArrayList<Role> lsRoles = new ArrayList<Role>();
 					lsRoles = apiUME.getUserRoles(loginBean.getLoginId().trim());
 					ArrayList<String> lsRolesAux = new ArrayList<String>();
-					for (Role rol : lsRoles) {
-						lsRolesAux.add(rol.getRolId().trim());
+					Utilities iUtils = new Utilities();
+					Connection con = new ConnectionManager().createConnection();
+					String regEx = null;
+					Pattern pattern = null;
+					Matcher m; 
+					boolean found = false;
+					
+					try {	
+						
+						regEx = "^" + iUtils.GetValueRepByKey(con, ReturnValues.ROLE_MASK).getStrCom1() + "$";		
+						regEx = regEx.replace("?", "([A-Za-z0-9]+)");
+						pattern = Pattern.compile(regEx);
+						
+					} catch (InvCicException e) {
+						
+						myLog.info("Error al intentar obtener la mascara para verificar bukrs y werks.");
+					}finally{
+						try {
+							con.close();
+						} catch (SQLException e) {
+							myLog.info("Error al intentar cerrar la conexión de base datos...");
+						}
 					}
-
+						
+					
+					for (Role rol : lsRoles) {
+						
+						lsRolesAux.add(rol.getRolId().trim());						
+						m = pattern.matcher(rol.getRolId().trim());
+						
+						//Get the bukrs and werks by role
+						if(m.matches() && !found){
+							
+							user.setBukrs(m.group(1));
+							user.setWerks(m.group(2));
+							found = true;
+						}
+					}
+					
 					if (!lsRolesAux.contains("EXECUTE_INV_CIC_APP")) {
 						abstractResult.setResultId(ReturnValues.INOTROLE);
 						abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
@@ -107,7 +149,19 @@ public class LoginWorkService {
 
 						return resp;
 					}
+					
+					if(!found){
+						
+						abstractResult.setResultId(ReturnValues.IMISSING_BUKRS_OR_WERKS);
+						abstractResult.setResultMsgAbs(ReturnValues.SMISSING_BUKRS_OR_WERKS);
+						resp.setAbstractResult(abstractResult);
+
+						return resp;
+					}
+					
 					myLog.info(user.getEntity().getIdentyId());
+					myLog.info(user.getBukrs());
+					myLog.info(user.getWerks());
 					session = request.getSession(true);
 					session.setAttribute("user", user);// Set the idUser on
 														// session
