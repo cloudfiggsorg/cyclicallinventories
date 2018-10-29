@@ -150,17 +150,17 @@ public class LoginWorkService {
 					}
 						
 					
-					if(!lsRolesAux.contains("INV_CIC_ADMIN")){
-					
-						if(!found){
-						
-							abstractResult.setResultId(ReturnValues.IMISSING_BUKRS_OR_WERKS);
-							abstractResult.setResultMsgAbs(ReturnValues.SMISSING_BUKRS_OR_WERKS);
-							resp.setAbstractResult(abstractResult);
-
-							return resp;
-						}	
-					}	
+//					if(!lsRolesAux.contains("INV_CIC_ADMIN")){
+//					
+//						if(!found){
+//						
+//							abstractResult.setResultId(ReturnValues.IMISSING_BUKRS_OR_WERKS);
+//							abstractResult.setResultMsgAbs(ReturnValues.SMISSING_BUKRS_OR_WERKS);
+//							resp.setAbstractResult(abstractResult);
+//
+//							return resp;
+//						}	
+//					}	
 										
 					myLog.info(user.getEntity().getIdentyId());
 					myLog.info(user.getBukrs());
