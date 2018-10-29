@@ -113,7 +113,6 @@ public class LoginWorkService {
 					try {	
 						
 						regEx = "^" + iUtils.GetValueRepByKey(con, ReturnValues.ROLE_MASK).getStrCom1() + "$";		
-						regEx = regEx.replace("?", "([A-Za-z0-9]+)");
 						pattern = Pattern.compile(regEx);
 						
 					} catch (InvCicException e) {
