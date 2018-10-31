@@ -454,14 +454,14 @@ public class TaskDao {
 		String condition = "";
 		
 		/*TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, TAS_COUNT_ID*/
-		TASK_ID = (taskB.getTaskId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TASK_ID LIKE '%" + taskB.getTaskId() + "%' ": "";
+		TASK_ID = (taskB.getTaskId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TASK_ID = '" + taskB.getTaskId() + "' ": "";
 		condition += TASK_ID;
-		TAS_GROUP_ID = (taskB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_GROUP_ID LIKE '%" + taskB.getGroupId() + "%' " : "";
+		TAS_GROUP_ID = (taskB.getGroupId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_GROUP_ID = '" + taskB.getGroupId() + "' " : "";
 		condition += TAS_GROUP_ID;
-		TAS_DOC_INV_ID = (taskB.getDocInvId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_DOC_INV_ID LIKE '%" + taskB.getDocInvId() + "%' " : "";
+		TAS_DOC_INV_ID = (taskB.getDocInvId() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_DOC_INV_ID ='" + taskB.getDocInvId() + "' " : "";
 		condition += TAS_DOC_INV_ID;
-		TAS_STATUS = (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_STATUS = " + (taskB.isStatus()  ? 1 : 0) ;
-		condition += TAS_STATUS;
+//		TAS_STATUS = (condition.contains("WHERE") ? " AND " : " WHERE ") + " TAS_STATUS = " + (taskB.isStatus()  ? 1 : 0) ;
+//		condition += TAS_STATUS;
 		condition = condition.isEmpty() ? null : condition;		
 		return condition;
 	}

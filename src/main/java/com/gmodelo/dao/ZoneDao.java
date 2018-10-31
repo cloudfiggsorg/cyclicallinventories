@@ -525,7 +525,7 @@ public class ZoneDao {
 		}
 		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES, CREATED_BY, MODIFIED_BY FROM dbo.INV_VW_ZONES";
 		if (searchFilter != null) {
-
+			
 			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%" + searchFilter
 					+ "%' ";
 		} else {
@@ -955,23 +955,23 @@ public class ZoneDao {
 		String werks = "";
 		String lgort = "";
 
-		zoneId = (zoneB.getZoneId() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZONE_ID LIKE '%"
-				+ zoneB.getZoneId().replaceFirst("^0*", "") + "%' " : "");
+		zoneId = (zoneB.getZoneId() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZONE_ID = "
+				+ zoneB.getZoneId() : "");
 		condition += zoneId;
 		zdesc = (zoneB.getZdesc() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZDESC LIKE '%" + zoneB.getZdesc() + "%' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ZDESC = '" + zoneB.getZdesc() + "' "
 				: "");
 		condition += zdesc;
 		bukrs = (zoneB.getBukrs() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS LIKE '%" + zoneB.getBukrs() + "%' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS = '" + zoneB.getBukrs() + "' "
 				: "");
 		condition += bukrs;
 		werks = (zoneB.getWerks() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS LIKE '%" + zoneB.getWerks() + "%' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '" + zoneB.getWerks() + "' "
 				: "");
 		condition += werks;
 		lgort = (zoneB.getLgort() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGORT LIKE '%" + zoneB.getLgort() + "%' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "LGORT = '" + zoneB.getLgort() + "' "
 				: "");
 		condition += lgort;
 

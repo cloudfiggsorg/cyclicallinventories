@@ -1,11 +1,8 @@
 package com.gmodelo.beans.test;
 
-import java.util.ArrayList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.gmodelo.beans.AbstractResultsBean;
-import com.gmodelo.beans.Response;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Test {
 
@@ -25,7 +22,19 @@ public class Test {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		LOGGER.info("Hola Mundo Websphere" );
+		String pattern = "^ROLE_INV_BK_?_WS_?$";
+		pattern = pattern.replace("?", "([A-Za-z0-9]+)");		
+		Pattern patron = Pattern.compile(pattern);
+		
+		String role = "ROLE_INV_BK_23P2_WS_we324";
+		
+		Matcher m = patron.matcher(role);
+		
+		if(m.matches()){
+			System.out.println(m.group(1));
+			System.out.println(m.group(2));
+		}
+				
 
 	}
 

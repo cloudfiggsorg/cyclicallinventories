@@ -133,7 +133,7 @@ public class TaskWorkService {
 				log.info("[getTasksWS] Fue Objeto: " + tb);
 			} catch (JsonSyntaxException e) {
 				searchFilter = request.getLsObject().toString().trim();
-				log.info("[getTasksWS] jsyn Intentando por String ");
+				log.info("[getTasksWS] json Intentando por String ");
 			}
 		} else {
 			searchFilter = "";
