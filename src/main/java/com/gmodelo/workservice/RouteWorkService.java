@@ -70,12 +70,12 @@ public class RouteWorkService {
 		log.info("[getRoutesService] " + request.toString());
 		RouteBean routeBean = null;
 		String searchFilter = null;
-		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
 		String req = request.getLsObject().toString().trim();
+		
 		if (!req.isEmpty()) {
 			try {
+				
 				routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteBean.class);
-
 				log.info("Fue objeto");
 			} catch (JsonSyntaxException e) {
 				searchFilter = request.getLsObject().toString();

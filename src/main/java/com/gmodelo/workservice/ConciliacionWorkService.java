@@ -26,8 +26,12 @@ public class ConciliacionWorkService {
 	private Logger log = Logger.getLogger(ConciliacionWorkService.class.getName());
 	Gson gson = new Gson();
 
-	public Response<List<ConciliationsIDsBean>> getConciliationIDs() {
-		return new ConciliacionDao().getConciliationIDs();
+	public Response<List<ConciliationsIDsBean>> getConciliationIDs(Request<List<Object>> request) {
+		
+		String bukrs = (String)request.getLsObject().get(0);
+		String werks = (String)request.getLsObject().get(1);
+				
+		return new ConciliacionDao().getConciliationIDs(bukrs, werks);
 	}
 
 	public Response<ConciliacionBean> getConciliacion(Request request) {

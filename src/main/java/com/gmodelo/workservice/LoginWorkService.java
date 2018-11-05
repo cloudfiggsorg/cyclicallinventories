@@ -149,24 +149,26 @@ public class LoginWorkService {
 					}
 						
 					
-//					if(!lsRolesAux.contains("INV_CIC_ADMIN")){
-//					
-//						if(!found){
-//						
-//							abstractResult.setResultId(ReturnValues.IMISSING_BUKRS_OR_WERKS);
-//							abstractResult.setResultMsgAbs(ReturnValues.SMISSING_BUKRS_OR_WERKS);
-//							resp.setAbstractResult(abstractResult);
-//
-//							return resp;
-//						}	
-//					}	
-										
-					myLog.info(user.getEntity().getIdentyId());
+					if(!lsRolesAux.contains("INV_CIC_ADMIN")){
+					
+						if(!found){
+						
+							abstractResult.setResultId(ReturnValues.IMISSING_BUKRS_OR_WERKS);
+							abstractResult.setResultMsgAbs(ReturnValues.SMISSING_BUKRS_OR_WERKS);
+							resp.setAbstractResult(abstractResult);
+
+							return resp;
+						}	
+					}	
+					
+					user.getEntity().setIdentyId(user.getEntity().getIdentyId().toUpperCase());
+					
+					myLog.info(user.getEntity().getIdentyId().toUpperCase());
 					myLog.info(user.getBukrs());
 					myLog.info(user.getWerks());
+					
 					session = request.getSession(true);
-					session.setAttribute("user", user);// Set the idUser on
-														// session
+					session.setAttribute("user", user);// Set the idUser on														// session
 					session.setAttribute("roles", lsRolesAux);
 
 					myLog.info("[login] Loggin success for: " + user.getEntity().getIdentyId());

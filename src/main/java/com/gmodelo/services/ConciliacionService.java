@@ -29,8 +29,8 @@ public class ConciliacionService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getConciliationsID")
-	public Response<List<ConciliationsIDsBean>> getConciliationIDs(){
-		return new ConciliacionWorkService().getConciliationIDs();
+	public Response<List<ConciliationsIDsBean>> getConciliationIDs(Request request){
+		return new ConciliacionWorkService().getConciliationIDs(request);
 	}
 	
 	@POST

@@ -224,7 +224,7 @@ public class DocInvDao {
 			while (rs.next()) {
 
 				docInvBean = new DocInvBean();
-				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
+				docInvBean.setRoute(rs.getString("ROUTE_ID"));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
 				docInvBean.setBukrsD(rs.getString("BDESC"));
@@ -303,28 +303,13 @@ public class DocInvDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<DocInvBean> listDocInv = new ArrayList<DocInvBean>();
-		int aux;
-		String searchFilterNumber = "";
-		try {
-			aux = Integer.parseInt(searchFilter);
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("Is String");
-		}
-
-		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";
-		if (searchFilter != null) {
-			INV_VW_DOC_INV += " AND TYPE != '3' AND (DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"
-					+ searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' " + " OR WERKSD LIKE '%"
-					+ searchFilterNumber + "%') ";
-		} else {
-			String condition = buildCondition(docInvBean);
-			if (condition != null) {
-				INV_VW_DOC_INV += condition;
-			}
-		}
-
+		 
+		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";		
+		INV_VW_DOC_INV += "AND TYPE != '3' AND (DOC_INV_ID LIKE '%" + searchFilter + "%' OR ROUTE_ID LIKE '%";
+		INV_VW_DOC_INV += searchFilter + "%' OR BDESC LIKE '%" + searchFilter + "%' " + " OR WERKSD LIKE '% ";
+		INV_VW_DOC_INV += searchFilter + "%') ";
+		INV_VW_DOC_INV += "AND BUKRS = '" + docInvBean.getBukrs() +"' AND WERKS = '" + docInvBean.getWerks() + "'";
+		
 		log.info(INV_VW_DOC_INV);
 		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";
 		log.info("[getOnlyDocInv] Preparing sentence...");
@@ -336,7 +321,7 @@ public class DocInvDao {
 			while (rs.next()) {
 
 				docInvBean = new DocInvBean();
-				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
+				docInvBean.setRoute(rs.getString("ROUTE_ID"));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
 				docInvBean.setBukrsD(rs.getString("BDESC"));
@@ -403,7 +388,7 @@ public class DocInvDao {
 
 			if (rs.next()) {
 				docInvBean = new DocInvBean();
-				docInvBean.setRoute(String.format("%08d", rs.getInt("ROUTE_ID")));
+				docInvBean.setRoute(rs.getString("ROUTE_ID"));
 				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
 				docInvBean.setBukrs(rs.getString("BUKRS"));
 				docInvBean.setBukrsD(rs.getString("BDESC"));
@@ -479,9 +464,9 @@ public class DocInvDao {
 		condition += bukrs;
 		werks = (docInvB.getWerks() != null ? " AND WERKS = '" + docInvB.getWerks() + "' " : "");
 		condition += werks;
-		status = (docInvB.getStatus() == null ? " AND STATUS IS NULL "
-				: " AND  STATUS = '" + docInvB.getStatus() + "'");
-		condition += status;
+//		status = (docInvB.getStatus() == null ? " AND STATUS IS NULL "
+//				: " AND  STATUS = '" + docInvB.getStatus() + "'");
+//		condition += status;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}

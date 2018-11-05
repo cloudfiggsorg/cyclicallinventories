@@ -30,12 +30,12 @@ public class ConciliacionDao {
 
 	private Logger log = Logger.getLogger(ConciliacionDao.class.getName());
 
-	private static final String GENERATE_IDDESC_CONCILIATION = "select DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION "
-			+ " from INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK) "
-			+ " Inner join INV_ROUTE inr WITH(NOLOCK) on idih.DIH_ROUTE_ID = inr.routE_ID WHERE idih.DIH_STATUS = '1'"
-			+ " AND idih.DOC_FATHER_INV_ID is null";
+	private static String GENERATE_IDDESC_CONCILIATION = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION "
+			+ " FROM INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK) "
+			+ " INNER JOIN INV_ROUTE inr WITH(NOLOCK) ON idih.DIH_ROUTE_ID = inr.ROUTE_ID WHERE idih.DIH_STATUS = '1'"
+			+ " AND idih.DOC_FATHER_INV_ID IS NULL ";
 
-	public Response<List<ConciliationsIDsBean>> getConciliationIDs() {
+	public Response<List<ConciliationsIDsBean>> getConciliationIDs(String bukrs, String werks) {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -45,12 +45,22 @@ public class ConciliacionDao {
 		ConciliationsIDsBean conciliationIDsBean;
 
 		try {
+			
+			if(bukrs != null && werks != null){
+				
+				GENERATE_IDDESC_CONCILIATION += "AND idih.DIH_BUKRS = '" + bukrs + "' ";
+				GENERATE_IDDESC_CONCILIATION += "AND idih.DIH_WERKS = '" + werks + "' ";
+			}
+			
+			log.info(GENERATE_IDDESC_CONCILIATION);
+			
 			stm = con.prepareCall(GENERATE_IDDESC_CONCILIATION);
+			
 			log.info("[getConciliationIDsDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
+				
 				conciliationIDsBean = new ConciliationsIDsBean();
-
 				conciliationIDsBean.setId(rs.getString("DOC_INV"));
 				conciliationIDsBean.setDesc(rs.getString("DESCRIPCION"));
 

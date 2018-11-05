@@ -201,12 +201,13 @@ public class TaskDao {
 			log.info("[getTasksbyBukrsAndWerksDao] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
-			ume = new UMEDaoE();
+			
 			while (rs.next()) {
+				
 				taskBean = new TaskBean();
 				taskBean.setTaskId(rs.getString("TASK_ID"));
 				taskBean.setGroupId(rs.getString("TAS_GROUP_ID"));				
-				taskBean.setDocInvId(didao.getDocInvById(rs.getInt("TAS_DOC_INV_ID")));
+				//taskBean.setDocInvId(didao.getDocInvById(rs.getInt("TAS_DOC_INV_ID")));
 				
 				try {
 					taskBean.setdCreated(rs.getDate("TAS_CREATED_DATE").getTime());

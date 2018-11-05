@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
@@ -108,26 +111,38 @@ public class DocInvWorkService {
 	}
 
 	@SuppressWarnings({ "rawtypes" })
-	public Response<List<DocInvBean>> getOnlyDocInv(Request request) {
+	public Response<List<DocInvBean>> getOnlyDocInv(Request<List<Object>> request) {
 
 		log.info("[getOnlyDocInvWS] " + request.toString());
 		DocInvBean tb = null;
-		String searchFilter = null;
+		String searchFilter = "";
 		String req = request.getLsObject().toString().trim();
+		Response<List<DocInvBean>> res = new Response<List<DocInvBean>>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		if (!req.isEmpty()) {
 			try {
-				tb = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
-				log.info("[getOnlyDocInvWS] Fue Objeto: " + tb);
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString().trim();
-				log.info("[getOnlyDocInvWS] jsyn Intentando por String ");
+				log.info("[getOnlyDocInvWS] Getting Object DocInvBean ");
+				tb = gson.fromJson(gson.toJson(request.getLsObject().get(0)), DocInvBean.class);
+				log.info("[getOnlyDocInvWS] Getting String filter");
+				searchFilter = request.getLsObject().get(1).toString().trim();
+			} catch (JsonSyntaxException | JSONException e) {
+				e.printStackTrace();
+				log.log(Level.SEVERE, "[getOnlyDocInvWS] Error al pasar de Json a Objeto");
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("Error al pasar de Json a Objeto.");
+				res.setAbstractResult(abstractResult);
+				return res;
 			}
 		} else {
-			searchFilter = "";
-			log.info("[getOnlyDocInvWS] Fue cadena vacía ");
-
+			
+			log.log(Level.SEVERE, "[getOnlyDocInvWS] Datos ausentes durante la recpeción.");
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs("Datos ausentes durante la recpeción");
+			res.setAbstractResult(abstractResult);
+			return res;
 		}
+		
 		return new DocInvDao().getOnlyDocInv(tb, searchFilter);
 	}
 
