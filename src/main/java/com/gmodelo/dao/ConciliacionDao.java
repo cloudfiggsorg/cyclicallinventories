@@ -19,6 +19,7 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.ConciliationPositionBean;
 import com.gmodelo.beans.ConciliationsIDsBean;
+import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
@@ -556,7 +557,7 @@ public class ConciliacionDao {
 		return condition;
 	}
 
-	public Response<List<GroupBean>> getAvailableGroups(int docInvId) {
+	public Response<List<GroupBean>> getAvailableGroups(DocInvBean docInv) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
@@ -565,13 +566,13 @@ public class ConciliacionDao {
 		Response<List<GroupBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		GroupBean gb = new GroupBean();
-		GroupDao gpDao = new GroupDao();
-
 		String INV_VW_AVAILABLE_GROUPS = "SELECT IG.GROUP_ID, IG.GRP_DESC " + "FROM INV_GROUPS_USER AS IGU "
 				+ "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
 				+ "WHERE GRU_USER_ID NOT IN (SELECT GRU_USER_ID FROM INV_GROUPS_USER "
-				+ "	WHERE GRU_GROUP_ID IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
-				+ "AND GRU_GROUP_ID NOT IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)"
+				+ "WHERE GRU_GROUP_ID IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
+				+ "AND GRU_GROUP_ID NOT IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?) "
+				+ "AND BUKRS LIKE '%" + docInv.getBukrs() + "%' "
+				+ "AND WERKS LIKE '%" + docInv.getWerks() + "%' "
 				+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
 
 		/*
@@ -587,9 +588,11 @@ public class ConciliacionDao {
 		 */
 
 		try {
+			
 			stm = con.prepareCall(INV_VW_AVAILABLE_GROUPS);
-			stm.setInt(1, docInvId);
-			stm.setInt(2, docInvId);
+			stm.setInt(1, docInv.getDocInvId());
+			stm.setInt(2, docInv.getDocInvId());
+			
 			log.info(INV_VW_AVAILABLE_GROUPS);
 			rs = stm.executeQuery();
 

@@ -35,7 +35,7 @@ public class GroupDao {
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
-		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?"; //The Store procedure to call
+		final String INV_SP_ADD_GROUP = "INV_SP_ADD_GROUP ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		log.info("[addGroup] Preparing sentence...");
 
@@ -43,8 +43,10 @@ public class GroupDao {
 			cs = con.prepareCall(INV_SP_ADD_GROUP);
 			
 			cs.setString(1, groupBean.getGroupId());			
-			cs.setString(2, groupBean.getGdesc());			
-			cs.setString(3, createdBy);
+			cs.setString(2, groupBean.getGdesc());	
+			cs.setString(3, groupBean.getBukrs());
+			cs.setString(4, groupBean.getWerks());
+			cs.setString(5, createdBy);
 			
 			cs.registerOutParameter(1, Types.VARCHAR);
 			log.info("[addGroup] Executing query...");
@@ -65,7 +67,7 @@ public class GroupDao {
 			
 			log.info("[addGroup] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[addGroup] Some error occurred while was trying to execute the S.P.: "+INV_SP_ADD_GROUP, e);
+			log.log(Level.SEVERE,"[addGroup] Some error occurred while was trying to execute the S.P.: " + INV_SP_ADD_GROUP, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -370,7 +372,7 @@ public class GroupDao {
 		return res;
 	}
 	
-	public Response<List<GroupBean>> getOnlyGroup(GroupBean groupB, String searchFilter){
+	public Response<List<GroupBean>> getOnlyGroup(GroupBean groupBean, String searchFilter){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -379,29 +381,14 @@ public class GroupDao {
 		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<GroupBean> listGroupsBean = new ArrayList<GroupBean>(); 
-		String INV_VW_GET_GROUPS = null;
-		
-		int aux;		
-		String searchFilterNumber = "";
-		
-		try {
-			aux = Integer.parseInt(searchFilter); 
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("Trying to convert String to Int");
-		}		
+		GroupBean groupB = null;		
+		String INV_VW_GET_GROUPS = null;						
 
-		INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] WITH(NOLOCK) ";
-		
-		if (searchFilter != null) {
-			INV_VW_GET_GROUPS += "WHERE IP_GROUP LIKE '%" + searchFilterNumber + "%' OR GDESC LIKE '%" + searchFilter + "%'";
-		} else {
-			String condition = buildCondition(groupB);
-			if (condition != null) {
-				INV_VW_GET_GROUPS += condition;
-			}
-		}
+		INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, IVWBB.BUKRS, BUTXT, IVWBB.WERKS, NAME1 FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] AS IVGG WITH(NOLOCK) ";
+		INV_VW_GET_GROUPS += "INNER JOIN INV_VW_WERKS_BY_BUKRS AS IVWBB ON (IVWBB.BUKRS = IVGG.BUKRS AND IVWBB.WERKS = IVGG.WERKS) ";		
+		INV_VW_GET_GROUPS += "WHERE IP_GROUP LIKE '%" + searchFilter + "%' OR GDESC LIKE '%" + searchFilter + "%' ";
+		INV_VW_GET_GROUPS += "AND IVWBB.BUKRS LIKE '%" + (groupBean.getBukrs() == null? "" : groupBean.getBukrs()) + "%' ";
+		INV_VW_GET_GROUPS += "AND IVWBB.WERKS LIKE '%" + (groupBean.getWerks() == null? "" : groupBean.getWerks()) + "%' ";		
 		
 		log.info(INV_VW_GET_GROUPS);
 		log.info("[getGroupsDao] Preparing sentence...");
@@ -413,6 +400,10 @@ public class GroupDao {
 				groupB = new GroupBean();				
 				groupB.setGroupId(rs.getString("IP_GROUP"));
 				groupB.setGdesc(rs.getString("GDESC"));
+				groupB.setBukrs(rs.getString("BUKRS"));
+				groupB.setbDesc(rs.getString("BUTXT"));
+				groupB.setWerks(rs.getString("WERKS"));
+				groupB.setwDesc(rs.getString("NAME1"));
 				listGroupsBean.add(groupB);
 			}
 			

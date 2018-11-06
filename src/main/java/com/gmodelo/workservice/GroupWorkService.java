@@ -221,29 +221,35 @@ public class GroupWorkService {
 
 	}
 
-	public Response<List<GroupBean>> getOnlyGroups(Request request) {
+	public Response<List<GroupBean>> getOnlyGroups(Request<List<Object>> request) {
 		log.info("[GroupsWorkService] " + request.toString());
 		GroupBean groupsBean = null;
 		String searchFilter = null;
-		String req = request.getLsObject().toString().trim();
+		String req = request.getLsObject().toString();
+		Response<List<GroupBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();	
 
 		if (!req.isEmpty()) {
 
 			try {
-
-				groupsBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupBean.class);
-				log.info("Fue Objeto: " + request.getLsObject().toString());
+				
+				groupsBean = gson.fromJson(gson.toJson(request.getLsObject().get(0)), GroupBean.class);
+				searchFilter = (String)request.getLsObject().get(1);
 
 			} catch (JsonSyntaxException e1) {
 
-				log.info("Intentando por String");
-				searchFilter = request.getLsObject().toString().trim();
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("Error. Getting data...");
+				res.setAbstractResult(abstractResult);
+				return res;
 			}
 
 		} else {
 
-			searchFilter = "";
-			log.info("Fue cadena vacía ");
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs("Error. Missing data...");
+			res.setAbstractResult(abstractResult);
+			return res;
 		}
 
 		return new GroupDao().getOnlyGroup(groupsBean, searchFilter);

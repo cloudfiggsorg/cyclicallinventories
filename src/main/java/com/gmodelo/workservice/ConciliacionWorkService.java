@@ -48,19 +48,19 @@ public class ConciliacionWorkService {
 		String req = request.getLsObject().toString().trim();
 		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		int docInvId;
+		DocInvBean docInv;
 
-		try {
-			docInvId = Integer.parseInt(req);
+		try {			
+			docInv = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 		} catch (NumberFormatException e) {
-			log.log(Level.SEVERE, "[getAvailableGroupsWS] Cadena no válida");
+			log.log(Level.SEVERE, "[getAvailableGroupsWS] Objeto no válido.");
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
 
-		return new ConciliacionDao().getAvailableGroups(docInvId);
+		return new ConciliacionDao().getAvailableGroups(docInv);
 	}
 
 	public Response<TaskBean> getFatherTaskByDocId(Request request) {
@@ -132,8 +132,6 @@ public class ConciliacionWorkService {
 		req = req.replaceAll("=", ":");
 
 		JSONObject jsonObj = new JSONObject(req);
-
-		System.out.println(jsonObj.getInt("zoneId"));
 
 		try {
 			zoneId = jsonObj.getInt("zoneId");
