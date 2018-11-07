@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.naming.NamingException;
-
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.ConciliationPositionBean;
@@ -571,8 +569,8 @@ public class ConciliacionDao {
 				+ "WHERE GRU_USER_ID NOT IN (SELECT GRU_USER_ID FROM INV_GROUPS_USER "
 				+ "WHERE GRU_GROUP_ID IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
 				+ "AND GRU_GROUP_ID NOT IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?) "
-				+ "AND BUKRS LIKE '%" + docInv.getBukrs() + "%' "
-				+ "AND WERKS LIKE '%" + docInv.getWerks() + "%' "
+				+ "AND IG.GRP_BUKRS LIKE '%" + docInv.getBukrs() + "%' "
+				+ "AND IG.GRP_WERKS LIKE '%" + docInv.getWerks() + "%' "
 				+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
 
 		/*
