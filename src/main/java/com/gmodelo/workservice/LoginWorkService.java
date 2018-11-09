@@ -208,7 +208,7 @@ public class LoginWorkService {
 			myLog.info("[logout] Session closed!");
 		} else {
 
-			myLog.info("[logout] No session to close.");
+			myLog.info("[logout] No session found to close.");
 
 			abstractResult.setResultId(ReturnValues.IUSERNOSESSION);
 			abstractResult.setResultMsgAbs(ReturnValues.SUSERNOSESSION);
