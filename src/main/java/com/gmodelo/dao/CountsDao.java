@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLWarning;
 import java.sql.Types;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +12,6 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.LgplaValuesBean;
 import com.gmodelo.beans.Response;

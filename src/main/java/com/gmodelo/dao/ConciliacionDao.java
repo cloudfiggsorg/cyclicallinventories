@@ -28,10 +28,10 @@ public class ConciliacionDao {
 
 	private Logger log = Logger.getLogger(ConciliacionDao.class.getName());
 
-	private  String GENERATE_IDDESC_CONCILIATION = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION "
+	private static final String GENERATE_IDDESC_CONCILIATION = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION "
 			+ " FROM INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK) "
 			+ " INNER JOIN INV_ROUTE inr WITH(NOLOCK) ON idih.DIH_ROUTE_ID = inr.ROUTE_ID WHERE idih.DIH_STATUS = '1'"
-			+ " AND idih.DOC_FATHER_INV_ID IS NULL ";
+			+ " AND idih.DOC_FATHER_INV_ID IS NULL AND idih.DIH_BUKRS LIKE  ? AND idih.DIH_WERKS LIKE ?";
 
 	public Response<List<ConciliationsIDsBean>> getConciliationIDs(String bukrs, String werks) {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
@@ -43,15 +43,20 @@ public class ConciliacionDao {
 		ConciliationsIDsBean conciliationIDsBean;
 
 		try {
+			stm = con.prepareStatement(GENERATE_IDDESC_CONCILIATION);
 			
 			if(bukrs != null && werks != null){
-				GENERATE_IDDESC_CONCILIATION += "AND idih.DIH_BUKRS = '" + bukrs + "' ";
-				GENERATE_IDDESC_CONCILIATION += "AND idih.DIH_WERKS = '" + werks + "' ";
+				stm.setString(1, bukrs);
+				stm.setString(2, werks);
+				
+			}else{
+				stm.setString(1,"%");
+				stm.setString(2,"%");
 			}
 			
 			log.info(GENERATE_IDDESC_CONCILIATION);
 			
-			stm = con.prepareCall(GENERATE_IDDESC_CONCILIATION);
+			
 			
 			log.info("[getConciliationIDsDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
@@ -97,7 +102,7 @@ public class ConciliacionDao {
 		return res;
 	}
 
-	public static final String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)"
+	private static final  String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)"
 			+ " WHERE DOC_INV_ID = ? "
 			+ " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION";
 
@@ -161,20 +166,20 @@ public class ConciliacionDao {
 	private static final String TASK_DOC_INV = "SELECT TASK_ID, TAS_DOC_INV_ID,  ZONE_ID, ZON_DESC, ZPO_PK_ASG_ID ,LGPLA  FROM INV_VW_TASK_DOCINV WHERE TAS_DOC_INV_ID= ? "
 			+ "ORDER BY TASK_ID ASC";
 
-	private static final String INV_COUNT = "SELECT M.MAKTX MATDESC, MA.MEINS, C.COU_TASK_ID, C.COU_MATNR, C.COU_TOTAL, C.COU_POSITION_ID_ZONE FROM INV_COUNT C "
-			+ "INNER JOIN MAKT M ON (M.MATNR = C.COU_MATNR) " + "INNER JOIN MARA MA ON (MA.MATNR = C.COU_MATNR) "
-			+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
+//	private static final String INV_COUNT = "SELECT M.MAKTX MATDESC, MA.MEINS, C.COU_TASK_ID, C.COU_MATNR, C.COU_TOTAL, C.COU_POSITION_ID_ZONE FROM INV_COUNT C "
+//			+ "INNER JOIN MAKT M ON (M.MATNR = C.COU_MATNR) " + "INNER JOIN MARA MA ON (MA.MATNR = C.COU_MATNR) "
+//			+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
 
-	private static final String INV_COUNT_TOT = "SELECT COUNT(M.MAKTX) MATDESC FROM INV_COUNT C "
-			+ "INNER JOIN MAKT M ON (M.MATNR = C.COU_MATNR) " + "INNER JOIN MARA MA ON (MA.MATNR = C.COU_MATNR) "
-			+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
+//	private static final String INV_COUNT_TOT = "SELECT COUNT(M.MAKTX) MATDESC FROM INV_COUNT C "
+//			+ "INNER JOIN MAKT M ON (M.MATNR = C.COU_MATNR) " + "INNER JOIN MARA MA ON (MA.MATNR = C.COU_MATNR) "
+//			+ "WHERE C.COU_POSITION_ID_ZONE = ? AND C.COU_TASK_ID = ?";
 
-	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZON_LGORT, LGOBE, ZPO_PK_ASG_ID, "
+	private final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZON_LGORT, LGOBE, ZPO_PK_ASG_ID, "
 			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
 
-	private static final String INV_DOC_CHILDREN = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_FATHER_INV_ID = ? ";
+	private final String INV_DOC_CHILDREN = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_FATHER_INV_ID = ? ";
 
-	private static final String TASK_ASSIGNED_FOR_DOC_INV = "SELECT COUNT(*) AS COUNTED FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?";
+	private final String TASK_ASSIGNED_FOR_DOC_INV = "SELECT COUNT(*) AS COUNTED FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?";
 
 	@SuppressWarnings("rawtypes")
 	public List<ConciliationPositionBean> getConciliationPositions(Connection con,ConciliacionBean docInvBean) {
@@ -513,35 +518,6 @@ public class ConciliacionDao {
 		return result;
 	}
 
-	private String buildCondition(ConciliacionBean docInvB) {
-		String condition = "";
-		String DOC_INV_ID = "";
-		String ROUTE_ID = "";
-		String bukrs = "";
-		String werks = "";
-		String JUSTIFICATION = "";
-
-		DOC_INV_ID = (docInvB.getDocInvId() != 0
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "DOC_INV_ID = '" + docInvB.getDocInvId() + "' "
-				: "");
-		condition += DOC_INV_ID;
-		ROUTE_ID = (docInvB.getRoute() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "ROUTE_ID = '" + docInvB.getRoute() + "' "
-				: "");
-		condition += ROUTE_ID;
-		bukrs = (docInvB.getBukrs() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "BUKRS = '" + docInvB.getBukrs() + "' " : "");
-		condition += bukrs;
-		werks = (docInvB.getWerks() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "WERKS = '" + docInvB.getWerks() + "' " : "");
-		condition += werks;
-		JUSTIFICATION = (docInvB.getJustification() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ")
-				+ "JUSTIFICATION = '=" + docInvB.getJustification() + "' " : "");
-		condition += JUSTIFICATION;
-
-		condition = condition.isEmpty() ? null : condition;
-		return condition;
-	}
 
 	public Response<List<GroupBean>> getAvailableGroups(DocInvBean docInv) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
