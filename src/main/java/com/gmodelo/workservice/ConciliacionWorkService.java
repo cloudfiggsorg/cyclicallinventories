@@ -27,10 +27,9 @@ public class ConciliacionWorkService {
 	Gson gson = new Gson();
 
 	public Response<List<ConciliationsIDsBean>> getConciliationIDs(Request<List<Object>> request) {
-		
+		log.info("[getConciliationIDsWS] " + request.toString());
 		String bukrs = (String)request.getLsObject().get(0);
-		String werks = (String)request.getLsObject().get(1);
-				
+		String werks = (String)request.getLsObject().get(1);	
 		return new ConciliacionDao().getConciliationIDs(bukrs, werks);
 	}
 

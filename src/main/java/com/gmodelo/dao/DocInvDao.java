@@ -308,7 +308,7 @@ public class DocInvDao {
 		INV_VW_DOC_INV += "AND TYPE != '3' AND (DOC_INV_ID LIKE '%" + searchFilter + "%' OR ROUTE_ID LIKE '%";
 		INV_VW_DOC_INV += searchFilter + "%' OR BDESC LIKE '%" + searchFilter + "%' " + " OR WERKSD LIKE '% ";
 		INV_VW_DOC_INV += searchFilter + "%') ";
-		INV_VW_DOC_INV += "AND BUKRS = '" + docInvBean.getBukrs() +"' AND WERKS = '" + docInvBean.getWerks() + "'";
+		INV_VW_DOC_INV += docInvBean.getBukrs() != null ? ("AND BUKRS = '" + docInvBean.getBukrs() +"' AND WERKS = '" + docInvBean.getWerks() + "'") : "";
 		
 		log.info(INV_VW_DOC_INV);
 		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";

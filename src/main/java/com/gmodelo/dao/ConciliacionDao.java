@@ -21,7 +21,6 @@ import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.GroupBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TaskBean;
-import com.gmodelo.beans.ZonePositionsBean;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
 
@@ -29,7 +28,7 @@ public class ConciliacionDao {
 
 	private Logger log = Logger.getLogger(ConciliacionDao.class.getName());
 
-	private static String GENERATE_IDDESC_CONCILIATION = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION "
+	private  String GENERATE_IDDESC_CONCILIATION = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION "
 			+ " FROM INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK) "
 			+ " INNER JOIN INV_ROUTE inr WITH(NOLOCK) ON idih.DIH_ROUTE_ID = inr.ROUTE_ID WHERE idih.DIH_STATUS = '1'"
 			+ " AND idih.DOC_FATHER_INV_ID IS NULL ";
@@ -46,7 +45,6 @@ public class ConciliacionDao {
 		try {
 			
 			if(bukrs != null && werks != null){
-				
 				GENERATE_IDDESC_CONCILIATION += "AND idih.DIH_BUKRS = '" + bukrs + "' ";
 				GENERATE_IDDESC_CONCILIATION += "AND idih.DIH_WERKS = '" + werks + "' ";
 			}
@@ -126,7 +124,7 @@ public class ConciliacionDao {
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setJustification(rs.getString("JUSTIFICATION"));
-				docInvBean.setPositions(getConciliationPositions(docInvBean));
+				docInvBean.setPositions(getConciliationPositions(con,docInvBean));
 			}
 
 			SQLWarning warning = stm.getWarnings();
@@ -179,8 +177,7 @@ public class ConciliacionDao {
 	private static final String TASK_ASSIGNED_FOR_DOC_INV = "SELECT COUNT(*) AS COUNTED FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?";
 
 	@SuppressWarnings("rawtypes")
-	public List<ConciliationPositionBean> getConciliationPositions(ConciliacionBean docInvBean) {
-		Connection con = new ConnectionManager().createConnection();
+	public List<ConciliationPositionBean> getConciliationPositions(Connection con,ConciliacionBean docInvBean) {
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		List<ConciliationPositionBean> listPositions = new ArrayList<ConciliationPositionBean>();
@@ -315,191 +312,182 @@ public class ConciliacionDao {
 					"[getPositionsConciliationDao - getConciliationPositions] Some error occurred while was trying to execute the query: "
 							+ TASK_DOC_INV,
 					e);
-		} finally {
-			try {
-
-			} catch (Exception e) {
-				log.log(Level.SEVERE,
-						"[getPositionsConciliationDao - getConciliationPositions] Some error occurred while was trying to execute the query: "
-								+ TASK_DOC_INV,
-						e);
-			}
-		}
+		} 
 		log.info(
 				"[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, return positions Excecute query..."
 						+ listPositions);
 		return listPositions;
 	}
 
-	private List<ConciliationPositionBean> getPositions(int docInv) {
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
-		PreparedStatement stm = null;
-		ResultSet rs = null;
-		List<ConciliationPositionBean> listPositions = new ArrayList<ConciliationPositionBean>();
-		try {
-			stm = con.prepareCall(TASK_DOC_INV);
-			stm.setInt(1, docInv);
-			log.info("[getPositionsConciliationDao] TABLE_CONCILIATION_POSITIONS Temp, Executing query...");
-			rs = stm.executeQuery();
-
-			HashMap<String, List<ZonePositionsBean>> map = new HashMap<>();
-
-			while (rs.next()) {
-				ZonePositionsBean position = new ZonePositionsBean();
-
-				position.setPkAsgId(rs.getInt("ZPO_PK_ASG_ID"));
-				position.setZoneId(rs.getString("ZONE_ID"));
-				position.setZoneD(rs.getString("ZON_DESC"));
-				position.setLgpla(rs.getString("LGPLA"));
-
-				if (map.containsKey(rs.getString("TASK_ID"))) {
-					List<ZonePositionsBean> list = new ArrayList<>();
-					list = map.get(rs.getString("TASK_ID"));
-					list.add(position);
-					map.put(rs.getString("TASK_ID"), list);
-
-				} else {
-					List<ZonePositionsBean> list = new ArrayList<>();
-					list.add(position);
-					map.put(rs.getString("TASK_ID"), list);
-				}
-			}
-
-			String key = "";
-			Iterator ite = map.entrySet().iterator();
-			List<ZonePositionsBean> listPos = new ArrayList<>();
-			String task = "";
-
-			HashMap<String, ConciliationPositionBean> mapAux = new HashMap<>();
-			ConciliationPositionBean conci;
-
-			int count = 0;
-			while (ite.hasNext()) {// while para tareas
-
-				Map.Entry pair = (Map.Entry) ite.next();
-				task = pair.getKey().toString();
-				listPos = (List<ZonePositionsBean>) pair.getValue();
-
-				for (ZonePositionsBean pos : listPos) { // For para posiciones
-														// de zona
-					int resultCount = 0;
-					stm = con.prepareStatement(INV_COUNT_TOT);
-					stm.setInt(1, pos.getPkAsgId());
-					stm.setString(2, task);
-					rs = stm.executeQuery();
-					if (rs.next()) {
-						resultCount = rs.getInt("MATDESC");
-					}
-
-					stm = con.prepareStatement(INV_COUNT);
-					stm.setInt(1, pos.getPkAsgId());
-					stm.setString(2, task);
-					log.info("[getPositionsConciliationDao] TABLE_CONCILIATION_POSITIONS Temp, Executing query...");
-					rs = stm.executeQuery();
-					if (resultCount == 0) {
-						conci = new ConciliationPositionBean();
-						conci.setZoneId(pos.getZoneId());
-						conci.setZoneD(pos.getZoneD());
-						conci.setLgpla(pos.getLgpla());
-						conci.setCount1A("-");
-						conci.setCount1B("-");
-						conci.setCount2("-");
-						conci.setCount3("-");
-						conci.setMeasureUnit("-");
-						conci.setMatnrD("N/A");
-						conci.setMatnr("N/A");
-						mapAux.put(pos.getZoneId() + pos.getZoneD() + pos.getLgpla(), conci);
-					}
-
-					while (rs.next()) { // While para sumar conteos en un map
-
-						key = rs.getString("COU_MATNR") + rs.getString("COU_POSITION_ID_ZONE");
-
-						if (mapAux.containsKey(key)) {
-
-							conci = (ConciliationPositionBean) mapAux.get(key);
-
-							int total = rs.getInt("COU_TOTAL");
-							if (count == 0) {
-								total += Integer.parseInt(conci.getCount1A().contains("-") ? "0" : conci.getCount1A());
-								conci.setCount1A("" + total);
-							} else if (count == 1) {
-								total += Integer.parseInt(conci.getCount1B().contains("-") ? "0" : conci.getCount1B());
-								conci.setCount1B("" + total);
-							} else if (count == 2) {
-								total += Integer.parseInt(conci.getCount2().contains("-") ? "0" : conci.getCount2());
-								conci.setCount2("" + total);
-							} else if (count == 3) {
-								total += Integer.parseInt(conci.getCount3().contains("-") ? "0" : conci.getCount3());
-								conci.setCount3("" + total);
-							}
-
-						} else {
-
-							conci = new ConciliationPositionBean();
-							conci.setZoneId(pos.getZoneId());
-							conci.setZoneD(pos.getZoneD());
-							conci.setLgpla(pos.getLgpla());
-							conci.setCount1A("-");
-							conci.setCount1B("-");
-							conci.setCount2("-");
-							conci.setCount3("-");
-							conci.setMeasureUnit(rs.getString("MEINS"));
-							conci.setMatnrD(rs.getString("MATDESC"));
-							conci.setMatnr(String.valueOf(rs.getInt("COU_MATNR")));
-
-							String total = rs.getString("COU_TOTAL");
-							if (count == 0) {
-								conci.setCount1A(total);
-							} else if (count == 1) {
-								conci.setCount1B(total);
-							} else if (count == 2) {
-								conci.setCount2(total);
-							} else if (count == 3) {
-								conci.setCount3(total);
-							}
-						}
-
-						mapAux.put(key, conci);
-					}
-				}
-				count++;
-			}
-
-			Iterator iteAux = mapAux.entrySet().iterator();
-
-			while (iteAux.hasNext()) {
-				Map.Entry pair = (Map.Entry) iteAux.next();
-				task = pair.getKey().toString();
-				listPositions.add((ConciliationPositionBean) pair.getValue());
-			}
-
-			// Free resources
-			if (rs != null) {
-				rs.close();
-			}
-			if (stm != null) {
-				stm.close();
-			}
-
-			log.info("[getPositionsConciliationDao] Sentence successfully executed.");
-		} catch (SQLException e) {
-			log.log(Level.SEVERE,
-					"[getPositionsConciliationDao] Some error occurred while was trying to execute the query: "
-							+ TASK_DOC_INV,
-					e);
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,
-						"[getPositionsConciliationDao] Some error occurred while was trying to close the connection.",
-						e);
-			}
-		}
-		return listPositions;
-	}
+//	private List<ConciliationPositionBean> getPositions(int docInv) {
+//		ConnectionManager iConnectionManager = new ConnectionManager();
+//		Connection con = iConnectionManager.createConnection();
+//		PreparedStatement stm = null;
+//		ResultSet rs = null;
+//		List<ConciliationPositionBean> listPositions = new ArrayList<ConciliationPositionBean>();
+//		try {
+//			stm = con.prepareCall(TASK_DOC_INV);
+//			stm.setInt(1, docInv);
+//			log.info("[getPositionsConciliationDao] TABLE_CONCILIATION_POSITIONS Temp, Executing query...");
+//			rs = stm.executeQuery();
+//
+//			HashMap<String, List<ZonePositionsBean>> map = new HashMap<>();
+//
+//			while (rs.next()) {
+//				ZonePositionsBean position = new ZonePositionsBean();
+//
+//				position.setPkAsgId(rs.getInt("ZPO_PK_ASG_ID"));
+//				position.setZoneId(rs.getString("ZONE_ID"));
+//				position.setZoneD(rs.getString("ZON_DESC"));
+//				position.setLgpla(rs.getString("LGPLA"));
+//
+//				if (map.containsKey(rs.getString("TASK_ID"))) {
+//					List<ZonePositionsBean> list = new ArrayList<>();
+//					list = map.get(rs.getString("TASK_ID"));
+//					list.add(position);
+//					map.put(rs.getString("TASK_ID"), list);
+//
+//				} else {
+//					List<ZonePositionsBean> list = new ArrayList<>();
+//					list.add(position);
+//					map.put(rs.getString("TASK_ID"), list);
+//				}
+//			}
+//
+//			String key = "";
+//			Iterator ite = map.entrySet().iterator();
+//			List<ZonePositionsBean> listPos = new ArrayList<>();
+//			String task = "";
+//
+//			HashMap<String, ConciliationPositionBean> mapAux = new HashMap<>();
+//			ConciliationPositionBean conci;
+//
+//			int count = 0;
+//			while (ite.hasNext()) {// while para tareas
+//
+//				Map.Entry pair = (Map.Entry) ite.next();
+//				task = pair.getKey().toString();
+//				listPos = (List<ZonePositionsBean>) pair.getValue();
+//
+//				for (ZonePositionsBean pos : listPos) { // For para posiciones
+//														// de zona
+//					int resultCount = 0;
+//					stm = con.prepareStatement(INV_COUNT_TOT);
+//					stm.setInt(1, pos.getPkAsgId());
+//					stm.setString(2, task);
+//					rs = stm.executeQuery();
+//					if (rs.next()) {
+//						resultCount = rs.getInt("MATDESC");
+//					}
+//
+//					stm = con.prepareStatement(INV_COUNT);
+//					stm.setInt(1, pos.getPkAsgId());
+//					stm.setString(2, task);
+//					log.info("[getPositionsConciliationDao] TABLE_CONCILIATION_POSITIONS Temp, Executing query...");
+//					rs = stm.executeQuery();
+//					if (resultCount == 0) {
+//						conci = new ConciliationPositionBean();
+//						conci.setZoneId(pos.getZoneId());
+//						conci.setZoneD(pos.getZoneD());
+//						conci.setLgpla(pos.getLgpla());
+//						conci.setCount1A("-");
+//						conci.setCount1B("-");
+//						conci.setCount2("-");
+//						conci.setCount3("-");
+//						conci.setMeasureUnit("-");
+//						conci.setMatnrD("N/A");
+//						conci.setMatnr("N/A");
+//						mapAux.put(pos.getZoneId() + pos.getZoneD() + pos.getLgpla(), conci);
+//					}
+//
+//					while (rs.next()) { // While para sumar conteos en un map
+//
+//						key = rs.getString("COU_MATNR") + rs.getString("COU_POSITION_ID_ZONE");
+//
+//						if (mapAux.containsKey(key)) {
+//
+//							conci = (ConciliationPositionBean) mapAux.get(key);
+//
+//							int total = rs.getInt("COU_TOTAL");
+//							if (count == 0) {
+//								total += Integer.parseInt(conci.getCount1A().contains("-") ? "0" : conci.getCount1A());
+//								conci.setCount1A("" + total);
+//							} else if (count == 1) {
+//								total += Integer.parseInt(conci.getCount1B().contains("-") ? "0" : conci.getCount1B());
+//								conci.setCount1B("" + total);
+//							} else if (count == 2) {
+//								total += Integer.parseInt(conci.getCount2().contains("-") ? "0" : conci.getCount2());
+//								conci.setCount2("" + total);
+//							} else if (count == 3) {
+//								total += Integer.parseInt(conci.getCount3().contains("-") ? "0" : conci.getCount3());
+//								conci.setCount3("" + total);
+//							}
+//
+//						} else {
+//
+//							conci = new ConciliationPositionBean();
+//							conci.setZoneId(pos.getZoneId());
+//							conci.setZoneD(pos.getZoneD());
+//							conci.setLgpla(pos.getLgpla());
+//							conci.setCount1A("-");
+//							conci.setCount1B("-");
+//							conci.setCount2("-");
+//							conci.setCount3("-");
+//							conci.setMeasureUnit(rs.getString("MEINS"));
+//							conci.setMatnrD(rs.getString("MATDESC"));
+//							conci.setMatnr(String.valueOf(rs.getInt("COU_MATNR")));
+//
+//							String total = rs.getString("COU_TOTAL");
+//							if (count == 0) {
+//								conci.setCount1A(total);
+//							} else if (count == 1) {
+//								conci.setCount1B(total);
+//							} else if (count == 2) {
+//								conci.setCount2(total);
+//							} else if (count == 3) {
+//								conci.setCount3(total);
+//							}
+//						}
+//
+//						mapAux.put(key, conci);
+//					}
+//				}
+//				count++;
+//			}
+//
+//			Iterator iteAux = mapAux.entrySet().iterator();
+//
+//			while (iteAux.hasNext()) {
+//				Map.Entry pair = (Map.Entry) iteAux.next();
+//				task = pair.getKey().toString();
+//				listPositions.add((ConciliationPositionBean) pair.getValue());
+//			}
+//
+//			// Free resources
+//			if (rs != null) {
+//				rs.close();
+//			}
+//			if (stm != null) {
+//				stm.close();
+//			}
+//
+//			log.info("[getPositionsConciliationDao] Sentence successfully executed.");
+//		} catch (SQLException e) {
+//			log.log(Level.SEVERE,
+//					"[getPositionsConciliationDao] Some error occurred while was trying to execute the query: "
+//							+ TASK_DOC_INV,
+//					e);
+//		} finally {
+//			try {
+//				con.close();
+//			} catch (SQLException e) {
+//				log.log(Level.SEVERE,
+//						"[getPositionsConciliationDao] Some error occurred while was trying to close the connection.",
+//						e);
+//			}
+//		}
+//		return listPositions;
+//	}
 
 	public String getRowCount(int docInvId, String conteo, String idZone, String lgpla, String matnr, String meins,
 			Connection con, PreparedStatement stm) {

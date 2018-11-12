@@ -8,7 +8,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.AbstractResultsBean;
@@ -110,7 +109,6 @@ public class DocInvWorkService {
 		return new DocInvDao().getDocInv(tb, searchFilter);
 	}
 
-	@SuppressWarnings({ "rawtypes" })
 	public Response<List<DocInvBean>> getOnlyDocInv(Request<List<Object>> request) {
 
 		log.info("[getOnlyDocInvWS] " + request.toString());
@@ -138,7 +136,7 @@ public class DocInvWorkService {
 			
 			log.log(Level.SEVERE, "[getOnlyDocInvWS] Datos ausentes durante la recpeción.");
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs("Datos ausentes durante la recpeción");
+			abstractResult.setResultMsgAbs("Datos ausentes durante la recepción");
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
