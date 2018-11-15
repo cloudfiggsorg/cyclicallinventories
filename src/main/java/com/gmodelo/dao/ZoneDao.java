@@ -625,7 +625,7 @@ public class ZoneDao {
 		return res;
 	}
 
-	public Response<List<ZoneBean>> getZonesOnly(String searchFilter) {
+	public Response<List<ZoneBean>> getZonesOnly(ZoneBean zb) {
 
 		Response<List<ZoneBean>> res = new Response<>();
 		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
@@ -633,23 +633,15 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		int aux;
 		ZoneBean zoneBean = null;
-		String searchFilterNumber = "";
 
-		try {
-			aux = Integer.parseInt(searchFilter);
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("Trying to convert String to Int");
-		}
-
-		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES";
-		INV_VW_ZONES += " WHERE (ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%" + searchFilter + "%') ";
-		INV_VW_ZONES += " AND ZONE_ID NOT IN (SELECT IZ.ZONE_ID " + "FROM INV_DOC_INVENTORY_HEADER AS IDIH "
+		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES ";
+		INV_VW_ZONES += "WHERE (ZONE_ID LIKE '%" + zb.getZoneId() + "%' OR ZDESC LIKE '%" + zb.getZdesc() + "%') ";
+		INV_VW_ZONES += "AND BUKRS LIKE '%" + (zb.getBukrs()== null? "": zb.getBukrs()) + "%' ";
+		INV_VW_ZONES += "AND WERKS LIKE '%" + (zb.getWerks()== null? "": zb.getWerks()) + "%' ";
+		INV_VW_ZONES += "AND ZONE_ID NOT IN (SELECT IZ.ZONE_ID " + "FROM INV_DOC_INVENTORY_HEADER AS IDIH "
 				+ "INNER JOIN INV_ROUTE_POSITION AS IRP ON (IDIH.DIH_ROUTE_ID = IRP.RPO_ROUTE_ID) "
-				+ "INNER JOIN INV_ZONE AS IZ ON (IZ.ZONE_ID = IRP.RPO_ZONE_ID) " + "WHERE DIH_STATUS = '1')";
+				+ "INNER JOIN INV_ZONE AS IZ ON (IZ.ZONE_ID = IRP.RPO_ZONE_ID) " + "WHERE DIH_STATUS = '1') ";		
 		INV_VW_ZONES += " GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES";
 		log.info(INV_VW_ZONES);
 		log.info("[getZonesOnlyDao] Preparing sentence...");

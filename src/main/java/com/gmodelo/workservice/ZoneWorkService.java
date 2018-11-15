@@ -141,10 +141,24 @@ public class ZoneWorkService {
 	public Response<List<ZoneBean>> getZoneOnly(Request<?> request) {
 
 		log.info("[getZonesOnlyWorkService] " + request.toString());
-		String searchFilter = "";
-		searchFilter = ((String) request.getLsObject()).trim();
+		ZoneBean zb = null;
 
-		return new ZoneDao().getZonesOnly(searchFilter);
+		try {
+
+			zb = gson.fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
+
+		} catch (JsonSyntaxException e) {
+
+			log.log(Level.SEVERE, "[validateZonePositions] Error al pasar de Json a ZonePositionsBean");
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
+			Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+
+		return new ZoneDao().getZonesOnly(zb);
 
 	}
 

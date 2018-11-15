@@ -15,6 +15,7 @@ import com.gmodelo.beans.RouteBean;
 import com.gmodelo.beans.RouteUserBean;
 import com.gmodelo.beans.RouteUserPositionBean;
 import com.gmodelo.beans.TaskBean;
+import com.gmodelo.beans.ZoneBean;
 import com.gmodelo.dao.RouteDao;
 import com.gmodelo.dao.RouteUserDao;
 import com.gmodelo.dao.TaskUserDao;
@@ -89,24 +90,27 @@ public class RouteWorkService {
 	}
 
 	public Response<List<RouteBean>> getOnlyRoutes(Request request) {
+		
 		log.info("[getRoutesService] " + request.toString());
 		RouteBean routeBean = null;
-		String searchFilter = null;
-		String req = request.getLsObject().toString().trim();
-		if (!req.isEmpty()) {
-			try {
-				routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteBean.class);
-
-				log.info("Fue objeto");
-			} catch (JsonSyntaxException e) {
-				searchFilter = request.getLsObject().toString();
-				log.info("Fue cadena");
-			}
-		} else {
-			searchFilter = "";
+		
+		try {
+			
+			routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteBean.class);
+			log.info("Fue objeto");
+			
+		} catch (JsonSyntaxException e) {
+			
+			log.log(Level.SEVERE, "[validateZonePositions] Error al pasar de Json a ZonePositionsBean");
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
+			Response<List<RouteBean>> res = new Response<List<RouteBean>>();
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
 		}
 
-		return new RouteDao().getOnlyRoutes(routeBean, searchFilter);
+		return new RouteDao().getOnlyRoutes(routeBean);
 	}
 
 	public String getRoutesByUserLegacy(User user, HttpSession userSession) {

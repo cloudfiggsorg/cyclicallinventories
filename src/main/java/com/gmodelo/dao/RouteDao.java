@@ -477,7 +477,8 @@ public class RouteDao {
 		return res;
 	}
 
-	public Response<List<RouteBean>> getOnlyRoutes(RouteBean routeBean, String searchFilter) {
+	public Response<List<RouteBean>> getOnlyRoutes(RouteBean rb) {
+		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
@@ -486,27 +487,12 @@ public class RouteDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
 		String INV_VW_ROUTES = null;
-		int aux;
-		String searchFilterNumber = "";
-
-		try {
-			aux = Integer.parseInt(searchFilter);
-			searchFilterNumber += aux;
-		} catch (Exception e) {
-			searchFilterNumber = searchFilter;
-			log.info("[getOnlyRoutes] Trying to convert String to Int");
-		}
+		RouteBean routeBean = new RouteBean();
 
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_AVAILABLE_ROUTES WITH(NOLOCK) ";
-
-		if (searchFilter != null) {
-			INV_VW_ROUTES += "WHERE (ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter + "%') ";
-		} else {
-			String condition = buildCondition(routeBean);
-			if (condition != null) {
-				INV_VW_ROUTES += condition;
-			}
-		}
+		INV_VW_ROUTES += "WHERE (ROUTE_ID LIKE '%" + rb.getRouteId() + "%' OR RDESC LIKE '%" + rb.getRdesc() + "%') ";
+		INV_VW_ROUTES += "AND BUKRS LIKE '%" + (rb.getBukrs()==null? "": rb.getBukrs()) + "%' "; 
+		INV_VW_ROUTES += "AND WERKS LIKE '%" + (rb.getWerks()==null? "": rb.getWerks()) + "%' ";
 
 		log.info(INV_VW_ROUTES);
 		log.info("[getOnlyRoutes] Preparing sentence...");
