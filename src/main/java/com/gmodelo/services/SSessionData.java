@@ -61,6 +61,8 @@ public class SSessionData {
 
 		listObject.add(user);
 		listObject.add(roles);
+		listObject.add(System.getProperty("java.version"));
+		
 		// listObject.add(job);
 		resp.setLsObject(listObject);
 		resp.setAbstractResult(abstractResult);
