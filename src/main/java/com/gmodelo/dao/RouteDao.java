@@ -490,7 +490,7 @@ public class RouteDao {
 		RouteBean routeBean = new RouteBean();
 
 		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC FROM dbo.INV_VW_AVAILABLE_ROUTES WITH(NOLOCK) ";
-		INV_VW_ROUTES += "WHERE (ROUTE_ID LIKE '%" + rb.getRouteId() + "%' OR RDESC LIKE '%" + rb.getRdesc() + "%') ";
+		INV_VW_ROUTES += "WHERE (ROUTE_ID LIKE '%" + (rb.getRouteId()==null? "" : rb.getRouteId()) + "%' OR RDESC LIKE '%" + (rb.getRdesc()==null?"":rb.getRdesc()) + "%') ";
 		INV_VW_ROUTES += "AND BUKRS LIKE '%" + (rb.getBukrs()==null? "": rb.getBukrs()) + "%' "; 
 		INV_VW_ROUTES += "AND WERKS LIKE '%" + (rb.getWerks()==null? "": rb.getWerks()) + "%' ";
 
