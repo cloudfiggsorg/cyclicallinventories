@@ -42,7 +42,7 @@ public class ReportesService {
 		return new ReportesWorkService().getReporteConteos(request);
 	}
 
-	@POST
+	@POST//Cons SAP
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getReporteDocInv")

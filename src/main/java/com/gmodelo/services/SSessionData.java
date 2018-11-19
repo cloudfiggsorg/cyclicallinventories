@@ -34,7 +34,7 @@ public class SSessionData {
 	 */
 	@SuppressWarnings("unchecked")
 	@POST
-	// @Consumes(MediaType.APPLICATION_JSON)
+	//@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response<List<Object>> getSessionData() {
 		Response<List<Object>> resp = new Response<>();

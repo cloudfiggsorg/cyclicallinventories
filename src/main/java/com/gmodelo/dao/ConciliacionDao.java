@@ -32,6 +32,7 @@ public class ConciliacionDao {
 			+ " FROM INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK) "
 			+ " INNER JOIN INV_ROUTE inr WITH(NOLOCK) ON idih.DIH_ROUTE_ID = inr.ROUTE_ID WHERE idih.DIH_STATUS = '1'"
 			+ " AND idih.DOC_FATHER_INV_ID IS NULL AND idih.DIH_BUKRS LIKE  ? AND idih.DIH_WERKS LIKE ?";
+		
 
 	public Response<List<ConciliationsIDsBean>> getConciliationIDs(String bukrs, String werks) {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
@@ -101,7 +102,73 @@ public class ConciliacionDao {
 		res.setLsObject(listConIds);
 		return res;
 	}
+	
+	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(DocInvBean dib) {
+		Response<List<ConciliationsIDsBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		List<ConciliationsIDsBean> listConIds = new ArrayList<ConciliationsIDsBean>();
+		ConciliationsIDsBean conciliationIDsBean;
 
+		try {
+			
+			String CLOSED_DOC_INV = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION "
+					+ " FROM INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK) "
+					+ " INNER JOIN INV_ROUTE inr WITH(NOLOCK) ON idih.DIH_ROUTE_ID = inr.ROUTE_ID WHERE idih.DIH_STATUS = '0' "
+					+ " AND idih.DOC_FATHER_INV_ID IS NULL AND idih.DIH_BUKRS LIKE '" + (dib.getBukrs()==null?"%":dib.getBukrs()) + "' " 
+					+ " AND idih.DIH_WERKS LIKE '" + (dib.getWerks()==null?"%":dib.getWerks()) + "' "
+					+ " AND DOC_INV_ID LIKE '" + (dib.getDocInvId()==null? "%":dib.getDocInvId().intValue()) + "' ";
+			
+			log.log(Level.INFO, dib.toString());
+			stm = con.prepareCall(CLOSED_DOC_INV);			
+			
+			log.info(CLOSED_DOC_INV);
+			log.info("[getClosedConciliationIDsDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				
+				conciliationIDsBean = new ConciliationsIDsBean();
+				conciliationIDsBean.setId(rs.getString("DOC_INV"));
+				conciliationIDsBean.setDesc(rs.getString("DESCRIPCION"));
+
+				listConIds.add(conciliationIDsBean);
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+
+			log.info("[getClosedConciliationIDsDao] Sentence successfully executed.");
+
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[getClosedConciliationIDsDao] Some error occurred while was trying to execute the query: "
+					+ GENERATE_IDDESC_CONCILIATION, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getClosedConciliationIDsDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listConIds);
+		return res;
+	}
+	
 	private static final  String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)"
 			+ " WHERE DOC_INV_ID = ? "
 			+ " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION";
