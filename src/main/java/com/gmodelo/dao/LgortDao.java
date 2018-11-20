@@ -152,7 +152,7 @@ public class LgortDao {
 	}
 
 	private static final String INV_VW_NGORT_WITH_GORT_IM = "SELECT WERKS, LGORT, LGOBE, LGNUM, LNUMT,IMWM FROM INV_VW_NGORT_WITH_GORT INVG WITH(NOLOCK) "
-			+ " WHERE WERKS = ? AND LGORT NOT IN (SELECT DISTINCT LGT_LGORT FROM INV_LGTYP_IM WITH(NOLOCK) WHERE LGT_WERKS = INVG.WERKS)"; // Query
+			+ " WHERE WERKS = ?"; // Query
 
 	public Response<List<LgortBeanView>> getNgortsIM(LgortBeanView lgortBeanView) {
 
