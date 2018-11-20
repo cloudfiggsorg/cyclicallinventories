@@ -255,7 +255,7 @@ public class ConciliacionDao {
 	private static final String TASK_ASSIGNED_FOR_DOC_INV = "SELECT COUNT(*) AS COUNTED FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?";
 
 	private static final String GET_NOTE_AND_PROD = "SELECT COU_POSITION_ID_ZONE, COU_MATNR, COU_NOTE, COU_PROD_DATE FROM INV_COUNT WITH(NOLOCK) "
-			+ " WHERE COU_TASK_ID IN (SELECT FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?) "
+			+ " WHERE COU_TASK_ID IN (SELECT TASK_ID FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?) "
 			+ " AND(COU_NOTE IS NOT NULL  AND COU_NOTE != '') OR (COU_PROD_DATE IS NOT NULL AND COU_PROD_DATE != '')";
 
 	private static final String GET_MATERIAL_TO_COLOUR = "SELECT ZOPM.PK_ZONPOS_MAT, ZOPM.ZPM_MATNR FROM INV_DOC_INVENTORY_HEADER DOC WITH(NOLOCK) "
@@ -269,11 +269,14 @@ public class ConciliacionDao {
 	public List<ConciliationPositionBean> getConciliationPositions(Connection con, ConciliacionBean docInvBean) {
 		PreparedStatement stm = null;
 		ResultSet rs = null;
+		String errorQuery = "";
 		List<ConciliationPositionBean> listPositions = new ArrayList<ConciliationPositionBean>();
 		try {
 			HashMap<String, ConciliationPositionBean> notesPositions = new HashMap<>();
 
 			stm = con.prepareStatement(GET_NOTE_AND_PROD);
+
+			errorQuery = GET_NOTE_AND_PROD;
 			stm.setInt(1, docInvBean.getDocInvId());
 			log.info("[getPositionsConciliationDao - getConciliationPositions] GET_NOTE_AND_PROD, Executing query...");
 
@@ -311,6 +314,7 @@ public class ConciliacionDao {
 
 			HashMap<String, List<String>> materialToColor = new HashMap<>();
 
+			errorQuery = GET_MATERIAL_TO_COLOUR;
 			stm = con.prepareStatement(GET_MATERIAL_TO_COLOUR);
 			stm.setInt(1, docInvBean.getDocInvId());
 			log.info(
@@ -326,6 +330,7 @@ public class ConciliacionDao {
 					materialToColor.put(rs.getString("PK_ZONPOS_MAT"), materiales);
 				}
 			}
+			errorQuery = INV_FULL_COUNT;
 			stm = con.prepareStatement(INV_FULL_COUNT);
 			stm.setInt(1, docInvBean.getDocInvId());
 			log.info("[getPositionsConciliationDao - getConciliationPositions] INV_FULL_COUNT, Executing query...");
@@ -415,7 +420,7 @@ public class ConciliacionDao {
 				}
 
 			}
-
+			errorQuery = TASK_ASSIGNED_FOR_DOC_INV;
 			stm = con.prepareStatement(TASK_ASSIGNED_FOR_DOC_INV);
 			stm.setInt(1, docInvBean.getDocInvId());
 			rs = stm.executeQuery();
@@ -429,11 +434,14 @@ public class ConciliacionDao {
 			log.info(
 					"[getPositionsConciliationDao - getConciliationPositions] INV_DOC_CHILDREN, prev Execute Query...");
 
+			errorQuery = INV_DOC_CHILDREN;
 			stm = con.prepareStatement(INV_DOC_CHILDREN);
 			stm.setInt(1, docInvBean.getDocInvId());
 			ResultSet rsChl = stm.executeQuery();
 			log.info("[getPositionsConciliationDao - getConciliationPositions] After, prev Execute Query...");
+
 			while (rsChl.next()) {
+				errorQuery = INV_FULL_COUNT;
 				PreparedStatement stm2 = con.prepareStatement(INV_FULL_COUNT);
 				stm2.setString(1, rsChl.getString("DOC_INV_ID"));
 				rs = stm2.executeQuery();
@@ -470,7 +478,7 @@ public class ConciliacionDao {
 		} catch (Exception e) {
 			log.log(Level.SEVERE,
 					"[getPositionsConciliationDao - getConciliationPositions] Some error occurred while was trying to execute the query: "
-							+ TASK_DOC_INV,
+							+ errorQuery,
 					e);
 		}
 		log.info(
