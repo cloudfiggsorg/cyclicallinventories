@@ -392,10 +392,12 @@ public class ConciliacionDao {
 							}
 						}
 					}
-					bean.setNote(
-							notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")).getNote());
-					bean.setProdDate(notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))
-							.getProdDate());
+					if (notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")) != null) {
+						bean.setNote(
+								notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")).getNote());
+						bean.setProdDate(notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))
+								.getProdDate());
+					}
 					if (count == 0) {
 						docInvBean.setCountA(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
