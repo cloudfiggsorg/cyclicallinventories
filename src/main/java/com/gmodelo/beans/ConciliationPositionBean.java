@@ -16,6 +16,9 @@ public class ConciliationPositionBean {
 	String count3;
 	String countX;
 	String pkAsgId;
+	String note;
+	String prodDate;
+	boolean flagColor;
 
 	public String getZoneId() {
 		return zoneId;
@@ -128,10 +131,39 @@ public class ConciliationPositionBean {
 	public void setPkAsgId(String pkAsgId) {
 		this.pkAsgId = pkAsgId;
 	}
+	
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
+
+	public String getProdDate() {
+		return prodDate;
+	}
+
+	public void setProdDate(String prodDate) {
+		this.prodDate = prodDate;
+	}
+	
+	public boolean isFlagColor() {
+		return flagColor;
+	}
+
+	public void setFlagColor(boolean flagColor) {
+		this.flagColor = flagColor;
+	}
+
+	public ConciliationPositionBean() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	public ConciliationPositionBean(String zoneId, String zoneD, String lgort, String lgobe, String lgpla, String matnr,
 			String matnrD, String measureUnit, String count1a, String count1b, String count2, String count3,
-			String countX, String pkAsgId) {
+			String countX, String pkAsgId, String note, String prodDate) {
 		super();
 		this.zoneId = zoneId;
 		this.zoneD = zoneD;
@@ -147,11 +179,8 @@ public class ConciliationPositionBean {
 		this.count3 = count3;
 		this.countX = countX;
 		this.pkAsgId = pkAsgId;
-	}
-
-	public ConciliationPositionBean() {
-		super();
-		// TODO Auto-generated constructor stub
+		this.note = note;
+		this.prodDate = prodDate;
 	}
 
 	@Override
@@ -159,7 +188,8 @@ public class ConciliationPositionBean {
 		return "ConciliationPositionBean [zoneId=" + zoneId + ", zoneD=" + zoneD + ", lgort=" + lgort + ", lgobe="
 				+ lgobe + ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", measureUnit="
 				+ measureUnit + ", count1A=" + count1A + ", count1B=" + count1B + ", count2=" + count2 + ", count3="
-				+ count3 + ", countX=" + countX + ", pkAsgId=" + pkAsgId + "]";
+				+ count3 + ", countX=" + countX + ", pkAsgId=" + pkAsgId + ", note=" + note + ", prodDate=" + prodDate
+				+ "]";
 	}
 
 	@Override
@@ -177,7 +207,9 @@ public class ConciliationPositionBean {
 		result = prime * result + ((matnr == null) ? 0 : matnr.hashCode());
 		result = prime * result + ((matnrD == null) ? 0 : matnrD.hashCode());
 		result = prime * result + ((measureUnit == null) ? 0 : measureUnit.hashCode());
+		result = prime * result + ((note == null) ? 0 : note.hashCode());
 		result = prime * result + ((pkAsgId == null) ? 0 : pkAsgId.hashCode());
+		result = prime * result + ((prodDate == null) ? 0 : prodDate.hashCode());
 		result = prime * result + ((zoneD == null) ? 0 : zoneD.hashCode());
 		result = prime * result + ((zoneId == null) ? 0 : zoneId.hashCode());
 		return result;
@@ -247,10 +279,20 @@ public class ConciliationPositionBean {
 				return false;
 		} else if (!measureUnit.equals(other.measureUnit))
 			return false;
+		if (note == null) {
+			if (other.note != null)
+				return false;
+		} else if (!note.equals(other.note))
+			return false;
 		if (pkAsgId == null) {
 			if (other.pkAsgId != null)
 				return false;
 		} else if (!pkAsgId.equals(other.pkAsgId))
+			return false;
+		if (prodDate == null) {
+			if (other.prodDate != null)
+				return false;
+		} else if (!prodDate.equals(other.prodDate))
 			return false;
 		if (zoneD == null) {
 			if (other.zoneD != null)
@@ -264,5 +306,7 @@ public class ConciliationPositionBean {
 			return false;
 		return true;
 	}
+
+	
 
 }
