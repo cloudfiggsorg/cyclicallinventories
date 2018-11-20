@@ -30,7 +30,7 @@ public class LgTypIMDao {
 		final String INV_SP_ADD_LGTYPE_IM = "INV_SP_ADD_LGTYPE_IM ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_LGPLA_IM = "INV_SP_DEL_LGPLA_IM ?";
 		final String INV_SP_ADD_LGPLA_IM = "INV_SP_ADD_LGPLA_IM ?, ?, ?, ?, ?, ?";
-		final String INV_GET_POSITION_LGPLA_IM = "SELECT LGPLA_ID, LGP_DESC FROM INV_LGPLA_IM WITH(NOLOCK) WHERE LGTYP_ID = ?";
+		final String INV_GET_POSITION_LGPLA_IM = "SELECT LGPLA_ID, LGP_DESC, LGP_STATUS FROM INV_LGPLA_IM WITH(NOLOCK) WHERE LGTYP_ID = ?";
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -108,6 +108,7 @@ public class LgTypIMDao {
 				LgplaIMBean bean = new LgplaIMBean();
 				bean.setDescription(rs.getString("LGP_DESC"));
 				bean.setLgPlaId(rs.getInt("LGPLA_ID"));
+				bean.setStatus(rs.getBoolean("LGP_STATUS"));
 				lgplaIMBeans.add(bean);
 			}
 			if (!lgplaIMBeans.isEmpty()) {
