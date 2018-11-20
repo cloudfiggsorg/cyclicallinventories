@@ -86,6 +86,9 @@ public class LoginWorkService {
 					}
 					
 					myLog.log(Level.SEVERE, "Error al verificar usuario en LDAP", e);
+					myLog.log(Level.SEVERE, abstractResult.getResultMsgAbs(), e);
+					resp.setAbstractResult(abstractResult);
+					return resp;
 				}
 			}
 			
