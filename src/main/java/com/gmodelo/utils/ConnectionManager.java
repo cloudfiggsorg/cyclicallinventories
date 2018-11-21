@@ -3,20 +3,15 @@ package com.gmodelo.utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Hashtable;
 
 import javax.annotation.Resource;
-import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.sql.DataSource;
 
-import com.gmodelo.Exception.InvCicException;
-import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ConnectionBean;
-import com.gmodelo.beans.LoginBean;
+import com.sap.conn.jco.JCoDestination;
+import com.sap.conn.jco.JCoDestinationManager;
+import com.sap.conn.jco.JCoException;
 
 public class ConnectionManager {
 	@Resource
@@ -72,6 +67,20 @@ public class ConnectionManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public JCoDestination getSapConnection(String destinationName) throws JCoException, RuntimeException, Exception {
+		JCoDestination destination = null;
+		try {
+			destination = JCoDestinationManager.getDestination(destinationName);
+		} catch (JCoException e) {
+			throw e;
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw e;
+		}
+		return destination;
 	}
 
 }
