@@ -144,10 +144,19 @@ public class LoginWorkService {
 					}
 					
 											
-					if (!lsRolesAux.contains("EXECUTE_INV_CIC_APP")) {
+					if (!lsRolesAux.contains("EXECUTE_INV_CIC_APP") && loginBean.getRelationUUID().length() > 0) {
 						abstractResult.setResultId(ReturnValues.INOTROLE);
 						abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
 						resp.setAbstractResult(abstractResult);
+						myLog.info(user.getEntity().getIdentyId().toUpperCase() +" sin permiso para acceder a la APLICACION MOVIL de Inventarios Ciclicos");
+							return resp;
+					}
+					
+					if (!lsRolesAux.contains("EXECUTE_INV_CIC_CONSOLE") && loginBean.getRelationUUID() == null) {
+						abstractResult.setResultId(ReturnValues.INOTROLE);
+						abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
+						resp.setAbstractResult(abstractResult);
+						myLog.info(user.getEntity().getIdentyId().toUpperCase() +" sin permiso para acceder a la CONSOLA de Inventarios Ciclicos");
 							return resp;
 					}
 						

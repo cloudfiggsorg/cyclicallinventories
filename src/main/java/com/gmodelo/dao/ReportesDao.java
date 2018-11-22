@@ -473,7 +473,7 @@ public class ReportesDao {
 		List<TareasTiemposZonasBean> listTareasBean = new ArrayList<TareasTiemposZonasBean>();
 		String INV_VW_REP_TAREAS = null;
 
-		INV_VW_REP_TAREAS = "SELECT DOC_INV_ID,ROUTE_ID,RDESC,BUKRS,BDESC,WERKS,WDESC,TASK_ID,GROUP_ID,ZONE_ID,ZON_DESC,COU_START_DATE,COU_END_DATE,COU_USER_ID,TIEMPO FROM INV_TAREAS_TIEMPOS_ZONAS  WITH(NOLOCK) ";
+		INV_VW_REP_TAREAS = "SELECT DOC_INV_ID,ROUTE_ID,RDESC,BUKRS,BDESC,WERKS,WDESC,TASK_ID,GROUP_ID,ZONE_ID,ZON_DESC,COU_START_DATE,COU_END_DATE,COU_USER_ID,TIEMPO, LGORT FROM INV_TAREAS_TIEMPOS_ZONAS  WITH(NOLOCK) ";
 
 		String condition = buildConditionTiemposZonas(tareasBean);
 		if (condition != null) {
@@ -499,6 +499,7 @@ public class ReportesDao {
 				tareasBean.setBdesc(rs.getString("BDESC"));
 				tareasBean.setWerks(rs.getString("WERKS"));
 				tareasBean.setWdesc(rs.getString("WDESC"));
+				tareasBean.setLgort(rs.getString("LGORT"));
 				tareasBean.setZoneId(rs.getString("ZONE_ID"));
 				tareasBean.setZoneD(rs.getString("ZON_DESC"));
 				tareasBean.setTaskId(rs.getString("TASK_ID"));
@@ -868,6 +869,7 @@ public class ReportesDao {
 		String routeId = "";
 		String bukrs = "";
 		String werks = "";
+		String lgort = "";
 		String rdesc = "";
 		String type = "";
 		String user = "";
@@ -887,6 +889,9 @@ public class ReportesDao {
 		werks = (tareasB.getWerks() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + tareasB.getWerks() + "' " : "";
 		condition += werks;
+		lgort = (tareasB.getLgort() != null)
+				?(condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT = '" + tareasB.getLgort() + "' " : "";
+		condition += lgort;
 		rdesc = (tareasB.getRdesc() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + tareasB.getRdesc() + "' " : "";
 		condition += rdesc;
