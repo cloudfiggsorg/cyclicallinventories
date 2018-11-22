@@ -144,24 +144,37 @@ public class LoginWorkService {
 					}
 					
 											
-					if (!lsRolesAux.contains("EXECUTE_INV_CIC_APP")) {
-						abstractResult.setResultId(ReturnValues.INOTROLE);
-						abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
-						resp.setAbstractResult(abstractResult);
-							return resp;
-					}
+					
 						
 					
 					if(!lsRolesAux.contains("INV_CIC_ADMIN")){
 					
-						if(!found){
-						
-							abstractResult.setResultId(ReturnValues.IMISSING_BUKRS_OR_WERKS);
-							abstractResult.setResultMsgAbs(ReturnValues.SMISSING_BUKRS_OR_WERKS);
+						if (!lsRolesAux.contains("EXECUTE_INV_CIC_APP") && loginBean.getRelationUUID().length() > 0) {
+							abstractResult.setResultId(ReturnValues.INOTROLE);
+							abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
 							resp.setAbstractResult(abstractResult);
+							myLog.info(user.getEntity().getIdentyId().toUpperCase() +" sin permiso para acceder a la APLICACION MOVIL de Inventarios Ciclicos");
+								return resp;
+						}else{
+							if (!lsRolesAux.contains("EXECUTE_INV_CIC_CONSOLE") && loginBean.getRelationUUID() == null) {
+								abstractResult.setResultId(ReturnValues.INOTROLE);
+								abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
+								resp.setAbstractResult(abstractResult);
+								myLog.info(user.getEntity().getIdentyId().toUpperCase() +" sin permiso para acceder a la CONSOLA de Inventarios Ciclicos");
+									return resp;
+							}
+							
+							if(!found){
+							
+								abstractResult.setResultId(ReturnValues.IMISSING_BUKRS_OR_WERKS);
+								abstractResult.setResultMsgAbs(ReturnValues.SMISSING_BUKRS_OR_WERKS);
+								resp.setAbstractResult(abstractResult);
 
-							return resp;
-						}	
+								return resp;
+							}	
+						}
+						
+						
 					}	
 					
 					user.getEntity().setIdentyId(user.getEntity().getIdentyId().toUpperCase());

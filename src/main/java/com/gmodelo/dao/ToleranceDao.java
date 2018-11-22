@@ -413,8 +413,6 @@ public class ToleranceDao {
 		String toleranceId = "";
 		String matkl = "";
 		String desc = "";
-		String tp = "";
-		String tc = "";
 		toleranceId = (toleranceBean.getToleranceId() != null ? (condition.contains("WHERE") ? " AND " : " WHERE ")
 				+ "TOLERANCE_ID = " + toleranceBean.getToleranceId() : "");
 		condition += toleranceId;
@@ -426,12 +424,6 @@ public class ToleranceDao {
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "TDESC = '" + toleranceBean.getDesc() + "' "
 				: "");
 		condition += desc;
-		tp = (toleranceBean.getTp() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "TP = '" + toleranceBean.getTp() + "' " : "");
-		condition += tp;
-		tc = (toleranceBean.getTc() != null
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + "TC = '" + toleranceBean.getTc() + "' " : "");
-		condition += tc;
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}

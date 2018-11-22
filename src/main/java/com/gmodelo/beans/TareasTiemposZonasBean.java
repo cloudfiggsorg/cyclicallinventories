@@ -17,6 +17,7 @@ public class TareasTiemposZonasBean {
 	String zoneId;
 	String zoneD;
 	String idGrupo;
+	String lgort;
 	
 	public String getTiempo() {
 		return tiempo;
@@ -114,9 +115,16 @@ public class TareasTiemposZonasBean {
 	public void setZoneD(String zoneD) {
 		this.zoneD = zoneD;
 	}
+	public String getLgort() {
+		return lgort;
+	}
+	public void setLgort(String lgort) {
+		this.lgort = lgort;
+	}
+	
 	public TareasTiemposZonasBean(String docInvId, String routeId, String rdesc, String bukrs, String bdesc,
 			String werks, String wdesc, String dateIni, String dateFin, String user, String taskId, String tiempo,
-			String zoneId, String zoneD, String idGrupo) {
+			String zoneId, String zoneD, String idGrupo, String lgort) {
 		super();
 		this.docInvId = docInvId;
 		this.routeId = routeId;
@@ -133,14 +141,16 @@ public class TareasTiemposZonasBean {
 		this.zoneId = zoneId;
 		this.zoneD = zoneD;
 		this.idGrupo = idGrupo;
+		this.lgort = lgort;
 	}
 	@Override
 	public String toString() {
 		return "TareasTiemposZonasBean [docInvId=" + docInvId + ", routeId=" + routeId + ", Rdesc=" + Rdesc + ", bukrs="
 				+ bukrs + ", Bdesc=" + Bdesc + ", werks=" + werks + ", Wdesc=" + Wdesc + ", dateIni=" + dateIni
 				+ ", dateFin=" + dateFin + ", user=" + user + ", taskId=" + taskId + ", tiempo=" + tiempo + ", zoneId="
-				+ zoneId + ", zoneD=" + zoneD + ", idGrupo=" + idGrupo + "]";
+				+ zoneId + ", zoneD=" + zoneD + ", idGrupo=" + idGrupo + ", lgort=" + lgort + "]";
 	}
+	
 	
 	
 
