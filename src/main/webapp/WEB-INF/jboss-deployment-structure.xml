@@ -3,6 +3,7 @@
 		<dependencies>
 			<module name="com.microsoft.sqlserver" export="TRUE" />
 			<module name="com.ume001.jee.a.configuration" export="true" />
+			<module name="com.sap.conn.jco" export="true" />
 		</dependencies>
 	</deployment>
 </jboss-deployment-structure>
