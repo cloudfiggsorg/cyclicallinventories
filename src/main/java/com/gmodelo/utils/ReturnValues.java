@@ -54,6 +54,8 @@ public class ReturnValues {
 	public static final String REP_LDAP_PASSWORD = "LDAP_PASSWORD";// LDAP_PASSWORD
 	public static final String REP_LDAP_SECURITY_AUTH = "LDAP_SECURITY_AUTH";// LDAP_SECURITY_AUTH
 	public static final int ACTIVE_INTERVAL = 3600;// ACTIVE_INTERVAL
+	
+	public static final String REP_DESTINATION_VALUE = "INV_CIC_CONCILIATION_DESTINATION";
 
 	public static final int CONTEO_DIARIO = 1;
 	public static final int CONTEO_MENSUAL = 2;

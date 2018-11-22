@@ -1,10 +1,23 @@
 package com.gmodelo.Exception;
 
+import com.gmodelo.beans.E_Error_SapEntity;
+
 public class InvCicException extends Exception {
 
 	/**
 	 * 
 	 */
+
+	E_Error_SapEntity sapError;
+
+	public E_Error_SapEntity getSapError() {
+		return sapError;
+	}
+
+	public void setSapError(E_Error_SapEntity sapError) {
+		this.sapError = sapError;
+	}
+
 	private static final long serialVersionUID = 1L;
 
 	public InvCicException() {
@@ -30,6 +43,11 @@ public class InvCicException extends Exception {
 	public InvCicException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
+	}
+
+	public InvCicException(Throwable cause, E_Error_SapEntity sapError) {
+		super(cause);
+		this.sapError = sapError;
 	}
 
 }
