@@ -40,6 +40,12 @@ public class DocInvWorkService {
 			List<RoutePositionBean> positionRoute = new RouteDao().getPositions(docInvBean.getRoute());
 			if (!positionRoute.isEmpty()) {
 				res = new DocInvDao().addDocInv(docInvBean, user.getEntity().getIdentyId());
+				try {
+					new SapConciliationWorkService().inventorySnapShot(docInvBean);
+				} catch (Exception e) {
+					log.log(Level.SEVERE,
+							"[addDocInvWS] Error al generar la llamada al snapshot SapConciliationWorkService");
+				}
 			} else {
 				abstractResult.setResultId(ReturnValues.IERROR);
 				abstractResult.setResultMsgAbs("Ruta no seleccionable, favor de agregar posiciones de conteo");
@@ -133,14 +139,14 @@ public class DocInvWorkService {
 				return res;
 			}
 		} else {
-			
+
 			log.log(Level.SEVERE, "[getOnlyDocInvWS] Datos ausentes durante la recpeción.");
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs("Datos ausentes durante la recepción");
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-		
+
 		return new DocInvDao().getOnlyDocInv(tb, searchFilter);
 	}
 
