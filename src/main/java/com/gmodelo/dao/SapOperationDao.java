@@ -143,6 +143,15 @@ public class SapOperationDao {
 	private static final String SET_E_LQUA = "insert into E_LQUA (DOC_INV_ID, LGNUM, MATNR, WERKS, LGORT, LGTYP, LGPLA, VERME, MEINS, LENUM)"
 			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+	private static final String SET_E_MARD_F = "INSERT INTO E_MARD (DOC_INV_ID, MATNR, WERKS, LGORT, LABST, UMLME, INSME, EINME, SPEME, RETME) "
+			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	private static final String SET_E_MSKU_F = "insert into E_MSKU (DOC_INV_ID, MATNR, WERKS, KULAB, KUINS, KUEIN) "
+			+ "VALUES (?, ?, ?, ?, ?, ?)";
+
+	private static final String SET_E_LQUA_F = "insert into E_LQUA (DOC_INV_ID, LGNUM, MATNR, WERKS, LGORT, LGTYP, LGPLA, VERME, MEINS, LENUM)"
+			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
 	private static final String SET_E_XTAB6 = "insert into E_XTAB6 (DOC_INV_ID,WERKS,MATNR,MENGE,MEINS,DMBTR,WAERS,NETWR,BWAER,EBELN,EBELP,SOBKZ,PSTYP,BSTMG,BSTME,RESWK,BSAKZ,LGORT,RESLO)"
 			+ "VALUES (? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? )";
 
@@ -242,6 +251,67 @@ public class SapOperationDao {
 		return result;
 	}
 
+	public AbstractResultsBean setZIACMF_I360_INV_MOV2_F(DocInvBean docInvBean, ZIACMF_I360_INV_MOV_2 i360_INV_MOV_2,
+			Connection con) throws SQLException {
+		AbstractResultsBean result = new AbstractResultsBean();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			con.setAutoCommit(false);
+			PreparedStatement stm = con.prepareStatement(SET_E_MARD_F);
+			for (E_Mard_SapEntity emardEntity : i360_INV_MOV_2.geteMard_SapEntities()) {
+				stm.setString(1, String.valueOf(docInvBean.getDocInvId()));
+				stm.setString(2, emardEntity.getMatnr());
+				stm.setString(3, emardEntity.getWerks());
+				stm.setString(4, emardEntity.getLgort());
+				stm.setString(5, emardEntity.getLabst());
+				stm.setString(6, emardEntity.getUmlme());
+				stm.setString(7, emardEntity.getInsme());
+				stm.setString(8, emardEntity.getEinme());
+				stm.setString(9, emardEntity.getSpeme());
+				stm.setString(10, emardEntity.getRetme());
+				stm.addBatch();
+			}
+			stm.executeBatch();
+
+			stm = con.prepareStatement(SET_E_MSKU_F);
+			for (E_Msku_SapEntity emskuEntity : i360_INV_MOV_2.geteMsku_SapEntities()) {
+				stm.setString(1, String.valueOf(docInvBean.getDocInvId()));
+				stm.setString(2, emskuEntity.getMatnr());
+				stm.setString(3, emskuEntity.getWerks());
+				stm.setString(4, emskuEntity.getKulab());
+				stm.setString(5, emskuEntity.getKuins());
+				stm.setString(6, emskuEntity.getKuein());
+				stm.addBatch();
+			}
+			stm.executeBatch();
+
+			stm = con.prepareStatement(SET_E_LQUA_F);
+			for (E_Lqua_SapEntity elquaEntity : i360_INV_MOV_2.geteLqua_SapEntities()) {
+				stm.setString(1, String.valueOf(docInvBean.getDocInvId()));
+				stm.setString(2, elquaEntity.getLgnum());
+				stm.setString(3, elquaEntity.getMatnr());
+				stm.setString(4, elquaEntity.getWerks());
+				stm.setString(5, elquaEntity.getLgort());
+				stm.setString(6, elquaEntity.getLgtyp());
+				stm.setString(7, elquaEntity.getLgpla());
+				stm.setString(8, elquaEntity.getVerme());
+				stm.setString(9, elquaEntity.getMeins());
+				stm.setString(10, elquaEntity.getLenum());
+				stm.addBatch();
+			}
+			stm.executeBatch();
+			con.commit();
+			con.setAutoCommit(true);
+		} catch (SQLException e) {
+			con.rollback();
+			con.setAutoCommit(true);
+			throw e;
+		}
+		return result;
+	}
+
 	public AbstractResultsBean setZIACMF_I360_INV_MOV3(DocInvBean docInvBean, ZIACMF_I360_INV_MOV_3 i360_INV_MOV_3,
 			Connection con) throws SQLException {
 		AbstractResultsBean result = new AbstractResultsBean();
@@ -249,7 +319,7 @@ public class SapOperationDao {
 			con = new ConnectionManager().createConnection();
 		}
 		try {
-			PreparedStatement stm = con.prepareStatement(SET_E_MSEG);
+			PreparedStatement stm = con.prepareStatement(SET_E_XTAB6);
 			for (E_Xtab6_SapEntity extab6Entity : i360_INV_MOV_3.getXtab6_SapEntities()) {
 				stm.setString(1, String.valueOf(docInvBean.getDocInvId()));
 				stm.setString(2, extab6Entity.getWerks());

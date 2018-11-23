@@ -65,7 +65,13 @@ public class SapConciliationDao {
 			jcoFunction.execute(destination);
 			JCoTable jcoE_MsegTable = jcoFunction.getExportParameterList().getTable("E_MSEG");
 			JCoTable jcoE_Error = jcoFunction.getExportParameterList().getTable("E_ERROR");
-			E_Error_SapEntity eError = new E_Error_SapEntity(jcoE_Error);
+			E_Error_SapEntity eError = new E_Error_SapEntity();
+			try {
+				eError = new E_Error_SapEntity(jcoE_Error);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				log.warning(e1.getMessage());
+			}
 			if (eError.getType().equals("S")) {
 				do {
 
@@ -145,7 +151,7 @@ public class SapConciliationDao {
 				do {
 					try {
 						eMard_SapEntities.add(new E_Mard_SapEntity(E_MARD));
-					} catch (JCoException | RuntimeException e ) {
+					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
 						log.warning(e.getMessage());
 					}
@@ -185,6 +191,8 @@ public class SapConciliationDao {
 		return ziacmf_I360_INV_MOV_2;
 	}
 
+	
+	
 	public ZIACMF_I360_INV_MOV_3 getTransitMovements(DocInvBean docInvBean, Connection con, JCoDestination destination)
 			throws JCoException, SQLException, RuntimeException, InvCicException {
 		ZIACMF_I360_INV_MOV_3 ziacmf_I360_INV_MOV_3 = new ZIACMF_I360_INV_MOV_3();
@@ -209,7 +217,13 @@ public class SapConciliationDao {
 			jcoFunction.execute(destination);
 			JCoTable E_XTAB6 = jcoFunction.getExportParameterList().getTable("E_XTAB6");
 			JCoTable E_ERROR = jcoFunction.getExportParameterList().getTable("E_ERROR");
-			E_Error_SapEntity eError = new E_Error_SapEntity(E_ERROR);
+			E_Error_SapEntity eError = new E_Error_SapEntity();
+			try {
+				eError = new E_Error_SapEntity(E_ERROR);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				log.warning(e1.getMessage());
+			}
 			if (eError.getType().equals("S")) {
 				do {
 					try {

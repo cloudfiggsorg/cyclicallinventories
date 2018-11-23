@@ -27,11 +27,13 @@ public class SapConciliationWorkService {
 	private SapOperationDao operationDao = new SapOperationDao();
 	private SapConciliationDao conciliationDao = new SapConciliationDao();
 
-	public void inventoryMovements(DocInvBean docInvBean) {
+	public void inventoryMovements(DocInvBean docInvBean, Connection con) throws SQLException {
 		AbstractResultsBean results = new AbstractResultsBean();
-		Connection con = connectionManager.createConnection();
+		// Connection con = connectionManager.createConnection();
 		try {
-
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
 			JCoDestination destination = connectionManager.getSapConnection(
 					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
 			ZIACMF_I360_INV_MOV_1 getMovements = conciliationDao.inventoryMovementsDao(docInvBean, con, destination);
@@ -49,12 +51,6 @@ public class SapConciliationWorkService {
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
-		} finally {
-			try {
-				con.close();
-			} catch (Exception e) {
-				log.log(Level.SEVERE, "[SapConciliationWorkService] - Finally Exception: ", e);
-			}
 		}
 	}
 
@@ -62,7 +58,6 @@ public class SapConciliationWorkService {
 		AbstractResultsBean results = new AbstractResultsBean();
 		Connection con = connectionManager.createConnection();
 		try {
-
 			JCoDestination destination = connectionManager.getSapConnection(
 					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
 			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot(docInvBean, con, destination);
@@ -90,11 +85,40 @@ public class SapConciliationWorkService {
 
 	}
 
-	public void inventoryTransit(DocInvBean docInvBean) {
+	public void inventorySnapShot_F(DocInvBean docInvBean, Connection con) {
 		AbstractResultsBean results = new AbstractResultsBean();
-		Connection con = connectionManager.createConnection();
+		// Connection con = connectionManager.createConnection();
 		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
+			JCoDestination destination = connectionManager.getSapConnection(
+					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
+			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot(docInvBean, con, destination);
+			if (getSnapshot.geteError_SapEntities().getType().equals("S") && getSnapshot.geteLqua_SapEntities() != null
+					&& getSnapshot.geteMard_SapEntities() != null && getSnapshot.geteMsku_SapEntities() != null) {
+				results = operationDao.setZIACMF_I360_INV_MOV2_F(docInvBean, getSnapshot, con);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+		}
 
+	}
+
+	public void inventoryTransit(DocInvBean docInvBean, Connection con) {
+		AbstractResultsBean results = new AbstractResultsBean();
+		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
 			JCoDestination destination = connectionManager.getSapConnection(
 					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
 			ZIACMF_I360_INV_MOV_3 getTransit = conciliationDao.getTransitMovements(docInvBean, con, destination);
@@ -112,14 +136,7 @@ public class SapConciliationWorkService {
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
-		} finally {
-			try {
-				con.close();
-			} catch (Exception e) {
-				log.log(Level.SEVERE, "[SapConciliationWorkService] - Finally Exception: ", e);
-			}
 		}
-
 	}
 
 	public void clasificationSystem() {

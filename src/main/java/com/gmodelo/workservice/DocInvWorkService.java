@@ -173,6 +173,12 @@ public class DocInvWorkService {
 							Response<DocInvBean> responseDao = new DocInvDao().addDocInv(docInv,
 									user.getEntity().getIdentyId());
 							result = responseDao.getAbstractResult();
+							log.info("[conciDocInv] conciDocInv getFinalSnapshot");
+							new SapConciliationWorkService().inventorySnapShot_F(docInv, con);
+							log.info("[conciDocInv] conciDocInv getInventoryMovements");
+							new SapConciliationWorkService().inventoryMovements(docInv, con);
+							log.info("[conciDocInv] conciDocInv getInventoryTransit");
+							new SapConciliationWorkService().inventoryTransit(docInv, con);
 						}
 					} else {
 						result.setResultId(ReturnValues.IEMPTY);
