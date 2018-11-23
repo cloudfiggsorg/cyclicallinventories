@@ -77,8 +77,9 @@ public class SapConciliationDao {
 
 					try {
 						msegList.add(new E_Mseg_SapEntity(jcoE_MsegTable));
-					} catch (JCoException e) {
+					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
+						log.warning(e.getMessage());
 					}
 				} while (jcoE_MsegTable.nextRow());
 			}
@@ -228,8 +229,9 @@ public class SapConciliationDao {
 				do {
 					try {
 						xtab6_SapEntities.add(new E_Xtab6_SapEntity(E_XTAB6));
-					} catch (JCoException e) {
+					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
+						log.warning(e.getMessage());
 					}
 				} while (E_XTAB6.nextRow());
 			}
