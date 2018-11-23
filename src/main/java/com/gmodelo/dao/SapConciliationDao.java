@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.DocInvBean;
@@ -29,6 +30,7 @@ public class SapConciliationDao {
 	private static final String ZIACMF_I360_INV_MOV_1 = "ZIACMF_I360_INV_MOV_1";
 	private static final String ZIACMF_I360_INV_MOV_2 = "ZIACMF_I360_INV_MOV_2";
 	private static final String ZIACMF_I360_INV_MOV_3 = "ZIACMF_I360_INV_MOV_3";
+	private Logger log = Logger.getLogger(SapConciliationDao.class.getName());
 
 	final SapOperationDao operationDao = new SapOperationDao();
 
@@ -52,17 +54,17 @@ public class SapConciliationDao {
 			jcoFunction.getImportParameterList().setValue("I_CPUTM_F",
 					timeFormat.format(new Date(requestBean.getModifiedDate())));
 			// Form the Current Structure
-			JCoTable lgortTable = jcoFunction.getTableParameterList().getTable("I_R_LGORT");
+			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
 			for (String lgort : operationDao.getDocInvLgort(requestBean, con)) {
 				lgortTable.appendRow();
-				lgortTable.setValue("Sign", "I");
-				lgortTable.setValue("Option", "EQ");
-				lgortTable.setValue("Low", lgort);
+				lgortTable.setValue("SIGN", "I");
+				lgortTable.setValue("OPTION", "EQ");
+				lgortTable.setValue("LOW", lgort);
 				// lgortTable.setValue("High", lgort);
 			}
 			jcoFunction.execute(destination);
-			JCoTable jcoE_MsegTable = jcoFunction.getTableParameterList().getTable("E_MSEG");
-			JCoTable jcoE_Error = jcoFunction.getTableParameterList().getTable("E_ERROR");
+			JCoTable jcoE_MsegTable = jcoFunction.getExportParameterList().getTable("E_MSEG");
+			JCoTable jcoE_Error = jcoFunction.getExportParameterList().getTable("E_ERROR");
 			E_Error_SapEntity eError = new E_Error_SapEntity(jcoE_Error);
 			if (eError.getType().equals("S")) {
 				do {
@@ -96,49 +98,56 @@ public class SapConciliationDao {
 			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
-			JCoTable lgortTable = jcoFunction.getTableParameterList().getTable("I_R_LGORT");
+			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
 			for (String lgort : operationDao.getDocInvLgort(requestBean, con)) {
 				lgortTable.appendRow();
-				lgortTable.setValue("Sign", "I");
-				lgortTable.setValue("Option", "EQ");
-				lgortTable.setValue("Low", lgort);
+				lgortTable.setValue("SIGN", "I");
+				lgortTable.setValue("OPTION", "EQ");
+				lgortTable.setValue("LOW", lgort);
 				// lgortTable.setValue("High", lgort);
 			}
-			JCoTable lgnumTable = jcoFunction.getTableParameterList().getTable("I_R_LGNUM");
+			JCoTable lgnumTable = jcoFunction.getImportParameterList().getTable("I_R_LGNUM");
 			HashMap<String, List<String>> lgnumLgtypMap = operationDao.getDocInvLgnumLgtyp(requestBean, con);
 			if (lgnumLgtypMap.get("LGNUM") != null && !lgnumLgtypMap.get("LGNUM").isEmpty()) {
 				for (String lgnum : lgnumLgtypMap.get("LGNUM")) {
 					lgnumTable.appendRow();
-					lgnumTable.setValue("Sign", "I");
-					lgnumTable.setValue("Option", "EQ");
-					lgnumTable.setValue("Low", lgnum);
+					lgnumTable.setValue("SIGN", "I");
+					lgnumTable.setValue("OPTION", "EQ");
+					lgnumTable.setValue("LOW", lgnum);
 					// lgnumTable.setValue("High", lgnum);
 				}
 			}
-			JCoTable lgtypTable = jcoFunction.getTableParameterList().getTable("I_R_LGTYP");
+			JCoTable lgtypTable = jcoFunction.getImportParameterList().getTable("I_R_LGTYP");
 			if (lgnumLgtypMap.get("LGTYP") != null && !lgnumLgtypMap.get("LGTYP").isEmpty()) {
 				for (String lgtyp : lgnumLgtypMap.get("LGTYP")) {
 					lgtypTable.appendRow();
-					lgtypTable.setValue("Sign", "I");
-					lgtypTable.setValue("Option", "EQ");
-					lgtypTable.setValue("Low", lgtyp);
+					lgtypTable.setValue("SIGN", "I");
+					lgtypTable.setValue("OPTION", "EQ");
+					lgtypTable.setValue("LOW", lgtyp);
 					// lgtypTable.setValue("High", lgtyp);
 				}
 			}
 
 			jcoFunction.execute(destination);
-			JCoTable E_MARD = jcoFunction.getTableParameterList().getTable("E_MARD");
-			JCoTable E_MSKU = jcoFunction.getTableParameterList().getTable("E_MSKU");
-			JCoTable E_LQUA = jcoFunction.getTableParameterList().getTable("E_LQUA");
-			JCoTable E_ERROR = jcoFunction.getTableParameterList().getTable("E_ERROR");
-			E_Error_SapEntity eError = new E_Error_SapEntity(E_ERROR);
+			JCoTable E_MARD = jcoFunction.getExportParameterList().getTable("E_MARD");
+			JCoTable E_MSKU = jcoFunction.getExportParameterList().getTable("E_MSKU");
+			JCoTable E_LQUA = jcoFunction.getExportParameterList().getTable("E_LQUA");
+			JCoTable E_ERROR = jcoFunction.getExportParameterList().getTable("E_ERROR");
+			E_Error_SapEntity eError = new E_Error_SapEntity();
+			try {
+				eError = new E_Error_SapEntity(E_ERROR);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				log.warning(e1.getMessage());
+			}
 			if (eError.getType().equals("S")) {
 				// Cycle of the E_MARD Export Table
 				do {
 					try {
 						eMard_SapEntities.add(new E_Mard_SapEntity(E_MARD));
-					} catch (JCoException e) {
+					} catch (JCoException | RuntimeException e ) {
 						// Not Readable Row or EOF
+						log.warning(e.getMessage());
 					}
 				} while (E_MARD.nextRow());
 
@@ -146,8 +155,9 @@ public class SapConciliationDao {
 				do {
 					try {
 						eMsku_SapEntities.add(new E_Msku_SapEntity(E_MSKU));
-					} catch (JCoException e) {
+					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
+						log.warning(e.getMessage());
 					}
 				} while (E_MSKU.nextRow());
 
@@ -155,10 +165,11 @@ public class SapConciliationDao {
 				do {
 					try {
 						eLqua_SapEntities.add(new E_Lqua_SapEntity(E_LQUA));
-					} catch (JCoException e) {
+					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
+						log.warning(e.getMessage());
 					}
-				} while (E_MSKU.nextRow());
+				} while (E_LQUA.nextRow());
 			}
 			ziacmf_I360_INV_MOV_2.seteMard_SapEntities(eMard_SapEntities);
 			ziacmf_I360_INV_MOV_2.seteMsku_SapEntities(eMsku_SapEntities);
@@ -181,23 +192,23 @@ public class SapConciliationDao {
 			List<E_Xtab6_SapEntity> xtab6_SapEntities = new ArrayList<>();
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_3);
 			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
-			JCoTable materialTable = jcoFunction.getTableParameterList().getTable("I_R_MATNR");
+			JCoTable materialTable = jcoFunction.getImportParameterList().getTable("I_R_MATNR");
 			for (String material : operationDao.getmaterialForDocInv(requestBean, con)) {
 				materialTable.appendRow();
-				materialTable.setValue("Sign", "I");
-				materialTable.setValue("Option", "EQ");
-				materialTable.setValue("Low", material);
+				materialTable.setValue("SIGN", "I");
+				materialTable.setValue("OPTION", "EQ");
+				materialTable.setValue("LOW", material);
 			}
-			JCoTable werksTable = jcoFunction.getTableParameterList().getTable("I_R_WERKS");
+			JCoTable werksTable = jcoFunction.getImportParameterList().getTable("I_R_WERKS");
 			werksTable.appendRow();
-			werksTable.setValue("Sign", "I");
-			werksTable.setValue("Option", "EQ");
-			werksTable.setValue("Low", requestBean.getWerks());
+			werksTable.setValue("SIGN", "I");
+			werksTable.setValue("OPTION", "EQ");
+			werksTable.setValue("LOW", requestBean.getWerks());
 			// werksTable.setValue("High", requestBean.getWerks());
 
 			jcoFunction.execute(destination);
-			JCoTable E_XTAB6 = jcoFunction.getTableParameterList().getTable("E_XTAB6");
-			JCoTable E_ERROR = jcoFunction.getTableParameterList().getTable("E_ERROR");
+			JCoTable E_XTAB6 = jcoFunction.getExportParameterList().getTable("E_XTAB6");
+			JCoTable E_ERROR = jcoFunction.getExportParameterList().getTable("E_ERROR");
 			E_Error_SapEntity eError = new E_Error_SapEntity(E_ERROR);
 			if (eError.getType().equals("S")) {
 				do {

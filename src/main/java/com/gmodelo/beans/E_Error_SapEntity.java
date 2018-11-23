@@ -1,5 +1,6 @@
 package com.gmodelo.beans;
 
+import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoTable;
 
 public class E_Error_SapEntity {
@@ -34,10 +35,11 @@ public class E_Error_SapEntity {
 
 	public E_Error_SapEntity() {
 		super();
+		this.type = "S";
 		// TODO Auto-generated constructor stub
 	}
 
-	public E_Error_SapEntity(JCoTable errorTable) {
+	public E_Error_SapEntity(JCoTable errorTable) throws JCoException{
 		super();
 		this.type = errorTable.getString("TYPE");
 		this.languaje = errorTable.getString("LANGUAJE");
