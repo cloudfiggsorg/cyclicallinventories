@@ -82,6 +82,8 @@ public class SapConciliationDao {
 						// Not Readable Row or EOF
 					}
 				} while (jcoE_MsegTable.nextRow());
+			}else{
+				log.severe("Regresó con E_ERROR "+eError.toString());
 			}
 			ziacmf_I360_INV_MOV_1.seteError_SapEntities(eError);
 			ziacmf_I360_INV_MOV_1.seteMseg_SapEntities(msegList);

@@ -289,7 +289,7 @@ public class RouteUserDao {
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				HashMap<String, LgplaValuesBean> insertMap =  new HashMap<>();
-				if(mapPosition.containsKey("PK_ASG_ID")){
+				if(mapPosition.containsKey(rs.getString("PK_ASG_ID"))){
 					insertMap = mapPosition.get(rs.getString("PK_ASG_ID")); 
 				}
 				ZoneUserPositionsBean position = new ZoneUserPositionsBean();
