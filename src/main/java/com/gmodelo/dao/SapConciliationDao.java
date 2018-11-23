@@ -39,20 +39,20 @@ public class SapConciliationDao {
 		ZIACMF_I360_INV_MOV_1 ziacmf_I360_INV_MOV_1 = new ZIACMF_I360_INV_MOV_1();
 		List<E_Mseg_SapEntity> msegList = new ArrayList<>();
 		try {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 			SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_1);
 			jcoFunction.getImportParameterList().setValue("I_BUKRS", requestBean.getBukrs());
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
 			jcoFunction.getImportParameterList().setValue("I_BUDAT_I",
-					dateFormat.format(new Date(requestBean.getCreatedDate())));
+					new Date(requestBean.getCreatedDate()));
 			jcoFunction.getImportParameterList().setValue("I_BUDAT_F",
-					dateFormat.format(new Date(requestBean.getModifiedDate())));
+					new Date(requestBean.getModifiedDate()));
 			jcoFunction.getImportParameterList().setValue("I_CPUTM_I",
-					timeFormat.format(new Date(requestBean.getCreatedDate())));
+					new Date(requestBean.getCreatedDate()));
 			jcoFunction.getImportParameterList().setValue("I_CPUTM_F",
-					timeFormat.format(new Date(requestBean.getModifiedDate())));
+					new Date(requestBean.getModifiedDate()));
 			// Form the Current Structure
 			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
 			for (String lgort : operationDao.getDocInvLgort(requestBean, con)) {
@@ -77,9 +77,8 @@ public class SapConciliationDao {
 
 					try {
 						msegList.add(new E_Mseg_SapEntity(jcoE_MsegTable));
-					} catch (JCoException | RuntimeException e) {
+					} catch (JCoException e) {
 						// Not Readable Row or EOF
-						log.warning(e.getMessage());
 					}
 				} while (jcoE_MsegTable.nextRow());
 			}
@@ -231,7 +230,7 @@ public class SapConciliationDao {
 						xtab6_SapEntities.add(new E_Xtab6_SapEntity(E_XTAB6));
 					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
-						log.warning(e.getMessage());
+						e.getMessage();
 					}
 				} while (E_XTAB6.nextRow());
 			}
