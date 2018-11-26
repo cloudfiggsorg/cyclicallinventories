@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ApegosBean;
 import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteConteosBean;
 import com.gmodelo.beans.ReporteDocInvBeanHeader;
@@ -59,15 +60,15 @@ public class ReportesWorkService {
 		return response;
 	}
 
-	public Response<ReporteDocInvBeanHeader> getReporteDocInv(Request request) {
+	public Response<DocInvBeanHeaderSAP> getReporteDocInv(Request request) {
 		log.info("[ReporteWorkService getReporteDocInv] " + request.toString());
-		Response<ReporteDocInvBeanHeader> response = new Response<>();
+		Response<DocInvBeanHeaderSAP> response = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
 		DocInvBean bean = null;
 		try {
 			log.info("[ReporteWorkService getReporteDocInv] try");
 			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
-			response = new ReportesDao().getReporteDocInv(bean);
+			response = new ReportesDao().getConsDocInv(bean);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInv] catch", e);
 			result.setResultId(ReturnValues.IEXCEPTION);

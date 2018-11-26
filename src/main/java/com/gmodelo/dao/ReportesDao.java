@@ -21,6 +21,8 @@ import com.gmodelo.beans.ApegosBean;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.ConciliationPositionBean;
 import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.DocInvBeanHeaderSAP;
+import com.gmodelo.beans.PosDocInvBean;
 import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteCalidadConteosBean;
 import com.gmodelo.beans.ReporteConteosBean;
@@ -330,6 +332,146 @@ public class ReportesDao {
 							ReporteDocInvBean supportBean = null;
 							log.info("[getReporteDocInvDao] Iterating hashmap key..." + pair.getKey());
 							for (ReporteDocInvBean singleIM : (List<ReporteDocInvBean>) pair.getValue()) {
+								if (supportBean == null) {
+									log.info("[getReporteDocInvDao] support bean null... ");
+									supportBean = singleIM;
+								} else {
+									supportBean.setCounted(String.valueOf(new BigDecimal(supportBean.getCounted())
+											.add(new BigDecimal(singleIM.getCounted()))));
+								}
+								log.info("[getReporteDocInvDao] fos Single IM : " + singleIM);
+								log.info("[getReporteDocInvDao] for supportBean: " + supportBean);
+							}
+							supportBean.setLgtyp("");
+							supportBean.setLtypt("");
+							supportBean.setLgpla("");
+							log.info("[getReporteDocInvDao] final object toAdd: " + supportBean);
+							imPList.add(supportBean);
+						}
+						listBean = new ArrayList<>();
+						listBean.addAll(wmList);
+						listBean.addAll(imPList);
+						bean.setDocInvPosition(listBean);
+					} else {
+						bean.setDocInvPosition(listBean);
+					}
+				}
+			} else {
+				bean = null;
+				abstractResult.setResultId(ReturnValues.IERROR);
+				abstractResult.setResultMsgAbs(
+						"Ocurrio un Error al recuperar los datos de Documento de Invetnario ó Documento Inexistente");
+			}
+			log.info("[getReporteDocInvDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getReporteDocInvDao] Some error occurred while was trying to execute the query: " + INV_VW_REP,
+					e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getReporteDocInvDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(bean);
+		return res;
+	}
+	
+	public Response<DocInvBeanHeaderSAP> getConsDocInv(DocInvBean docInvBean) {
+
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		DocInvBeanHeaderSAP bean = new DocInvBeanHeaderSAP();
+		Response<DocInvBeanHeaderSAP> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<PosDocInvBean> listBean = new ArrayList<PosDocInvBean>();
+		log.info(INV_VW_REP_HEADER);
+		log.info("[getReporteDocInvDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(INV_VW_REP_HEADER);
+			stm.setInt(1, docInvBean.getDocInvId());
+			log.info("[getReporteDocInvDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss");
+			if (rs.next()) {
+				bean.setDocInvId(docInvBean.getDocInvId());
+				bean.setBukrs(rs.getString("DIH_BUKRS"));
+				bean.setBukrsD(rs.getString("BUTXT"));
+				bean.setRoute(rs.getString("ROU_DESC"));
+				bean.setWerks(rs.getString("DIH_WERKS"));
+				bean.setWerksD(rs.getString("NAME1"));
+				bean.setType(rs.getString("DIH_TYPE"));
+				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
+				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
+				log.info(INV_VW_REP_POSITIONS);
+				log.info("[getReporteDocInvDao] Preparing sentence...");
+				stm = con.prepareStatement(INV_VW_REP_POSITIONS);
+				stm.setInt(1, docInvBean.getDocInvId());
+				rs = stm.executeQuery();
+				while (rs.next()) {
+					PosDocInvBean positionBean = new PosDocInvBean();
+					positionBean.setLgort(rs.getString("DIP_LGORT"));
+					positionBean.setLgortD(rs.getString("LGOBE"));
+					positionBean.setLgtyp(rs.getString("LGTYP"));
+					positionBean.setLtypt(rs.getString("LTYPT"));
+					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
+					positionBean.setMatnr(rs.getString("DIP_MATNR"));
+					positionBean.setMatnrD(rs.getString("MAKTX"));
+					positionBean.setMeins(rs.getString("MEINS"));
+					positionBean.setImwmMarker(rs.getString("IMWM"));
+					if (rs.getString("DIP_THEORIC") != null)
+						positionBean.setTheoric(rs.getString("DIP_THEORIC"));
+					else
+						positionBean.setTheoric("");
+					positionBean.setCounted(rs.getString("DIP_COUNTED"));
+					if (rs.getString("DIP_DIFF_COUNTED") != null)
+						positionBean.setDiff(rs.getString("DIP_DIFF_COUNTED"));
+					else
+						positionBean.setDiff("");
+
+					listBean.add(positionBean);
+				}
+
+				List<PosDocInvBean> wmList = new ArrayList<>();
+				List<PosDocInvBean> imList = new ArrayList<>();
+				List<PosDocInvBean> imPList = new ArrayList<>();
+
+				// Hashmap Llave Material- Almacen, Contenido Lista de Objetos
+				// que hagan match material almacen.
+				HashMap<String, List<PosDocInvBean>> supportMap = new HashMap<>();
+
+				if (!listBean.isEmpty()) {
+					for (PosDocInvBean singlePos : listBean) {
+						if (singlePos.getImwmMarker().equals("WM")) {
+							wmList.add(singlePos);
+						} else {
+							imList.add(singlePos);
+						}
+					}
+					if (!imList.isEmpty()) {
+						for (PosDocInvBean singleIM : imList) {
+							String key = singleIM.getLgort() + singleIM.getMatnr();
+							if (supportMap.containsKey(key)) {
+								supportMap.get(key).add(singleIM);
+							} else {
+								List<PosDocInvBean> addMapList = new ArrayList<>();
+								addMapList.add(singleIM);
+								supportMap.put(key, addMapList);
+							}
+						}
+						Iterator iteAux = supportMap.entrySet().iterator();
+						while (iteAux.hasNext()) {
+							Map.Entry pair = (Map.Entry) iteAux.next();
+							PosDocInvBean supportBean = null;
+							log.info("[getReporteDocInvDao] Iterating hashmap key..." + pair.getKey());
+							for (PosDocInvBean singleIM : (List<PosDocInvBean>) pair.getValue()) {
 								if (supportBean == null) {
 									log.info("[getReporteDocInvDao] support bean null... ");
 									supportBean = singleIM;
