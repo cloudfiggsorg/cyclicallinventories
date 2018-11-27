@@ -27,6 +27,7 @@ import com.gmodelo.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.services.ReportesService;
+import com.gmodelo.workservice.ReportesWorkService;
 import com.gmodelo.workservice.RouteWorkService;
 import com.google.gson.Gson;
 
@@ -80,7 +81,7 @@ public class ReportesServlet extends HttpServlet {
 				Request<DocInvBean> requestDoc =  new Request<>();
 				requestDoc.setLsObject(docInvBean);
 				requestDoc.setTokenObject(null);	
-				Response<ReporteDocInvBeanHeader> reportInv = new ReportesService().getReporteDocInv(requestDoc);
+				Response<ReporteDocInvBeanHeader> reportInv = new ReportesWorkService().getReporteDocInv(requestDoc);
 				generateDocInvReporte(request, response, reportInv.getLsObject());
 			} catch (Exception e) {
 				// Fill With Another Object Report

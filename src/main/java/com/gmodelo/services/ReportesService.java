@@ -11,9 +11,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.gmodelo.beans.ApegosBean;
+import com.gmodelo.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteConteosBean;
-import com.gmodelo.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TareasTiemposLgplaBean;
@@ -46,8 +46,8 @@ public class ReportesService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getReporteDocInv")
-	public Response<ReporteDocInvBeanHeader> getReporteDocInv(Request request) {
-		return new ReportesWorkService().getReporteDocInv(request);
+	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAP(Request request) {
+		return new ReportesWorkService().getReporteDocInvSAP(request);
 	}
 
 	@POST

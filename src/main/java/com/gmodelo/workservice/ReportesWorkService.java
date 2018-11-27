@@ -60,7 +60,25 @@ public class ReportesWorkService {
 		return response;
 	}
 
-	public Response<DocInvBeanHeaderSAP> getReporteDocInv(Request request) {
+	public Response<ReporteDocInvBeanHeader> getReporteDocInv(Request request) {
+		log.info("[ReporteWorkService getReporteDocInv] " + request.toString());
+		Response<ReporteDocInvBeanHeader> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
+		DocInvBean bean = null;
+		try {
+			log.info("[ReporteWorkService getReporteDocInv] try");
+			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+			response = new ReportesDao().getReporteDocInv(bean);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInv] catch", e);
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+		}
+		response.setAbstractResult(result);
+		return response;
+	}
+	
+	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAP(Request request) {
 		log.info("[ReporteWorkService getReporteDocInv] " + request.toString());
 		Response<DocInvBeanHeaderSAP> response = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
