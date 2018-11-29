@@ -171,11 +171,13 @@ public class SapConciliationWorkService {
 		Response response = new Response<>();
 		Connection con = connectionManager.createConnection();
 		AbstractResultsBean result = new AbstractResultsBean();
+		response.setAbstractResult(result);
 		try {
 			JCoDestination destination = connectionManager.getSapConnection(
 					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
 			if (ReturnValues.REP_CLASS_UPDATED == 0) {
 				new ClasificationRuntime(destination, con, null, null, "X").run();
+				
 			} else {
 				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("Ejecución en progreso");
