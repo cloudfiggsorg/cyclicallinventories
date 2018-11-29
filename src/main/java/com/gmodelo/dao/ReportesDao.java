@@ -456,10 +456,12 @@ public class ReportesDao {
 					
 				}
 								
-				ArrayList<E_Mseg_SapEntity> lsTransit = getMatnrOnTransit(docInvBean.getDocInvId(), con);
-				ArrayList<E_Msku_SapEntity> lsCons = getMatnrOnCons(docInvBean.getDocInvId(), con);
-				ArrayList<E_Mard_SapEntity> lsTheoricIM = getMatnrTheoricIM(docInvBean.getDocInvId(), con);
-				ArrayList<E_Lqua_SapEntity> lsTheoricWM = getMatnrTheoricWM(docInvBean.getDocInvId(), con);
+				SapConciliationDao acd = new SapConciliationDao();
+				
+				ArrayList<E_Mseg_SapEntity> lsTransit = acd.getMatnrOnTransit(docInvBean.getDocInvId(), con);
+				ArrayList<E_Msku_SapEntity> lsCons = acd.getMatnrOnCons(docInvBean.getDocInvId(), con);
+				ArrayList<E_Mard_SapEntity> lsTheoricIM = acd.getMatnrTheoricIM(docInvBean.getDocInvId(), con);
+				ArrayList<E_Lqua_SapEntity> lsTheoricWM = acd.getMatnrTheoricWM(docInvBean.getDocInvId(), con);
 								
 				List<PosDocInvBean> wmList = new ArrayList<>();
 				List<PosDocInvBean> imList = new ArrayList<>();
@@ -595,13 +597,13 @@ public class ReportesDao {
 								emse.setLgpla(sp.getLgpla());
 								emse.setMatnr(sp.getMatnr());
 								
-								movs = getMatnrMovementsWM(emse, con);
+								movs = acd.getMatnrMovementsWM(emse, con);
 							}else{
 								
 								emse.setLgort(sp.getLgort());
 								emse.setMatnr(sp.getMatnr());
 								
-								movs = getMatnrMovementsIM(emse, con);
+								movs = acd.getMatnrMovementsIM(emse, con);
 							}
 							
 							theoric = theoric + movs;
@@ -636,151 +638,6 @@ public class ReportesDao {
 		res.setLsObject(bean);
 		return res;
 	}
-	
-	private static final String TRANSIT = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? ";
-	private ArrayList<E_Mseg_SapEntity> getMatnrOnTransit(int docInvId, Connection con) throws SQLException{
-		
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(TRANSIT);
-		stm.setInt(1, docInvId);
-		ResultSet rs = stm.executeQuery();
-		
-		ArrayList<E_Mseg_SapEntity> lsMatnr = new ArrayList<E_Mseg_SapEntity>();
-		E_Mseg_SapEntity emse;
-		
-		while (rs.next()) {
-			emse = new E_Mseg_SapEntity();
-			emse.setMatnr(rs.getString("MATNR"));
-			emse.setMenge(rs.getString("MENGE"));
-			lsMatnr.add(emse);
-		}
-		
-		return lsMatnr;
-	}
-	
-	private static final String CONSIGNATION = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, (CAST(KULAB AS decimal(10,3)) "
-			+ "+ CAST(KUINS AS decimal(10,3)) + CAST(KUEIN AS decimal(10,3))) AS CONS FROM E_MSKU WHERE DOC_INV_ID = ? ";
-	private ArrayList<E_Msku_SapEntity> getMatnrOnCons(int docInvId, Connection con) throws SQLException{
-		
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(CONSIGNATION);
-		stm.setInt(1, docInvId);
-		ResultSet rs = stm.executeQuery();
-		
-		ArrayList<E_Msku_SapEntity> lsMatnr = new ArrayList<E_Msku_SapEntity>();
-		E_Msku_SapEntity emskuEntity;
-		
-		while (rs.next()) {
-			emskuEntity = new E_Msku_SapEntity();
-			emskuEntity.setMatnr(rs.getString("MATNR"));
-			emskuEntity.setKulab(rs.getString("CONS"));//The total here
-			lsMatnr.add(emskuEntity);
-		}
-		
-		return lsMatnr;
-	}
-	
-	private static final String THEORIC_IM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, (CAST(LABST AS decimal(10,3)) "
-			+ "+ CAST(UMLME AS decimal(10,3)) + CAST(INSME AS decimal(10,3)) + CAST(EINME AS decimal(10,3)) "
-			+ "+ CAST(SPEME AS decimal(10,3)) + CAST(RETME AS decimal(10,3))) AS CONS FROM E_MARD_F WHERE DOC_INV_ID = ?";
-	private ArrayList<E_Mard_SapEntity> getMatnrTheoricIM(int docInvId, Connection con) throws SQLException{
-		
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(THEORIC_IM);
-		stm.setInt(1, docInvId);
-		ResultSet rs = stm.executeQuery();
-		
-		ArrayList<E_Mard_SapEntity> lsMatnr = new ArrayList<E_Mard_SapEntity>();
-		E_Mard_SapEntity ems;
-		
-		while (rs.next()) {
-			ems = new E_Mard_SapEntity();
-			ems.setMatnr(rs.getString("MATNR"));
-			ems.setRetme(rs.getString("CONS"));//The total here
-			lsMatnr.add(ems);
-		}
-		
-		return lsMatnr;
-	}
-	
-	private static final String THEORIC_WM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, "
-			+ "CAST(VERME AS decimal(10,3)) AS CONS FROM E_LQUA_F WHERE DOC_INV_ID = ?";
-	private ArrayList<E_Lqua_SapEntity> getMatnrTheoricWM(int docInvId, Connection con) throws SQLException{
-		
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(THEORIC_WM);
-		stm.setInt(1, docInvId);
-		ResultSet rs = stm.executeQuery();
-		
-		ArrayList<E_Lqua_SapEntity> lsMatnr = new ArrayList<E_Lqua_SapEntity>();
-		E_Lqua_SapEntity els;
-		
-		while (rs.next()) {
-			els = new E_Lqua_SapEntity();
-			els.setMatnr(rs.getString("MATNR"));
-			els.setVerme(rs.getString("CONS"));//The total here
-			lsMatnr.add(els);
-		}
-		
-		return lsMatnr;
-	}
-	
-	private static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3)))"
-		+ "FROM E_MSEG "
-		+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'S') - "	
-		+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
-		+ "FROM E_MSEG "
-		+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE";
-	private long getMatnrMovementsWM(E_Mseg_SapEntity emse, Connection con) throws SQLException{
-		
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(MOVEMENTS_WM);
-		stm.setString(1, emse.getLgort());
-		stm.setString(2, emse.getLgnum());
-		stm.setString(3, emse.getLgtyp());
-		stm.setString(4, emse.getLgpla());
-		stm.setString(5, emse.getMatnr());
-		stm.setString(6, emse.getLgort());
-		stm.setString(7, emse.getLgnum());
-		stm.setString(8, emse.getLgtyp());
-		stm.setString(9, emse.getLgpla());
-		stm.setString(10, emse.getMatnr());
-		
-		ResultSet rs = stm.executeQuery();		
-		long menge = 0;
-		
-		while (rs.next()) {
-			menge = rs.getLong("MENGE");//The total here
-		}
-		
-		return menge;
-	}
-	
-	private static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) "
-		+ "FROM E_MSEG" 
-		+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'S') - " 
-		+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
-		+ "FROM E_MSEG " 
-		+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE ";
-
-	private long getMatnrMovementsIM(E_Mseg_SapEntity emse, Connection con) throws SQLException {
-
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(MOVEMENTS_IM);
-		stm.setString(1, emse.getLgort());
-		stm.setString(2, emse.getMatnr());
-		stm.setString(3, emse.getLgort());
-		stm.setString(4, emse.getMatnr());
-		
-		ResultSet rs = stm.executeQuery();
-		long menge = 0;
-
-		while (rs.next()) {
-			menge = rs.getLong("MENGE");// The total here
-		}
-
-		return menge;
-	}	
 	
 	public Response<List<TareasTiemposLgplaBean>> getReporteTareasTiemposLgpla(TareasTiemposLgplaBean tareasBean) {
 
