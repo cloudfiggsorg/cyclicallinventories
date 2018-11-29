@@ -341,7 +341,6 @@ public class SapOperationDao {
 		}
 		try {
 			PreparedStatement stm = con.prepareStatement(SET_E_XTAB6);
-			PreparedStatement stmDel = con.prepareStatement(POP_E_CLASS);
 			for (E_Xtab6_SapEntity extab6Entity : i360_INV_MOV_3.getXtab6_SapEntities()) {
 				stm.setString(1, String.valueOf(docInvBean.getDocInvId()));
 				stm.setString(2, extab6Entity.getWerks());
@@ -364,7 +363,6 @@ public class SapOperationDao {
 				stm.setString(19, extab6Entity.getReslo());
 				stm.addBatch();
 			}
-			stmDel.executeUpdate();
 			stm.executeBatch();
 		} catch (SQLException e) {
 			throw e;
@@ -380,6 +378,7 @@ public class SapOperationDao {
 		}
 		try {
 			PreparedStatement stm = con.prepareStatement(SET_E_CLASS);
+			PreparedStatement stmDel = con.prepareStatement(POP_E_CLASS);
 			for (ZIACST_I360_OBJECTDATA_SapEntity ziaEntity : ziacmf_i360_ext_sis_clas.getObjectData()) {
 				stm.setString(1, ziaEntity.getObject());
 				stm.setString(2, ziaEntity.getSmbez());
@@ -387,6 +386,7 @@ public class SapOperationDao {
 				stm.setString(4, ziaEntity.getAtnam());
 				stm.addBatch();
 			}
+			stmDel.executeUpdate();
 			stm.executeBatch();
 		} catch (SQLException e) {
 			throw e;
