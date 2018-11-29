@@ -6,7 +6,7 @@ import java.util.List;
 import com.gmodelo.workservice.SapConciliationWorkService;
 import com.sap.conn.jco.JCoDestination;
 
-public class ClasificationRuntime implements Runnable {
+public class ClasificationRuntime extends Thread {
 
 	JCoDestination runnableDestination;
 	Connection runnableConnection;
