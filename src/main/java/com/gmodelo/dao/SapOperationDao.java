@@ -15,6 +15,8 @@ import com.gmodelo.beans.E_Mard_SapEntity;
 import com.gmodelo.beans.E_Mseg_SapEntity;
 import com.gmodelo.beans.E_Msku_SapEntity;
 import com.gmodelo.beans.E_Xtab6_SapEntity;
+import com.gmodelo.beans.ZIACST_I360_OBJECTDATA_SapEntity;
+import com.gmodelo.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_3;
@@ -36,7 +38,9 @@ public class SapOperationDao {
 			+ " INNER JOIN INV_ZONE_POSITION ZPO WITH(NOLOCK) ON ZON.ZONE_ID = ZPO.ZPO_ZONE_ID "
 			+ " WHERE ROP.RPO_ROUTE_ID = ? AND ZPO.ZPO_INDICATOR_IM_WM = 'WM' GROUP BY ZPO.ZPO_LGTYP, ZPO.ZPO_LGNUM ";
 
-	private static final String GET_MATERIALs_FOR_DOC_INV = "SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR";
+	private static final String GET_MATERIALS_FOR_DOC_INV = "SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR";
+
+	private static final String GET_CLASSSYSTEM = "SELECT MATNR, SMBEZ, ATFLV, ATNAM FROM E_CLASS WITH(NOLOCK)";
 
 	public DocInvBean getDocInvBeanData(DocInvBean docInvBean, Connection con) throws SQLException {
 		DocInvBean outputDoc = new DocInvBean();
@@ -115,7 +119,7 @@ public class SapOperationDao {
 			con = new ConnectionManager().createConnection();
 		}
 		try {
-			PreparedStatement stm = con.prepareStatement(GET_MATERIALs_FOR_DOC_INV);
+			PreparedStatement stm = con.prepareStatement(GET_MATERIALS_FOR_DOC_INV);
 			stm.setString(1, docInvBean.getRoute());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
@@ -127,6 +131,19 @@ public class SapOperationDao {
 			throw e;
 		}
 		return materialList;
+	}
+
+	public ZIACMF_I360_EXT_SIS_CLAS getClassSystem() throws SQLException {
+		ZIACMF_I360_EXT_SIS_CLAS ziacmf_I360_EXT_SIS_CLAS = new ZIACMF_I360_EXT_SIS_CLAS();
+		List<ZIACST_I360_OBJECTDATA_SapEntity> i360_OBJECTDATA_SapEntities = new ArrayList<>();
+		Connection con = new ConnectionManager().createConnection();
+		PreparedStatement stm = con.prepareStatement(GET_CLASSSYSTEM);
+		ResultSet rs = stm.executeQuery();
+		while (rs.next()) {
+			i360_OBJECTDATA_SapEntities.add(new ZIACST_I360_OBJECTDATA_SapEntity(rs));
+		}
+		ziacmf_I360_EXT_SIS_CLAS.setObjectData(i360_OBJECTDATA_SapEntities);
+		return ziacmf_I360_EXT_SIS_CLAS;
 	}
 
 	// Insert Zone
@@ -154,6 +171,8 @@ public class SapOperationDao {
 
 	private static final String SET_E_XTAB6 = "insert into E_XTAB6 (DOC_INV_ID,WERKS,MATNR,MENGE,MEINS,DMBTR,WAERS,NETWR,BWAER,EBELN,EBELP,SOBKZ,PSTYP,BSTMG,BSTME,RESWK,BSAKZ,LGORT,RESLO)"
 			+ "VALUES (? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? )";
+
+	private static final String SET_E_CLASS = "insert into E_CLASS (MATNR, SMBEZ, ATFLV, ATNAM) values (?,?,?,?)";
 
 	public AbstractResultsBean setZIACMF_I360_INV_MOV1(DocInvBean docInvBean, ZIACMF_I360_INV_MOV_1 i360_INV_MOV_1,
 			Connection con) throws SQLException {
@@ -349,4 +368,25 @@ public class SapOperationDao {
 		return result;
 	}
 
+	public AbstractResultsBean setZIACMF_I360_EXT_SIS_CLAS(Connection con,
+			ZIACMF_I360_EXT_SIS_CLAS ziacmf_i360_ext_sis_clas) throws SQLException {
+		AbstractResultsBean result = new AbstractResultsBean();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(SET_E_CLASS);
+			for (ZIACST_I360_OBJECTDATA_SapEntity ziaEntity : ziacmf_i360_ext_sis_clas.getObjectData()) {
+				stm.setString(1, ziaEntity.getObject());
+				stm.setString(2, ziaEntity.getSmbez());
+				stm.setString(3, ziaEntity.getAtflv());
+				stm.setString(4, ziaEntity.getAtnam());
+				stm.addBatch();
+			}
+			stm.executeBatch();
+		} catch (SQLException e) {
+			throw e;
+		}
+		return result;
+	}
 }

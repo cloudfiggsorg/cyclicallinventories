@@ -2,14 +2,17 @@ package com.gmodelo.workservice;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.beans.Response;
 import com.gmodelo.dao.SapConciliationDao;
 import com.gmodelo.dao.SapOperationDao;
+import com.gmodelo.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_3;
@@ -139,7 +142,49 @@ public class SapConciliationWorkService {
 		}
 	}
 
-	public void clasificationSystem() {
+	public Response<ZIACMF_I360_EXT_SIS_CLAS> WS_getClassSystem() {
+		Response<ZIACMF_I360_EXT_SIS_CLAS> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
+		response.setAbstractResult(result);
+		try {
+			ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = operationDao.getClassSystem();
+			if (i360_EXT_SIS_CLAS.getObjectData() != null && !i360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
+				response.setLsObject(i360_EXT_SIS_CLAS);
+			}else {
+				result.setResultId(ReturnValues.IERROR);
+				result.setResultMsgAbs("Sistema de Clasificacion no cargado anteriormente, favor de generar carga");
+			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+
+		}
+		return response;
+	}
+
+	public void clasificationSystem(List<String> materialList, String booleanDelta, String dateDelta) {
+		AbstractResultsBean results = new AbstractResultsBean();
+		Connection con = connectionManager.createConnection();
+		try {
+			JCoDestination destination = connectionManager.getSapConnection(
+					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
+			ZIACMF_I360_EXT_SIS_CLAS ziacmf_I360_EXT_SIS_CLAS = conciliationDao.getClassSystem(con, destination, null,
+					"X", null);
+			if (ziacmf_I360_EXT_SIS_CLAS.getObjectData() != null
+					&& !ziacmf_I360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
+				results = operationDao.setZIACMF_I360_EXT_SIS_CLAS(con, ziacmf_I360_EXT_SIS_CLAS);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - SQLException: ", e);
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - InvCicException: ", e);
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - JCoException: ", e);
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - RuntimeException: ", e);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Exception: ", e);
+		}
 
 	}
 }

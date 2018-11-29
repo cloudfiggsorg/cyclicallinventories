@@ -17,6 +17,8 @@ import com.gmodelo.beans.E_Mard_SapEntity;
 import com.gmodelo.beans.E_Mseg_SapEntity;
 import com.gmodelo.beans.E_Msku_SapEntity;
 import com.gmodelo.beans.E_Xtab6_SapEntity;
+import com.gmodelo.beans.ZIACST_I360_OBJECTDATA_SapEntity;
+import com.gmodelo.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_3;
@@ -30,6 +32,8 @@ public class SapConciliationDao {
 	private static final String ZIACMF_I360_INV_MOV_1 = "ZIACMF_I360_INV_MOV_1";
 	private static final String ZIACMF_I360_INV_MOV_2 = "ZIACMF_I360_INV_MOV_2";
 	private static final String ZIACMF_I360_INV_MOV_3 = "ZIACMF_I360_INV_MOV_3";
+	private static final String ZIACMF_I360_EXT_SIS_CLAS = "ZIACMF_I360_EXT_SIS_CLAS";
+
 	private Logger log = Logger.getLogger(SapConciliationDao.class.getName());
 
 	final SapOperationDao operationDao = new SapOperationDao();
@@ -45,14 +49,10 @@ public class SapConciliationDao {
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_1);
 			jcoFunction.getImportParameterList().setValue("I_BUKRS", requestBean.getBukrs());
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
-			jcoFunction.getImportParameterList().setValue("I_BUDAT_I",
-					new Date(requestBean.getCreatedDate()));
-			jcoFunction.getImportParameterList().setValue("I_BUDAT_F",
-					new Date(requestBean.getModifiedDate()));
-			jcoFunction.getImportParameterList().setValue("I_CPUTM_I",
-					new Date(requestBean.getCreatedDate()));
-			jcoFunction.getImportParameterList().setValue("I_CPUTM_F",
-					new Date(requestBean.getModifiedDate()));
+			jcoFunction.getImportParameterList().setValue("I_BUDAT_I", new Date(requestBean.getCreatedDate()));
+			jcoFunction.getImportParameterList().setValue("I_BUDAT_F", new Date(requestBean.getModifiedDate()));
+			jcoFunction.getImportParameterList().setValue("I_CPUTM_I", new Date(requestBean.getCreatedDate()));
+			jcoFunction.getImportParameterList().setValue("I_CPUTM_F", new Date(requestBean.getModifiedDate()));
 			// Form the Current Structure
 			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
 			for (String lgort : operationDao.getDocInvLgort(requestBean, con)) {
@@ -82,8 +82,8 @@ public class SapConciliationDao {
 						// Not Readable Row or EOF
 					}
 				} while (jcoE_MsegTable.nextRow());
-			}else{
-				log.severe("Regresó con E_ERROR "+eError.toString());
+			} else {
+				log.severe("Regresó con E_ERROR " + eError.toString());
 			}
 			ziacmf_I360_INV_MOV_1.seteError_SapEntities(eError);
 			ziacmf_I360_INV_MOV_1.seteMseg_SapEntities(msegList);
@@ -194,8 +194,6 @@ public class SapConciliationDao {
 		return ziacmf_I360_INV_MOV_2;
 	}
 
-	
-	
 	public ZIACMF_I360_INV_MOV_3 getTransitMovements(DocInvBean docInvBean, Connection con, JCoDestination destination)
 			throws JCoException, SQLException, RuntimeException, InvCicException {
 		ZIACMF_I360_INV_MOV_3 ziacmf_I360_INV_MOV_3 = new ZIACMF_I360_INV_MOV_3();
@@ -248,6 +246,39 @@ public class SapConciliationDao {
 			throw e;
 		}
 		return ziacmf_I360_INV_MOV_3;
+	}
+
+	public ZIACMF_I360_EXT_SIS_CLAS getClassSystem(Connection con, JCoDestination destination,
+			List<String> materialList, String booleanDelta, String dateDelta)
+			throws JCoException, RuntimeException, InvCicException {
+		ZIACMF_I360_EXT_SIS_CLAS ziacmf_I360_EXT_SIS_CLAS = new ZIACMF_I360_EXT_SIS_CLAS();
+		try {
+			List<ZIACST_I360_OBJECTDATA_SapEntity> objectData = new ArrayList<>();
+			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_EXT_SIS_CLAS);
+			if (materialList != null && !materialList.isEmpty()) {
+				JCoTable i_object = jcoFunction.getImportParameterList().getTable("I_OBJECT");
+				for (String materialS : materialList) {
+					i_object.appendRow();
+					i_object.setValue("OBJEK", materialS);
+				}
+			} else {
+				jcoFunction.getImportParameterList().setValue("I_DELTA", booleanDelta);
+				if (dateDelta != null && !dateDelta.isEmpty()) {
+					jcoFunction.getImportParameterList().setValue("I_F_DELTA", dateDelta);
+				}
+			}
+			jcoFunction.execute(destination);
+			JCoTable objectTable = jcoFunction.getExportParameterList().getTable("E_OBJECTDATA");
+			do {
+				objectData.add(new ZIACST_I360_OBJECTDATA_SapEntity(objectTable));
+			} while (objectTable.nextRow());
+			ziacmf_I360_EXT_SIS_CLAS.setObjectData(objectData);
+		} catch (JCoException e) {
+			throw e;
+		} catch (RuntimeException e) {
+			throw e;
+		}
+		return ziacmf_I360_EXT_SIS_CLAS;
 	}
 
 }
