@@ -22,6 +22,10 @@ import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.ConciliationPositionBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.DocInvBeanHeaderSAP;
+import com.gmodelo.beans.E_Lqua_SapEntity;
+import com.gmodelo.beans.E_Mard_SapEntity;
+import com.gmodelo.beans.E_Mseg_SapEntity;
+import com.gmodelo.beans.E_Msku_SapEntity;
 import com.gmodelo.beans.PosDocInvBean;
 import com.gmodelo.beans.ReporteCalidadBean;
 import com.gmodelo.beans.ReporteCalidadConteosBean;
@@ -244,7 +248,7 @@ public class ReportesDao {
 			+ " MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	public Response<ReporteDocInvBeanHeader> getReporteDocInv(DocInvBean docInvBean) {
-
+		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
@@ -426,6 +430,7 @@ public class ReportesDao {
 					positionBean.setMatnrD(rs.getString("MAKTX"));
 					positionBean.setMeins(rs.getString("MEINS"));
 					positionBean.setImwmMarker(rs.getString("IMWM"));
+					
 					if (rs.getString("DIP_THEORIC") != null)
 						positionBean.setTheoric(rs.getString("DIP_THEORIC"));
 					else
@@ -435,10 +440,16 @@ public class ReportesDao {
 						positionBean.setDiff(rs.getString("DIP_DIFF_COUNTED"));
 					else
 						positionBean.setDiff("");
-
+					
 					listBean.add(positionBean);
+					
 				}
-
+								
+				ArrayList<E_Mseg_SapEntity> lsTransit = getMatnrOnTransit(docInvBean.getDocInvId(), con);
+				ArrayList<E_Msku_SapEntity> lsCons = getMatnrOnCons(docInvBean.getDocInvId(), con);
+				ArrayList<E_Mard_SapEntity> lsTheoricIM = getMatnrTheoricIM(docInvBean.getDocInvId(), con);
+				ArrayList<E_Lqua_SapEntity> lsTheoricWM = getMatnrTheoricWM(docInvBean.getDocInvId(), con);
+								
 				List<PosDocInvBean> wmList = new ArrayList<>();
 				List<PosDocInvBean> imList = new ArrayList<>();
 				List<PosDocInvBean> imPList = new ArrayList<>();
@@ -449,12 +460,55 @@ public class ReportesDao {
 
 				if (!listBean.isEmpty()) {
 					for (PosDocInvBean singlePos : listBean) {
+						
+						//Set the transit measure for this matnr
+						for(E_Mseg_SapEntity ojb: lsTransit){
+							
+							if(ojb.getMatnr().contentEquals(singlePos.getMatnr())){
+								
+								singlePos.setTransit(ojb.getMeins());
+								break;
+							}
+						}
+						
+						//Set the consignation measure for this matnr
+						for(E_Msku_SapEntity ojb: lsCons){
+							
+							if(ojb.getMatnr().contentEquals(singlePos.getMatnr())){
+								
+								singlePos.setConsignation(ojb.getKulab());
+								break;
+							}
+						}
+						
 						if (singlePos.getImwmMarker().equals("WM")) {
+							
+							for(E_Lqua_SapEntity ojb: lsTheoricWM){//Set the theoric WM for this matnr
+																
+								if(ojb.getMatnr().contentEquals(singlePos.getMatnr())){
+									
+									singlePos.setTheoric(ojb.getVerme());
+									break;
+								}
+							}	
+							
 							wmList.add(singlePos);
 						} else {
+							
+							for(E_Mard_SapEntity ojb: lsTheoricIM){//Set the theoric IM for this matnr
+																				
+								if(ojb.getMatnr().contentEquals(singlePos.getMatnr())){
+									
+									singlePos.setTheoric(ojb.getRetme());
+									break;
+								}
+							}	
+							
 							imList.add(singlePos);
 						}
+						
 					}
+					
 					if (!imList.isEmpty()) {
 						for (PosDocInvBean singleIM : imList) {
 							String key = singleIM.getLgort() + singleIM.getMatnr();
@@ -495,6 +549,47 @@ public class ReportesDao {
 					} else {
 						bean.setDocInvPosition(listBean);
 					}
+					
+					long theoric = 0;
+					int counted = 0;					
+					long difference = 0;
+					long movs = 0;
+					
+					E_Mseg_SapEntity emse;
+					
+					//Check if all data sums 0 for every matnr
+					for (PosDocInvBean sp : listBean) {
+						
+						theoric = Integer.parseInt(sp.getTheoric());
+						counted = Integer.parseInt(sp.getCounted());
+						difference = Math.abs(counted - theoric);
+						
+						if(difference != 0){
+							
+							emse = new E_Mseg_SapEntity() ; //Object movement type
+							
+							if(sp.getImwmMarker().equalsIgnoreCase("WM")){
+																
+								emse.setLgort(sp.getLgort());
+								emse.setLgnum("");
+								emse.setLgtyp(sp.getLgtyp());
+								emse.setLgpla(sp.getLgpla());
+								emse.setMatnr(sp.getMatnr());
+								
+								movs = getMatnrMovementsWM(emse, con);
+							}else{
+								
+								emse.setLgort(sp.getLgort());
+								emse.setMatnr(sp.getMatnr());
+								
+								movs = getMatnrMovementsIM(emse, con);
+							}
+							
+							theoric = theoric + movs;
+							sp.setTheoric(Long.toString(theoric));
+						}
+						
+					}
 				}
 			} else {
 				bean = null;
@@ -522,7 +617,151 @@ public class ReportesDao {
 		res.setLsObject(bean);
 		return res;
 	}
+	
+	private static final String TRANSIT = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? ";
+	private ArrayList<E_Mseg_SapEntity> getMatnrOnTransit(int docInvId, Connection con) throws SQLException{
+		
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(TRANSIT);
+		stm.setInt(1, docInvId);
+		ResultSet rs = stm.executeQuery();
+		
+		ArrayList<E_Mseg_SapEntity> lsMatnr = new ArrayList<E_Mseg_SapEntity>();
+		E_Mseg_SapEntity emse;
+		
+		while (rs.next()) {
+			emse = new E_Mseg_SapEntity();
+			emse.setMatnr(rs.getString("MATNR"));
+			emse.setMenge(rs.getString("MENGE"));
+			lsMatnr.add(emse);
+		}
+		
+		return lsMatnr;
+	}
+	
+	private static final String CONSIGNATION = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, (CAST(KULAB AS decimal(10,3)) "
+			+ "+ CAST(KUINS AS decimal(10,3)) + CAST(KUEIN AS decimal(10,3))) AS CONS FROM E_MSKU WHERE DOC_INV_ID = ? ";
+	private ArrayList<E_Msku_SapEntity> getMatnrOnCons(int docInvId, Connection con) throws SQLException{
+		
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(CONSIGNATION);
+		stm.setInt(1, docInvId);
+		ResultSet rs = stm.executeQuery();
+		
+		ArrayList<E_Msku_SapEntity> lsMatnr = new ArrayList<E_Msku_SapEntity>();
+		E_Msku_SapEntity emskuEntity;
+		
+		while (rs.next()) {
+			emskuEntity = new E_Msku_SapEntity();
+			emskuEntity.setMatnr(rs.getString("MATNR"));
+			emskuEntity.setKulab(rs.getString("CONS"));//The total here
+			lsMatnr.add(emskuEntity);
+		}
+		
+		return lsMatnr;
+	}
+	
+	private static final String THEORIC_IM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, (CAST(LABST AS decimal(10,3)) "
+			+ "+ CAST(UMLME AS decimal(10,3)) + CAST(INSME AS decimal(10,3)) + CAST(EINME AS decimal(10,3)) "
+			+ "+ CAST(SPEME AS decimal(10,3)) + CAST(RETME AS decimal(10,3))) AS CONS FROM E_MARD WHERE DOC_INV_ID = ?";
+	private ArrayList<E_Mard_SapEntity> getMatnrTheoricIM(int docInvId, Connection con) throws SQLException{
+		
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(THEORIC_IM);
+		stm.setInt(1, docInvId);
+		ResultSet rs = stm.executeQuery();
+		
+		ArrayList<E_Mard_SapEntity> lsMatnr = new ArrayList<E_Mard_SapEntity>();
+		E_Mard_SapEntity ems;
+		
+		while (rs.next()) {
+			ems = new E_Mard_SapEntity();
+			ems.setMatnr(rs.getString("MATNR"));
+			ems.setRetme(rs.getString("CONS"));//The total here
+			lsMatnr.add(ems);
+		}
+		
+		return lsMatnr;
+	}
+	
+	private static final String THEORIC_WM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, CAST(VERME AS decimal(10,3)) AS CONS FROM E_LQUA WHERE DOC_INV_ID = ?";
+	private ArrayList<E_Lqua_SapEntity> getMatnrTheoricWM(int docInvId, Connection con) throws SQLException{
+		
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(THEORIC_WM);
+		stm.setInt(1, docInvId);
+		ResultSet rs = stm.executeQuery();
+		
+		ArrayList<E_Lqua_SapEntity> lsMatnr = new ArrayList<E_Lqua_SapEntity>();
+		E_Lqua_SapEntity els;
+		
+		while (rs.next()) {
+			els = new E_Lqua_SapEntity();
+			els.setMatnr(rs.getString("MATNR"));
+			els.setVerme(rs.getString("CONS"));//The total here
+			lsMatnr.add(els);
+		}
+		
+		return lsMatnr;
+	}
+	
+	private static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3)))"
+		+ "FROM E_MSEG "
+		+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'S') - "	
+		+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
+		+ "FROM E_MSEG "
+		+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE";
+	private long getMatnrMovementsWM(E_Mseg_SapEntity emse, Connection con) throws SQLException{
+		
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(MOVEMENTS_WM);
+		stm.setString(1, emse.getLgort());
+		stm.setString(2, emse.getLgnum());
+		stm.setString(3, emse.getLgtyp());
+		stm.setString(4, emse.getLgpla());
+		stm.setString(5, emse.getMatnr());
+		stm.setString(6, emse.getLgort());
+		stm.setString(7, emse.getLgnum());
+		stm.setString(8, emse.getLgtyp());
+		stm.setString(9, emse.getLgpla());
+		stm.setString(10, emse.getMatnr());
+		
+		ResultSet rs = stm.executeQuery();		
+		long menge = 0;
+		
+		while (rs.next()) {
+			menge = rs.getLong("MENGE");//The total here
+		}
+		
+		return menge;
+	}
+	
+	private static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) "
+		+ "FROM E_MSEG" 
+		+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'S') - " 
+		+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
+		+ "FROM E_MSEG " 
+		+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE ";
 
+	private long getMatnrMovementsIM(E_Mseg_SapEntity emse, Connection con) throws SQLException {
+
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(MOVEMENTS_IM);
+		stm.setString(1, emse.getLgort());
+		stm.setString(2, emse.getMatnr());
+		stm.setString(3, emse.getLgort());
+		stm.setString(4, emse.getMatnr());
+		
+		ResultSet rs = stm.executeQuery();
+		long menge = 0;
+
+		while (rs.next()) {
+			menge = rs.getLong("MENGE");// The total here
+		}
+
+		return menge;
+	}	
+	
 	public Response<List<TareasTiemposLgplaBean>> getReporteTareasTiemposLgpla(TareasTiemposLgplaBean tareasBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();

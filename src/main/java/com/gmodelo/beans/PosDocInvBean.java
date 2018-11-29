@@ -16,7 +16,6 @@ public class PosDocInvBean {
 	String imwmMarker;
 	String consignation;
 	String transit;
-	String accountant;
 	
 	public PosDocInvBean(){
 		super();
@@ -24,7 +23,7 @@ public class PosDocInvBean {
 		
 	public PosDocInvBean(String lgort, String lgortD, String lgtyp, String ltypt, String lgpla, String matnr,
 			String matnrD, String meins, String theoric, String counted, String diff, String imwmMarker,
-			String consignation, String transit, String accountant) {
+			String consignation, String transit) {
 		super();
 		this.lgort = lgort;
 		this.lgortD = lgortD;
@@ -40,7 +39,6 @@ public class PosDocInvBean {
 		this.imwmMarker = imwmMarker;
 		this.consignation = consignation;
 		this.transit = transit;
-		this.accountant = accountant;
 	}
 
 	public String getLgort() {
@@ -127,19 +125,13 @@ public class PosDocInvBean {
 	public void setTransit(String transit) {
 		this.transit = transit;
 	}
-	public String getAccountant() {
-		return accountant;
-	}
-	public void setAccountant(String accountant) {
-		this.accountant = accountant;
-	}
 
 	@Override
 	public String toString() {
 		return "PosDocInvBean [lgort=" + lgort + ", lgortD=" + lgortD + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt
 				+ ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", meins=" + meins + ", theoric="
 				+ theoric + ", counted=" + counted + ", diff=" + diff + ", imwmMarker=" + imwmMarker + ", consignation="
-				+ consignation + ", transit=" + transit + ", accountant=" + accountant + "]";
+				+ consignation + ", transit=" + transit + "]";
 	}
 		
 }
