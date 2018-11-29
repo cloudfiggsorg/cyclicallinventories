@@ -174,6 +174,8 @@ public class SapOperationDao {
 
 	private static final String SET_E_CLASS = "insert into E_CLASS (MATNR, SMBEZ, ATFLV, ATNAM) values (?,?,?,?)";
 
+	private static final String POP_E_CLASS = "DELETE FROM E_CLASS";
+
 	public AbstractResultsBean setZIACMF_I360_INV_MOV1(DocInvBean docInvBean, ZIACMF_I360_INV_MOV_1 i360_INV_MOV_1,
 			Connection con) throws SQLException {
 		AbstractResultsBean result = new AbstractResultsBean();
@@ -339,6 +341,7 @@ public class SapOperationDao {
 		}
 		try {
 			PreparedStatement stm = con.prepareStatement(SET_E_XTAB6);
+			PreparedStatement stmDel = con.prepareStatement(POP_E_CLASS);
 			for (E_Xtab6_SapEntity extab6Entity : i360_INV_MOV_3.getXtab6_SapEntities()) {
 				stm.setString(1, String.valueOf(docInvBean.getDocInvId()));
 				stm.setString(2, extab6Entity.getWerks());
@@ -361,6 +364,7 @@ public class SapOperationDao {
 				stm.setString(19, extab6Entity.getReslo());
 				stm.addBatch();
 			}
+			stmDel.executeUpdate();
 			stm.executeBatch();
 		} catch (SQLException e) {
 			throw e;
