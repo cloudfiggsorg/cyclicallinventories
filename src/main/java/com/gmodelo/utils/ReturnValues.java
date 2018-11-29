@@ -35,7 +35,7 @@ public class ReturnValues {
 	public static final int IUSERNOTVALIDATEDTASK = -108;
 	public static final int IUSERTASKFINISHED = -109;
 	public static final int IUSERTASKNOUPDATED = -110;
-	public static final int ILOCKEDUSER = -111;	
+	public static final int ILOCKEDUSER = -111;
 	public static final String SLOCKEDUSER = "LOCKED USER";
 	public static final int IMISSING_BUKRS_OR_WERKS = -112;
 	public static final String SMISSING_BUKRS_OR_WERKS = "BUKRS OR WERKS NOT FOUND";
@@ -54,13 +54,16 @@ public class ReturnValues {
 	public static final String REP_LDAP_PASSWORD = "LDAP_PASSWORD";// LDAP_PASSWORD
 	public static final String REP_LDAP_SECURITY_AUTH = "LDAP_SECURITY_AUTH";// LDAP_SECURITY_AUTH
 	public static final int ACTIVE_INTERVAL = 3600;// ACTIVE_INTERVAL
-	
+
 	public static final String REP_DESTINATION_VALUE = "INV_CIC_CONCILIATION_DESTINATION";
+
+	public static final String REP_CLASS_SYSTEM = "INV_CIC_CLASSIFICATION_STATUS";
+	public static int REP_CLASS_UPDATED = 0;
 
 	public static final int CONTEO_DIARIO = 1;
 	public static final int CONTEO_MENSUAL = 2;
 	public static final int CONTEO_ESPECIAL = 3;
-	
+
 	public static final String ROLE_MASK = "ROLE_MASK";
 
 }

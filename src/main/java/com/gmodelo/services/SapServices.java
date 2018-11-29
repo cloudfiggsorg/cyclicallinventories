@@ -11,15 +11,15 @@ import com.gmodelo.workservice.SapConciliationWorkService;
 
 @Path("/services/SapServices")
 public class SapServices {
-	
+
 	@SuppressWarnings("rawtypes")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getClassification")
 	public Response getClassification() {
-		
-		return new SapConciliationWorkService().clasificationSystem(null, "X", null);
+
+		return new SapConciliationWorkService()._WS_SAPClassRuntime();
 	}
 
 }

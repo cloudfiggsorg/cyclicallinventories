@@ -16,6 +16,7 @@ public class Utilities {
 
 	public static final String GETLANGBYKEY = "SELECT LANG_VALUE FROM INV_CIC_LNG_VAL WITH(NOLOCK) WHERE LANG_KEY = ? and LANG = ?";
 	public static final String GETREPVALUEBYKEY = "SELECT STORED_VALUE, STORED_ENCODED from  INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY  = ?";
+	public static final String UPDATEVALUEBYKEY = "UPDATE INV_CIC_REPOSITORY SET STORED_VALUE = ? WHERE STORED_KEY = ?";
 
 	public AbstractResultsBean GetLangByKey(Connection con, String key, String lang) throws InvCicException {
 		AbstractResultsBean result = new AbstractResultsBean();
@@ -50,6 +51,21 @@ public class Utilities {
 			} else {
 				throw new InvCicException("GetValueRepByKey Not Found!");
 			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+		}
+		return result;
+	}
+
+	// INV_CIC_CLASSIFICATION_STATUS
+	public AbstractResultsBean UpdateValueRepByKey(Connection con, String key, String value) throws InvCicException {
+		AbstractResultsBean result = new AbstractResultsBean();
+		try {
+			PreparedStatement stm = con.prepareStatement(UPDATEVALUEBYKEY);
+			stm.setString(1, value);
+			stm.setString(2, key);
+			stm.executeUpdate();
 		} catch (SQLException e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());

@@ -12,6 +12,7 @@ import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.SapConciliationDao;
 import com.gmodelo.dao.SapOperationDao;
+import com.gmodelo.runtime.ClasificationRuntime;
 import com.gmodelo.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_2;
@@ -150,45 +151,96 @@ public class SapConciliationWorkService {
 			ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = operationDao.getClassSystem();
 			if (i360_EXT_SIS_CLAS.getObjectData() != null && !i360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
 				response.setLsObject(i360_EXT_SIS_CLAS);
-			}else {
+			} else {
 				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("Sistema de Clasificacion no cargado anteriormente, favor de generar carga");
+				log.log(Level.SEVERE,
+						"[SapConciliationWorkService - WS_getClassSystem] - Sistema de Clasificacion no cargado anteriormente, favor de generar carga ");
 			}
 		} catch (SQLException e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
+			log.log(Level.SEVERE, "[SapConciliationWorkService- WS_getClassSystem] - SQLException: ", e);
 
 		}
 		return response;
 	}
 
-	public Response clasificationSystem(List<String> materialList, String booleanDelta, String dateDelta) {
-		Response resp = new Response();
-		AbstractResultsBean results = new AbstractResultsBean();
+	public Response _WS_SAPClassRuntime() {
+
+		Response response = new Response<>();
 		Connection con = connectionManager.createConnection();
+		AbstractResultsBean result = new AbstractResultsBean();
 		try {
 			JCoDestination destination = connectionManager.getSapConnection(
 					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
-			ZIACMF_I360_EXT_SIS_CLAS ziacmf_I360_EXT_SIS_CLAS = conciliationDao.getClassSystem(con, destination, null,
-					"X", null);
+			if (ReturnValues.REP_CLASS_UPDATED == 0) {
+				new ClasificationRuntime(destination, con, null, null, "X").run();
+			} else {
+				result.setResultId(ReturnValues.IERROR);
+				result.setResultMsgAbs("Ejecución en progreso");
+			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - SQLException: ", e);
+		} catch (JCoException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - JCoException: ", e);
+		} catch (InvCicException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - InvCicException: ", e);
+		} catch (RuntimeException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - RuntimeException: ", e);
+		} catch (Exception e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+
+			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - Exception: ", e);
+		}
+		return response;
+	}
+
+	public void clasificationSystem(JCoDestination destination, Connection con, List<String> materialList,
+			String booleanDelta, String dateDelta) {
+
+		AbstractResultsBean results = new AbstractResultsBean();
+		ReturnValues.REP_CLASS_UPDATED = 1;
+		try {
+			ZIACMF_I360_EXT_SIS_CLAS ziacmf_I360_EXT_SIS_CLAS = conciliationDao.getClassSystem(con, destination,
+					materialList, booleanDelta, dateDelta);
 			if (ziacmf_I360_EXT_SIS_CLAS.getObjectData() != null
 					&& !ziacmf_I360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
 				results = operationDao.setZIACMF_I360_EXT_SIS_CLAS(con, ziacmf_I360_EXT_SIS_CLAS);
+				if (results.getResultId() == ReturnValues.ISUCCESS) {
+					ReturnValues.REP_CLASS_UPDATED = 0;
+				}
 			}
-			resp.setAbstractResult(results);
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - SQLException: ", e);
+			ReturnValues.REP_CLASS_UPDATED = 0;
 		} catch (InvCicException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - InvCicException: ", e);
+			ReturnValues.REP_CLASS_UPDATED = 0;
 		} catch (JCoException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - JCoException: ", e);
+			ReturnValues.REP_CLASS_UPDATED = 0;
 		} catch (RuntimeException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - RuntimeException: ", e);
+			ReturnValues.REP_CLASS_UPDATED = 0;
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Exception: ", e);
+			ReturnValues.REP_CLASS_UPDATED = 0;
+		}finally {
+			try {
+				con.close();
+			}catch(Exception e) {
+				log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Finally Exception: ", e);	
+			}
 		}
-		
-		return resp;
 
 	}
 }
