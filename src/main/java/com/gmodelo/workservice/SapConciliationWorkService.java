@@ -177,9 +177,6 @@ public class SapConciliationWorkService {
 					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
 			if (ReturnValues.REP_CLASS_UPDATED == 0) {
 
-				new ClasificationRuntime(destination, con, null, null, "X").run();
-				
-
 				new ClasificationRuntime(destination, con, null, null, "X").start();
 
 			} else {
