@@ -246,6 +246,9 @@ public class ReportesDao {
 
 	private static final String INV_VW_REP_POSITIONS = "SELECT DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, DIP_MATNR, "
 			+ " MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+	
+	private static final String INV_VW_REP_POS_CONS_SAP = "SELECT DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, DIP_MATNR, "
+			+ " MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	public Response<ReporteDocInvBeanHeader> getReporteDocInv(DocInvBean docInvBean) {
 		
@@ -551,7 +554,7 @@ public class ReportesDao {
 					}
 					
 					long theoric = 0;
-					int counted = 0;					
+					long counted = 0;					
 					long difference = 0;
 					long movs = 0;
 					
@@ -560,8 +563,16 @@ public class ReportesDao {
 					//Check if all data sums 0 for every matnr
 					for (PosDocInvBean sp : listBean) {
 						
-						theoric = Integer.parseInt(sp.getTheoric());
-						counted = Integer.parseInt(sp.getCounted());
+						theoric = 0;
+						counted = 0;
+						
+						try {
+							theoric = Integer.parseInt(sp.getTheoric());
+							counted = Integer.parseInt(sp.getCounted());
+						} catch (Exception e) {
+							log.log(Level.SEVERE, "No data found for theoric or counted...", e);
+						}
+						
 						difference = Math.abs(counted - theoric);
 						
 						if(difference != 0){
@@ -663,7 +674,7 @@ public class ReportesDao {
 	
 	private static final String THEORIC_IM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, (CAST(LABST AS decimal(10,3)) "
 			+ "+ CAST(UMLME AS decimal(10,3)) + CAST(INSME AS decimal(10,3)) + CAST(EINME AS decimal(10,3)) "
-			+ "+ CAST(SPEME AS decimal(10,3)) + CAST(RETME AS decimal(10,3))) AS CONS FROM E_MARD WHERE DOC_INV_ID = ?";
+			+ "+ CAST(SPEME AS decimal(10,3)) + CAST(RETME AS decimal(10,3))) AS CONS FROM E_MARD_F WHERE DOC_INV_ID = ?";
 	private ArrayList<E_Mard_SapEntity> getMatnrTheoricIM(int docInvId, Connection con) throws SQLException{
 		
 		PreparedStatement stm = null;
@@ -684,7 +695,8 @@ public class ReportesDao {
 		return lsMatnr;
 	}
 	
-	private static final String THEORIC_WM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, CAST(VERME AS decimal(10,3)) AS CONS FROM E_LQUA WHERE DOC_INV_ID = ?";
+	private static final String THEORIC_WM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, "
+			+ "CAST(VERME AS decimal(10,3)) AS CONS FROM E_LQUA_F WHERE DOC_INV_ID = ?";
 	private ArrayList<E_Lqua_SapEntity> getMatnrTheoricWM(int docInvId, Connection con) throws SQLException{
 		
 		PreparedStatement stm = null;
