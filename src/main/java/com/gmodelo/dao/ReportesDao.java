@@ -247,8 +247,12 @@ public class ReportesDao {
 	private static final String INV_VW_REP_POSITIONS = "SELECT DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, DIP_MATNR, "
 			+ " MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 	
-	private static final String INV_VW_REP_POS_CONS_SAP = "SELECT DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, DIP_MATNR, "
-			+ " MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+	private static final String INV_VW_REP_POS_CONS_SAP = "SELECT A.DIP_LGORT, A.LGOBE, A.LGTYP, C.LGNUM, A.LTYPT, A.DIP_LGPLA, A.DIP_MATNR, "
+			+ "A.MAKTX, A.MEINS, A.DIP_THEORIC, A.DIP_COUNTED, A.DIP_DIFF_COUNTED, A.IMWM " 
+			+ "FROM INV_VW_DOC_INV_REP_POSITIONS AS A WITH(NOLOCK) " 
+			+ "LEFT JOIN INV_VW_LGPLA_IM AS B ON (A.LGTYP = B.LGTYP_ID AND A.DIP_LGPLA = B.LGPLA_ID) "
+			+ "LEFT JOIN INV_VW_LGTYPE_IM AS C WITH(NOLOCK) ON(A.DIP_LGORT = C.LGORT AND A.LGTYP = C.LGTYP) "
+			+ "WHERE DOC_INV_ID = ? AND (A.LGTYP IS NULL OR C.BUKRS = ? AND C.WERKS = ?)";
 
 	public Response<ReporteDocInvBeanHeader> getReporteDocInv(DocInvBean docInvBean) {
 		
@@ -280,7 +284,7 @@ public class ReportesDao {
 				log.info(INV_VW_REP_POSITIONS);
 				log.info("[getReporteDocInvDao] Preparing sentence...");
 				stm = con.prepareStatement(INV_VW_REP_POSITIONS);
-				stm.setInt(1, docInvBean.getDocInvId());
+				stm.setInt(1, docInvBean.getDocInvId());				
 				rs = stm.executeQuery();
 				while (rs.next()) {
 					ReporteDocInvBean positionBean = new ReporteDocInvBean();
@@ -288,6 +292,7 @@ public class ReportesDao {
 					positionBean.setLgortD(rs.getString("LGOBE"));
 					positionBean.setLgtyp(rs.getString("LGTYP"));
 					positionBean.setLtypt(rs.getString("LTYPT"));
+					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
 					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
 					positionBean.setMatnr(rs.getString("DIP_MATNR"));
 					positionBean.setMatnrD(rs.getString("MAKTX"));
@@ -417,10 +422,12 @@ public class ReportesDao {
 				bean.setType(rs.getString("DIH_TYPE"));
 				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
-				log.info(INV_VW_REP_POSITIONS);
+				log.info(INV_VW_REP_POS_CONS_SAP);
 				log.info("[getReporteDocInvDao] Preparing sentence...");
-				stm = con.prepareStatement(INV_VW_REP_POSITIONS);
+				stm = con.prepareStatement(INV_VW_REP_POS_CONS_SAP);
 				stm.setInt(1, docInvBean.getDocInvId());
+				stm.setString(2, docInvBean.getBukrs());
+				stm.setString(3, docInvBean.getWerks());
 				rs = stm.executeQuery();
 				while (rs.next()) {
 					PosDocInvBean positionBean = new PosDocInvBean();
@@ -428,6 +435,7 @@ public class ReportesDao {
 					positionBean.setLgortD(rs.getString("LGOBE"));
 					positionBean.setLgtyp(rs.getString("LGTYP"));
 					positionBean.setLtypt(rs.getString("LTYPT"));
+					positionBean.setLgNum(rs.getString("LGNUM"));
 					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
 					positionBean.setMatnr(rs.getString("DIP_MATNR"));
 					positionBean.setMatnrD(rs.getString("MAKTX"));
@@ -582,7 +590,7 @@ public class ReportesDao {
 							if(sp.getImwmMarker().equalsIgnoreCase("WM")){
 																
 								emse.setLgort(sp.getLgort());
-								emse.setLgnum("");
+								emse.setLgnum(sp.getLgNum());
 								emse.setLgtyp(sp.getLgtyp());
 								emse.setLgpla(sp.getLgpla());
 								emse.setMatnr(sp.getMatnr());

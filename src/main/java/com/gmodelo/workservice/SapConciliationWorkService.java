@@ -162,7 +162,8 @@ public class SapConciliationWorkService {
 		return response;
 	}
 
-	public void clasificationSystem(List<String> materialList, String booleanDelta, String dateDelta) {
+	public Response clasificationSystem(List<String> materialList, String booleanDelta, String dateDelta) {
+		Response resp = new Response();
 		AbstractResultsBean results = new AbstractResultsBean();
 		Connection con = connectionManager.createConnection();
 		try {
@@ -174,6 +175,7 @@ public class SapConciliationWorkService {
 					&& !ziacmf_I360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
 				results = operationDao.setZIACMF_I360_EXT_SIS_CLAS(con, ziacmf_I360_EXT_SIS_CLAS);
 			}
+			resp.setAbstractResult(results);
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - SQLException: ", e);
 		} catch (InvCicException e) {
@@ -185,6 +187,8 @@ public class SapConciliationWorkService {
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Exception: ", e);
 		}
+		
+		return resp;
 
 	}
 }
