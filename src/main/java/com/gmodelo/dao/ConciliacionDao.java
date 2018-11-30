@@ -33,6 +33,33 @@ public class ConciliacionDao {
 			+ " INNER JOIN INV_ROUTE inr WITH(NOLOCK) ON idih.DIH_ROUTE_ID = inr.ROUTE_ID WHERE idih.DIH_STATUS = '1'"
 			+ " AND idih.DOC_FATHER_INV_ID IS NULL AND idih.DIH_BUKRS LIKE  ? AND idih.DIH_WERKS LIKE ?";
 
+	private static final String GET_DOC_INV_VALUE = "SELECT DOC_INV_ID, DIH_ROUTE_ID, DIH_BUKRS, DIH_TYPE, DIH_CREATED_BY, DIH_CREATED_DATE, DIH_MODIFIED_BY, DIH_MODIFIED_DATE, "
+			+ " DIH_JUSTIFICATION, DIH_STATUS, DIH_WERKS, DOC_FATHER_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+
+	public void fillCurrectDocInv(DocInvBean docInv) throws SQLException, Exception {
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_DOC_INV_VALUE);
+			stm.setInt(1, docInv.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) {
+				docInv.setBukrs(rs.getString("DIH_BUKRS"));
+				docInv.setWerks(rs.getString("DIH_WERKS"));
+			}
+		} catch (SQLException e) {
+			throw e;
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "Ocurrio un problema al cerrar la conexión", e);
+			}
+		}
+	}
+
 	public Response<List<ConciliationsIDsBean>> getConciliationIDs(String bukrs, String werks) {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -297,7 +324,8 @@ public class ConciliacionDao {
 						notesPositions.get(key).setProdDate(
 								notesPositions.get(key).getProdDate() + rs.getString("COU_PROD_DATE") == null ? ""
 										: !rs.getString("COU_PROD_DATE").isEmpty()
-												? "|," + rs.getString("COU_PROD_DATE") : "");
+												? "|," + rs.getString("COU_PROD_DATE")
+												: "");
 					} else {
 						notesPositions.get(key).setProdDate(
 								notesPositions.get(key).getProdDate() + rs.getString("COU_PROD_DATE") == null ? ""
@@ -393,8 +421,8 @@ public class ConciliacionDao {
 						}
 					}
 					if (notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")) != null) {
-						bean.setNote(
-								notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")).getNote());
+						bean.setNote(notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))
+								.getNote());
 						bean.setProdDate(notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))
 								.getProdDate());
 					}
@@ -711,13 +739,11 @@ public class ConciliacionDao {
 				+ docInv.getWerks() + "%' " + "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
 
 		/*
-		 * String INV_VW_AVAILABLE_GROUPS =
-		 * "SELECT GRPS.GROUP_ID, GRPS.GRP_DESC " +
+		 * String INV_VW_AVAILABLE_GROUPS = "SELECT GRPS.GROUP_ID, GRPS.GRP_DESC " +
 		 * "FROM INV_ROUTE_GROUPS AS IRG " +
 		 * "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IRG.RGR_ROUTE_ID = IDIH.DIH_ROUTE_ID) "
-		 * +
-		 * "INNER JOIN INV_GROUPS AS GRPS ON(GRPS.GROUP_ID = IRG.RGR_GROUP_ID) "
-		 * + "AND RGR_GROUP_ID NOT IN(SELECT TAS_GROUP_ID " + "FROM INV_TASK " +
+		 * + "INNER JOIN INV_GROUPS AS GRPS ON(GRPS.GROUP_ID = IRG.RGR_GROUP_ID) " +
+		 * "AND RGR_GROUP_ID NOT IN(SELECT TAS_GROUP_ID " + "FROM INV_TASK " +
 		 * "WHERE TAS_DOC_INV_ID = ?) " + "WHERE IDIH.DOC_INV_ID = ? " +
 		 * "ORDER BY IRG.RGR_COUNT_NUM ASC";
 		 */
@@ -914,8 +940,7 @@ public class ConciliacionDao {
 	 * ConciliacionDao(); ConciliacionBean docInvBean = new ConciliacionBean();
 	 * 
 	 * docInvBean.setDocInvId(22); String searchFilter = "";
-	 * List<ConciliationPositionBean> x =
-	 * dao.getConciliationPositions(docInvBean);
+	 * List<ConciliationPositionBean> x = dao.getConciliationPositions(docInvBean);
 	 * //Response<List<ConciliacionBean>> x =
 	 * dao.getConciliacion(docInvBean,searchFilter ); for(int i=0; i < x.size();
 	 * i++){ System.out.println(x.get(i).toString()); } }
