@@ -149,7 +149,7 @@ public class LoginWorkService {
 					
 					if(!lsRolesAux.contains("INV_CIC_ADMIN")){
 					
-						if (!lsRolesAux.contains("EXECUTE_INV_CIC_APP") && loginBean.getRelationUUID().length() > 0) {
+						if (!lsRolesAux.contains("EXECUTE_INV_CIC_APP") && loginBean.getRelationUUID() != null && loginBean.getRelationUUID().length() > 0) {
 							abstractResult.setResultId(ReturnValues.INOTROLE);
 							abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
 							resp.setAbstractResult(abstractResult);
