@@ -131,7 +131,7 @@ public class LgplaValuesBean {
 
 	@Override
 	public String toString() {
-		return "LgplaValuesBean [matnr=" + matnr + ", vhilm=" + vhilm + ", matkx=" + matkx + ", sec=" + sec
+		return "LgplaValuesBean [matnr=" + matnr + ", vhilm=" + vhilm + ", maktx=" + matkx + ", sec=" + sec
 				+ ", tarimas=" + tarimas + ", camas=" + camas + ", um=" + um + ", totalConverted=" + totalConverted
 				+ ", materialNotes=" + materialNotes + ", prodDate=" + prodDate + ", locked=" + locked + ", dateStart="
 				+ dateStart + ", dateEnd=" + dateEnd + "]";

@@ -6,7 +6,7 @@ import java.util.List;
 import com.gmodelo.workservice.SapConciliationWorkService;
 import com.sap.conn.jco.JCoDestination;
 
-public class ClasificationRuntime extends Thread {
+public class _Runtime_Classification extends Thread {
 
 	JCoDestination runnableDestination;
 	Connection runnableConnection;
@@ -14,7 +14,7 @@ public class ClasificationRuntime extends Thread {
 	String deltaString;
 	String booleanString;
 
-	public ClasificationRuntime(JCoDestination runnableDestination, Connection runnableConnection,
+	public _Runtime_Classification(JCoDestination runnableDestination, Connection runnableConnection,
 			List<String> materialList, String deltaString, String booleanString) {
 		super();
 		this.runnableDestination = runnableDestination;

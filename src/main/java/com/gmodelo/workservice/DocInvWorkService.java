@@ -41,7 +41,7 @@ public class DocInvWorkService {
 			if (!positionRoute.isEmpty()) {
 				res = new DocInvDao().addDocInv(docInvBean, user.getEntity().getIdentyId());
 				try {
-					new SapConciliationWorkService().inventorySnapShot(docInvBean);
+					new SapConciliationWorkService().WS_RuntimeInventorySnapShot(docInvBean);
 				} catch (Exception e) {
 					log.log(Level.SEVERE,
 							"[addDocInvWS] Error al generar la llamada al snapshot SapConciliationWorkService");
@@ -173,12 +173,7 @@ public class DocInvWorkService {
 							Response<DocInvBean> responseDao = new DocInvDao().addDocInv(docInv,
 									user.getEntity().getIdentyId());
 							result = responseDao.getAbstractResult();
-							log.info("[conciDocInv] conciDocInv getFinalSnapshot");
-							new SapConciliationWorkService().inventorySnapShot_F(docInv, con);
-							log.info("[conciDocInv] conciDocInv getInventoryMovements");
-							new SapConciliationWorkService().inventoryMovements(docInv, con);
-							log.info("[conciDocInv] conciDocInv getInventoryTransit");
-							new SapConciliationWorkService().inventoryTransit(docInv, con);
+							new SapConciliationWorkService().WS_RuntimeInventoryFinalSnapShot(docInv);
 						}
 					} else {
 						result.setResultId(ReturnValues.IEMPTY);
