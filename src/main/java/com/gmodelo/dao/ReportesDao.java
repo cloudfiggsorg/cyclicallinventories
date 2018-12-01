@@ -569,10 +569,10 @@ public class ReportesDao {
 						bean.setDocInvPosition(listBean);
 					}
 					
-					long theoric = 0;
-					long counted = 0;					
-					long difference = 0;
-					long movs = 0;
+					double theoric = 0;
+					double counted = 0;					
+					double difference = 0;
+					double movs = 0;
 					
 					E_Mseg_SapEntity emse;
 					
@@ -583,8 +583,8 @@ public class ReportesDao {
 						counted = 0;
 						
 						try {
-							theoric = Integer.parseInt(sp.getTheoric());
-							counted = Integer.parseInt(sp.getCounted());
+							theoric = Double.parseDouble(sp.getTheoric());
+							counted = Double.parseDouble(sp.getCounted());
 						} catch (Exception e) {
 							log.log(Level.SEVERE, "No data found for theoric or counted...", e);
 						}
@@ -613,7 +613,7 @@ public class ReportesDao {
 							}
 							
 							theoric = theoric + movs;
-							sp.setTheoric(Long.toString(theoric));
+							sp.setTheoric(Double.toString(theoric));
 						}
 						
 					}

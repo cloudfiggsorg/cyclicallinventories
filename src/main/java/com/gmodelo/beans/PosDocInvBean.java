@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class PosDocInvBean {
 		
+	int posId;
 	int doncInvId;
 	String lgort;
 	String lgortD;
@@ -25,13 +26,15 @@ public class PosDocInvBean {
 	
 	public PosDocInvBean(){
 		super();
+		this.lsJustification = new ArrayList<Justification>();
 	}
-	
-	public PosDocInvBean(int doncInvId, String lgort, String lgortD, String lgtyp, String ltypt, String lgNum,
-			String lgpla, String matnr, String matnrD, String meins, String theoric, String counted, String diff,
-			String imwmMarker, String consignation, String transit, String accountant,
+
+	public PosDocInvBean(int posId, int doncInvId, String lgort, String lgortD, String lgtyp, String ltypt,
+			String lgNum, String lgpla, String matnr, String matnrD, String meins, String theoric, String counted,
+			String diff, String imwmMarker, String consignation, String transit, String accountant,
 			ArrayList<Justification> lsJustification) {
 		super();
+		this.posId = posId;
 		this.doncInvId = doncInvId;
 		this.lgort = lgort;
 		this.lgortD = lgortD;
@@ -52,7 +55,13 @@ public class PosDocInvBean {
 		this.lsJustification = lsJustification;
 	}
 
+	public int getPosId() {
+		return posId;
+	}
 
+	public void setPosId(int posId) {
+		this.posId = posId;
+	}
 
 	public int getDoncInvId() {
 		return doncInvId;
@@ -200,11 +209,11 @@ public class PosDocInvBean {
 
 	@Override
 	public String toString() {
-		return "PosDocInvBean [doncInvId=" + doncInvId + ", lgort=" + lgort + ", lgortD=" + lgortD + ", lgtyp=" + lgtyp
-				+ ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD="
-				+ matnrD + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted + ", diff=" + diff
-				+ ", imwmMarker=" + imwmMarker + ", consignation=" + consignation + ", transit=" + transit
-				+ ", accountant=" + accountant + ", lsJustification=" + lsJustification + "]";
+		return "PosDocInvBean [posId=" + posId + ", doncInvId=" + doncInvId + ", lgort=" + lgort + ", lgortD=" + lgortD
+				+ ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla=" + lgpla + ", matnr=" + matnr
+				+ ", matnrD=" + matnrD + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted
+				+ ", diff=" + diff + ", imwmMarker=" + imwmMarker + ", consignation=" + consignation + ", transit="
+				+ transit + ", accountant=" + accountant + ", lsJustification=" + lsJustification + "]";
 	}
-		
+	
 }

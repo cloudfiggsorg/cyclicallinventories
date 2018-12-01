@@ -49,35 +49,35 @@ public class SapConciliationDao {
 	private Logger log = Logger.getLogger(SapConciliationDao.class.getName());
 
 	private final SapOperationDao operationDao = new SapOperationDao();
-	
+
 	@SuppressWarnings("rawtypes")
-	public Response saveConciliationSAP(ArrayList<PosDocInvBean> lsPositionBean, String uderId){
-		
+	public Response saveConciliationSAP(ArrayList<PosDocInvBean> lsPositionBean, String uderId) {
+
 		Response resp = new Response();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		
+
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		CallableStatement csBatch = null;
-				
+
 		String CURRENTSP = "";
 		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY (?, ?, ?, ?)";
 		int rid = 0;
-		
+
 		try {
 			con.setAutoCommit(false);
-			
+
 			cs = con.prepareCall(INV_SP_ADD_CON_POS_SAP);
 			csBatch = con.prepareCall(INV_SP_ADD_CON_POS_SAP);
-			
-			for(PosDocInvBean dipb: lsPositionBean){
-				
+
+			for (PosDocInvBean dipb : lsPositionBean) {
+
 				CURRENTSP = INV_SP_ADD_CON_POS_SAP;
-				
-				if(!dipb.getLsJustification().isEmpty()){
-					
+
+				if (!dipb.getLsJustification().isEmpty()) {
+
 					cs.setInt(1, dipb.getDoncInvId());
 					cs.setString(2, dipb.getLgort());
 					cs.setString(3, dipb.getImwmMarker());
@@ -93,31 +93,31 @@ public class SapConciliationDao {
 					cs.setString(13, dipb.getAccountant());
 					cs.setString(14, uderId);
 					cs.registerOutParameter(15, Types.BIGINT);
-					
+
 					cs.execute();
-					
+
 					log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
-					
+
 					rid = cs.getInt(15);
-					
+
 					CURRENTSP = INV_SP_ADD_JUSTIFY;
-					
-					//Insert the justification per position
-					for(Justification js: dipb.getLsJustification()){
-												
+
+					// Insert the justification per position
+					for (Justification js : dipb.getLsJustification()) {
+
 						cs = null;
-						cs = con.prepareCall(INV_SP_ADD_JUSTIFY);						
+						cs = con.prepareCall(INV_SP_ADD_JUSTIFY);
 						cs.setInt(1, rid);
 						cs.setString(2, js.getQuantity());
 						cs.setString(3, js.getJustify());
 						cs.setString(4, js.getFileName());
 						cs.execute();
-						
+
 						log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 					}
-					
-				}else{
-					
+
+				} else {
+
 					csBatch.setInt(1, dipb.getDoncInvId());
 					csBatch.setString(2, dipb.getLgort());
 					csBatch.setString(3, dipb.getImwmMarker());
@@ -132,20 +132,20 @@ public class SapConciliationDao {
 					csBatch.setString(12, dipb.getTransit());
 					csBatch.setString(13, dipb.getAccountant());
 					csBatch.setString(14, uderId);
-					csBatch.addBatch();									
-				}								
-			}	
-			
+					csBatch.addBatch();
+				}
+			}
+
 			log.info("[saveConciliationSAP] Sentence successfully executed.");
 			csBatch.executeBatch();
-			
+
 			con.commit();
 			// Free resources
 			cs.close();
-			
+
 			log.info("[saveConciliationSAP] Executing query...");
 
-		} catch (SQLException e){
+		} catch (SQLException e) {
 			try {
 				log.log(Level.WARNING, "[saveConciliationSAP] Execute rollback");
 				con.rollback();
@@ -153,8 +153,8 @@ public class SapConciliationDao {
 				log.log(Level.SEVERE, "[saveConciliationSAP] Not rollback .", e);
 			}
 
-			log.log(Level.SEVERE, "[saveConciliationSAP] Some error occurred while was trying to execute the S.P.: " + CURRENTSP,
-					e);
+			log.log(Level.SEVERE,
+					"[saveConciliationSAP] Some error occurred while was trying to execute the S.P.: " + CURRENTSP, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			resp.setAbstractResult(abstractResult);
 			return resp;
@@ -162,50 +162,39 @@ public class SapConciliationDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[saveConciliationSAP] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE,
+						"[saveConciliationSAP] Some error occurred while was trying to close the connection.", e);
 			}
-		}	
-		
-		resp.setAbstractResult(abstractResult);		
+		}
+
+		resp.setAbstractResult(abstractResult);
 		return resp;
-		
+
 	}
-	
+
 	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
 			+ "DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE FROM INV_VW_DOC_INV_REP_HEADER WHERE  DOC_INV_ID = ?";
-	
-	private static final String INV_VW_REP_POS_CONS_SAP = "SELECT A.DIP_LGORT, A.LGOBE, A.LGTYP, C.LGNUM, A.LTYPT, A.DIP_LGPLA, A.DIP_MATNR, "
-			+ "A.MAKTX, A.MEINS, A.DIP_THEORIC, A.DIP_COUNTED, A.DIP_DIFF_COUNTED, A.IMWM " 
-			+ "FROM INV_VW_DOC_INV_REP_POSITIONS AS A WITH(NOLOCK) " 
-			+ "LEFT JOIN INV_VW_LGPLA_IM AS B ON (A.LGTYP = B.LGTYP_ID AND A.DIP_LGPLA = B.LGPLA_ID) "
-			+ "LEFT JOIN INV_VW_LGTYPE_IM AS C WITH(NOLOCK) ON(A.DIP_LGORT = C.LGORT AND A.LGTYP = C.LGTYP) "
-			+ "WHERE DOC_INV_ID = ? AND (A.LTYPT IS NULL OR (C.BUKRS = ? AND C.WERKS = ?))"
-			+ "GROUP BY A.DIP_LGORT, A.LGOBE, A.LGTYP, C.LGNUM, A.LTYPT, A.DIP_LGPLA, A.DIP_MATNR, "
-			+ "A.MAKTX, A.MEINS, A.DIP_THEORIC, A.DIP_COUNTED, A.DIP_DIFF_COUNTED, A.IMWM";
-	
-	public Response<DocInvBeanHeaderSAP> getClosedConsSap(DocInvBean docInvBean){
-		
+	public Response<DocInvBeanHeaderSAP> getClosedConsSap(DocInvBean docInvBean) {
+
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		DocInvBeanHeaderSAP bean = new DocInvBeanHeaderSAP();
 		Response<DocInvBeanHeaderSAP> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<PosDocInvBean> listBean = new ArrayList<PosDocInvBean>();
-		log.info(INV_VW_REP_HEADER);		
+		log.info(INV_VW_REP_HEADER);
 		log.info("[getReporteDocInvDao] Preparing sentence...");
 		String currentSP = "";
-		
+
 		try {
-			currentSP = INV_VW_REP_HEADER;
 			stm = con.prepareStatement(INV_VW_REP_HEADER);
 			stm.setInt(1, docInvBean.getDocInvId());
 			log.info("[getReporteDocInvDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss");
-			
+
 			if (rs.next()) {
-				
+
 				bean.setDocInvId(docInvBean.getDocInvId());
 				bean.setBukrs(rs.getString("DIH_BUKRS"));
 				bean.setBukrsD(rs.getString("BUTXT"));
@@ -215,112 +204,123 @@ public class SapConciliationDao {
 				bean.setType(rs.getString("DIH_TYPE"));
 				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
+				bean.setDocInvPosition(getConciliationSAPPositions(bean.getDocInvId(), con));
 				
-				currentSP = INV_VW_REP_POS_CONS_SAP;
-				
-				log.info(INV_VW_REP_POS_CONS_SAP);
-				log.info("[getReporteDocInvDao] Preparing sentence...");
-				stm = con.prepareStatement(INV_VW_REP_POS_CONS_SAP);
-				stm.setInt(1, docInvBean.getDocInvId());
-				
-				rs = stm.executeQuery();
-				while (rs.next()) {
-					
-					PosDocInvBean positionBean = new PosDocInvBean();
-					positionBean.setLgort(rs.getString("DIP_LGORT"));
-					positionBean.setLgortD(rs.getString("LGOBE"));
-					positionBean.setLgtyp(rs.getString("LGTYP"));
-					
-					try {
-						positionBean.setLtypt(rs.getString("LTYPT"));
-					} catch (Exception e) {
-						positionBean.setLtypt("");
-					}
-										
-					positionBean.setLgNum(rs.getString("LGNUM"));
-					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
-					positionBean.setMatnr(rs.getString("DIP_MATNR"));
-					positionBean.setMatnrD(rs.getString("MAKTX"));
-					positionBean.setMeins(rs.getString("MEINS"));
-					positionBean.setImwmMarker(rs.getString("IMWM"));
-					
-					try {
-						positionBean.setTheoric(rs.getString("DIP_THEORIC"));
-					} catch (Exception e) {
-						positionBean.setTheoric("");
-					}
-					
-					try {
-						positionBean.setDiff(rs.getString("DIP_DIFF_COUNTED"));
-					} catch (Exception e) {
-						positionBean.setDiff("");
-					}
-					
-					listBean.add(positionBean);
-					
-				}
 			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getClosedConsSap] Some error occurred while was trying to execute the query: " + currentSP, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+		} finally {
+			try {
+				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[getClosedConsSap] Some error occurred while was trying to execute the query: " + currentSP,
-						e);
-				abstractResult.setResultId(ReturnValues.IEXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-			} finally {
-				try {
-					con.close();
-				} catch (SQLException e) {
-					log.log(Level.SEVERE,
-							"[getClosedConsSap] Some error occurred while was trying to close the connection.", e);
+						"[getClosedConsSap] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(bean);
+
+		return null;
+	}
+
+	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_LGORT, LGOBE, LGTYP, LTYPT, CS_LGPLA, CS_MATNR, MAKTX, MEINS, CS_THEORIC, "
+			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_ACCOUNTANT, IMWM " + "FROM INV_VW_CONC_SAP "
+			+ "WHERE DOC_INV_ID = ?";
+	@SuppressWarnings("rawtypes")
+	public ArrayList<PosDocInvBean> getConciliationSAPPositions(int docInvId, Connection con) throws SQLException {
+
+		PreparedStatement ps = null;
+		ResultSet rs;
+		PosDocInvBean pdib;
+		String lsPosIds = "";
+		ArrayList<PosDocInvBean> lsPdib = new ArrayList<PosDocInvBean>();
+
+		try {
+			ps = con.prepareStatement(GET_POS_CONS_SAP);
+			ps.setInt(1, docInvId);
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+
+				pdib = new PosDocInvBean();
+				pdib.setPosId(rs.getInt("CS_CON_SAP"));
+				pdib.setLgort(rs.getString("LGORT"));
+				pdib.setLgortD(rs.getString("LGOBE"));
+				pdib.setLgtyp(rs.getString("LGTYP"));
+				pdib.setLtypt(rs.getString("LTYPT"));
+				pdib.setLgpla(rs.getString("CS_LGPLA"));
+				pdib.setMatnr(rs.getString("CS_MATNR"));
+				pdib.setMatnrD(rs.getString("MAKTX"));
+				pdib.setMeins(rs.getString("MEINS"));
+				pdib.setTheoric(rs.getString("CS_THEORIC"));
+				pdib.setCounted(rs.getString("CS_COUNTED"));
+				pdib.setDiff(rs.getString("CS_DIFFERENCE"));
+				pdib.setTransit(rs.getString("CS_TRANSIT"));
+				pdib.setConsignation(rs.getString("CS_CONSIGNATION"));
+				pdib.setAccountant(rs.getString("CS_ACCOUNTANT"));
+				pdib.setImwmMarker(rs.getString("IMWM"));
+				lsPosIds += pdib.getPosId() + ",";
+				lsPdib.add(pdib);
+			}
+
+			// Get the justifications
+			ArrayList<Justification> lsJustify = getJustification(lsPosIds, con);
+
+			// Add the justification to positions
+			for (PosDocInvBean obj : lsPdib) {
+
+				for (Justification js : lsJustify) {
+
+					if (js.getConsPosSAPId() == obj.getPosId()) {
+						obj.getLsJustification().add(js);
+					}
 				}
 			}
 
-			res.setAbstractResult(abstractResult);
-			res.setLsObject(bean);		
-		
-		return null;
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getConciliationSAPPositions] Some error occurred while was trying to retrive the positions.", e);
+			throw e;
+		}
+
+		return lsPdib;
 	}
-	
-	@SuppressWarnings("rawtypes")
-	public Response getConciliationSAP(){
-		
-		Response resp = new Response();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
-		CallableStatement cs = null;
-		CallableStatement csBatch = null;
-		
-		resp.setAbstractResult(abstractResult);		
-		return resp;
-	}
-	
+
 	private static final String GET_JUSTIFICATION = "SELECT JS_ID, JS_CON_SAP, JS_QUANTITY, JS_JUSTIFY, JS_FILE_NAME"
 			+ "FROM INV_JUSTIFY WHERE JS_CON_SAP IN(SELECT * FROM STRING_SPLIT(?, ','))";
-	private ArrayList<Justification> getJustification(String ids, Connection con) throws SQLException{
-		
+	private ArrayList<Justification> getJustification(String ids, Connection con) throws SQLException {
+
 		ArrayList<Justification> lsJustification = new ArrayList<Justification>();
 		Justification js;
 		PreparedStatement stm = null;
 		ResultSet rs;
-		stm = con.prepareStatement(GET_JUSTIFICATION);
-		stm.setString(1, ids);
-		rs = stm.executeQuery();
-		
-		while(rs.next()){
-			
-			js= new Justification();
-			js.setConsPosSAPId(rs.getInt("JS_CON_SAP"));
-			js.setQuantity(rs.getString("JS_QUANTITY"));
-			js.setJustify(rs.getString("JS_JUSTIFY"));
-			js.setFileName(rs.getString("JS_FILE_NAME"));			
-			lsJustification.add(js);
+		try {
+
+			stm = con.prepareStatement(GET_JUSTIFICATION);
+			stm.setString(1, ids);
+			rs = stm.executeQuery();
+
+			while (rs.next()) {
+
+				js = new Justification();
+				js.setConsPosSAPId(rs.getInt("JS_CON_SAP"));
+				js.setQuantity(rs.getString("JS_QUANTITY"));
+				js.setJustify(rs.getString("JS_JUSTIFY"));
+				js.setFileName(rs.getString("JS_FILE_NAME"));
+				lsJustification.add(js);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getJustification] Some error occurred while was trying to retrive the justifications.", e);
+			throw e;
 		}
-		
 		return lsJustification;
 	}
-	
+
 	public ZIACMF_I360_INV_MOV_1 inventoryMovementsDao(DocInvBean docInvBean, Connection con,
 			JCoDestination destination) throws JCoException, SQLException, RuntimeException, InvCicException {
 		ZIACMF_I360_INV_MOV_1 ziacmf_I360_INV_MOV_1 = new ZIACMF_I360_INV_MOV_1();
@@ -563,5 +563,5 @@ public class SapConciliationDao {
 		}
 		return ziacmf_I360_EXT_SIS_CLAS;
 	}
-	
+
 }
