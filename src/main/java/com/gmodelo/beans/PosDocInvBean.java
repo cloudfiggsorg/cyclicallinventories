@@ -1,7 +1,10 @@
 package com.gmodelo.beans;
 
-public class PosDocInvBean {
+import java.util.ArrayList;
 
+public class PosDocInvBean {
+		
+	int doncInvId;
 	String lgort;
 	String lgortD;
 	String lgtyp;
@@ -17,15 +20,19 @@ public class PosDocInvBean {
 	String imwmMarker;
 	String consignation;
 	String transit;
+	String accountant;
+	ArrayList<Justification> lsJustification;
 	
 	public PosDocInvBean(){
 		super();
 	}
 	
-	public PosDocInvBean(String lgort, String lgortD, String lgtyp, String ltypt, String lgNum, String lgpla,
-			String matnr, String matnrD, String meins, String theoric, String counted, String diff, String imwmMarker,
-			String consignation, String transit) {
+	public PosDocInvBean(int doncInvId, String lgort, String lgortD, String lgtyp, String ltypt, String lgNum,
+			String lgpla, String matnr, String matnrD, String meins, String theoric, String counted, String diff,
+			String imwmMarker, String consignation, String transit, String accountant,
+			ArrayList<Justification> lsJustification) {
 		super();
+		this.doncInvId = doncInvId;
 		this.lgort = lgort;
 		this.lgortD = lgortD;
 		this.lgtyp = lgtyp;
@@ -41,6 +48,18 @@ public class PosDocInvBean {
 		this.imwmMarker = imwmMarker;
 		this.consignation = consignation;
 		this.transit = transit;
+		this.accountant = accountant;
+		this.lsJustification = lsJustification;
+	}
+
+
+
+	public int getDoncInvId() {
+		return doncInvId;
+	}
+
+	public void setDoncInvId(int doncInvId) {
+		this.doncInvId = doncInvId;
 	}
 
 	public String getLgort() {
@@ -163,12 +182,29 @@ public class PosDocInvBean {
 		this.transit = transit;
 	}
 
+	public String getAccountant() {
+		return accountant;
+	}
+
+	public void setAccountant(String accountant) {
+		this.accountant = accountant;
+	}
+
+	public ArrayList<Justification> getLsJustification() {
+		return lsJustification;
+	}
+
+	public void setLsJustification(ArrayList<Justification> lsJustification) {
+		this.lsJustification = lsJustification;
+	}
+
 	@Override
 	public String toString() {
-		return "PosDocInvBean [lgort=" + lgort + ", lgortD=" + lgortD + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt
-				+ ", lgNum=" + lgNum + ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", meins="
-				+ meins + ", theoric=" + theoric + ", counted=" + counted + ", diff=" + diff + ", imwmMarker="
-				+ imwmMarker + ", consignation=" + consignation + ", transit=" + transit + "]";
+		return "PosDocInvBean [doncInvId=" + doncInvId + ", lgort=" + lgort + ", lgortD=" + lgortD + ", lgtyp=" + lgtyp
+				+ ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD="
+				+ matnrD + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted + ", diff=" + diff
+				+ ", imwmMarker=" + imwmMarker + ", consignation=" + consignation + ", transit=" + transit
+				+ ", accountant=" + accountant + ", lsJustification=" + lsJustification + "]";
 	}
-	
+		
 }
