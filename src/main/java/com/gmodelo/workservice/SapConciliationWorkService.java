@@ -163,6 +163,7 @@ public class SapConciliationWorkService {
 			log.log(Level.SEVERE, "[SapConciliationWorkService- WS_getClassSystem] - SQLException: ", e);
 
 		}
+		response.setAbstractResult(result);
 		return response;
 	}
 

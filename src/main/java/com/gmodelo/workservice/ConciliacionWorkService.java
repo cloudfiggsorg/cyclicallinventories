@@ -143,6 +143,7 @@ public class ConciliacionWorkService {
 		} catch (Exception e) {
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
+			e.printStackTrace();
 
 		}
 		return res;
