@@ -16,10 +16,20 @@ public class SapServices {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/setClassification")
+	public Response setClassification() {
+
+		return new SapConciliationWorkService()._WS_SAPClassRuntime();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getClassification")
 	public Response getClassification() {
 
-		return new SapConciliationWorkService()._WS_SAPClassRuntime();
+		return new SapConciliationWorkService().WS_getClassSystem();
 	}
 
 }

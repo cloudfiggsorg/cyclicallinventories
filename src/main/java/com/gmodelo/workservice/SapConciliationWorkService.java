@@ -88,6 +88,55 @@ public class SapConciliationWorkService {
 	}
 
 	@SuppressWarnings("rawtypes")
+	public void inventoryTransit(DocInvBean docInvBean, Connection con) {
+		AbstractResultsBean results = new AbstractResultsBean();
+		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
+			JCoDestination destination = connectionManager.getSapConnection(
+					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
+			ZIACMF_I360_INV_MOV_3 getTransit = conciliationDao.getTransitMovements(docInvBean, con, destination);
+			if (getTransit.geteError_SapEntities().getType().equals("S") && getTransit.getXtab6_SapEntities() != null
+					&& !getTransit.getXtab6_SapEntities().isEmpty()) {
+				results = operationDao.setZIACMF_I360_INV_MOV3(docInvBean, getTransit, con);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+		}
+	}
+
+	public Response<ZIACMF_I360_EXT_SIS_CLAS> WS_getClassSystem() {
+		Response<ZIACMF_I360_EXT_SIS_CLAS> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
+		response.setAbstractResult(result);
+		try {
+			ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = operationDao.getClassSystem();
+			if (i360_EXT_SIS_CLAS.getObjectData() != null && !i360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
+				response.setLsObject(i360_EXT_SIS_CLAS);
+			} else {
+				result.setResultId(ReturnValues.IERROR);
+				result.setResultMsgAbs("Sistema de Clasificacion no cargado anteriormente, favor de generar carga");
+				log.log(Level.SEVERE,
+						"[SapConciliationWorkService - WS_getClassSystem] - Sistema de Clasificacion no cargado anteriormente, favor de generar carga ");
+			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+			log.log(Level.SEVERE, "[SapConciliationWorkService- WS_getClassSystem] - SQLException: ", e);
+
+		}
+		return response;
+	}
+
 	public Response _WS_SAPClassRuntime() {
 		Response response = new Response<>();
 		Connection con = connectionManager.createConnection();
@@ -228,29 +277,6 @@ public class SapConciliationWorkService {
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryTransit] - Exception: ", e);
 		}
-	}
-
-	public Response<ZIACMF_I360_EXT_SIS_CLAS> WS_getClassSystem() {
-		Response<ZIACMF_I360_EXT_SIS_CLAS> response = new Response<>();
-		AbstractResultsBean result = new AbstractResultsBean();
-		response.setAbstractResult(result);
-		try {
-			ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = operationDao.getClassSystem();
-			if (i360_EXT_SIS_CLAS.getObjectData() != null && !i360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
-				response.setLsObject(i360_EXT_SIS_CLAS);
-			} else {
-				result.setResultId(ReturnValues.IERROR);
-				result.setResultMsgAbs("Sistema de Clasificacion no cargado anteriormente, favor de generar carga");
-				log.log(Level.SEVERE,
-						"[SapConciliationWorkService - WS_getClassSystem] - Sistema de Clasificacion no cargado anteriormente, favor de generar carga ");
-			}
-		} catch (SQLException e) {
-			result.setResultId(ReturnValues.IEXCEPTION);
-			result.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService- WS_getClassSystem] - SQLException: ", e);
-
-		}
-		return response;
 	}
 
 	public void clasificationSystem(JCoDestination destination, Connection con, List<String> materialList,
