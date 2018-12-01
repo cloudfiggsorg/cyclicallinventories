@@ -545,12 +545,27 @@ public class SapOperationDao {
 
 	private static final String UPDATE_INITIAL_INVENTORY = "UPDATE INV_DOC_INVENTORY_HEADER SET INSAP_SNAPSHOT = '1' WHERE DOC_INV_ID = ?";
 
+	private static final String UPDATE_FINAL_INVENTORY = "UPDATE INV_DOC_INVENTORY_HEADER SET FNSAP_SNAPSHOT = '1' WHERE DOC_INV_ID = ?";
+
 	public void setUpdateInitialInventory(Connection con, DocInvBean docInvBean) throws SQLException {
 		if (!con.isValid(0)) {
 			con = new ConnectionManager().createConnection();
 		}
 		try {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INITIAL_INVENTORY);
+			stm.setInt(1, docInvBean.getDocInvId());
+			stm.executeUpdate();
+		} catch (SQLException e) {
+			throw e;
+		}
+	}
+
+	public void setUpdateFinalInventory(Connection con, DocInvBean docInvBean) throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(UPDATE_FINAL_INVENTORY);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.executeUpdate();
 		} catch (SQLException e) {
