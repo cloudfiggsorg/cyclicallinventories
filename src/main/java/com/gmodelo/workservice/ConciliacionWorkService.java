@@ -1,5 +1,6 @@
 package com.gmodelo.workservice;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,11 +29,11 @@ public class ConciliacionWorkService {
 
 	public Response<List<ConciliationsIDsBean>> getConciliationIDs(Request<List<Object>> request) {
 		log.info("[getConciliationIDsWS] " + request.toString());
-		String bukrs = (String)request.getLsObject().get(0);
-		String werks = (String)request.getLsObject().get(1);	
+		String bukrs = (String) request.getLsObject().get(0);
+		String werks = (String) request.getLsObject().get(1);
 		return new ConciliacionDao().getConciliationIDs(bukrs, werks);
 	}
-	
+
 	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(Request request) {
 
 		log.info("[getClosedConciliationIDs] " + request.toString());
@@ -41,7 +42,7 @@ public class ConciliacionWorkService {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		DocInvBean docInv;
 
-		try {			
+		try {
 			docInv = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 		} catch (JSONException e) {
 			log.log(Level.SEVERE, "[getClosedConciliationIDs] Objeto no válido.");
@@ -69,18 +70,25 @@ public class ConciliacionWorkService {
 		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		DocInvBean docInv;
-
-		try {			
+		res.setAbstractResult(abstractResult);
+		try {
 			docInv = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+			new ConciliacionDao().fillCurrectDocInv(docInv);
+			res = new ConciliacionDao().getAvailableGroups(docInv);
 		} catch (NumberFormatException e) {
 			log.log(Level.SEVERE, "[getAvailableGroupsWS] Objeto no válido.");
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[getAvailableGroupsWS] SQLException - ", e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[getAvailableGroupsWS] Exception - ", e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
 		}
-
-		return new ConciliacionDao().getAvailableGroups(docInv);
+		return res;
 	}
 
 	public Response<TaskBean> getFatherTaskByDocId(Request request) {

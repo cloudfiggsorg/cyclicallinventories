@@ -27,6 +27,8 @@ public class RouteUserDao {
 
 	private Logger log = Logger.getLogger(RouteUserDao.class.getName());
 
+	ConnectionManager connectionManager = new ConnectionManager();
+
 	public RouteUserBean getRoutesByUserLegacy(User user) throws SQLException {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -89,12 +91,16 @@ public class RouteUserDao {
 			cs.close();
 			log.info("[getRoutesByUserDao] Sentence successfully executed.");
 		} finally {
-			con.close();
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "[RouteUserDao - getRoutesByUserLegacy] Finally Exception", e);
+			}
 		}
 		return routeBean;
 	}
 
-	private static final String GET_RECONTEO = "SELECT TASK_ID, TAS_JSON, TASK_ID_PARENT FROM INV_TASK WHERE TASK_ID = ?";
+	private static final String GET_RECONTEO = "SELECT TASK_ID, TAS_JSON, TASK_ID_PARENT FROM INV_TASK WITH(NOLOCK) WHERE TASK_ID = ?";
 
 	public TaskBean getTaskReconteo(String taskId) throws SQLException {
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -114,13 +120,19 @@ public class RouteUserDao {
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "", e);
 			reconteo = null;
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "[RouteUserDao - getTaskReconteo] Finally Exception", e);
+			}
 		}
 		return reconteo;
 	}
 
 	public static String INV_LAST_GENERATED_ROUTE = "SELECT TOP 1 ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID, MAX(TAS_CREATED_DATE) AS LAST_DATE "
-			+ " FROM dbo.INV_VW_TASK_ROUTES_USER WITH(NOLOCK)  WHERE USER_ID = ? "
-			+ " GROUP BY TAS_CREATED_DATE, ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID " 
+			+ " FROM dbo.INV_VW_TASK_BY_USER WITH(NOLOCK)  WHERE USER_ID = ? "
+			+ " GROUP BY TAS_CREATED_DATE, ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID "
 			+ " ORDER BY TAS_CREATED_DATE DESC";
 
 	public RouteUserBean getRoutesByUser(String user) throws SQLException {
@@ -153,7 +165,11 @@ public class RouteUserDao {
 			}
 			log.info("[getRoutesByUserDao] Sentence successfully executed.");
 		} finally {
-			con.close();
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "[RouteUserDao - getRoutesByUser] Finally Exception", e);
+			}
 		}
 		return routeBean;
 	}
@@ -186,7 +202,7 @@ public class RouteUserDao {
 				position.setGdesc(rs.getString("GDES"));
 				position.setSecuency(rs.getString("SECUENCY"));
 				position.setRouteId(rs.getString("ROUTE_ID"));
-				position.setZone(this.getZoneByPosition(rs.getString("ZONE_ID"), conteo));
+				position.setZone(this.getZoneByPosition(rs.getString("ZONE_ID"), conteo, con));
 				listPositions.add(position);
 			}
 
@@ -217,14 +233,16 @@ public class RouteUserDao {
 		return listPositions;
 	}
 
-	public ZoneUserBean getZoneByPosition(String zoneId, TaskBean conteo) throws SQLException {
+	public ZoneUserBean getZoneByPosition(String zoneId, TaskBean conteo, Connection con) throws SQLException {
 
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		ZoneUserBean zoneBean = new ZoneUserBean();
 		final String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC FROM dbo.INV_VW_ZONES WITH(NOLOCK) WHERE ZONE_ID = ?";
 		try {
+
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
 
 			log.info("[getRoutesUserZoneDao] Preparing sentence...");
 			stm = con.prepareStatement(INV_VW_ZONES);
@@ -234,7 +252,7 @@ public class RouteUserDao {
 			while (rs.next()) {
 				zoneBean.setZoneId(rs.getString("ZONE_ID"));
 				zoneBean.setZdesc(rs.getString("ZDESC"));
-				zoneBean.setPositionsB(this.getPositionsZone(rs.getString("ZONE_ID"), conteo));
+				zoneBean.setPositionsB(this.getPositionsZone(rs.getString("ZONE_ID"), conteo, con));
 			}
 			// Retrive the warnings if there're
 			SQLWarning warning = stm.getWarnings();
@@ -250,47 +268,41 @@ public class RouteUserDao {
 					"[getZoneByPosition] Some error occurred while was trying to execute the query: " + INV_VW_ZONES,
 					e);
 			throw e;
-
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,
-						"[getZoneByPosition] Some error occurred while was trying to close the connection.", e);
-			}
 		}
 		return zoneBean;
 	}
 
-	public List<ZoneUserPositionsBean> getPositionsZone(String zoneId, TaskBean conteo) throws SQLException {
+	public List<ZoneUserPositionsBean> getPositionsZone(String zoneId, TaskBean conteo, Connection con)
+			throws SQLException {
 
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<ZoneUserPositionsBean> listPositions = new ArrayList<ZoneUserPositionsBean>();
 		String INV_VW_ZONE_WITH_POSITIONS = "";
 
 		if (conteo.getTaskIdFather() != null && !conteo.getTaskIdFather().isEmpty()) {
-			INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ? "
+			INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WITH(NOLOCK) WHERE ZONE_ID = ? "
 					+ "GROUP BY PK_ASG_ID,LGTYP,LGPLA,SECUENCY,IMWM ORDER BY SECUENCY DESC";
 
 		} else {
-			INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WHERE ZONE_ID = ? "
+			INV_VW_ZONE_WITH_POSITIONS = "SELECT PK_ASG_ID, LGTYP ,LGPLA ,SECUENCY ,IMWM FROM dbo.INV_VW_ZONE_WITH_POSITIONS WITH(NOLOCK) WHERE ZONE_ID = ? "
 					+ "GROUP BY PK_ASG_ID,LGTYP,LGPLA,SECUENCY,IMWM ORDER BY SECUENCY ASC";
 		}
 
 		log.info(INV_VW_ZONE_WITH_POSITIONS);
 		log.info("[getPositionsZoneDao] Preparing sentence...");
 		try {
-			HashMap<String, HashMap<String, LgplaValuesBean>> mapPosition = this.getPositionMaterials();
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
+			HashMap<String, HashMap<String, LgplaValuesBean>> mapPosition = this.getPositionMaterials(con);
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
 			log.info("[getPositionsZoneDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
-				HashMap<String, LgplaValuesBean> insertMap =  new HashMap<>();
-				if(mapPosition.containsKey(rs.getString("PK_ASG_ID"))){
-					insertMap = mapPosition.get(rs.getString("PK_ASG_ID")); 
+				HashMap<String, LgplaValuesBean> insertMap = new HashMap<>();
+				if (mapPosition.containsKey(rs.getString("PK_ASG_ID"))) {
+					insertMap = mapPosition.get(rs.getString("PK_ASG_ID"));
 				}
 				ZoneUserPositionsBean position = new ZoneUserPositionsBean();
 				position.setPkAsgId(rs.getInt("PK_ASG_ID"));
@@ -316,29 +328,22 @@ public class RouteUserDao {
 			log.log(Level.SEVERE, "[getPositionsZoneDao] Some error occurred while was trying to execute the query: "
 					+ INV_VW_ZONE_WITH_POSITIONS, e);
 			throw e;
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,
-						"[getPositionsZoneDao] Some error occurred while was trying to close the connection.", e);
-			}
 		}
 		return listPositions;
 	}
 
 	private static final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT POSITION_ID, MATNR, MAKTX FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WITH(NOLOCK) GROUP BY POSITION_ID, MATNR, MAKTX";
 
-	private HashMap<String, HashMap<String, LgplaValuesBean>> getPositionMaterials() throws SQLException {
-
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
+	private HashMap<String, HashMap<String, LgplaValuesBean>> getPositionMaterials(Connection con) throws SQLException {
 		PreparedStatement stm = null;
 		HashMap<String, HashMap<String, LgplaValuesBean>> mapMaterials = new HashMap<>();
 
 		log.info(INV_VW_ZONE_POSITIONS_MATERIALS);
 		log.info("[getPositionMaterialsDao] Preparing sentence...");
 		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
 			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
 			log.info("[getPositionMaterialsDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
@@ -380,13 +385,6 @@ public class RouteUserDao {
 							+ INV_VW_ZONE_POSITIONS_MATERIALS,
 					e);
 			throw e;
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,
-						"[getPositionMaterialsDao] Some error occurred while was trying to close the connection.", e);
-			}
 		}
 		return mapMaterials;
 	}
