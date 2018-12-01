@@ -41,7 +41,7 @@ public class DocInvWorkService {
 			if (!positionRoute.isEmpty()) {
 				res = new DocInvDao().addDocInv(docInvBean, user.getEntity().getIdentyId());
 				try {
-					new SapConciliationWorkService().inventorySnapShot(docInvBean);
+					new SapConciliationWorkService().WS_RuntimeInventorySnapShot(docInvBean);
 				} catch (Exception e) {
 					log.log(Level.SEVERE,
 							"[addDocInvWS] Error al generar la llamada al snapshot SapConciliationWorkService");

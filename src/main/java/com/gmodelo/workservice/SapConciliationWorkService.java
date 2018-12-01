@@ -12,7 +12,9 @@ import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.Response;
 import com.gmodelo.dao.SapConciliationDao;
 import com.gmodelo.dao.SapOperationDao;
-import com.gmodelo.runtime.ClasificationRuntime;
+import com.gmodelo.runtime._Runtime_Classification;
+import com.gmodelo.runtime._Runtime_Ziacmf_Mov_Final;
+import com.gmodelo.runtime._Runtime_Ziacmf_Mov_Initial;
 import com.gmodelo.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_2;
@@ -31,143 +33,62 @@ public class SapConciliationWorkService {
 	private SapOperationDao operationDao = new SapOperationDao();
 	private SapConciliationDao conciliationDao = new SapConciliationDao();
 
-	public void inventoryMovements(DocInvBean docInvBean, Connection con) throws SQLException {
-		AbstractResultsBean results = new AbstractResultsBean();
-		// Connection con = connectionManager.createConnection();
-		try {
-			if (con == null || !con.isValid(0) || con.isClosed()) {
-				con = connectionManager.createConnection();
-			}
-			JCoDestination destination = connectionManager.getSapConnection(
-					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
-			ZIACMF_I360_INV_MOV_1 getMovements = conciliationDao.inventoryMovementsDao(docInvBean, con, destination);
-			if (getMovements.geteError_SapEntities().getType().equals("S")
-					&& getMovements.geteMseg_SapEntities() != null && !getMovements.geteMseg_SapEntities().isEmpty()) {
-				results = operationDao.setZIACMF_I360_INV_MOV1(docInvBean, getMovements, con);
-			}
-		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
-		} catch (InvCicException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
-		} catch (JCoException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
-		} catch (RuntimeException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
-		} catch (Exception e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
-		}
-	}
-
-	public void inventorySnapShot(DocInvBean docInvBean) {
+	public AbstractResultsBean WS_RuntimeInventorySnapShot(DocInvBean docInvBean) {
 		AbstractResultsBean results = new AbstractResultsBean();
 		Connection con = connectionManager.createConnection();
 		try {
 			JCoDestination destination = connectionManager.getSapConnection(
 					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
-			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot(docInvBean, con, destination);
-			if (getSnapshot.geteError_SapEntities().getType().equals("S") && getSnapshot.geteLqua_SapEntities() != null
-					&& getSnapshot.geteMard_SapEntities() != null && getSnapshot.geteMsku_SapEntities() != null) {
-				results = operationDao.setZIACMF_I360_INV_MOV2(docInvBean, getSnapshot, con);
-			}
-		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+			new _Runtime_Ziacmf_Mov_Initial(destination, con, docInvBean).start();
 		} catch (InvCicException e) {
+			results.setResultId(ReturnValues.IEXCEPTION);
+			results.setResultMsgAbs(e.getMessage());
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
 		} catch (JCoException e) {
+			results.setResultId(ReturnValues.IEXCEPTION);
+			results.setResultMsgAbs(e.getMessage());
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
 		} catch (RuntimeException e) {
+			results.setResultId(ReturnValues.IEXCEPTION);
+			results.setResultMsgAbs(e.getMessage());
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
 		} catch (Exception e) {
+			results.setResultId(ReturnValues.IEXCEPTION);
+			results.setResultMsgAbs(e.getMessage());
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
-		} finally {
-			try {
-				con.close();
-			} catch (Exception e) {
-				log.log(Level.SEVERE, "[SapConciliationWorkService] - Finally Exception: ", e);
-			}
 		}
-
+		return results;
 	}
 
-	public void inventorySnapShot_F(DocInvBean docInvBean, Connection con) {
+	public AbstractResultsBean WS_RuntimeInventoryFinalSnapShot(DocInvBean docInvBean) {
 		AbstractResultsBean results = new AbstractResultsBean();
-		// Connection con = connectionManager.createConnection();
+		Connection con = connectionManager.createConnection();
 		try {
-			if (con == null || !con.isValid(0) || con.isClosed()) {
-				con = connectionManager.createConnection();
-			}
 			JCoDestination destination = connectionManager.getSapConnection(
 					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
-			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot(docInvBean, con, destination);
-			if (getSnapshot.geteError_SapEntities().getType().equals("S") && getSnapshot.geteLqua_SapEntities() != null
-					&& getSnapshot.geteMard_SapEntities() != null && getSnapshot.geteMsku_SapEntities() != null) {
-				results = operationDao.setZIACMF_I360_INV_MOV2_F(docInvBean, getSnapshot, con);
-			}
-		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+			new _Runtime_Ziacmf_Mov_Final(destination, con, docInvBean).start();
 		} catch (InvCicException e) {
+			results.setResultId(ReturnValues.IEXCEPTION);
+			results.setResultMsgAbs(e.getMessage());
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
 		} catch (JCoException e) {
+			results.setResultId(ReturnValues.IEXCEPTION);
+			results.setResultMsgAbs(e.getMessage());
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
 		} catch (RuntimeException e) {
+			results.setResultId(ReturnValues.IEXCEPTION);
+			results.setResultMsgAbs(e.getMessage());
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
 		} catch (Exception e) {
+			results.setResultId(ReturnValues.IEXCEPTION);
+			results.setResultMsgAbs(e.getMessage());
 			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
 		}
-
+		return results;
 	}
 
-	public void inventoryTransit(DocInvBean docInvBean, Connection con) {
-		AbstractResultsBean results = new AbstractResultsBean();
-		try {
-			if (con == null || !con.isValid(0) || con.isClosed()) {
-				con = connectionManager.createConnection();
-			}
-			JCoDestination destination = connectionManager.getSapConnection(
-					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
-			ZIACMF_I360_INV_MOV_3 getTransit = conciliationDao.getTransitMovements(docInvBean, con, destination);
-			if (getTransit.geteError_SapEntities().getType().equals("S") && getTransit.getXtab6_SapEntities() != null
-					&& !getTransit.getXtab6_SapEntities().isEmpty()) {
-				results = operationDao.setZIACMF_I360_INV_MOV3(docInvBean, getTransit, con);
-			}
-		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
-		} catch (InvCicException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
-		} catch (JCoException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
-		} catch (RuntimeException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
-		} catch (Exception e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
-		}
-	}
-
-	public Response<ZIACMF_I360_EXT_SIS_CLAS> WS_getClassSystem() {
-		Response<ZIACMF_I360_EXT_SIS_CLAS> response = new Response<>();
-		AbstractResultsBean result = new AbstractResultsBean();
-		response.setAbstractResult(result);
-		try {
-			ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = operationDao.getClassSystem();
-			if (i360_EXT_SIS_CLAS.getObjectData() != null && !i360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
-				response.setLsObject(i360_EXT_SIS_CLAS);
-			} else {
-				result.setResultId(ReturnValues.IERROR);
-				result.setResultMsgAbs("Sistema de Clasificacion no cargado anteriormente, favor de generar carga");
-				log.log(Level.SEVERE,
-						"[SapConciliationWorkService - WS_getClassSystem] - Sistema de Clasificacion no cargado anteriormente, favor de generar carga ");
-			}
-		} catch (SQLException e) {
-			result.setResultId(ReturnValues.IEXCEPTION);
-			result.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService- WS_getClassSystem] - SQLException: ", e);
-
-		}
-		return response;
-	}
-
+	@SuppressWarnings("rawtypes")
 	public Response _WS_SAPClassRuntime() {
-
 		Response response = new Response<>();
 		Connection con = connectionManager.createConnection();
 		AbstractResultsBean result = new AbstractResultsBean();
@@ -176,9 +97,7 @@ public class SapConciliationWorkService {
 			JCoDestination destination = connectionManager.getSapConnection(
 					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
 			if (ReturnValues.REP_CLASS_UPDATED == 0) {
-
-				new ClasificationRuntime(destination, con, null, null, "X").start();
-
+				new _Runtime_Classification(destination, con, null, null, "X").start();
 			} else {
 				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("Ejecución en progreso");
@@ -201,8 +120,135 @@ public class SapConciliationWorkService {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - RuntimeException: ", e);
 		} catch (Exception e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
-
 			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - Exception: ", e);
+		}
+		return response;
+	}
+
+	public void inventorySnapShot(DocInvBean docInvBean, Connection con, JCoDestination destination) {
+		try {
+			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot(docInvBean, con, destination);
+			if (getSnapshot.geteError_SapEntities().getType().equals("S") && getSnapshot.geteLqua_SapEntities() != null
+					&& getSnapshot.geteMard_SapEntities() != null && getSnapshot.geteMsku_SapEntities() != null) {
+				operationDao.setZIACMF_I360_INV_MOV2(docInvBean, getSnapshot, con);
+				operationDao.setUpdateInitialInventory(con, docInvBean);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "[SapConciliationWorkService] - Finally Exception: ", e);
+			}
+		}
+
+	}
+
+	public void inventoryMovements(DocInvBean docInvBean, Connection con, JCoDestination destination)
+			throws SQLException, JCoException, RuntimeException, Exception {
+		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
+			ZIACMF_I360_INV_MOV_1 getMovements = conciliationDao.inventoryMovementsDao(docInvBean, con, destination);
+			if (getMovements.geteError_SapEntities().getType().equals("S")
+					&& getMovements.geteMseg_SapEntities() != null && !getMovements.geteMseg_SapEntities().isEmpty()) {
+				operationDao.setZIACMF_I360_INV_MOV1(docInvBean, getMovements, con);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements] - SQLException: ", e);
+			throw e;
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements] - InvCicException: ", e);
+			throw e;
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements] - JCoException: ", e);
+			throw e;
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements] - RuntimeException: ", e);
+			throw e;
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements] - Exception: ", e);
+			throw e;
+		}
+	}
+
+	public void inventorySnapShot_F(DocInvBean docInvBean, Connection con, JCoDestination destination)
+			throws SQLException, JCoException, RuntimeException, Exception {
+		// Connection con = connectionManager.createConnection();
+		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
+			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot(docInvBean, con, destination);
+			if (getSnapshot.geteError_SapEntities().getType().equals("S") && getSnapshot.geteLqua_SapEntities() != null
+					&& getSnapshot.geteMard_SapEntities() != null && getSnapshot.geteMsku_SapEntities() != null) {
+				operationDao.setZIACMF_I360_INV_MOV2_F(docInvBean, getSnapshot, con);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+		}
+
+	}
+
+	public void inventoryTransit(DocInvBean docInvBean, Connection con, JCoDestination destination)
+			throws SQLException, JCoException, RuntimeException, Exception {
+		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
+			ZIACMF_I360_INV_MOV_3 getTransit = conciliationDao.getTransitMovements(docInvBean, con, destination);
+			if (getTransit.geteError_SapEntities().getType().equals("S") && getTransit.getXtab6_SapEntities() != null
+					&& !getTransit.getXtab6_SapEntities().isEmpty()) {
+				operationDao.setZIACMF_I360_INV_MOV3(docInvBean, getTransit, con);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryTransit] - SQLException: ", e);
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryTransit] - JCoException: ", e);
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryTransit] - RuntimeException: ", e);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryTransit] - Exception: ", e);
+		}
+	}
+
+	public Response<ZIACMF_I360_EXT_SIS_CLAS> WS_getClassSystem() {
+		Response<ZIACMF_I360_EXT_SIS_CLAS> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
+		response.setAbstractResult(result);
+		try {
+			ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = operationDao.getClassSystem();
+			if (i360_EXT_SIS_CLAS.getObjectData() != null && !i360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
+				response.setLsObject(i360_EXT_SIS_CLAS);
+			} else {
+				result.setResultId(ReturnValues.IERROR);
+				result.setResultMsgAbs("Sistema de Clasificacion no cargado anteriormente, favor de generar carga");
+				log.log(Level.SEVERE,
+						"[SapConciliationWorkService - WS_getClassSystem] - Sistema de Clasificacion no cargado anteriormente, favor de generar carga ");
+			}
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+			log.log(Level.SEVERE, "[SapConciliationWorkService- WS_getClassSystem] - SQLException: ", e);
+
 		}
 		return response;
 	}
@@ -237,11 +283,11 @@ public class SapConciliationWorkService {
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Exception: ", e);
 			ReturnValues.REP_CLASS_UPDATED = 0;
-		}finally {
+		} finally {
 			try {
 				con.close();
-			}catch(Exception e) {
-				log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Finally Exception: ", e);	
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Finally Exception: ", e);
 			}
 		}
 

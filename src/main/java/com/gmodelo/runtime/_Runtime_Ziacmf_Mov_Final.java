@@ -3,15 +3,16 @@ package com.gmodelo.runtime;
 import java.sql.Connection;
 
 import com.gmodelo.beans.DocInvBean;
+import com.gmodelo.workservice.SapConciliationWorkService;
 import com.sap.conn.jco.JCoDestination;
 
-public class _Runtime_Ziacmf_Mov1 extends Thread {
-
+public class _Runtime_Ziacmf_Mov_Final extends Thread {
 	JCoDestination asyncDestination;
 	Connection asyncConnection;
 	DocInvBean docInvBean;
 
-	public _Runtime_Ziacmf_Mov1(JCoDestination asyncDestination, Connection asyncConnection, DocInvBean docInvBean) {
+	public _Runtime_Ziacmf_Mov_Final(JCoDestination asyncDestination, Connection asyncConnection,
+			DocInvBean docInvBean) {
 		super();
 		this.asyncDestination = asyncDestination;
 		this.asyncConnection = asyncConnection;
@@ -20,8 +21,6 @@ public class _Runtime_Ziacmf_Mov1 extends Thread {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		super.run();
+		new SapConciliationWorkService().inventorySnapShot(docInvBean, asyncConnection, asyncDestination);
 	}
-
 }

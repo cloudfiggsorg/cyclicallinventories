@@ -41,34 +41,28 @@ public class SapOperationDao {
 	private static final String GET_MATERIALS_FOR_DOC_INV = "SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR";
 
 	private static final String GET_CLASSSYSTEM = "SELECT MATNR, SMBEZ, ATFLV, ATNAM FROM E_CLASS WITH(NOLOCK)";
-	
+
 	private static final String TRANSIT = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? ";
-	
+
 	private static final String CONSIGNATION = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, SUM((CAST(KULAB AS decimal(10,3)) "
 			+ "+ CAST(KUINS AS decimal(10,3)) + CAST(KUEIN AS decimal(10,3)))) AS CONS FROM E_MSKU WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
-	
+
 	private static final String THEORIC_IM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, (CAST(LABST AS decimal(10,3)) "
 			+ "+ CAST(UMLME AS decimal(10,3)) + CAST(INSME AS decimal(10,3)) + CAST(EINME AS decimal(10,3)) "
 			+ "+ CAST(SPEME AS decimal(10,3)) + CAST(RETME AS decimal(10,3))) AS CONS FROM E_MARD_F WHERE DOC_INV_ID = ?";
-	
+
 	private static final String THEORIC_WM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, LGPLA, "
-			+"SUM(CAST(VERME AS decimal(10,3))) AS CONS FROM E_LQUA_F WHERE DOC_INV_ID = ? "
-			+"GROUP BY MATNR, LGPLA";
-	
-	public static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3)))"
-			+ "FROM E_MSEG "
-			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'S') - "	
-			+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
-			+ "FROM E_MSEG "
+			+ "SUM(CAST(VERME AS decimal(10,3))) AS CONS FROM E_LQUA_F WHERE DOC_INV_ID = ? " + "GROUP BY MATNR, LGPLA";
+
+	public static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3)))" + "FROM E_MSEG "
+			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'S') - "
+			+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) " + "FROM E_MSEG "
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE";
-	
-	public static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) "
-			+ "FROM E_MSEG" 
-			+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'S') - " 
-			+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
-			+ "FROM E_MSEG " 
-			+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE ";	
+
+	public static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) " + "FROM E_MSEG"
+			+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'S') - " + "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
+			+ "FROM E_MSEG " + "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE ";
 
 	public DocInvBean getDocInvBeanData(DocInvBean docInvBean, Connection con) throws SQLException {
 		DocInvBean outputDoc = new DocInvBean();
@@ -173,93 +167,90 @@ public class SapOperationDao {
 		ziacmf_I360_EXT_SIS_CLAS.setObjectData(i360_OBJECTDATA_SapEntities);
 		return ziacmf_I360_EXT_SIS_CLAS;
 	}
-	
-	public ArrayList<E_Mseg_SapEntity> getMatnrOnTransit(int docInvId, Connection con) throws SQLException{
-		
+
+	public ArrayList<E_Mseg_SapEntity> getMatnrOnTransit(int docInvId, Connection con) throws SQLException {
+
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(TRANSIT);
 		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
-		
+
 		ArrayList<E_Mseg_SapEntity> lsMatnr = new ArrayList<E_Mseg_SapEntity>();
 		E_Mseg_SapEntity emse;
-		
+
 		while (rs.next()) {
 			emse = new E_Mseg_SapEntity();
 			emse.setMatnr(rs.getString("MATNR"));
 			emse.setMenge(rs.getString("MENGE"));
 			lsMatnr.add(emse);
 		}
-		
+
 		return lsMatnr;
 	}
-		
-	public ArrayList<E_Msku_SapEntity> getMatnrOnCons(int docInvId, Connection con) throws SQLException{
-		
+
+	public ArrayList<E_Msku_SapEntity> getMatnrOnCons(int docInvId, Connection con) throws SQLException {
+
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(CONSIGNATION);
 		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
-		
+
 		ArrayList<E_Msku_SapEntity> lsMatnr = new ArrayList<E_Msku_SapEntity>();
 		E_Msku_SapEntity emskuEntity;
-		
+
 		while (rs.next()) {
 			emskuEntity = new E_Msku_SapEntity();
 			emskuEntity.setMatnr(rs.getString("MATNR"));
-			emskuEntity.setKulab(rs.getString("CONS"));//The total here
+			emskuEntity.setKulab(rs.getString("CONS"));// The total here
 			lsMatnr.add(emskuEntity);
 		}
-		
+
 		return lsMatnr;
 	}
-	
-	
-	public ArrayList<E_Mard_SapEntity> getMatnrTheoricIM(int docInvId, Connection con) throws SQLException{
-		
+
+	public ArrayList<E_Mard_SapEntity> getMatnrTheoricIM(int docInvId, Connection con) throws SQLException {
+
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(THEORIC_IM);
 		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
-		
+
 		ArrayList<E_Mard_SapEntity> lsMatnr = new ArrayList<E_Mard_SapEntity>();
 		E_Mard_SapEntity ems;
-		
+
 		while (rs.next()) {
 			ems = new E_Mard_SapEntity();
 			ems.setMatnr(rs.getString("MATNR"));
-			ems.setRetme(rs.getString("CONS"));//The total here
+			ems.setRetme(rs.getString("CONS"));// The total here
 			lsMatnr.add(ems);
 		}
-		
+
 		return lsMatnr;
 	}
-	
-	
-	public ArrayList<E_Lqua_SapEntity> getMatnrTheoricWM(int docInvId, Connection con) throws SQLException{
-		
+
+	public ArrayList<E_Lqua_SapEntity> getMatnrTheoricWM(int docInvId, Connection con) throws SQLException {
+
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(THEORIC_WM);
 		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
-		
+
 		ArrayList<E_Lqua_SapEntity> lsMatnr = new ArrayList<E_Lqua_SapEntity>();
 		E_Lqua_SapEntity els;
-		
+
 		while (rs.next()) {
 			els = new E_Lqua_SapEntity();
 			els.setMatnr(rs.getString("MATNR"));
 			els.setLgpla(rs.getString("LGPLA"));
-			els.setVerme(rs.getString("CONS"));//The total here
+			els.setVerme(rs.getString("CONS"));// The total here
 			lsMatnr.add(els);
 		}
-		
+
 		return lsMatnr;
 	}
-	
-	
-	public long getMatnrMovementsWM(E_Mseg_SapEntity emse, Connection con) throws SQLException{
-		
+
+	public long getMatnrMovementsWM(E_Mseg_SapEntity emse, Connection con) throws SQLException {
+
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(MOVEMENTS_WM);
 		stm.setString(1, emse.getLgort());
@@ -272,26 +263,7 @@ public class SapOperationDao {
 		stm.setString(8, emse.getLgtyp());
 		stm.setString(9, emse.getLgpla());
 		stm.setString(10, emse.getMatnr());
-		
-		ResultSet rs = stm.executeQuery();		
-		long menge = 0;
-		
-		while (rs.next()) {
-			menge = rs.getLong("MENGE");//The total here
-		}
-		
-		return menge;
-	}
-	
-	public long getMatnrMovementsIM(E_Mseg_SapEntity emse, Connection con) throws SQLException {
 
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(MOVEMENTS_IM);
-		stm.setString(1, emse.getLgort());
-		stm.setString(2, emse.getMatnr());
-		stm.setString(3, emse.getLgort());
-		stm.setString(4, emse.getMatnr());
-		
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
 
@@ -300,9 +272,26 @@ public class SapOperationDao {
 		}
 
 		return menge;
-	}	
+	}
 
-	
+	public long getMatnrMovementsIM(E_Mseg_SapEntity emse, Connection con) throws SQLException {
+
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(MOVEMENTS_IM);
+		stm.setString(1, emse.getLgort());
+		stm.setString(2, emse.getMatnr());
+		stm.setString(3, emse.getLgort());
+		stm.setString(4, emse.getMatnr());
+
+		ResultSet rs = stm.executeQuery();
+		long menge = 0;
+
+		while (rs.next()) {
+			menge = rs.getLong("MENGE");// The total here
+		}
+
+		return menge;
+	}
 
 	// Insert Zone
 
@@ -369,9 +358,8 @@ public class SapOperationDao {
 		return result;
 	}
 
-	public AbstractResultsBean setZIACMF_I360_INV_MOV2(DocInvBean docInvBean, ZIACMF_I360_INV_MOV_2 i360_INV_MOV_2,
-			Connection con) throws SQLException {
-		AbstractResultsBean result = new AbstractResultsBean();
+	public void setZIACMF_I360_INV_MOV2(DocInvBean docInvBean, ZIACMF_I360_INV_MOV_2 i360_INV_MOV_2, Connection con)
+			throws SQLException {
 		if (!con.isValid(0)) {
 			con = new ConnectionManager().createConnection();
 		}
@@ -427,7 +415,6 @@ public class SapOperationDao {
 			con.setAutoCommit(true);
 			throw e;
 		}
-		return result;
 	}
 
 	public AbstractResultsBean setZIACMF_I360_INV_MOV2_F(DocInvBean docInvBean, ZIACMF_I360_INV_MOV_2 i360_INV_MOV_2,
@@ -551,5 +538,22 @@ public class SapOperationDao {
 		}
 		return result;
 	}
-	
+
+	// UPDATE AREA
+
+	private static final String UPDATE_INITIAL_INVENTORY = "UPDATE INV_DOC_INVENTORY_HEADER SET INSAP_SNAPSHOT = '1' WHERE DOC_INV_ID = ?";
+
+	public void setUpdateInitialInventory(Connection con, DocInvBean docInvBean) throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(UPDATE_INITIAL_INVENTORY);
+			stm.setInt(1, docInvBean.getDocInvId());
+			stm.executeUpdate();
+		} catch (SQLException e) {
+			throw e;
+		}
+	}
+
 }
