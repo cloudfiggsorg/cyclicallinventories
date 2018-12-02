@@ -388,6 +388,16 @@ public class ReportesDao {
 		return res;
 	}
 	
+	public Response<DocInvBeanHeaderSAP> getConsDocInv(DocInvBean docInvBean) {
+		
+		if(docInvBean.getStatus().equalsIgnoreCase("TRUE")){
+			return new SapConciliationDao().getClosedConsSapReport(docInvBean);
+		}else{
+			return getNoClosedConsSapReport(docInvBean);
+		}
+		
+	}
+	
 	private static final String INV_VW_REP_POS_CONS_SAP = "SELECT A.DIP_LGORT, A.LGOBE, A.LGTYP, C.LGNUM, A.LTYPT, A.DIP_LGPLA, A.DIP_MATNR, "
 			+ "A.MAKTX, A.MEINS, A.DIP_THEORIC, A.DIP_COUNTED, A.DIP_DIFF_COUNTED, A.IMWM " 
 			+ "FROM INV_VW_DOC_INV_REP_POSITIONS AS A WITH(NOLOCK) " 
@@ -397,7 +407,7 @@ public class ReportesDao {
 			+ "GROUP BY A.DIP_LGORT, A.LGOBE, A.LGTYP, C.LGNUM, A.LTYPT, A.DIP_LGPLA, A.DIP_MATNR, "
 			+ "A.MAKTX, A.MEINS, A.DIP_THEORIC, A.DIP_COUNTED, A.DIP_DIFF_COUNTED, A.IMWM";
 	
-	public Response<DocInvBeanHeaderSAP> getConsDocInv(DocInvBean docInvBean) {
+	public Response<DocInvBeanHeaderSAP> getNoClosedConsSapReport(DocInvBean docInvBean) {
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -435,6 +445,7 @@ public class ReportesDao {
 				while (rs.next()) {
 					
 					PosDocInvBean positionBean = new PosDocInvBean();
+					positionBean.setDoncInvId(docInvBean.getDocInvId());
 					positionBean.setLgort(rs.getString("DIP_LGORT"));
 					positionBean.setLgortD(rs.getString("LGOBE"));
 					positionBean.setLgtyp(rs.getString("LGTYP"));
