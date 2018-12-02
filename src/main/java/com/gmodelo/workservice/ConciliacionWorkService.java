@@ -34,27 +34,6 @@ public class ConciliacionWorkService {
 		return new ConciliacionDao().getConciliationIDs(bukrs, werks);
 	}
 
-	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(Request request) {
-
-		log.info("[getClosedConciliationIDs] " + request.toString());
-		String req = request.getLsObject().toString().trim();
-		Response<List<ConciliationsIDsBean>> res = new Response<List<ConciliationsIDsBean>>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		DocInvBean docInv;
-
-		try {
-			docInv = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
-		} catch (JSONException e) {
-			log.log(Level.SEVERE, "[getClosedConciliationIDs] Objeto no válido.");
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		}
-
-		return new ConciliacionDao().getClosedConciliationIDs(docInv);
-	}
-
 	public Response<ConciliacionBean> getConciliacion(Request request) {
 
 		log.info("[getConciliacionWS] " + request.toString());

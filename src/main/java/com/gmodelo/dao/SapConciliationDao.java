@@ -18,6 +18,7 @@ import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.DocInvBeanHeaderSAP;
+import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.E_Error_SapEntity;
 import com.gmodelo.beans.E_Lqua_SapEntity;
 import com.gmodelo.beans.E_Mard_SapEntity;
@@ -51,20 +52,20 @@ public class SapConciliationDao {
 	private final SapOperationDao operationDao = new SapOperationDao();
 
 	@SuppressWarnings("rawtypes")
-	public Response saveConciliationSAP(ArrayList<PosDocInvBean> lsPositionBean, String uderId) {
+	public Response saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, String uderId) {
 
 		Response resp = new Response();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-
+		List<PosDocInvBean> lsPositionBean = dibhSAP.getDocInvPosition();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		CallableStatement csBatch = null;
 
 		String CURRENTSP = "";
-		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY (?, ?, ?, ?)";
-		int rid = 0;
+		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?";
+		long rid = 0;
 
 		try {
 			con.setAutoCommit(false);
@@ -98,16 +99,17 @@ public class SapConciliationDao {
 
 					log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 
-					rid = cs.getInt(15);
-
+					rid = cs.getLong(15);
 					CURRENTSP = INV_SP_ADD_JUSTIFY;
-
+					
+					ArrayList<Justification> lsJustification = dipb.getLsJustification();
+ 
 					// Insert the justification per position
-					for (Justification js : dipb.getLsJustification()) {
+					for (Justification js : lsJustification) {
 
 						cs = null;
 						cs = con.prepareCall(INV_SP_ADD_JUSTIFY);
-						cs.setInt(1, rid);
+						cs.setLong(1, rid);
 						cs.setString(2, js.getQuantity());
 						cs.setString(3, js.getJustify());
 						cs.setString(4, js.getFileName());
@@ -132,6 +134,7 @@ public class SapConciliationDao {
 					csBatch.setString(12, dipb.getTransit());
 					csBatch.setString(13, dipb.getAccountant());
 					csBatch.setString(14, uderId);
+					csBatch.setNull(15, Types.NULL);
 					csBatch.addBatch();
 				}
 			}
@@ -140,7 +143,7 @@ public class SapConciliationDao {
 			csBatch.executeBatch();
 
 			con.commit();
-			// Free resources
+			con.setAutoCommit(true);
 			cs.close();
 
 			log.info("[saveConciliationSAP] Executing query...");
@@ -156,6 +159,7 @@ public class SapConciliationDao {
 			log.log(Level.SEVERE,
 					"[saveConciliationSAP] Some error occurred while was trying to execute the S.P.: " + CURRENTSP, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
 			resp.setAbstractResult(abstractResult);
 			return resp;
 		} finally {
@@ -184,7 +188,6 @@ public class SapConciliationDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		log.info(INV_VW_REP_HEADER);
 		log.info("[getReporteDocInvDao] Preparing sentence...");
-		String currentSP = "";
 
 		try {
 			stm = con.prepareStatement(INV_VW_REP_HEADER);
@@ -209,7 +212,7 @@ public class SapConciliationDao {
 			}
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
-					"[getClosedConsSap] Some error occurred while was trying to execute the query: " + currentSP, e);
+					"[getClosedConsSap] Some error occurred while was trying to execute the query: " + INV_VW_REP_HEADER, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 		} finally {
@@ -224,7 +227,7 @@ public class SapConciliationDao {
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(bean);
 
-		return null;
+		return res;
 	}
 
 	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_LGORT, LGOBE, LGTYP, LTYPT, CS_LGPLA, CS_MATNR, MAKTX, MEINS, CS_THEORIC, "
@@ -248,7 +251,7 @@ public class SapConciliationDao {
 
 				pdib = new PosDocInvBean();
 				pdib.setPosId(rs.getInt("CS_CON_SAP"));
-				pdib.setLgort(rs.getString("LGORT"));
+				pdib.setLgort(rs.getString("CS_LGORT"));
 				pdib.setLgortD(rs.getString("LGOBE"));
 				pdib.setLgtyp(rs.getString("LGTYP"));
 				pdib.setLtypt(rs.getString("LTYPT"));
@@ -290,8 +293,8 @@ public class SapConciliationDao {
 		return lsPdib;
 	}
 
-	private static final String GET_JUSTIFICATION = "SELECT JS_ID, JS_CON_SAP, JS_QUANTITY, JS_JUSTIFY, JS_FILE_NAME"
-			+ "FROM INV_JUSTIFY WHERE JS_CON_SAP IN(SELECT * FROM STRING_SPLIT(?, ','))";
+	private static final String GET_JUSTIFICATION = "SELECT JS_CON_SAP, JS_QUANTITY, JS_JUSTIFY, JS_FILE_NAME "
+			+ "FROM INV_JUSTIFY WHERE JS_CON_SAP IN (SELECT * FROM STRING_SPLIT(?, ','))";
 	private ArrayList<Justification> getJustification(String ids, Connection con) throws SQLException {
 
 		ArrayList<Justification> lsJustification = new ArrayList<Justification>();
