@@ -1,11 +1,17 @@
 package com.gmodelo.structure;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.gmodelo.beans.ZIACST_I360_OBJECTDATA_SapEntity;
 
-public class ZIACMF_I360_EXT_SIS_CLAS {
+public class ZIACMF_I360_EXT_SIS_CLAS implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7316997196017892251L;
 	List<ZIACST_I360_OBJECTDATA_SapEntity> objectData;
 
 	public ZIACMF_I360_EXT_SIS_CLAS() {

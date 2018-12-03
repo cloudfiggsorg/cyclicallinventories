@@ -1,13 +1,18 @@
 package com.gmodelo.beans;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoTable;
 
-public class ZIACST_I360_OBJECTDATA_SapEntity {
+public class ZIACST_I360_OBJECTDATA_SapEntity implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1399274843408940942L;
 	String object;
 	String smbez;
 	String atflv;
