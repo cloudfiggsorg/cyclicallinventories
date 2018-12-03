@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.MaterialTarimasBean;
 import com.gmodelo.beans.MobileMaterialBean;
+import com.gmodelo.beans.ZIACST_I360_OBJECTDATA_SapEntity;
+import com.gmodelo.structure.ZIACMF_I360_EXT_SIS_CLAS;
 
 public class DownloadDao {
 
@@ -27,6 +29,8 @@ public class DownloadDao {
 			+ "MM.UMREN, MR.EANNR, MR.EAN11  FROM MARA MR WITH(NOLOCK) INNER JOIN MAKT MK ON MR.MATNR = MK.MATNR "
 			+ "INNER JOIN MARM MM ON MR.MATNR = MM.MATNR "
 			+ "GROUP BY MR.MATNR, MK.MAKTX, MR.MEINS, MM.MEINH, MM.UMREZ, MM.UMREN, MR.EANNR, MR.EAN11";
+
+	public static final String GET_CLASS_SYSTEM = "SELECT MATNR, SMBEZ, ATFLV, ATNAM FROM E_CLASS WITH(NOLOCK)";
 
 	public List<MaterialTarimasBean> getAllMaterialCrossTarimas(Connection con) throws InvCicException {
 		List<MaterialTarimasBean> materialTarimasList = new ArrayList<>();
@@ -51,6 +55,8 @@ public class DownloadDao {
 				materialTarimasList.add(bean);
 			}
 		} catch (SQLException e) {
+			throw new InvCicException(e);
+		} catch (Exception e) {
 			throw new InvCicException(e);
 		}
 		log.log(Level.WARNING, "Finish: " + materialTarimasList.size());
@@ -82,9 +88,41 @@ public class DownloadDao {
 			}
 		} catch (SQLException e) {
 			throw new InvCicException(e);
+		} catch (Exception e) {
+			throw new InvCicException(e);
 		}
 		log.log(Level.WARNING, "Finish: " + mobileMaterialList.size());
 		return mobileMaterialList;
+	}
+
+	public ZIACMF_I360_EXT_SIS_CLAS getClassSystemMobile(Connection con) throws InvCicException {
+		ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = new ZIACMF_I360_EXT_SIS_CLAS();
+		log.log(Level.WARNING, "getClassSystemMobile");
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_ALL_INFO_MATERIAL);
+			log.log(Level.WARNING, "executing: " + GET_ALL_INFO_MATERIAL);
+			List<ZIACST_I360_OBJECTDATA_SapEntity> entities = new ArrayList<>();
+			i360_EXT_SIS_CLAS.setObjectData(entities);
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				ZIACST_I360_OBJECTDATA_SapEntity entity = new ZIACST_I360_OBJECTDATA_SapEntity();
+				try {
+					entity.setObject(String.valueOf(rs.getInt("MATNR")));
+				} catch (Exception e) {
+					entity.setObject(rs.getString("MATNR"));
+				}
+				entity.setSmbez(rs.getString("SMBEZ"));
+				entity.setAtflv(rs.getString("ATFLV"));
+				entity.setAtnam(rs.getString("ATNAM"));
+				entities.add(entity);
+			}
+		} catch (SQLException e) {
+			throw new InvCicException(e);
+		} catch (Exception e) {
+			throw new InvCicException(e);
+		}
+		log.log(Level.WARNING, "Finish: " + i360_EXT_SIS_CLAS.getObjectData().size());
+		return i360_EXT_SIS_CLAS;
 	}
 
 	public static final String GET_DELTA_MATERIALES_TARIMAS = "SELECT PAT.PACKNR,  PAT.MATNR AS VHILM , MAKT.MAKTX, PAT.TRGQTY, "
