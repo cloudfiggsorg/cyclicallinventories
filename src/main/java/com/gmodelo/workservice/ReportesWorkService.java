@@ -80,8 +80,7 @@ public class ReportesWorkService {
 	
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAP(Request request) {
 		log.info("[ReporteWorkService getReporteDocInv] " + request.toString());
-		Response<DocInvBeanHeaderSAP> response = new Response<>();
-		AbstractResultsBean result = new AbstractResultsBean();
+		Response<DocInvBeanHeaderSAP> response = new Response<>();		
 		DocInvBean bean = null;
 		try {
 			log.info("[ReporteWorkService getReporteDocInv] try");
@@ -89,10 +88,11 @@ public class ReportesWorkService {
 			response = new ReportesDao().getConsDocInv(bean);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInv] catch", e);
+			AbstractResultsBean result = new AbstractResultsBean();
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
+			response.setAbstractResult(result);
 		}
-		response.setAbstractResult(result);
 		return response;
 	}
 

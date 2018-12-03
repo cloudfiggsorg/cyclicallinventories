@@ -32,15 +32,7 @@ public class ConciliacionService {
 	public Response<List<ConciliationsIDsBean>> getConciliationIDs(Request request){
 		return new ConciliacionWorkService().getConciliationIDs(request);
 	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getClosedConciliationsID")
-	public Response<List<ConciliationsIDsBean>> getClosedConciliationsID(Request request){
-		return new ConciliacionWorkService().getClosedConciliationIDs(request);
-	}
-	
+		
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
