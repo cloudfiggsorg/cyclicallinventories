@@ -14,6 +14,31 @@ public class DocInvBeanHeaderSAP {
 	String creationDate;
 	String conciliationDate;
 	List<PosDocInvBean> docInvPosition;
+	String createdBy;
+	String concSAPDate;
+
+	public DocInvBeanHeaderSAP() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public DocInvBeanHeaderSAP(Integer docInvId, String route, String bukrs, String bukrsD, String werks, String werksD,
+			String type, String creationDate, String conciliationDate, List<PosDocInvBean> docInvPosition,
+			String createdBy, String concSAPDate) {
+		super();
+		this.docInvId = docInvId;
+		this.route = route;
+		this.bukrs = bukrs;
+		this.bukrsD = bukrsD;
+		this.werks = werks;
+		this.werksD = werksD;
+		this.type = type;
+		this.creationDate = creationDate;
+		this.conciliationDate = conciliationDate;
+		this.docInvPosition = docInvPosition;
+		this.createdBy = createdBy;
+		this.concSAPDate = concSAPDate;
+	}
 
 	public Integer getDocInvId() {
 		return docInvId;
@@ -95,32 +120,28 @@ public class DocInvBeanHeaderSAP {
 		this.docInvPosition = docInvPosition;
 	}
 
-	public DocInvBeanHeaderSAP(Integer docInvId, String route, String bukrs, String bukrsD, String werks,
-			String werksD, String type, String creationDate, String conciliationDate,
-			List<PosDocInvBean> docInvPosition) {
-		super();
-		this.docInvId = docInvId;
-		this.route = route;
-		this.bukrs = bukrs;
-		this.bukrsD = bukrsD;
-		this.werks = werks;
-		this.werksD = werksD;
-		this.type = type;
-		this.creationDate = creationDate;
-		this.conciliationDate = conciliationDate;
-		this.docInvPosition = docInvPosition;
+	public String getCreatedBy() {
+		return createdBy;
 	}
 
-	public DocInvBeanHeaderSAP() {
-		super();
-		// TODO Auto-generated constructor stub
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getConcSAPDate() {
+		return concSAPDate;
+	}
+
+	public void setConcSAPDate(String concSAPDate) {
+		this.concSAPDate = concSAPDate;
 	}
 
 	@Override
 	public String toString() {
-		return "ReporteDocInvBeanHeader [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD="
+		return "DocInvBeanHeaderSAP [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD="
 				+ bukrsD + ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", creationDate="
-				+ creationDate + ", conciliationDate=" + conciliationDate + ", docInvPosition=" + docInvPosition + "]";
+				+ creationDate + ", conciliationDate=" + conciliationDate + ", docInvPosition=" + docInvPosition
+				+ ", createdBy=" + createdBy + ", createdDate=" + concSAPDate + "]";
 	}
-
+	
 }

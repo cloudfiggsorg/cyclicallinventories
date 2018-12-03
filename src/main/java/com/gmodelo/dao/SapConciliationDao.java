@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.NamingException;
+
+import com.bmore.ume001.beans.User;
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
@@ -52,7 +55,7 @@ public class SapConciliationDao {
 	private final SapOperationDao operationDao = new SapOperationDao();
 
 	@SuppressWarnings("rawtypes")
-	public Response saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, String uderId) {
+	public Response saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, String userId) {
 
 		Response resp = new Response();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -65,19 +68,21 @@ public class SapConciliationDao {
 		String CURRENTSP = "";
 		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?";
+		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 		long rid = 0;
 
 		try {
 			con.setAutoCommit(false);
-
-			cs = con.prepareCall(INV_SP_ADD_CON_POS_SAP);
 			csBatch = con.prepareCall(INV_SP_ADD_CON_POS_SAP);
 
 			for (PosDocInvBean dipb : lsPositionBean) {
 
 				CURRENTSP = INV_SP_ADD_CON_POS_SAP;
-
+				
 				if (!dipb.getLsJustification().isEmpty()) {
+					
+					cs = null;
+					cs = con.prepareCall(INV_SP_ADD_CON_POS_SAP);
 
 					cs.setInt(1, dipb.getDoncInvId());
 					cs.setString(2, dipb.getLgort());
@@ -92,7 +97,7 @@ public class SapConciliationDao {
 					cs.setString(11, dipb.getConsignation());
 					cs.setString(12, dipb.getTransit());
 					cs.setString(13, dipb.getAccountant());
-					cs.setString(14, uderId);
+					cs.setString(14, userId);
 					cs.registerOutParameter(15, Types.BIGINT);
 
 					cs.execute();
@@ -133,14 +138,20 @@ public class SapConciliationDao {
 					csBatch.setString(11, dipb.getConsignation());
 					csBatch.setString(12, dipb.getTransit());
 					csBatch.setString(13, dipb.getAccountant());
-					csBatch.setString(14, uderId);
+					csBatch.setString(14, userId);
 					csBatch.setNull(15, Types.NULL);
 					csBatch.addBatch();
 				}
 			}
-
+			
 			log.info("[saveConciliationSAP] Sentence successfully executed.");
 			csBatch.executeBatch();
+			
+			cs = null;
+			cs = con.prepareCall(INV_CLS_SAP_DOC_INV);
+			cs.setInt(1, dibhSAP.getDocInvId());
+			cs.setString(2, userId);
+			cs.execute();
 
 			con.commit();
 			con.setAutoCommit(true);
@@ -177,7 +188,8 @@ public class SapConciliationDao {
 	}
 
 	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
-			+ "DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE FROM INV_VW_DOC_INV_REP_HEADER WHERE  DOC_INV_ID = ?";
+			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE "
+			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE  DOC_INV_ID = ?";
 	public Response<DocInvBeanHeaderSAP> getClosedConsSapReport(DocInvBean docInvBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -208,9 +220,20 @@ public class SapConciliationDao {
 				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
 				bean.setDocInvPosition(getConciliationSAPPositions(bean.getDocInvId(), con));
+				bean.setCreatedBy(rs.getString("DIH_CLSD_SAP_BY"));
+				bean.setConcSAPDate(sdf.format(new Date(rs.getTimestamp("DIH_CLSD_SAP_DATE").getTime())));
+				
+				User user = new User();
+				UMEDaoE ume = new UMEDaoE();
+				user.getEntity().setIdentyId(bean.getCreatedBy());
+				ArrayList<User> ls = new ArrayList<>();
+				ls.add(user);
+				ls = ume.getUsersLDAPByCredentials(ls);
+				bean.setCreatedBy(bean.getCreatedBy() + " - " + ls.get(0).getGenInf().getName() + " "
+						+ ls.get(0).getGenInf().getLastName() + " / " + bean.getConcSAPDate());
 				
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | NamingException e) {
 			log.log(Level.SEVERE,
 					"[getClosedConsSap] Some error occurred while was trying to execute the query: " + INV_VW_REP_HEADER, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
