@@ -14,7 +14,6 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.beans.ConciliationsIDsBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
-import com.gmodelo.dao.SapConciliationDao;
 import com.gmodelo.workservice.ConciliationSAPWorkService;
 
 @Path("/services/ConciliationSAPService")
@@ -35,44 +34,11 @@ public class ConciliacionSAPService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getConciliation")
+	@Path("/saveConciliation")
 	public Response saveConciliation(Request request){
 		
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new ConciliationSAPWorkService().saveConciliation(request, user.getEntity().getIdentyId());
 	}
-
-//	@POST
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	@Produces(MediaType.APPLICATION_JSON)
-//	@Path("/getAvailableGroups")
-//	public Response<List<GroupBean>> getAvailableGroups(Request request){
-//		return new ConciliacionWorkService().getAvailableGroups(request);
-//	}
-//	
-//	@POST
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	@Produces(MediaType.APPLICATION_JSON)
-//	@Path("/getFatherTaskByDocId")
-//	public Response<TaskBean> getFatherTaskByDocId(Request request){
-//		return new ConciliacionWorkService().getFatherTaskByDocId(request);
-//	}
-//	
-//	@POST
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	@Produces(MediaType.APPLICATION_JSON)
-//	@Path("/getZonePosition")
-//	public Response<String> getZonePosition(Request request){
-//		return new ConciliacionWorkService().getZonePosition(request);
-//	}
-//	
-//	@POST 
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	@Produces(MediaType.APPLICATION_JSON)
-//	@Path("/getSpecialCount")
-//	public Response<TaskBean> getSpecialCount(Request request){
-//		User user = (User) httpRequest.getSession().getAttribute("user");
-//		return new ConciliacionWorkService().getSpecialCount(request, user);
-//	}
 	
 }

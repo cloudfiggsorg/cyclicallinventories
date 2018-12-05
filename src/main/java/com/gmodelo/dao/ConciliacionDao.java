@@ -126,6 +126,26 @@ public class ConciliacionDao {
 		res.setLsObject(listConIds);
 		return res;
 	}
+	
+	private static final String CLOSED_DOC_INV = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' "
+			+ " + CONVERT(VARCHAR,inr.ROU_DESC)) AS DESCRIPCION, 0 AS STATUS "
+			+ " FROM INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) "
+			+ " INNER JOIN INV_ROUTE INR WITH(NOLOCK) ON (IDIH.DIH_ROUTE_ID = INR.ROUTE_ID) "
+			+ "	WHERE IDIH.DIH_STATUS = '0' "
+			+ " AND IDIH.DOC_FATHER_INV_ID IS NULL "
+			+ " AND IDIH.DIH_BUKRS LIKE ? "
+			+ " AND IDIH.DIH_WERKS LIKE ? "
+			+ " AND DOC_INV_ID LIKE ? "
+			+ " AND DOC_INV_ID NOT IN (SELECT CS_DOC_INV_ID FROM INV_CONS_SAP GROUP BY CS_DOC_INV_ID) "
+			+ " UNION "
+			+ " SELECT ICS.CS_DOC_INV_ID, IR.ROU_DESC AS DESCRIPCION, 1 AS STS " 
+			+ " FROM INV_CONS_SAP AS ICS "
+			+ " INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (ICS.CS_DOC_INV_ID = IDIH.DOC_INV_ID) "
+			+ " INNER JOIN INV_ROUTE AS IR ON (IR.ROUTE_ID = IDIH.DIH_ROUTE_ID) "
+			+ " WHERE IDIH.DIH_BUKRS LIKE ? "
+			+ " AND IDIH.DIH_WERKS LIKE ? "
+			+ " AND DOC_INV_ID LIKE ? "
+			+ " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC";
 
 	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(DocInvBean dib) {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
@@ -138,24 +158,14 @@ public class ConciliacionDao {
 
 		try {
 
-			String CLOSED_DOC_INV = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' "
-					+ " + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION, 0 AS STATUS "
-					+ " FROM INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK) "
-					+ " INNER JOIN INV_ROUTE inr WITH(NOLOCK) ON idih.DIH_ROUTE_ID = inr.ROUTE_ID WHERE idih.DIH_STATUS = '0' "
-					+ " AND idih.DOC_FATHER_INV_ID IS NULL AND idih.DIH_BUKRS LIKE '"
-					+ (dib.getBukrs() == null ? "%" : dib.getBukrs()) + "' " + " AND idih.DIH_WERKS LIKE '"
-					+ (dib.getWerks() == null ? "%" : dib.getWerks()) + "' " + " AND DOC_INV_ID LIKE '"
-					+ (dib.getDocInvId() == null ? "%" : dib.getDocInvId().intValue()) + "' "
-					+ " AND DOC_INV_ID NOT IN (SELECT CS_DOC_INV_ID FROM INV_CONS_SAP GROUP BY CS_DOC_INV_ID) "
-					+ " UNION "
-					+ " SELECT ICS.CS_DOC_INV_ID, IR.ROU_DESC AS DESCRIPCION, 1 AS STS " 
-					+ " FROM INV_CONS_SAP AS ICS "
-					+ " INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (ICS.CS_DOC_INV_ID = IDIH.DOC_INV_ID) "
-					+ " INNER JOIN INV_ROUTE AS IR ON (IR.ROUTE_ID = IDIH.DIH_ROUTE_ID) "
-					+ " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC";
-			
 			log.log(Level.INFO, dib.toString());
-			stm = con.prepareCall(CLOSED_DOC_INV);
+			stm = con.prepareStatement(CLOSED_DOC_INV);
+			stm.setString(1, (dib.getBukrs() == null ? "%" : dib.getBukrs()));
+			stm.setString(2, (dib.getWerks() == null ? "%" : dib.getWerks()));
+			stm.setString(3, (dib.getDocInvId() == null ? "%" : dib.getDocInvId().toString()));
+			stm.setString(4, (dib.getBukrs() == null ? "%" : dib.getBukrs()));
+			stm.setString(5, (dib.getWerks() == null ? "%" : dib.getWerks()));
+			stm.setString(6, (dib.getDocInvId() == null ? "%" : dib.getDocInvId().toString()));
 
 			log.info(CLOSED_DOC_INV);
 			log.info("[getClosedConciliationIDsDao] Executing query...");

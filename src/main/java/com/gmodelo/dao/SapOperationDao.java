@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.gmodelo.beans.AbstractResultsBean;
+import com.gmodelo.beans.CostByMatnr;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.E_Lqua_SapEntity;
 import com.gmodelo.beans.E_Mard_SapEntity;
@@ -245,6 +246,31 @@ public class SapOperationDao {
 			els.setMatnr(rs.getString("MATNR"));
 			els.setLgpla(rs.getString("LGPLA"));
 			els.setVerme(rs.getString("CONS"));// The total here
+			lsMatnr.add(els);
+		}
+
+		return lsMatnr;
+	}
+	
+	private static final String COST_BY_MATNR = "SELECT CAST(MATNR AS decimal(10)) MATNR, VERPR " 
+			+ "FROM MBEW "
+			+ "WHERE CAST(CAST(MATNR AS DECIMAL (10)) AS VARCHAR(20)) IN (SELECT * FROM STRING_SPLIT(?, ',')) AND BWKEY = ?";
+	
+	public ArrayList<CostByMatnr> getCostByMatnr(String matnrIds, String werks, Connection con) throws SQLException {
+
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(COST_BY_MATNR);
+		stm.setString(1, matnrIds);
+		stm.setString(2, werks);
+		ResultSet rs = stm.executeQuery();
+
+		ArrayList<CostByMatnr> lsMatnr = new ArrayList<CostByMatnr>();
+		CostByMatnr els;
+
+		while (rs.next()) {
+			els = new CostByMatnr();
+			els.setMatnr(rs.getString("MATNR"));
+			els.setCost(rs.getString("VERPR"));
 			lsMatnr.add(els);
 		}
 
