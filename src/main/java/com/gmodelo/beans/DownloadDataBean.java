@@ -44,17 +44,21 @@ public class DownloadDataBean implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-	public DownloadDataBean(List<MaterialTarimasBean> listMaterialTarimas,
-			List<MobileMaterialBean> listMobileMaterial) {
+	public DownloadDataBean(List<MaterialTarimasBean> listMaterialTarimas, List<MobileMaterialBean> listMobileMaterial,
+			ZIACMF_I360_EXT_SIS_CLAS ziacmf_I360_EXT_SIS_CLAS) {
 		super();
 		this.listMaterialTarimas = listMaterialTarimas;
 		this.listMobileMaterial = listMobileMaterial;
+		this.ziacmf_I360_EXT_SIS_CLAS = ziacmf_I360_EXT_SIS_CLAS;
 	}
 
 	@Override
 	public String toString() {
 		return "DownloadDataBean [listMaterialTarimas=" + listMaterialTarimas + ", listMobileMaterial="
-				+ listMobileMaterial + "]";
+				+ listMobileMaterial + ", ziacmf_I360_EXT_SIS_CLAS=" + ziacmf_I360_EXT_SIS_CLAS + "]";
 	}
+
+	
+	
 
 }
