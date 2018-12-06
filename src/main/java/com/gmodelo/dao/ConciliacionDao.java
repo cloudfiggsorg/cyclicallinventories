@@ -1,6 +1,7 @@
 package com.gmodelo.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -739,8 +740,23 @@ public class ConciliacionDao {
 		}
 		return result;
 	}
-
-	public Response<List<GroupBean>> getAvailableGroups(DocInvBean docInv) {
+	
+	private static final String INV_VW_AVAILABLE_GROUPS_FOR_INV_DAILY = "SELECT IG.GROUP_ID, IG.GRP_DESC " 
+			+ "FROM INV_GROUPS_USER AS IGU "
+			+ "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
+			+ "AND IG.GRP_BUKRS LIKE ? AND IG.GRP_WERKS LIKE ? "
+			+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
+	
+	private static final String INV_VW_AVAILABLE_GROUPS_FOR_INV_MONTH = "SELECT IG.GROUP_ID, IG.GRP_DESC " 
+			+ "FROM INV_GROUPS_USER AS IGU "
+			+ "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
+			+ "WHERE GRU_USER_ID NOT IN (SELECT GRU_USER_ID FROM INV_GROUPS_USER "
+			+ "WHERE GRU_GROUP_ID IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
+			+ "AND GRU_GROUP_ID NOT IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?) "
+			+ "AND IG.GRP_BUKRS LIKE ? AND IG.GRP_WERKS LIKE ? "
+			+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
+	
+	public Response<List<GroupBean>> getAvailableGroups(DocInvBean docInv, String type) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
@@ -748,32 +764,29 @@ public class ConciliacionDao {
 		List<GroupBean> listGroups = new ArrayList<GroupBean>();
 		Response<List<GroupBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		GroupBean gb = new GroupBean();
-		String INV_VW_AVAILABLE_GROUPS = "SELECT IG.GROUP_ID, IG.GRP_DESC " + "FROM INV_GROUPS_USER AS IGU "
-				+ "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
-				+ "WHERE GRU_USER_ID NOT IN (SELECT GRU_USER_ID FROM INV_GROUPS_USER "
-				+ "WHERE GRU_GROUP_ID IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
-				+ "AND GRU_GROUP_ID NOT IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?) "
-				+ "AND IG.GRP_BUKRS LIKE '%" + docInv.getBukrs() + "%' " + "AND IG.GRP_WERKS LIKE '%"
-				+ docInv.getWerks() + "%' " + "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
-
-		/*
-		 * String INV_VW_AVAILABLE_GROUPS = "SELECT GRPS.GROUP_ID, GRPS.GRP_DESC " +
-		 * "FROM INV_ROUTE_GROUPS AS IRG " +
-		 * "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IRG.RGR_ROUTE_ID = IDIH.DIH_ROUTE_ID) "
-		 * + "INNER JOIN INV_GROUPS AS GRPS ON(GRPS.GROUP_ID = IRG.RGR_GROUP_ID) " +
-		 * "AND RGR_GROUP_ID NOT IN(SELECT TAS_GROUP_ID " + "FROM INV_TASK " +
-		 * "WHERE TAS_DOC_INV_ID = ?) " + "WHERE IDIH.DOC_INV_ID = ? " +
-		 * "ORDER BY IRG.RGR_COUNT_NUM ASC";
-		 */
-
+		GroupBean gb = new GroupBean();		
+		String queryToUse = "";
+		
 		try {
+			
+			if(type.trim().equals("1")){
+				
+				queryToUse = INV_VW_AVAILABLE_GROUPS_FOR_INV_DAILY;
+				stm = con.prepareStatement(queryToUse);
+				stm.setString(1, docInv.getBukrs()==null?"%":docInv.getBukrs());
+				stm.setString(2, docInv.getWerks()==null?"%":docInv.getWerks());
+				
+			}else{
+				
+				queryToUse = INV_VW_AVAILABLE_GROUPS_FOR_INV_MONTH;				
+				stm = con.prepareStatement(queryToUse);
+				stm.setInt(1, docInv.getDocInvId());
+				stm.setInt(2, docInv.getDocInvId());
+				stm.setString(3, docInv.getBukrs()==null?"%":docInv.getBukrs());
+				stm.setString(4, docInv.getWerks()==null?"%":docInv.getWerks());
+			}
 
-			stm = con.prepareCall(INV_VW_AVAILABLE_GROUPS);
-			stm.setInt(1, docInv.getDocInvId());
-			stm.setInt(2, docInv.getDocInvId());
-
-			log.info(INV_VW_AVAILABLE_GROUPS);
+			log.info(queryToUse);
 			rs = stm.executeQuery();
 
 			while (rs.next()) {
@@ -792,7 +805,7 @@ public class ConciliacionDao {
 			log.info("[getAvailableGroups] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[getAvailableGroups] Some error occurred while was trying to execute the query: "
-					+ INV_VW_AVAILABLE_GROUPS, e);
+					+ queryToUse, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
