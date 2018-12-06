@@ -746,19 +746,20 @@ public class ReportesDao {
 		Response<List<TareasTiemposZonasBean>> res = new Response<List<TareasTiemposZonasBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TareasTiemposZonasBean> listTareasBean = new ArrayList<TareasTiemposZonasBean>();
-		String INV_VW_REP_TAREAS = null;
+		String INV_VW_USER_PRODUCTIVITY_REPORT = null;
 
-		INV_VW_REP_TAREAS = "SELECT DOC_INV_ID,ROUTE_ID,RDESC,BUKRS,BDESC,WERKS,WDESC,TASK_ID,GROUP_ID,ZONE_ID,ZON_DESC,COU_START_DATE,COU_END_DATE,COU_USER_ID,TIEMPO, LGORT FROM INV_TAREAS_TIEMPOS_ZONAS  WITH(NOLOCK) ";
+		INV_VW_USER_PRODUCTIVITY_REPORT = "SELECT DOC_INV_ID,DIH_BUKRS,DIH_WERKS,RPO_ZONE_ID,"
+				+ "TAS_DOWLOAD_DATE,TAS_UPLOAD_DATE,COU_USER_ID,DIH_ROUTE_ID, DIP_LGORT, COUNTEDLGPLA FROM INV_VW_USER_PRODUCTIVITY_REPORT  WITH(NOLOCK) ";
 
 		String condition = buildConditionTiemposZonas(tareasBean);
 		if (condition != null) {
-			INV_VW_REP_TAREAS += condition;
+			INV_VW_USER_PRODUCTIVITY_REPORT += condition;
 		}
 
-		log.info(INV_VW_REP_TAREAS);
+		log.info(INV_VW_USER_PRODUCTIVITY_REPORT);
 		log.info("[getReporteTiemposTareasZonasDao] Preparing sentence...");
 		try {
-			stm = con.prepareStatement(INV_VW_REP_TAREAS);
+			stm = con.prepareStatement(INV_VW_USER_PRODUCTIVITY_REPORT);
 
 			log.info("[getReporteTiemposTareasZonasDao] Executing query...");
 
@@ -768,21 +769,22 @@ public class ReportesDao {
 
 				tareasBean = new TareasTiemposZonasBean();
 				tareasBean.setDocInvId(rs.getString("DOC_INV_ID"));
-				tareasBean.setRouteId(rs.getString("ROUTE_ID"));
-				tareasBean.setRdesc(rs.getString("RDESC"));
-				tareasBean.setBukrs(rs.getString("BUKRS"));
-				tareasBean.setBdesc(rs.getString("BDESC"));
-				tareasBean.setWerks(rs.getString("WERKS"));
-				tareasBean.setWdesc(rs.getString("WDESC"));
-				tareasBean.setLgort(rs.getString("LGORT"));
-				tareasBean.setZoneId(rs.getString("ZONE_ID"));
-				tareasBean.setZoneD(rs.getString("ZON_DESC"));
-				tareasBean.setTaskId(rs.getString("TASK_ID"));
-				tareasBean.setDateIni(rs.getString("COU_START_DATE"));
-				tareasBean.setDateFin((rs.getString("COU_END_DATE") == null) ? "" : (rs.getString("COU_END_DATE")));
-				tareasBean.setTiempo((rs.getString("TIEMPO") == null ? "" : (rs.getString("TIEMPO"))));
+				tareasBean.setRouteId(rs.getString("DIH_ROUTE_ID"));
+//				tareasBean.setRdesc(rs.getString("RDESC"));
+				tareasBean.setBukrs(rs.getString("DIH_BUKRS"));
+//				tareasBean.setBdesc(rs.getString("BDESC"));
+				tareasBean.setWerks(rs.getString("DIH_WERKS"));
+//				tareasBean.setWdesc(rs.getString("WDESC"));
+				tareasBean.setLgort(rs.getString("DIP_LGORT"));
+				tareasBean.setZoneId(rs.getString("RPO_ZONE_ID"));
+//				tareasBean.setZoneD(rs.getString("ZON_DESC"));
+//				tareasBean.setTaskId(rs.getString("TASK_ID"));
+				tareasBean.setDateIni(rs.getString("TAS_DOWLOAD_DATE"));
+				tareasBean.setDateFin((rs.getString("TAS_UPLOAD_DATE") == null) ? "" : (rs.getString("TAS_UPLOAD_DATE")));
+//				tareasBean.setTiempo((rs.getString("TIEMPO") == null ? "" : (rs.getString("TIEMPO"))));
 				tareasBean.setUser(rs.getString("COU_USER_ID"));
-				tareasBean.setIdGrupo(rs.getString("GROUP_ID"));
+//				tareasBean.setIdGrupo(rs.getString("GROUP_ID"));
+				tareasBean.setCountedLgpla(String.valueOf(rs.getInt("COUNTEDLGPLA")));
 				listTareasBean.add(tareasBean);
 			}
 
@@ -800,12 +802,10 @@ public class ReportesDao {
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
 					"[getReporteTiemposTareasZonasDao] Some error occurred while was trying to execute the query: "
-							+ INV_VW_REP_TAREAS,
+							+ INV_VW_USER_PRODUCTIVITY_REPORT,
 					e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
 		} finally {
 			try {
 				con.close();
@@ -1141,60 +1141,59 @@ public class ReportesDao {
 	}
 
 	private String buildConditionTiemposZonas(TareasTiemposZonasBean tareasB) {
-		String routeId = "";
+//		String routeId = "";
 		String bukrs = "";
 		String werks = "";
 		String lgort = "";
-		String rdesc = "";
-		String type = "";
+//		String rdesc = "";
+//		String type = "";
 		String user = "";
-		String docInv = "";
+//		String docInv = "";
 		String condition = "";
 		String zone = "";
-		String zoneD = "";
+//		String zoneD = "";
 		String start = "";
 		String end = "";
-		routeId = (tareasB.getRouteId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + tareasB.getRouteId() + "' "
-				: "";
-		condition += routeId;
+//		routeId = (tareasB.getRouteId() != null)
+//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + tareasB.getRouteId() + "' "
+//				: "";
+//		condition += routeId;
 		bukrs = (tareasB.getBukrs() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS = '" + tareasB.getBukrs() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_BUKRS = '" + tareasB.getBukrs() + "' " : "";
 		condition += bukrs;
 		werks = (tareasB.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + tareasB.getWerks() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS = '" + tareasB.getWerks() + "' " : "";
 		condition += werks;
 		lgort = (tareasB.getLgort() != null)
-				?(condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT = '" + tareasB.getLgort() + "' " : "";
+				?(condition.contains("WHERE") ? " AND " : " WHERE ") + " DIP_LGORT = '" + tareasB.getLgort() + "' " : "";
 		condition += lgort;
-		rdesc = (tareasB.getRdesc() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + tareasB.getRdesc() + "' " : "";
-		condition += rdesc;
+//		rdesc = (tareasB.getRdesc() != null)
+//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + tareasB.getRdesc() + "' " : "";
+//		condition += rdesc;
 		user = (tareasB.getUser() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " COU_USER_ID = '" + tareasB.getUser() + "' "
 				: "";
 		condition += user;
-		docInv = (tareasB.getDocInvId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DOC_INV_ID = '" + tareasB.getDocInvId() + "' "
-				: "";
-		condition += docInv;
+//		docInv = (tareasB.getDocInvId() != null)
+//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DOC_INV_ID = '" + tareasB.getDocInvId() + "' "
+//				: "";
+//		condition += docInv;
 
 		zone = (tareasB.getZoneId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ZONE_ID = '" + tareasB.getZoneId() + "' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RPO_ZONE_ID = '" + tareasB.getZoneId() + "' "
 				: "";
 		condition += zone;
 
-		zoneD = (tareasB.getZoneD() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ZON_DESC = '" + tareasB.getZoneD() + "' "
-				: "";
-		condition += zoneD;
+//		zoneD = (tareasB.getZoneD() != null)
+//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ZON_DESC = '" + tareasB.getZoneD() + "' "
+//				: "";
+//		condition += zoneD;
 
 		start = (tareasB.getDateIni() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")
-				+ " COU_START_DATE = '" + tareasB.getDateIni() + "' " : "";
+				+ " TAS_DOWLOAD_DATE BETWEEN '" + new java.sql.Date(Long.parseLong((tareasB.getDateIni()))) + "' " : "";
 		condition += start;
 
-		end = (tareasB.getDateFin() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " COU_END_DATE = '"
-				+ tareasB.getDateFin() + "' " : "";
+		end = (tareasB.getDateFin() != null) ? ( " AND  '" + new java.sql.Date(Long.parseLong(tareasB.getDateFin())) + "' ") : "AND '"+ new java.sql.Date(Long.parseLong((tareasB.getDateIni()))) + "' ";
 		condition += end;
 
 		condition = condition.isEmpty() ? null : condition;

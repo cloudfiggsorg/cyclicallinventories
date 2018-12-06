@@ -127,8 +127,10 @@ public class ReportesWorkService {
 			log.log(Level.SEVERE, "[getReporteTiemposTareasZonasWorkService] catch", e );
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
+			Response<List<TareasTiemposZonasBean>> badResponse = new Response<>();
+			badResponse.setAbstractResult(result);
+			return badResponse ;
 		}
-		response.setAbstractResult(result);
 		return response;
 	}
 

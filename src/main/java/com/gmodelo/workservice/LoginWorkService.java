@@ -71,22 +71,42 @@ public class LoginWorkService {
 					
 					user.getEntity().setIdentyId(loginBean.getLoginId().trim());
 					user.getAccInf().setPassword(loginBean.getLoginPass().trim());
-					user = apiUME.checkUserLDAP(user);
-					abstractResult.setResultId(ReturnValues.ISUCCESS);
-				} catch (NamingException e) {
+					
+					User userLDAP = null;
+					userLDAP = apiUME.checkUserLDAP(user);
+					if(userLDAP != null){
+						abstractResult.setResultId(ReturnValues.ISUCCESS);
+						user = userLDAP;
+					}else{
+						user = null;
+						abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					}
+					
+				} catch (Exception e) {
 					user = null;
 					abstractResult.setResultId(ReturnValues.IEXCEPTION);
 					if(e.toString().contains("Connection timed out")){
 						abstractResult.setResultId(ReturnValues.ILDAPTIMEOUT);
 						abstractResult.setResultMsgAbs(ReturnValues.SLDAPTIMEOUT);
 					}
-					if(e.getMessage().contains("AcceptSecurityContext")){
+					if(e.toString().contains("AcceptSecurityContext")){
 						abstractResult.setResultId(ReturnValues.IPASSWORDNOTMATCH);
 						abstractResult.setResultMsgAbs(ReturnValues.SINVALIDUSER);
 					}
 					
+					if(e.toString().contains("The connection is closed")){
+						abstractResult.setResultId(ReturnValues.IEXCEPTION);
+						abstractResult.setResultMsgAbs("Sin conexión a la Base de datos");
+					}
+					
+					
 					myLog.log(Level.SEVERE, "Error al verificar usuario en LDAP", e);
-					myLog.log(Level.SEVERE, abstractResult.getResultMsgAbs(), e);
+					if(abstractResult.getResultMsgAbs() != null){
+						myLog.log(Level.SEVERE, "[LoginWorkService] "+abstractResult.getResultMsgAbs());
+					}else{
+						myLog.log(Level.SEVERE, "Error en UME");
+					}
+					
 					resp.setAbstractResult(abstractResult);
 					return resp;
 				}
