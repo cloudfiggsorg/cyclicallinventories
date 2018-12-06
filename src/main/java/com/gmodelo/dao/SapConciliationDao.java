@@ -66,7 +66,7 @@ public class SapConciliationDao {
 		CallableStatement csBatch = null;
 
 		String CURRENTSP = "";
-		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?";
 		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 		long rid = 0;
@@ -90,21 +90,22 @@ public class SapConciliationDao {
 					cs.setString(4, dipb.getLgtyp());
 					cs.setString(5, dipb.getLgpla());
 					cs.setString(6, dipb.getMatnr());
-					cs.setString(7, dipb.getMeins());
-					cs.setString(8, dipb.getCounted());
-					cs.setString(9, dipb.getTheoric());
-					cs.setString(10, dipb.getDiff());
-					cs.setString(11, dipb.getConsignation());
-					cs.setString(12, dipb.getTransit());
-					cs.setString(13, dipb.getAccountant());
-					cs.setString(14, userId);
-					cs.registerOutParameter(15, Types.BIGINT);
+					cs.setString(7, dipb.getCostByUnit());
+					cs.setString(8, dipb.getMeins());
+					cs.setString(9, dipb.getCounted());
+					cs.setString(10, dipb.getTheoric());
+					cs.setString(11, dipb.getDiff());
+					cs.setString(12, dipb.getConsignation());
+					cs.setString(13, dipb.getTransit());
+					cs.setString(14, dipb.getAccountant());
+					cs.setString(15, userId);
+					cs.registerOutParameter(16, Types.BIGINT);
 
 					cs.execute();
 
 					log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 
-					rid = cs.getLong(15);
+					rid = cs.getLong(16);
 					CURRENTSP = INV_SP_ADD_JUSTIFY;
 					
 					ArrayList<Justification> lsJustification = dipb.getLsJustification();
@@ -131,15 +132,16 @@ public class SapConciliationDao {
 					csBatch.setString(4, dipb.getLgtyp());
 					csBatch.setString(5, dipb.getLgpla());
 					csBatch.setString(6, dipb.getMatnr());
-					csBatch.setString(7, dipb.getMeins());
-					csBatch.setString(8, dipb.getCounted());
-					csBatch.setString(9, dipb.getTheoric());
-					csBatch.setString(10, dipb.getDiff());
-					csBatch.setString(11, dipb.getConsignation());
-					csBatch.setString(12, dipb.getTransit());
-					csBatch.setString(13, dipb.getAccountant());
-					csBatch.setString(14, userId);
-					csBatch.setNull(15, Types.NULL);
+					csBatch.setString(7, dipb.getCostByUnit());
+					csBatch.setString(8, dipb.getMeins());
+					csBatch.setString(9, dipb.getCounted());
+					csBatch.setString(10, dipb.getTheoric());
+					csBatch.setString(11, dipb.getDiff());
+					csBatch.setString(12, dipb.getConsignation());
+					csBatch.setString(13, dipb.getTransit());
+					csBatch.setString(14, dipb.getAccountant());
+					csBatch.setString(15, userId);
+					csBatch.setNull(16, Types.NULL);
 					csBatch.addBatch();
 				}
 			}
