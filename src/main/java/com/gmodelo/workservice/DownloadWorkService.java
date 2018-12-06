@@ -191,7 +191,7 @@ public class DownloadWorkService {
 		try {
 			databean.setListMaterialTarimas(downloadDao.getAllMaterialCrossTarimas(con));
 			databean.setListMobileMaterial(downloadDao.getAllMaterialMobile(con));
-			databean.setZiacmf_I360_EXT_SIS_CLAS(downloadDao.getClassSystemMobile(con));
+			//databean.setZiacmf_I360_EXT_SIS_CLAS(downloadDao.getClassSystemMobile(con));
 			// abstractResult.setStrCom1(httpSession.getId());
 			// abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());s
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -237,7 +237,7 @@ public class DownloadWorkService {
 		try {
 			databean.setListMaterialTarimas(downloadDao.getDeltaAllMaterialCrossTarimas(lastUpdatedDate, con));
 			databean.setListMobileMaterial(downloadDao.getDeltaAllMaterialMobile(lastUpdatedDate, con));
-			databean.setZiacmf_I360_EXT_SIS_CLAS(downloadDao.getClassSystemMobile(con));
+			//databean.setZiacmf_I360_EXT_SIS_CLAS(downloadDao.getClassSystemMobile(con));
 			// abstractResult.setStrCom1(httpSession.getId());
 			// abstractResult.setIntCom1(httpSession.getMaxInactiveInterval());
 
