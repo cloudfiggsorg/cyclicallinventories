@@ -20,6 +20,7 @@ import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.ApegosBean;
 import com.gmodelo.beans.ConciliacionBean;
 import com.gmodelo.beans.ConciliationPositionBean;
+import com.gmodelo.beans.CostByMatnr;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.beans.E_Lqua_SapEntity;
@@ -416,6 +417,8 @@ public class ReportesDao {
 		Response<DocInvBeanHeaderSAP> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<PosDocInvBean> listBean = new ArrayList<PosDocInvBean>();
+		String lsMatnr = "";
+		
 		log.info(INV_VW_REP_HEADER);
 		log.info("[getReporteDocInvDao] Preparing sentence...");
 		try {
@@ -468,14 +471,15 @@ public class ReportesDao {
 						positionBean.setDiff("");
 					
 					listBean.add(positionBean);
-					
+					lsMatnr += positionBean.getMatnr() + ", ";
 				}
 								
 				ArrayList<E_Mseg_SapEntity> lsTransit = sod.getMatnrOnTransit(docInvBean.getDocInvId(), con);
 				ArrayList<E_Msku_SapEntity> lsCons = sod.getMatnrOnCons(docInvBean.getDocInvId(), con);
 				ArrayList<E_Mard_SapEntity> lsTheoricIM = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), con);
 				ArrayList<E_Lqua_SapEntity> lsTheoricWM = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), con);
-								
+				ArrayList<CostByMatnr> lsMatnrCost = sod.getCostByMatnr(lsMatnr, bean.getWerks(), con);
+											
 				List<PosDocInvBean> wmList = new ArrayList<>();
 				List<PosDocInvBean> imList = new ArrayList<>();
 				List<PosDocInvBean> imPList = new ArrayList<>();
@@ -486,6 +490,16 @@ public class ReportesDao {
 
 				if (!listBean.isEmpty()) {
 					for (PosDocInvBean singlePos : listBean) {
+						
+						//Set the value per matnr
+						for(CostByMatnr matnrCost: lsMatnrCost){
+							
+							if(matnrCost.getMatnr().contentEquals(singlePos.getMatnr())){
+								
+								singlePos.setCostByUnit(matnrCost.getCost());
+								break;
+							}
+						}
 						
 						//Set the transit measure for this matnr
 						for(E_Mseg_SapEntity ojb: lsTransit){

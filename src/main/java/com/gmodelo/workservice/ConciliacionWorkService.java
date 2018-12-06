@@ -1,6 +1,7 @@
 package com.gmodelo.workservice;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,18 +43,20 @@ public class ConciliacionWorkService {
 		return new ConciliacionDao().getConciliacion(tb);
 	}
 
-	public Response<List<GroupBean>> getAvailableGroups(Request request) {
+	public Response<List<GroupBean>> getAvailableGroups(Request<ArrayList<Object>> request) {
 
 		log.info("[getAvailableGroupsWS] " + request.toString());
-		String req = request.getLsObject().toString().trim();
 		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		DocInvBean docInv;
+		String type = "";
 		res.setAbstractResult(abstractResult);
+				
 		try {
-			docInv = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+			docInv = gson.fromJson(gson.toJson(request.getLsObject().get(0)), DocInvBean.class);
+			type = (String)request.getLsObject().get(1);
 			new ConciliacionDao().fillCurrectDocInv(docInv);
-			res = new ConciliacionDao().getAvailableGroups(docInv);
+			res = new ConciliacionDao().getAvailableGroups(docInv, type);
 		} catch (NumberFormatException e) {
 			log.log(Level.SEVERE, "[getAvailableGroupsWS] Objeto no válido.");
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
