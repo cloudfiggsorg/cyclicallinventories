@@ -1,22 +1,24 @@
 package com.gmodelo.beans;
 
 public class Justification {
-	
+
 	int consPosSAPId;
 	String quantity;
 	String justify;
 	String fileName;
-	
-	public Justification(){
+	String base64File;
+
+	public Justification() {
 		super();
 	}
 
-	public Justification(int consPosSAPId, String quantity, String justify, String fileName) {
+	public Justification(int consPosSAPId, String quantity, String justify, String fileName, String base64File) {
 		super();
 		this.consPosSAPId = consPosSAPId;
 		this.quantity = quantity;
 		this.justify = justify;
 		this.fileName = fileName;
+		this.base64File = base64File;
 	}
 
 	public int getConsPosSAPId() {
@@ -50,11 +52,19 @@ public class Justification {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
+	
+	public String getBase64File() {
+		return base64File;
+	}
+
+	public void setBase64File(String base64File) {
+		this.base64File = base64File;
+	}
 
 	@Override
 	public String toString() {
 		return "Justification [consPosSAPId=" + consPosSAPId + ", quantity=" + quantity + ", justify=" + justify
-				+ ", fileName=" + fileName + "]";
+				+ ", fileName=" + fileName + ", base64File=" + base64File + "]";
 	}
-		
+	
 }

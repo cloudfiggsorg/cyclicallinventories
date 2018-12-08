@@ -1,5 +1,7 @@
 package com.gmodelo.dao;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.naming.NamingException;
+
+import org.apache.commons.io.FileUtils;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.Exception.InvCicException;
@@ -67,9 +72,12 @@ public class SapConciliationDao {
 
 		String CURRENTSP = "";
 		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
-		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?";
+		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?";
 		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 		long rid = 0;
+		long jid = 0;
+		File file;
+		byte[] bytes;
 
 		try {
 			con.setAutoCommit(false);
@@ -119,8 +127,20 @@ public class SapConciliationDao {
 						cs.setString(2, js.getQuantity());
 						cs.setString(3, js.getJustify());
 						cs.setString(4, js.getFileName());
+						cs.registerOutParameter(5, Types.BIGINT);
 						cs.execute();
 
+						jid = cs.getLong(5);
+						
+						if(!js.getBase64File().isEmpty()){//Write the file if exists
+							
+							file = new File("I:"+ File.separator + "Files" + File.separator 
+									+ dipb.getDoncInvId() + File.separator + jid + File.separator 
+									+ js.getFileName());
+							bytes = Base64.getDecoder().decode(js.getBase64File());
+							FileUtils.writeByteArrayToFile( file, bytes );
+						}
+						
 						log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 					}
 
@@ -161,12 +181,21 @@ public class SapConciliationDao {
 
 			log.info("[saveConciliationSAP] Executing query...");
 
-		} catch (SQLException e) {
+		} catch (SQLException | IOException e) {
+			
 			try {
 				log.log(Level.WARNING, "[saveConciliationSAP] Execute rollback");
 				con.rollback();
 			} catch (SQLException e1) {
 				log.log(Level.SEVERE, "[saveConciliationSAP] Not rollback .", e);
+			}
+			
+			//Delete directory if was created
+			File directory = new File("I:"+ File.separator + "Files" + File.separator 
+					+ dibhSAP.getDocInvId());
+
+			if(directory.exists()){
+				directory.delete();
 			}
 
 			log.log(Level.SEVERE,
