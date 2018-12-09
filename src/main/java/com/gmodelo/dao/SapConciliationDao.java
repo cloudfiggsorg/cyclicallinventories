@@ -113,7 +113,7 @@ public class SapConciliationDao {
 
 					log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 
-					rid = cs.getLong(16);
+					dipb.setPosId(cs.getInt(16));
 					CURRENTSP = INV_SP_ADD_JUSTIFY;
 					
 					ArrayList<Justification> lsJustification = dipb.getLsJustification();
@@ -123,19 +123,21 @@ public class SapConciliationDao {
 
 						cs = null;
 						cs = con.prepareCall(INV_SP_ADD_JUSTIFY);
-						cs.setLong(1, rid);
+						cs.setLong(1, dipb.getPosId());
 						cs.setString(2, js.getQuantity());
 						cs.setString(3, js.getJustify());
 						cs.setString(4, js.getFileName());
 						cs.registerOutParameter(5, Types.BIGINT);
 						cs.execute();
 
-						jid = cs.getLong(5);
+						js.setJsId(cs.getInt(5));
 						
 						if(!js.getBase64File().isEmpty()){//Write the file if exists
 							
 							file = new File("I:"+ File.separator + "Files" + File.separator 
-									+ dipb.getDoncInvId() + File.separator + jid + File.separator 
+									+ dipb.getDoncInvId() + File.separator 
+									+ dipb.getPosId() + File.separator 
+									+ js.getJsId() + File.separator 
 									+ js.getFileName());
 							bytes = Base64.getDecoder().decode(js.getBase64File());
 							FileUtils.writeByteArrayToFile( file, bytes );
