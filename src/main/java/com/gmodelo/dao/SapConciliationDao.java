@@ -2,6 +2,8 @@ package com.gmodelo.dao;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,17 +18,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.naming.NamingException;
-
+import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.io.FileUtils;
-
 import com.bmore.ume001.beans.User;
 import com.gmodelo.Exception.InvCicException;
 import com.gmodelo.beans.AbstractResultsBean;
 import com.gmodelo.beans.DocInvBean;
 import com.gmodelo.beans.DocInvBeanHeaderSAP;
-import com.gmodelo.beans.DocInvPositionBean;
 import com.gmodelo.beans.E_Error_SapEntity;
 import com.gmodelo.beans.E_Lqua_SapEntity;
 import com.gmodelo.beans.E_Mard_SapEntity;
@@ -43,6 +42,7 @@ import com.gmodelo.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.structure.ZIACMF_I360_INV_MOV_3;
 import com.gmodelo.utils.ConnectionManager;
 import com.gmodelo.utils.ReturnValues;
+import com.gmodelo.utils.Utilities;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
@@ -53,11 +53,30 @@ public class SapConciliationDao {
 	private static final String ZIACMF_I360_INV_MOV_1 = "ZIACMF_I360_INV_MOV_1";
 	private static final String ZIACMF_I360_INV_MOV_2 = "ZIACMF_I360_INV_MOV_2";
 	private static final String ZIACMF_I360_INV_MOV_3 = "ZIACMF_I360_INV_MOV_3";
-	private static final String ZIACMF_I360_EXT_SIS_CLAS = "ZIACMF_I360_EXT_SIS_CLAS";
-
+	private static final String ZIACMF_I360_EXT_SIS_CLAS = "ZIACMF_I360_EXT_SIS_CLAS";	
+	private static String PATH_TO_SAVE_FILES ="";
 	private Logger log = Logger.getLogger(SapConciliationDao.class.getName());
-
 	private final SapOperationDao operationDao = new SapOperationDao();
+	
+	static{
+		
+		Utilities iUtils = new Utilities();
+		Connection con = new ConnectionManager().createConnection();
+		
+		try {
+			
+			PATH_TO_SAVE_FILES  = iUtils.GetValueRepByKey(con, ReturnValues.PATH_TO_SAVE_FILES).getStrCom1();			
+		} catch (InvCicException e) {
+			
+			System.out.println("Some error occurred whiles was trying to get the path...");
+		}finally{
+			try {
+				con.close();
+			} catch (SQLException e) {
+				System.out.println("Some error occurred while was trying to close the DB.");
+			}
+		}		
+	}
 
 	@SuppressWarnings("rawtypes")
 	public Response saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, String userId) {
@@ -74,8 +93,6 @@ public class SapConciliationDao {
 		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?";
 		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
-		long rid = 0;
-		long jid = 0;
 		File file;
 		byte[] bytes;
 
@@ -134,9 +151,9 @@ public class SapConciliationDao {
 						
 						if(!js.getBase64File().isEmpty()){//Write the file if exists
 							
-							file = new File("I:"+ File.separator + "Files" + File.separator 
+							file = new File(PATH_TO_SAVE_FILES+ File.separator 
 									+ dipb.getDoncInvId() + File.separator 
-									+ dipb.getPosId() + File.separator 
+									//+ dipb.getPosId() + File.separator 
 									+ js.getJsId() + File.separator 
 									+ js.getFileName());
 							bytes = Base64.getDecoder().decode(js.getBase64File());
@@ -349,7 +366,7 @@ public class SapConciliationDao {
 		return lsPdib;
 	}
 
-	private static final String GET_JUSTIFICATION = "SELECT JS_CON_SAP, JS_QUANTITY, JS_JUSTIFY, JS_FILE_NAME "
+	private static final String GET_JUSTIFICATION = "SELECT JS_ID, JS_CON_SAP, JS_QUANTITY, JS_JUSTIFY, JS_FILE_NAME "
 			+ "FROM INV_JUSTIFY WHERE JS_CON_SAP IN (SELECT * FROM STRING_SPLIT(?, ','))";
 	private ArrayList<Justification> getJustification(String ids, Connection con) throws SQLException {
 
@@ -366,6 +383,7 @@ public class SapConciliationDao {
 			while (rs.next()) {
 
 				js = new Justification();
+				js.setJsId(rs.getInt("JS_ID"));
 				js.setConsPosSAPId(rs.getInt("JS_CON_SAP"));
 				js.setQuantity(rs.getString("JS_QUANTITY"));
 				js.setJustify(rs.getString("JS_JUSTIFY"));
@@ -378,6 +396,54 @@ public class SapConciliationDao {
 			throw e;
 		}
 		return lsJustification;
+	}
+	
+	public Response<String> getjsFileBase64(int docInvId, int jsId, String fileName){
+		
+		Response<String> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		
+		String PATH = PATH_TO_SAVE_FILES + File.separator;
+		PATH += docInvId + File.separator;
+		PATH += jsId + File.separator;
+		File folder;
+		
+		folder = new File(PATH);
+		
+		if (!folder.exists()) {
+			log.severe("File not found");
+			abstractResult.setResultId(ReturnValues.FILE_NOT_FOUND);
+			abstractResult.setResultMsgAbs("File not found...");
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+				
+		if (new File(PATH + fileName).isFile()) {
+
+			String base64 = "";
+			try {
+				base64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(Paths.get(PATH + fileName)));
+			} catch (IOException e) {
+				log.severe("Some error occurred while was trying to get the file " + e.getMessage());
+				abstractResult.setResultId(ReturnValues.FILE_EXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+			
+			res.setLsObject(base64);
+			res.setAbstractResult(abstractResult);
+			return res;
+
+		} else {
+
+			log.severe("File not found");
+			abstractResult.setResultId(ReturnValues.FILE_NOT_FOUND);
+			abstractResult.setResultMsgAbs("File not found...");
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		
 	}
 
 	public ZIACMF_I360_INV_MOV_1 inventoryMovementsDao(DocInvBean docInvBean, Connection con,
