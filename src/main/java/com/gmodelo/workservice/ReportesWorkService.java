@@ -14,7 +14,7 @@ import com.gmodelo.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TareasTiemposLgplaBean;
-import com.gmodelo.beans.TareasTiemposZonasBean;
+import com.gmodelo.beans.ProductivityBean;
 import com.gmodelo.dao.ReportesDao;
 import com.gmodelo.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -96,17 +96,17 @@ public class ReportesWorkService {
 		return response;
 	}
 
-	public Response<List<TareasTiemposLgplaBean>> getReporteTiemposTareasLgpla(Request request) {
-		log.info("[getReporteTiemposTareasWorkService] " + request.toString());
-		Response<List<TareasTiemposLgplaBean>> response = new Response<>();
+	public Response<List<ProductivityBean>> getCountedProductivity(Request request) {
+		log.info("[getCountedProductivityWorkService] " + request.toString());
+		Response<List<ProductivityBean>> response = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
-		TareasTiemposLgplaBean tareasBean = null;
+		ProductivityBean tareasBean = null;
 		try {
-			log.info("[getReporteTiemposTareasWorkService] try");
-			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), TareasTiemposLgplaBean.class);
-			response = new ReportesDao().getReporteTareasTiemposLgpla(tareasBean);
+			log.info("[getCountedProductivityWorkService] try");
+			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), ProductivityBean.class);
+			response = new ReportesDao().getCountedProductivityDao(tareasBean);
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "[getReporteTiemposTareasWorkService] catch", e );
+			log.log(Level.SEVERE, "getCountedProductivityTareasWorkService] catch", e );
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
 		}
@@ -114,20 +114,20 @@ public class ReportesWorkService {
 		return response;
 	}
 
-	public Response<List<TareasTiemposZonasBean>> getReporteTiemposTareasZonas(Request request) {
+	public Response<List<ProductivityBean>> getUserProductivity(Request request) {
 		log.info("[getReporteTiemposTareasZonasWorkService] " + request.toString());
-		Response<List<TareasTiemposZonasBean>> response = new Response<>();
+		Response<List<ProductivityBean>> response = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
-		TareasTiemposZonasBean tareasBean = null;
+		ProductivityBean tareasBean = null;
 		try {
-			log.info("[getReporteTiemposTareasZonasWorkService] try");
-			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), TareasTiemposZonasBean.class);
-			response = new ReportesDao().getReporteTareasTiemposZonas(tareasBean); 
+			log.info("[getUserProductivityWorkService] try");
+			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), ProductivityBean.class);
+			response = new ReportesDao().getUserProductivityDao(tareasBean); 
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "[getReporteTiemposTareasZonasWorkService] catch", e );
+			log.log(Level.SEVERE, "[getUserProductivityWorkService] catch", e );
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
-			Response<List<TareasTiemposZonasBean>> badResponse = new Response<>();
+			Response<List<ProductivityBean>> badResponse = new Response<>();
 			badResponse.setAbstractResult(result);
 			return badResponse ;
 		}
