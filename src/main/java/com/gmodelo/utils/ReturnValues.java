@@ -38,6 +38,9 @@ public class ReturnValues {
 	public static final int ILOCKEDUSER = -111;
 	public static final String SLOCKEDUSER = "LOCKED USER";
 	public static final int IMISSING_BUKRS_OR_WERKS = -112;
+	public static final int FILE_EXCEPTION = -113;
+	public static final int FILE_NOT_FOUND = -114;
+	
 	public static final String SMISSING_BUKRS_OR_WERKS = "BUKRS OR WERKS NOT FOUND";
 
 	public static final String SEXCEPTION = "";
@@ -65,5 +68,6 @@ public class ReturnValues {
 	public static final int CONTEO_ESPECIAL = 3;
 
 	public static final String ROLE_MASK = "ROLE_MASK";
+	public static final String PATH_TO_SAVE_FILES = "PATH_TO_SAVE_FILES";
 
 }
