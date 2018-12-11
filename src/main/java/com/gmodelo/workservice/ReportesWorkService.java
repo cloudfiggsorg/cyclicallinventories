@@ -109,8 +109,10 @@ public class ReportesWorkService {
 			log.log(Level.SEVERE, "getCountedProductivityTareasWorkService] catch", e );
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
+			Response<List<ProductivityBean>> badResponse = new Response<>();
+			badResponse.setAbstractResult(result);
+			return badResponse ;
 		}
-		response.setAbstractResult(result);
 		return response;
 	}
 

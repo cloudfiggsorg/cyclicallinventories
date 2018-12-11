@@ -680,20 +680,21 @@ public class ReportesDao {
 		Response<List<ProductivityBean>> res = new Response<List<ProductivityBean>>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<ProductivityBean> listTareasBean = new ArrayList<ProductivityBean>();
-		String INV_VW_REP_TAREAS = null;
-		INV_VW_REP_TAREAS = "SELECT DOC_INV_ID,ROUTE_ID,RDESC,BUKRS,BDESC,TAS_GROUP_ID,WERKS,WDESC,TASK_ID,ZPO_LGPLA,COU_START_DATE,COU_END_DATE,COU_USER_ID,TIEMPO FROM INV_VW_REPORTE_TAREAS_CARRIL WITH(NOLOCK) ";
+		String INV_VW_COUNTED_PRODUCTIVITY_REPORT  = "SELECT DOC_INV_ID, DIH_BUKRS, DIH_WERKS,"
+				+ " DIH_ROUTE_ID, DIP_LGORT, COUNTEDLGPLA, DIH_CREATED_DATE, ASSIGNEDGROUP "
+				+ " FROM INV_VW_COUNTED_PRODUCTIVITY_REPORT  WITH(NOLOCK) ";
 
-		String condition = buildConditionProductivity(tareasBean);
+		String condition = buildConditionCountedProductivity(tareasBean);
 		if (condition != null) {
-			INV_VW_REP_TAREAS += condition;
+			INV_VW_COUNTED_PRODUCTIVITY_REPORT += condition;
 		}
 
-		log.info(INV_VW_REP_TAREAS);
-		log.info("[getReporteTiemposTareasDao] Preparing sentence...");
+		log.info(INV_VW_COUNTED_PRODUCTIVITY_REPORT);
+		log.info("[getCountedProductivityDao] Preparing sentence...");
 		try {
-			stm = con.prepareStatement(INV_VW_REP_TAREAS);
+			stm = con.prepareStatement(INV_VW_COUNTED_PRODUCTIVITY_REPORT);
 
-			log.info("[getReporteTiemposTareasDao] Executing query...");
+			log.info("[getCountedProductivityDao] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
 
@@ -701,18 +702,18 @@ public class ReportesDao {
 
 				tareasBean = new ProductivityBean();
 				tareasBean.setDocInvId(rs.getString("DOC_INV_ID"));
-				tareasBean.setRouteId(rs.getString("ROUTE_ID"));
-				tareasBean.setRdesc(rs.getString("RDESC"));
-				tareasBean.setBukrs(rs.getString("BUKRS"));
-				tareasBean.setBdesc(rs.getString("BDESC"));
-				tareasBean.setWerks(rs.getString("WERKS"));
-				tareasBean.setWdesc(rs.getString("WDESC"));
-				tareasBean.setTaskId(rs.getString("TASK_ID"));
-				tareasBean.setDateIni(rs.getString("COU_START_DATE"));
-				tareasBean.setDateFin((rs.getString("COU_END_DATE") == null) ? "" : (rs.getString("COU_END_DATE")));
-				tareasBean.setTiempo((rs.getString("TIEMPO") == null ? "" : (rs.getString("TIEMPO"))));
-				tareasBean.setUser(rs.getString("COU_USER_ID"));
-				tareasBean.setIdGrupo(rs.getString("TAS_GROUP_ID"));
+				tareasBean.setRouteId(rs.getString("DIH_ROUTE_ID"));
+//				tareasBean.setRdesc(rs.getString("RDESC"));
+				tareasBean.setBukrs(rs.getString("DIH_BUKRS"));
+//				tareasBean.setBdesc(rs.getString("BDESC"));
+				tareasBean.setWerks(rs.getString("DIH_WERKS"));
+//				tareasBean.setWdesc(rs.getString("WDESC"));
+				tareasBean.setLgort(rs.getString("DIP_LGORT"));
+//				tareasBean.setTaskId(rs.getString("TASK_ID"));
+				tareasBean.setDateIni(rs.getString("DIH_CREATED_DATE"));
+				tareasBean.setUser(rs.getString("ASSIGNEDGROUP"));
+//				tareasBean.setIdGrupo(rs.getString("TAS_GROUP_ID"));
+				tareasBean.setCountedLgpla(String.valueOf(rs.getInt("COUNTEDLGPLA")));
 				listTareasBean.add(tareasBean);
 			}
 
@@ -726,11 +727,11 @@ public class ReportesDao {
 			// Free resources
 			rs.close();
 			stm.close();
-			log.info("[getReporteTiemposTareasDao] Sentence successfully executed.");
+			log.info("[getCountedProductivityDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
-					"[getReporteTiemposTareasDao] Some error occurred while was trying to execute the query: "
-							+ INV_VW_REP_TAREAS,
+					"[getCountedProductivityDao] Some error occurred while was trying to execute the query: "
+							+ INV_VW_COUNTED_PRODUCTIVITY_REPORT,
 					e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
@@ -741,7 +742,7 @@ public class ReportesDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[getReporteTiemposTareasDao] Some error occurred while was trying to close the connection.",
+						"[getCountedProductivityDao] Some error occurred while was trying to close the connection.",
 						e);
 			}
 		}
@@ -1104,53 +1105,67 @@ public class ReportesDao {
 		return condition;
 	}
 
-	private String buildConditionTiemposLgpla(TareasTiemposLgplaBean tareasB) {
-		String routeId = "";
+	private String buildConditionCountedProductivity(ProductivityBean tareasB) {
+//		String routeId = "";
 		String bukrs = "";
 		String werks = "";
-		String rdesc = "";
-		String type = "";
+		String lgort = "";
+//		String rdesc = "";
+//		String type = "";
 		String user = "";
-		String docInv = "";
-		String lgpla = "";
-		String start = "";
-		String end = "";
-
+//		String docInv = "";
 		String condition = "";
-
-		routeId = (tareasB.getRouteId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + tareasB.getRouteId() + "' "
-				: "";
-		condition += routeId;
+		String zone = "";
+//		String zoneD = "";
+		String dates = "";
+//		routeId = (tareasB.getRouteId() != null)
+//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + tareasB.getRouteId() + "' "
+//				: "";
+//		condition += routeId;
 		bukrs = (tareasB.getBukrs() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS = '" + tareasB.getBukrs() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_BUKRS = '" + tareasB.getBukrs() + "' " : "";
 		condition += bukrs;
 		werks = (tareasB.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + tareasB.getWerks() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS = '" + tareasB.getWerks() + "' " : "";
 		condition += werks;
-		rdesc = (tareasB.getRdesc() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + tareasB.getRdesc() + "' " : "";
-		condition += rdesc;
+		lgort = (tareasB.getLgort() != null)
+				?(condition.contains("WHERE") ? " AND " : " WHERE ") + " DIP_LGORT = '" + tareasB.getLgort() + "' " : "";
+		condition += lgort;
+//		rdesc = (tareasB.getRdesc() != null)
+//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + tareasB.getRdesc() + "' " : "";
+//		condition += rdesc;
 		user = (tareasB.getUser() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " COU_USER_ID = '" + tareasB.getUser() + "' "
 				: "";
 		condition += user;
-		docInv = (tareasB.getDocInvId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DOC_INV_ID = '" + tareasB.getDocInvId() + "' "
-				: "";
-		condition += docInv;
-		lgpla = (tareasB.getLgpla() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ZPO_LGPLA = '" + tareasB.getLgpla() + "' "
-				: "";
-		condition += lgpla;
+//		docInv = (tareasB.getDocInvId() != null)
+//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DOC_INV_ID = '" + tareasB.getDocInvId() + "' "
+//				: "";
+//		condition += docInv;
 
-		start = (tareasB.getDateIni() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ")
-				+ " COU_START_DATE = '" + tareasB.getDateIni() + "' " : "";
-		condition += start;
+		zone = (tareasB.getZoneId() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RPO_ZONE_ID = '" + tareasB.getZoneId() + "' "
+				: "";
+		condition += zone;
 
-		end = (tareasB.getDateFin() != null) ? (condition.contains("WHERE") ? " AND " : " WHERE ") + " COU_END_DATE = '"
-				+ tareasB.getDateFin() + "' " : "";
-		condition += end;
+//		zoneD = (tareasB.getZoneD() != null)
+//				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ZON_DESC = '" + tareasB.getZoneD() + "' "
+//				: "";
+//		condition += zoneD;
+		
+		if(tareasB.getDateIni() != null && tareasB.getDateFin() != null){
+			dates = (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_CREATED_DATE BETWEEN '" + new java.sql.Date(Long.parseLong((tareasB.getDateIni()))) + "' "
+					+( " AND  '" + new java.sql.Date(Long.parseLong(tareasB.getDateFin())) + "' ");
+		}else if(tareasB.getDateIni() != null && tareasB.getDateFin() == null){
+			Calendar c = Calendar.getInstance();
+//			c.setTime(new Date(Long.parseLong(tareasB.getDateFin())));
+			c.setTimeInMillis(Long.parseLong(tareasB.getDateIni()));
+			c.add(Calendar.DATE, 1);
+			
+			dates = (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_CREATED_DATE BETWEEN '" + new java.sql.Date(Long.parseLong((tareasB.getDateIni()))) + "' "
+					+( " AND  '" + new java.sql.Date(c.getTimeInMillis()) + "' ");
+		}
+		condition += dates;
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
