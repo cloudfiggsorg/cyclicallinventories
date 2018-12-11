@@ -17,7 +17,7 @@ import com.gmodelo.beans.ReporteConteosBean;
 import com.gmodelo.beans.Request;
 import com.gmodelo.beans.Response;
 import com.gmodelo.beans.TareasTiemposLgplaBean;
-import com.gmodelo.beans.TareasTiemposZonasBean;
+import com.gmodelo.beans.ProductivityBean;
 import com.gmodelo.workservice.ReportesWorkService;
 
 @Path("/services/ReportesService")
@@ -53,17 +53,17 @@ public class ReportesService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getReporteTareasTiemposLgpla")
-	public Response<List<TareasTiemposLgplaBean>> getReporteTareasTiempos(Request request) {
-		return new ReportesWorkService().getReporteTiemposTareasLgpla(request);
+	@Path("/getCountedProductivity")
+	public Response<List<ProductivityBean>> getReporteTareasTiempos(Request request) {
+		return new ReportesWorkService().getCountedProductivity(request);
 	}
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getReporteTareasTiemposZonas")
-	public Response<List<TareasTiemposZonasBean>> getReporteTareasTiemposZonas(Request request) {
-		return new ReportesWorkService().getReporteTiemposTareasZonas(request);
+	@Path("/getUserProductivity")
+	public Response<List<ProductivityBean>> getUserProductivity(Request request) {
+		return new ReportesWorkService().getUserProductivity(request);
 	}
 
 	@POST

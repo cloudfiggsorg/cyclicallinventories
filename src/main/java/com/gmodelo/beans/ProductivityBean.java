@@ -1,6 +1,6 @@
 package com.gmodelo.beans;
 
-public class TareasTiemposZonasBean {
+public class ProductivityBean {
 
 	String docInvId;
 	String routeId;
@@ -87,7 +87,7 @@ public class TareasTiemposZonasBean {
 	public void setDateFin(String dateFin) {
 		this.dateFin = dateFin;
 	}
-	public TareasTiemposZonasBean() {
+	public ProductivityBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -129,7 +129,7 @@ public class TareasTiemposZonasBean {
 	public void setCountedLgpla(String countedLgpla) {
 		this.countedLgpla = countedLgpla;
 	}
-	public TareasTiemposZonasBean(String docInvId, String routeId, String rdesc, String bukrs, String bdesc,
+	public ProductivityBean(String docInvId, String routeId, String rdesc, String bukrs, String bdesc,
 			String werks, String wdesc, String dateIni, String dateFin, String user, String taskId, String tiempo,
 			String zoneId, String zoneD, String idGrupo, String lgort, String countedLgpla) {
 		super();
@@ -153,7 +153,7 @@ public class TareasTiemposZonasBean {
 	}
 	@Override
 	public String toString() {
-		return "TareasTiemposZonasBean [docInvId=" + docInvId + ", routeId=" + routeId + ", Rdesc=" + Rdesc + ", bukrs="
+		return "ProductivityBean [docInvId=" + docInvId + ", routeId=" + routeId + ", Rdesc=" + Rdesc + ", bukrs="
 				+ bukrs + ", Bdesc=" + Bdesc + ", werks=" + werks + ", Wdesc=" + Wdesc + ", dateIni=" + dateIni
 				+ ", dateFin=" + dateFin + ", user=" + user + ", taskId=" + taskId + ", tiempo=" + tiempo + ", zoneId="
 				+ zoneId + ", zoneD=" + zoneD + ", idGrupo=" + idGrupo + ", lgort=" + lgort + ", countedLgpla="
