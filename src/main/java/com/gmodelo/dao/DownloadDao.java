@@ -99,8 +99,8 @@ public class DownloadDao {
 		ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = new ZIACMF_I360_EXT_SIS_CLAS();
 		log.log(Level.WARNING, "getClassSystemMobile");
 		try {
-			PreparedStatement stm = con.prepareStatement(GET_ALL_INFO_MATERIAL);
-			log.log(Level.WARNING, "executing: " + GET_ALL_INFO_MATERIAL);
+			PreparedStatement stm = con.prepareStatement(GET_CLASS_SYSTEM);
+			log.log(Level.WARNING, "executing: " + GET_CLASS_SYSTEM);
 			List<ZIACST_I360_OBJECTDATA_SapEntity> entities = new ArrayList<>();
 			i360_EXT_SIS_CLAS.setObjectData(entities);
 			ResultSet rs = stm.executeQuery();
