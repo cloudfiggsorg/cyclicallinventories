@@ -3,11 +3,11 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.gmodelo</groupId>
-	<artifactId>CyclicInventories</artifactId>
+	<groupId>com.gmodelo.cyclicinventories</groupId>
+	<artifactId>gmodelo-cyclicinventories-inventories</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>CyclicInventories</name>
+	<name>gmodelo-cyclicinventories-inventories</name>
 
 	<dependencyManagement>
 		<dependencies>
@@ -94,7 +94,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>CyclicInventories</finalName>
+		<finalName>gmodelo-cyclicinventories-inventories</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
