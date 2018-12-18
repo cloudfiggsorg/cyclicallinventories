@@ -169,7 +169,8 @@ public class LoginWorkService {
 							myLog.info(user.getEntity().getIdentyId().toUpperCase() +" sin permiso para acceder a la APLICACION MOVIL de Inventarios Ciclicos");
 								return resp;
 						}else{
-							if (!lsRolesAux.contains("EXECUTE_INV_CIC_CONSOLE") && loginBean.getRelationUUID() == null) {
+							if (!(lsRolesAux.contains("EXECUTE_INV_CIC_CONSOLE") || 
+									lsRolesAux.contains("EXECUTE_INV_CIC_APP")) && loginBean.getRelationUUID() == null) {
 								abstractResult.setResultId(ReturnValues.INOTROLE);
 								abstractResult.setResultMsgAbs(ReturnValues.SNOTROLE);
 								resp.setAbstractResult(abstractResult);
