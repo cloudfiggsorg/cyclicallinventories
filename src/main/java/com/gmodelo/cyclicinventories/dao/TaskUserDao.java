@@ -20,10 +20,13 @@ public class TaskUserDao {
 
 	private Logger log = Logger.getLogger(TaskUserDao.class.getName());
 
-	private static final String INV_LAST_TASK = "SELECT TOP 1 ROUTE_ID, BUKRS, WERKS,  DTYPE, GROUP_ID, max(TAS_UPLOAD_DATE) AS LAST_UPLOAD "
-			+ " FROM dbo.INV_VW_TASK_ROUTES_USER_UPLOAD WITH(NOLOCK) WHERE USER_ID = ? AND TAS_UPLOAD_DATE is not null "
-			+ " GROUP BY TAS_CREATED_DATE, ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, TASK_ID " 
-			+ " ORDER BY TAS_CREATED_DATE DESC ";
+	private static final String INV_LAST_TASK = "SELECT TOP 1 IDIH.DIH_ROUTE_ID ROUTE_ID, IDIH.DIH_BUKRS BUKRS, IDIH.DIH_WERKS WERKS, IDIH.DIH_TYPE DTYPE, IVT.TAS_GROUP_ID GROUP_ID, IVT.TAS_UPLOAD_DATE "
+			+ " FROM INV_GROUPS_USER IGU WITH(NOLOCK) "
+			+ " INNER JOIN INV_TASK IVT WITH(NOLOCK) ON IGU.GRU_GROUP_ID = IVT.TAS_GROUP_ID AND IVT.TAS_UPLOAD_DATE IS NOT NULL "
+			+ " INNER JOIN INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) ON IVT.TAS_DOC_INV_ID = IDIH.DOC_INV_ID AND IDIH.DIH_TYPE = '1' "
+			+ " WHERE IGU.GRU_USER_ID = ? "
+			+ " GROUP BY IDIH.DIH_ROUTE_ID, IDIH.DIH_BUKRS, IDIH.DIH_WERKS, IDIH.DIH_TYPE, IVT.TAS_GROUP_ID, IVT.TAS_UPLOAD_DATE "
+			+ " ORDER BY IVT.TAS_UPLOAD_DATE DESC ";
 
 	public int createAutoTask(String user) {
 
@@ -31,10 +34,6 @@ public class TaskUserDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-
-		final String INV_VW_TASK = "INV_SP_ROUTE_USER_UPLOAD ?, ?, ?, ?, ?, ?, ?, ?";
-		log.info(INV_VW_TASK);
-
 		try {
 
 			stm = con.prepareStatement(INV_LAST_TASK);
