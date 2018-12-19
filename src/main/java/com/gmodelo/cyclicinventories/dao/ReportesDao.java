@@ -21,6 +21,7 @@ import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
 import com.gmodelo.cyclicinventories.beans.ConciliacionBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationPositionBean;
+import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.CostByMatnr;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
@@ -30,7 +31,6 @@ import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
-import com.gmodelo.cyclicinventories.beans.ReporteCalidadBean;
 import com.gmodelo.cyclicinventories.beans.ReporteCalidadConteosBean;
 import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBean;
@@ -825,45 +825,45 @@ public class ReportesDao {
 		res.setLsObject(listTareasBean);
 		return res;
 	}
+	
+	private static final String GENERATE_IDDESC_QUALITY_REPORT = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' + CONVERT(VARCHAR,inr.ROU_DESC)) as DESCRIPCION "
+			+ " FROM INV_DOC_INVENTORY_HEADER idih WITH(NOLOCK) "
+			+ " INNER JOIN INV_ROUTE inr WITH(NOLOCK) ON idih.DIH_ROUTE_ID = inr.ROUTE_ID WHERE idih.DIH_STATUS = '0'"
+			+ " AND idih.DOC_FATHER_INV_ID IS NULL AND inr.ROU_TYPE = '2' AND idih.DIH_BUKRS LIKE  ? AND idih.DIH_WERKS LIKE ?";
 
-	public Response<List<ReporteCalidadBean>> getReporteCalidad(ReporteCalidadBean bean) {
+	public Response<List<ConciliationsIDsBean>> getReporteCalidad(String bukrs, String werks) {
 
+		Response<List<ConciliationsIDsBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
+		List<ConciliationsIDsBean> listConIds = new ArrayList<ConciliationsIDsBean>();
+		ConciliationsIDsBean conciliationIDsBean;
 
-		Response<List<ReporteCalidadBean>> res = new Response<List<ReporteCalidadBean>>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<ReporteCalidadBean> list = new ArrayList<ReporteCalidadBean>();
-		String INV_VW_REP = null;
-		INV_VW_REP = "SELECT TAS_DOC_INV_ID,TASK_ID, TAS_GROUP_ID, COU_USER_ID,TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE FROM INV_VW_REPORTE_CALIDAD_CABECERA WITH(NOLOCK) ";
-
-		String condition = buildConditionCalidad(bean);
-		if (condition != null) {
-			INV_VW_REP += condition;
-		}
-
-		log.info(INV_VW_REP);
-		INV_VW_REP += "GROUP BY TAS_DOC_INV_ID,TASK_ID, TAS_GROUP_ID, COU_USER_ID,TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE";
-		log.info("[getReporteCalidadDao] Preparing sentence...");
 		try {
-			stm = con.prepareStatement(INV_VW_REP);
+			stm = con.prepareStatement(GENERATE_IDDESC_QUALITY_REPORT);
+
+			if (bukrs != null && werks != null) {
+				stm.setString(1, bukrs);
+				stm.setString(2, werks);
+
+			} else {
+				stm.setString(1, "%");
+				stm.setString(2, "%");
+			}
+
+			log.info(GENERATE_IDDESC_QUALITY_REPORT);
 
 			log.info("[getReporteCalidadDao] Executing query...");
-
 			ResultSet rs = stm.executeQuery();
-
 			while (rs.next()) {
 
-				bean = new ReporteCalidadBean();
-				bean.setDocInvId(rs.getString("TAS_DOC_INV_ID"));
-				bean.setTaskId(rs.getString("TASK_ID"));
-				bean.setGroupId(rs.getString("TAS_GROUP_ID"));
-				bean.setUserId(rs.getString("COU_USER_ID"));
-				bean.setDateDowload(rs.getString("TAS_DOWLOAD_DATE"));
-				bean.setDateUpload(rs.getString("TAS_UPLOAD_DATE"));
-				bean.setConteos(this.getConteos(rs.getInt("TAS_DOC_INV_ID")));
-				list.add(bean);
+				conciliationIDsBean = new ConciliationsIDsBean();
+				conciliationIDsBean.setId(rs.getString("DOC_INV"));
+				conciliationIDsBean.setDesc(rs.getString("DESCRIPCION"));
+
+				listConIds.add(conciliationIDsBean);
 			}
 
 			// Retrive the warnings if there're
@@ -876,11 +876,12 @@ public class ReportesDao {
 			// Free resources
 			rs.close();
 			stm.close();
+
 			log.info("[getReporteCalidadDao] Sentence successfully executed.");
+
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,
-					"[getReporteCalidadDao] Some error occurred while was trying to execute the query: " + INV_VW_REP,
-					e);
+			log.log(Level.SEVERE, "[getReporteCalidadDao] Some error occurred while was trying to execute the query: "
+					+ GENERATE_IDDESC_QUALITY_REPORT, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -893,10 +894,10 @@ public class ReportesDao {
 						"[getReporteCalidadDao] Some error occurred while was trying to close the connection.", e);
 			}
 		}
-
 		res.setAbstractResult(abstractResult);
-		res.setLsObject(list);
+		res.setLsObject(listConIds);
 		return res;
+	
 	}
 
 	private List<ReporteCalidadConteosBean> getConteos(int docInvId) {
@@ -961,42 +962,6 @@ public class ReportesDao {
 			}
 		}
 		return list;
-	}
-
-	private String buildConditionCalidad(ReporteCalidadBean bean) {
-		String docInvId = "";
-		String taskId = "";
-		String groupId = "";
-		String user = "";
-		String dowload = "";
-		String upload = "";
-
-		String condition = "";
-
-		docInvId = (bean.getDocInvId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " ROUTE_ID = '" + bean.getDocInvId() + "' "
-				: "";
-		condition += docInvId;
-		taskId = (bean.getTaskId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS = '" + bean.getTaskId() + "' " : "";
-		condition += taskId;
-		groupId = (bean.getGroupId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + bean.getGroupId() + "' " : "";
-		condition += groupId;
-		user = (bean.getUserId() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + bean.getUserId() + "' " : "";
-		condition += user;
-		dowload = (bean.getDateDowload() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " USER_COUNT = '" + bean.getDateDowload() + "' "
-				: "";
-		condition += dowload;
-		upload = (bean.getDateUpload() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DOC_INV_ID = '" + bean.getDateUpload() + "' "
-				: "";
-		condition += upload;
-
-		condition = condition.isEmpty() ? null : condition;
-		return condition;
 	}
 
 	private String buildConditionApegos(ApegosBean apegosB) {

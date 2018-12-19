@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
+import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
@@ -14,6 +15,7 @@ import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
+import com.gmodelo.cyclicinventories.dao.ConciliacionDao;
 import com.gmodelo.cyclicinventories.dao.ReportesDao;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
@@ -135,21 +137,10 @@ public class ReportesWorkService {
 		return response;
 	}
 
-	public Response<List<ReporteCalidadBean>> getReporteCalidad(Request request) {
+	public Response<List<ConciliationsIDsBean>> getReporteCalidad(Request<List<Object>> request) {
 		log.info("[getReporteCalidadWorkService] " + request.toString());
-		Response<List<ReporteCalidadBean>> response = new Response<>();
-		AbstractResultsBean result = new AbstractResultsBean();
-		ReporteCalidadBean bean = null;
-		try {
-			log.info("[getReporteCalidadWorkService] try");
-			bean = gson.fromJson(gson.toJson(request.getLsObject()), ReporteCalidadBean.class);
-			response = new ReportesDao().getReporteCalidad(bean);
-		} catch (Exception e) {
-			log.log(Level.SEVERE, "[getReporteCalidadWorkService] catch", e);
-			result.setResultId(ReturnValues.IEXCEPTION);
-			result.setResultMsgAbs(e.getMessage());
-		}
-		response.setAbstractResult(result);
-		return response;
+		String bukrs = (String) request.getLsObject().get(0);
+		String werks = (String) request.getLsObject().get(1);
+		return new ReportesDao().getReporteCalidad(bukrs, werks);
 	}
 }
