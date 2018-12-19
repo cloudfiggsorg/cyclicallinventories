@@ -351,7 +351,7 @@ public class ZoneDao {
 		log.info("[getZoneById] Preparing sentence...");
 
 		try {
-			stm = con.prepareCall(INV_VW_ZONE_BY_LGORT);
+			stm = con.prepareStatement(INV_VW_ZONE_BY_LGORT);
 
 			log.info("[getZoneById] Executing query...");
 
