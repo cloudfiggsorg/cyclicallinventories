@@ -27,9 +27,9 @@ public class BukrsDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
-		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();
+		Response<List<BukrsBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<BukrsBean> listBukrsBean = new ArrayList<BukrsBean>(); 
+		List<BukrsBean> listBukrsBean = new ArrayList<>(); 
 		 
 		String INV_VW_BUKRS = "SELECT [BUKRS], [BUTXT] FROM [INV_CIC_DB].[dbo].[INV_VW_BUKRS] WITH(NOLOCK) ";
 		if(searchFilter ==  null){
@@ -98,9 +98,9 @@ public class BukrsDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
-		Response<List<BukrsBean>> res = new Response<List<BukrsBean>>();
+		Response<List<BukrsBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<BukrsBean> listBukrsBean = new ArrayList<BukrsBean>(); 
+		List<BukrsBean> listBukrsBean = new ArrayList<>(); 
 		 
 		String INV_VW_WERKS_BY_BUKRS = "SELECT [BUKRS], [WERKS], [NAME1] FROM [INV_CIC_DB].[dbo].[INV_VW_WERKS_BY_BUKRS] WITH(NOLOCK) ";
 		

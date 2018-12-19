@@ -273,7 +273,7 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
+		List<ZoneBean> listZone = new ArrayList<>();
 		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT]"
 				+ " WHERE BUKRS = ? AND WERKS = ? ";
 		if (zoneBean.getZdesc() == null && zoneBean.getZoneId() == null) {
@@ -404,7 +404,7 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
+		List<ZoneBean> listZone = new ArrayList<>();
 
 		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] "
 				+ "WHERE BUKRS = '" + zoneBean.getBukrs() + "' AND WERKS = '" + zoneBean.getWerks() + "' ";
@@ -512,7 +512,7 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
+		List<ZoneBean> listZone = new ArrayList<>();
 		int aux;
 		String searchFilterNumber = "";
 		try {
@@ -625,7 +625,7 @@ public class ZoneDao {
 	public Response<List<ZoneBean>> getZonesOnly(ZoneBean zb) {
 
 		Response<List<ZoneBean>> res = new Response<>();
-		List<ZoneBean> listZone = new ArrayList<ZoneBean>();
+		List<ZoneBean> listZone = new ArrayList<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -835,7 +835,7 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ZonePositionsBean> listPositions = new ArrayList<ZonePositionsBean>();
+		List<ZonePositionsBean> listPositions = new ArrayList<>();
 
 		try {
 			HashMap<String, List<ZonePositionMaterialsBean>> mapPosition = this.getPositionMaterials();
@@ -909,7 +909,7 @@ public class ZoneDao {
 					material.setDescM(rs.getString("MAKTX"));
 					posMatMap.get(rs.getString("POSITION_ID")).add(material);
 				} else {
-					List<ZonePositionMaterialsBean> listMaterials = new ArrayList<ZonePositionMaterialsBean>();
+					List<ZonePositionMaterialsBean> listMaterials = new ArrayList<>();
 					ZonePositionMaterialsBean material = new ZonePositionMaterialsBean();
 					material.setPosMat(rs.getInt("PK_POS_MAT"));
 					material.setMatnr(rs.getString("MATNR"));
@@ -1115,7 +1115,7 @@ public class ZoneDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ZoneBean> listZone = new ArrayList<ZoneBean>(); 
+		List<ZoneBean> listZone = new ArrayList<>(); 
 		String INV_VW_ZONE_BY_LGORT = "SELECT [ZONE_ID], [ZON_DESC] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";
 		if (zoneBean.getWerks() == null && zoneBean.getLgort() == null) {
 			log.info("[getZoneByLgortAndWerkDao] null Params...");

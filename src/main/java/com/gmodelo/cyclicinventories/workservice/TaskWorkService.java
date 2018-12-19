@@ -25,7 +25,7 @@ public class TaskWorkService {
 
 	public Response<TaskBean> addTaskSpecial(TaskBean taskBean, User user) {
 		log.info("[addTaskWS] " + taskBean.toString());
-		Response<TaskBean> res = new Response<TaskBean>();
+		Response<TaskBean> res = new Response<>();
 		try {
 			if (taskBean.getRub() != null) {
 				log.log(Level.WARNING, "[addTaskWS] Ingreso con JSON " + taskBean.toString());
@@ -58,7 +58,7 @@ public class TaskWorkService {
 	public Response<TaskBean> addTask(Request request, User user) {
 		log.info("[addTaskWS] " + request.toString());
 		TaskBean taskBean = null;
-		Response<TaskBean> res = new Response<TaskBean>();
+		Response<TaskBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		try {
 			taskBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
@@ -99,7 +99,7 @@ public class TaskWorkService {
 	public Response<Object> deleteTask(Request request) {
 		log.info("[deleteTaskWS] " + request.toString());
 		String arrayIdTask;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		try {
 			arrayIdTask = request.getLsObject().toString();
@@ -125,7 +125,7 @@ public class TaskWorkService {
 		TaskBean tb = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
-		Response<List<TaskBean>> res = new Response<List<TaskBean>>();
+		Response<List<TaskBean>> res = new Response<>();
 
 		if (!req.isEmpty()) {
 			try {

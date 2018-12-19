@@ -43,7 +43,7 @@ public class ZoneWorkService {
 
 		log.info("[validateZoneWorkService] " + request.toString());
 		ZoneBean zoneBean = null;
-		Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
+		Response<List<ZoneBean>> res = new Response<>();
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
 			try {
@@ -69,7 +69,7 @@ public class ZoneWorkService {
 
 		log.info("[addZone] " + request.toString());
 		ZoneBean zoneBean;
-		Response<ZoneBean> res = new Response<ZoneBean>();
+		Response<ZoneBean> res = new Response<>();
 
 		try {
 			zoneBean = gson.fromJson(gson.toJson(request.getLsObject()), ZoneBean.class);
@@ -91,7 +91,7 @@ public class ZoneWorkService {
 
 		log.info("[deleteZoneWS] " + request.toString());
 		String arrayIdZones;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		try {
@@ -151,7 +151,7 @@ public class ZoneWorkService {
 
 			log.log(Level.SEVERE, "[validateZonePositions] Error al pasar de Json a ZonePositionsBean");
 			AbstractResultsBean abstractResult = new AbstractResultsBean();
-			Response<List<ZoneBean>> res = new Response<List<ZoneBean>>();
+			Response<List<ZoneBean>> res = new Response<>();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -175,7 +175,7 @@ public class ZoneWorkService {
 
 			log.log(Level.SEVERE, "[validateZonePositions] Error al pasar de Json a ZonePositionsBean");
 			AbstractResultsBean abstractResult = new AbstractResultsBean();
-			Response<ZoneBean> res = new Response<ZoneBean>();
+			Response<ZoneBean> res = new Response<>();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -190,7 +190,7 @@ public class ZoneWorkService {
 
 		log.info("[unassignMaterialToZoneWS] " + request.toString());
 		MaterialToZoneBean materialToZoneBean;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
 			try {

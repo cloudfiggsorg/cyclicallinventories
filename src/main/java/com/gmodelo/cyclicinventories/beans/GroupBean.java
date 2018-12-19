@@ -16,7 +16,7 @@ public class GroupBean {
 	
 	public GroupBean() {
 		super();
-		this.users= new ArrayList<User>();
+		this.users= new ArrayList<>();
 		// TODO Auto-generated constructor stub
 	}
 	

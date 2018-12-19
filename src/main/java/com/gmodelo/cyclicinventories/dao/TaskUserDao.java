@@ -9,7 +9,6 @@ import java.sql.Types;
 import java.util.logging.Logger;
 
 import com.bmore.ume001.beans.User;
-import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.TaskBean;

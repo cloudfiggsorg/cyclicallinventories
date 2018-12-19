@@ -176,9 +176,9 @@ public class TaskDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		TaskBean taskBean;
-		Response<List<TaskBean>> res = new Response<List<TaskBean>>();
+		Response<List<TaskBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<TaskBean> listTaskBean = new ArrayList<TaskBean>();
+		List<TaskBean> listTaskBean = new ArrayList<>();
 		String INV_VW_TASK = null;		
 
 		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
@@ -273,9 +273,9 @@ public class TaskDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		Response<List<TaskBean>> res = new Response<List<TaskBean>>();
+		Response<List<TaskBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<TaskBean> listTaskBean = new ArrayList<TaskBean>();
+		List<TaskBean> listTaskBean = new ArrayList<>();
 		String INV_VW_TASK = null;		
 		DocInvDao didao = new DocInvDao();				
 

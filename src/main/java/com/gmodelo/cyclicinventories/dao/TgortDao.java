@@ -26,9 +26,9 @@ public class TgortDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
-		Response<List<TgortB>> res = new Response<List<TgortB>>();
+		Response<List<TgortB>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<TgortB> listTgortBean = new ArrayList<TgortB>(); 
+		List<TgortB> listTgortBean = new ArrayList<>(); 
 		 
 		String INV_VW_TGORT_BY_NGORT = "SELECT WERKS, LGORT, LGNUM, LGTYP, LTYPT, IMWM  FROM [INV_CIC_DB].[dbo].[INV_VW_TGORT_BY_NGORT] WITH(NOLOCK) ";		
 		String condition = buildCondition(tgortBean);		

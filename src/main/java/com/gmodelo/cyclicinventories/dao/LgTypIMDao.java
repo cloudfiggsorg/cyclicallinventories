@@ -142,9 +142,9 @@ public class LgTypIMDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<LgTypIMBean>> res = new Response<List<LgTypIMBean>>();
+		Response<List<LgTypIMBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<LgTypIMBean> listLgTypIM = new ArrayList<LgTypIMBean>();
+		List<LgTypIMBean> listLgTypIM = new ArrayList<>();
 		String INV_VW_LGTYPE_IM = null;
 		LgTypIMBean lgTypIMAux;
 
@@ -211,9 +211,9 @@ public class LgTypIMDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<LgTypIMBean>> res = new Response<List<LgTypIMBean>>();
+		Response<List<LgTypIMBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<LgTypIMBean> listLgTypIM = new ArrayList<LgTypIMBean>();
+		List<LgTypIMBean> listLgTypIM = new ArrayList<>();
 		String INV_VW_LGTYPE_IM = null;
 		LgTypIMBean lgTypIMAux;
 		
@@ -296,7 +296,7 @@ public class LgTypIMDao {
 	public List<LgplaIMBean> getPositions(String lgtyp, Connection con) throws SQLException {
 
 		PreparedStatement stm = null;
-		List<LgplaIMBean> listPositions = new ArrayList<LgplaIMBean>();
+		List<LgplaIMBean> listPositions = new ArrayList<>();
 		log.info(INV_VW_LGPLA_IM);
 		log.info("[LgTypImDAo getPositions] Preparing sentence...");
 		stm = con.prepareStatement(INV_VW_LGPLA_IM);

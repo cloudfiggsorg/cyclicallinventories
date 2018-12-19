@@ -19,7 +19,7 @@ public class ZoneBean {
 	
 	public ZoneBean(){
 		super();
-		this.positions = new ArrayList<ZonePositionsBean>();
+		this.positions = new ArrayList<>();
 	}
 	
 	public ZoneBean(String zoneId, String zdesc, String bukrs, String werks, String lgort, String bDesc, String wDesc,

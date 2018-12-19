@@ -300,9 +300,9 @@ public class GroupDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
-		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
+		Response<List<GroupBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<GroupBean> listGroupsBean = new ArrayList<GroupBean>(); 
+		List<GroupBean> listGroupsBean = new ArrayList<>(); 
 		String INV_VW_GET_GROUPS = null;
 		
 		int aux;		
@@ -377,9 +377,9 @@ public class GroupDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		
-		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
+		Response<List<GroupBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<GroupBean> listGroupsBean = new ArrayList<GroupBean>(); 
+		List<GroupBean> listGroupsBean = new ArrayList<>(); 
 		GroupBean groupB = null;		
 		String INV_VW_GET_GROUPS = null;						
 
@@ -441,7 +441,7 @@ public class GroupDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<User> listUser = new ArrayList<User>();
+		List<User> listUser = new ArrayList<>();
 		
 		String INV_VW_GROUPS_USER = "SELECT PK_GROUP_USER, GRU_USER_ID FROM INV_GROUPS_USER WHERE GRU_GROUP_ID = ? ";
 		INV_VW_GROUPS_USER = (userId != null) ?  INV_VW_GROUPS_USER+= ("AND GRU_USER_ID LIKE '%"+userId+"%'") : INV_VW_GROUPS_USER;

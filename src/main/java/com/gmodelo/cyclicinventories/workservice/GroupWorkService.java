@@ -31,7 +31,7 @@ public class GroupWorkService {
 		log.info("[addGroupWS] " + request.toString());
 
 		GroupBean groupBean;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 
 		try {
 			groupBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupBean.class);
@@ -53,7 +53,7 @@ public class GroupWorkService {
 
 		log.info("[assignGroupToUserWS] " + request.toString());
 		GroupToUserBean groupToUserBean;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 
 		try {
 			groupToUserBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupToUserBean.class);
@@ -75,7 +75,7 @@ public class GroupWorkService {
 
 		log.info("[unassignGroupToUserWS] " + request.toString());
 		GroupToUserBean groupToUserBean;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 
 		try {
 			groupToUserBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupToUserBean.class);
@@ -97,7 +97,7 @@ public class GroupWorkService {
 
 		log.info("[unassignGroupToRouteWS] " + request.toString());
 		GroupToRouteBean groupToRouteBean;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 
 		try {
 			groupToRouteBean = gson.fromJson(gson.toJson(request.getLsObject()), GroupToRouteBean.class);
@@ -119,7 +119,7 @@ public class GroupWorkService {
 
 		log.info("[deleteGroupWS] " + request.toString());
 		String arrayIdGroups;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		try {
@@ -178,7 +178,7 @@ public class GroupWorkService {
 		log.info(request.toString());
 		String req = request.getLsObject().toString().trim();
 		UMEDaoE UMEDao = new UMEDaoE();
-		Response<ArrayList<User>> res = new Response<ArrayList<User>>();
+		Response<ArrayList<User>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ArrayList<User> lista = null;
 		User user = new User();

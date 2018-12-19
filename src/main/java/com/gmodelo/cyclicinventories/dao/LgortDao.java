@@ -29,7 +29,7 @@ public class LgortDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<LgortBeanView> listLgort = new ArrayList<LgortBeanView>();
+		List<LgortBeanView> listLgort = new ArrayList<>();
 
 		log.info("[getLgortByWerks] Preparing sentence...");
 
@@ -92,7 +92,7 @@ public class LgortDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<LgortBeanView> listNgort = new ArrayList<LgortBeanView>();
+		List<LgortBeanView> listNgort = new ArrayList<>();
 
 		log.info("[getNgortsDao] Preparing sentence...");
 
@@ -162,7 +162,7 @@ public class LgortDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<LgortBeanView> listNgort = new ArrayList<LgortBeanView>();
+		List<LgortBeanView> listNgort = new ArrayList<>();
 
 		log.info("[getNgortsDao] Preparing sentence...");
 

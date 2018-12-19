@@ -22,7 +22,7 @@ public class CountsWorkService {
 		log.info("[addCountWS] " + request.toString());
 		RouteUserBean routeBean = null;
 
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
 			try {

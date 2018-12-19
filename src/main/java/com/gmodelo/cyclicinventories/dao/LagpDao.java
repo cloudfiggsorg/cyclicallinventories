@@ -26,9 +26,9 @@ public class LagpDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<LagpEntity>> res = new Response<List<LagpEntity>>();
+		Response<List<LagpEntity>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<LagpEntity> listLgplaBean = new ArrayList<LagpEntity>();
+		List<LagpEntity> listLgplaBean = new ArrayList<>();
 
 		String INV_VW_LAGP = "SELECT LGNUM, LGTYP, LGPLA, IMWM FROM INV_CIC_DB.dbo.INV_VW_LAGP WITH(NOLOCK) ";
 

@@ -31,7 +31,7 @@ public class RouteWorkService {
 
 		log.info("[addRouteWS] " + request.toString());
 		RouteBean routeBean;
-		Response<RouteBean> res = new Response<RouteBean>();
+		Response<RouteBean> res = new Response<>();
 		String req = request.getLsObject().toString().trim();
 		if (!req.isEmpty()) {
 			try {
@@ -102,7 +102,7 @@ public class RouteWorkService {
 			
 			log.log(Level.SEVERE, "[validateZonePositions] Error al pasar de Json a ZonePositionsBean");
 			AbstractResultsBean abstractResult = new AbstractResultsBean();
-			Response<List<RouteBean>> res = new Response<List<RouteBean>>();
+			Response<List<RouteBean>> res = new Response<>();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -255,7 +255,7 @@ public class RouteWorkService {
 	public Response<List<RouteUserPositionBean>> getPositionsByIdRoute(Request request) {
 		log.info(request.toString());
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		Response<List<RouteUserPositionBean>> res = new Response<List<RouteUserPositionBean>>();
+		Response<List<RouteUserPositionBean>> res = new Response<>();
 		try {
 			res.setAbstractResult(abstractResult);
 			res.setLsObject(new RouteUserDao().getPositions(request.getLsObject().toString(), new TaskBean()));

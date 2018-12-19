@@ -27,7 +27,7 @@ public class PosDocInvBean {
 	
 	public PosDocInvBean(){
 		super();
-		this.lsJustification = new ArrayList<Justification>();
+		this.lsJustification = new ArrayList<>();
 		this.costByUnit = "CND";
 	}
 

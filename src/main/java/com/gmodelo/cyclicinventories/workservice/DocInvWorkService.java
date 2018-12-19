@@ -34,7 +34,7 @@ public class DocInvWorkService {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		log.info("[addDocInvWS] " + request.toString());
 		DocInvBean docInvBean;
-		Response<DocInvBean> res = new Response<DocInvBean>();
+		Response<DocInvBean> res = new Response<>();
 		try {
 			docInvBean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 			List<RoutePositionBean> positionRoute = new RouteDao().getPositions(docInvBean.getRoute());
@@ -71,7 +71,7 @@ public class DocInvWorkService {
 	public Response<Object> deleteDocInv(Request request) {
 		log.info("[deleteDocInvWS] " + request.toString());
 		String arrayIdDocInv;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		try {
 			arrayIdDocInv = request.getLsObject().toString();
@@ -121,7 +121,7 @@ public class DocInvWorkService {
 		DocInvBean tb = null;
 		String searchFilter = "";
 		String req = request.getLsObject().toString().trim();
-		Response<List<DocInvBean>> res = new Response<List<DocInvBean>>();
+		Response<List<DocInvBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		if (!req.isEmpty()) {

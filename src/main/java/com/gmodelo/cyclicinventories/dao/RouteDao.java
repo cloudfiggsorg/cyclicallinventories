@@ -364,9 +364,9 @@ public class RouteDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
+		Response<List<RouteBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
+		List<RouteBean> listRoutesBean = new ArrayList<>();
 		String INV_VW_ROUTES = null;
 		int aux;
 		String searchFilterNumber = "";
@@ -483,9 +483,9 @@ public class RouteDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<RouteBean>> res = new Response<List<RouteBean>>();
+		Response<List<RouteBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<RouteBean> listRoutesBean = new ArrayList<RouteBean>();
+		List<RouteBean> listRoutesBean = new ArrayList<>();
 		String INV_VW_ROUTES = null;
 		RouteBean routeBean = new RouteBean();
 
@@ -560,7 +560,7 @@ public class RouteDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		List<RoutePositionBean> listPositions = new ArrayList<RoutePositionBean>();
+		List<RoutePositionBean> listPositions = new ArrayList<>();
 
 		String INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY ,ZDESC FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 
@@ -602,7 +602,7 @@ public class RouteDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		List<RouteGroupBean> listGroups = new ArrayList<RouteGroupBean>();
+		List<RouteGroupBean> listGroups = new ArrayList<>();
 
 		String INV_VW_ROUTE_GROUPS = "SELECT PK_ASG_ID, GROUP_ID ,GDESC ,COUNT_NUM FROM dbo.INV_VW_ROUTE_GROUPS WITH(NOLOCK) WHERE ROUTE_ID = ?";
 

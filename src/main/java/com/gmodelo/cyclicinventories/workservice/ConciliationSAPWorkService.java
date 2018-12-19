@@ -48,7 +48,7 @@ public class ConciliationSAPWorkService {
 	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(Request request) {
 
 		log.info("[getClosedConciliationIDs] " + request.toString());
-		Response<List<ConciliationsIDsBean>> res = new Response<List<ConciliationsIDsBean>>();
+		Response<List<ConciliationsIDsBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		DocInvBean docInv;
 
@@ -68,7 +68,7 @@ public class ConciliationSAPWorkService {
 	public Response<String> getjsFileBase64(Request<ArrayList<String>> request) {
 
 		log.info("[getjsFileBase64] " + request.toString());
-		Response<String> res = new Response<String>();
+		Response<String> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		int docInvId = 0;
 		int jsId = 0;

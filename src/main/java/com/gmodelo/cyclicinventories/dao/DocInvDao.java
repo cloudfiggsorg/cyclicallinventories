@@ -189,7 +189,7 @@ public class DocInvDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<DocInvBean> listDocInv = new ArrayList<DocInvBean>();
+		List<DocInvBean> listDocInv = new ArrayList<>();
 		int aux;
 		String searchFilterNumber = "";
 		try {
@@ -302,7 +302,7 @@ public class DocInvDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<DocInvBean> listDocInv = new ArrayList<DocInvBean>();
+		List<DocInvBean> listDocInv = new ArrayList<>();
 		 
 		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";		
 		INV_VW_DOC_INV += "AND TYPE != '3' AND (DOC_INV_ID LIKE '%" + searchFilter + "%' OR ROUTE_ID LIKE '%";

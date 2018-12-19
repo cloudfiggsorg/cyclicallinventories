@@ -87,6 +87,8 @@ public class RouteUserDao {
 			}
 			cs.close();
 			log.info("[getRoutesByUserDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "", e);
 		} finally {
 			try {
 				con.close();
@@ -161,6 +163,8 @@ public class RouteUserDao {
 				routeBean = null;
 			}
 			log.info("[getRoutesByUserDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "", e);
 		} finally {
 			try {
 				con.close();
@@ -176,7 +180,7 @@ public class RouteUserDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<RouteUserPositionBean> listPositions = new ArrayList<RouteUserPositionBean>();
+		List<RouteUserPositionBean> listPositions = new ArrayList<>();
 		String INV_VW_ROUTES_WITH_POSITIONS = "";
 		if (conteo.getTaskIdFather() != null && !conteo.getTaskIdFather().isEmpty()) {
 			INV_VW_ROUTES_WITH_POSITIONS = "SELECT POSITION_ID ,LGORT ,GDES ,ZONE_ID ,SECUENCY, ROUTE_ID FROM dbo.INV_VW_ROUTES_WITH_POSITIONS WITH(NOLOCK) WHERE ROUTE_ID = ? ORDER BY SECUENCY DESC";
@@ -273,7 +277,7 @@ public class RouteUserDao {
 			throws SQLException {
 
 		PreparedStatement stm = null;
-		List<ZoneUserPositionsBean> listPositions = new ArrayList<ZoneUserPositionsBean>();
+		List<ZoneUserPositionsBean> listPositions = new ArrayList<>();
 		String INV_VW_ZONE_WITH_POSITIONS = "";
 
 		if (conteo.getTaskIdFather() != null && !conteo.getTaskIdFather().isEmpty()) {

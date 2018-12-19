@@ -6,13 +6,13 @@ import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.workservice.SapConciliationWorkService;
 import com.sap.conn.jco.JCoDestination;
 
-public class _Runtime_Ziacmf_Mov_Initial extends Thread {
+public class ZiacmfMovInitialRuntime extends Thread {
 
-	JCoDestination asyncDestination;
-	Connection asyncConnection;
-	DocInvBean docInvBean;
+	private JCoDestination asyncDestination;
+	private Connection asyncConnection;
+	private DocInvBean docInvBean;
 
-	public _Runtime_Ziacmf_Mov_Initial(JCoDestination asyncDestination, Connection asyncConnection, DocInvBean docInvBean) {
+	public ZiacmfMovInitialRuntime(JCoDestination asyncDestination, Connection asyncConnection, DocInvBean docInvBean) {
 		super();
 		this.asyncDestination = asyncDestination;
 		this.asyncConnection = asyncConnection;

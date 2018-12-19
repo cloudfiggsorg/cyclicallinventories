@@ -20,7 +20,7 @@ public class TgortWorkService {
 	public Response<List<TgortB>> getTgort(Request request){
 		log.info("[TgortWorkService] "+request.toString());
 		TgortB tgortBean;
-		Response<List<TgortB>> res = new Response<List<TgortB>>();
+		Response<List<TgortB>> res = new Response<>();
 		try {
 			
 			tgortBean = gson.fromJson(gson.toJson(request.getLsObject()), TgortB.class) ;

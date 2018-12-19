@@ -22,7 +22,7 @@ public class LgTypIMWorkService {
 
 		log.info("[addLgTypWS] " + request.toString());
 		LgTypIMBean lgTypIMBean;
-		Response<LgTypIMBean> res = new Response<LgTypIMBean>();
+		Response<LgTypIMBean> res = new Response<>();
 
 		try {
 			lgTypIMBean = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIMBean.class);
@@ -44,7 +44,7 @@ public class LgTypIMWorkService {
 
 		log.info("[getLgTypIMService] " + request.toString());
 		LgTypIMBean lgTypIMBean = null;
-		Response<List<LgTypIMBean>> res = new Response<List<LgTypIMBean>>();
+		Response<List<LgTypIMBean>> res = new Response<>();
 		
 		try {
 			
@@ -68,7 +68,7 @@ public class LgTypIMWorkService {
 
 		log.info("[getLgTypIMService] " + request.toString());
 		LgTypIMBean lgTypIMBean = null;
-		Response<List<LgTypIMBean>> res = new Response<List<LgTypIMBean>>();
+		Response<List<LgTypIMBean>> res = new Response<>();
 		
 		try {
 			lgTypIMBean = gson.fromJson(gson.toJson(request.getLsObject()), LgTypIMBean.class);

@@ -49,7 +49,7 @@ public class ToleranceWorkService {
 
 		log.info("[addToleranceWorkService] " + request.toString());
 		ToleranceBean toleranceBean = null;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 
 		try {
 			toleranceBean = gson.fromJson(gson.toJson(request.getLsObject()), ToleranceBean.class);
@@ -72,7 +72,7 @@ public class ToleranceWorkService {
 
 		log.info("[deleteToleranceWS] " + request.toString());
 		String arrayIdTolerances;
-		Response<Object> res = new Response<Object>();
+		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		try {

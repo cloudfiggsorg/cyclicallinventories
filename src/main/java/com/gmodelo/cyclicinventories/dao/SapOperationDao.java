@@ -178,7 +178,7 @@ public class SapOperationDao {
 		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
 
-		ArrayList<E_Mseg_SapEntity> lsMatnr = new ArrayList<E_Mseg_SapEntity>();
+		ArrayList<E_Mseg_SapEntity> lsMatnr = new ArrayList<>();
 		E_Mseg_SapEntity emse;
 
 		while (rs.next()) {
@@ -198,7 +198,7 @@ public class SapOperationDao {
 		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
 
-		ArrayList<E_Msku_SapEntity> lsMatnr = new ArrayList<E_Msku_SapEntity>();
+		ArrayList<E_Msku_SapEntity> lsMatnr = new ArrayList<>();
 		E_Msku_SapEntity emskuEntity;
 
 		while (rs.next()) {
@@ -218,7 +218,7 @@ public class SapOperationDao {
 		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
 
-		ArrayList<E_Mard_SapEntity> lsMatnr = new ArrayList<E_Mard_SapEntity>();
+		ArrayList<E_Mard_SapEntity> lsMatnr = new ArrayList<>();
 		E_Mard_SapEntity ems;
 
 		while (rs.next()) {
@@ -238,7 +238,7 @@ public class SapOperationDao {
 		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
 
-		ArrayList<E_Lqua_SapEntity> lsMatnr = new ArrayList<E_Lqua_SapEntity>();
+		ArrayList<E_Lqua_SapEntity> lsMatnr = new ArrayList<>();
 		E_Lqua_SapEntity els;
 
 		while (rs.next()) {
@@ -264,7 +264,7 @@ public class SapOperationDao {
 		stm.setString(2, werks);
 		ResultSet rs = stm.executeQuery();
 
-		ArrayList<CostByMatnr> lsMatnr = new ArrayList<CostByMatnr>();
+		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
 		CostByMatnr els;
 
 		while (rs.next()) {

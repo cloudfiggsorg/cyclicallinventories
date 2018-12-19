@@ -21,7 +21,7 @@ public class LgTypIMBean {
 	public LgTypIMBean(){
 		
 		super();
-		this.lsLgPla = new ArrayList<LgplaIMBean>();
+		this.lsLgPla = new ArrayList<>();
 	}
 
 	public LgTypIMBean(String lgTyp, String ltypt, String bukrs, String bDesc, String werks, String wDesc, String lgort,

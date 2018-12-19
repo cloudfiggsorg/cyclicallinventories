@@ -29,9 +29,9 @@ public class MatnrDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<MatnrBeanView>> res = new Response<List<MatnrBeanView>>();
+		Response<List<MatnrBeanView>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<MatnrBeanView> listMantrBean = new ArrayList<MatnrBeanView>();
+		List<MatnrBeanView> listMantrBean = new ArrayList<>();
 
 		String INV_VW_MATNR_BY_WERKS = "SELECT WERKS, MATNR, MAKTX  FROM [INV_CIC_DB].[dbo].[INV_VW_MATNR_BY_WERKS] WITH(NOLOCK) ";
 		INV_VW_MATNR_BY_WERKS += "WHERE WERKS LIKE '" + mantrBean.getWerks() + "' ";
@@ -98,9 +98,9 @@ public class MatnrDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<TmatnrBean>> res = new Response<List<TmatnrBean>>();
+		Response<List<TmatnrBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<TmatnrBean> listTmatnrBean = new ArrayList<TmatnrBean>();
+		List<TmatnrBean> listTmatnrBean = new ArrayList<>();
 
 		String INV_VW_TYPMATNR_BY_MATNR = "SELECT MATNR, MAKTX,TYP_MAT, DEN_TYP_MAT FROM [INV_CIC_DB].[dbo].[INV_VW_TYPMATNR_BY_MATNR] WITH(NOLOCK) ";
 

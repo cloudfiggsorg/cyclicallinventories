@@ -20,7 +20,7 @@ public class LoginDao {
 	public void LoginStoreToken(LoginBean login, Connection con) throws InvCicException {
 		try {
 			PreparedStatement stm = con.prepareStatement(STORE_TOKEN_ID);
-			stm.setString(1, new Utilities().EncodeB64(login.getLoginId()));
+			stm.setString(1, new Utilities().encodeB64(login.getLoginId()));
 			stm.setString(2, login.getRelationUUID());
 			stm.executeUpdate();
 		} catch (SQLException e) {
@@ -32,7 +32,7 @@ public class LoginDao {
 		try {
 			PreparedStatement stm = con.prepareStatement(UPDATE_STORED_TOKEN);
 			stm.setString(1, login.getRelationUUID());
-			stm.setString(2, new Utilities().EncodeB64(login.getLoginId()));
+			stm.setString(2, new Utilities().encodeB64(login.getLoginId()));
 		} catch (SQLException e) {
 			throw new InvCicException(e);
 		}
@@ -50,7 +50,7 @@ public class LoginDao {
 	public Integer ValidateToken(LoginBean login, Connection con) throws InvCicException {
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_INVALID_TOKEN);
-			stm.setString(1, new Utilities().EncodeB64(login.getLoginId()));
+			stm.setString(1, new Utilities().encodeB64(login.getLoginId()));
 			ResultSet rs = stm.executeQuery();
 			if (rs.next()) {
 				return rs.getInt("TOTAL");

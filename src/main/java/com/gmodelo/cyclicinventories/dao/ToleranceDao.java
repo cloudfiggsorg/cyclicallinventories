@@ -29,7 +29,7 @@ public class ToleranceDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ToleranceBean> listMATKL = new ArrayList<ToleranceBean>();
+		List<ToleranceBean> listMATKL = new ArrayList<>();
 		// verificar si es necesario agregar mas campos al select para
 		// agregarlos al ToleranceBean
 		String INV_VW_MATKL = "SELECT MATKL, WGBEZ FROM [INV_CIC_DB].[dbo].[INV_VW_MATKL] "; // query
@@ -216,7 +216,7 @@ public class ToleranceDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ToleranceBean> listTolerance = new ArrayList<ToleranceBean>();
+		List<ToleranceBean> listTolerance = new ArrayList<>();
 		// verificar si es necesario agregar mas campos al select para
 		// agregarlos al ToleranceBean
 		String INV_VW_TOLERANCES = "SELECT TOLERANCE_ID, MATKL, TP, TC FROM [INV_CIC_DB].[dbo].[INV_VW_TOLERANCES] "; // query

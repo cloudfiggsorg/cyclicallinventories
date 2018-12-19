@@ -108,7 +108,7 @@ public class ExplosionDetailDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();		
 		PreparedStatement stm = null;		
-		ArrayList<ExplosionDetail> lsEd = new ArrayList<ExplosionDetail>();
+		ArrayList<ExplosionDetail> lsEd = new ArrayList<>();
 
 		final String GET_EXPL_DET = "SELECT EX_WERKS, EX_MATNR, EX_COMPONENT, EX_QUANTITY, EX_RELEVANT "
 				+ "FROM INV_EXPLOSION "

@@ -27,7 +27,7 @@ public class LoginWorkService {
 
 	public Response login(LoginBean loginBean, HttpServletRequest request, HttpSession session) {
 		
-		Response<LoginBean> resp = new Response<LoginBean>();
+		Response<LoginBean> resp = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
 		if (loginBean.getLoginId() == null || loginBean.getLoginId().isEmpty() || loginBean.getLoginPass().isEmpty()
@@ -119,9 +119,9 @@ public class LoginWorkService {
 				} else {
 
 					// verify role to execute application
-					ArrayList<Role> lsRoles = new ArrayList<Role>();
+					ArrayList<Role> lsRoles = new ArrayList<>();
 					lsRoles = apiUME.getUserRoles(loginBean.getLoginId().trim());
-					ArrayList<String> lsRolesAux = new ArrayList<String>();
+					ArrayList<String> lsRolesAux = new ArrayList<>();
 					Utilities iUtils = new Utilities();
 					Connection con = new ConnectionManager().createConnection();
 					String regEx = null;
@@ -131,7 +131,7 @@ public class LoginWorkService {
 					
 					try {	
 						
-						regEx = "^" + iUtils.GetValueRepByKey(con, ReturnValues.ROLE_MASK).getStrCom1() + "$";		
+						regEx = "^" + iUtils.getValueRepByKey(con, ReturnValues.ROLE_MASK).getStrCom1() + "$";		
 						pattern = Pattern.compile(regEx);
 						
 					} catch (InvCicException e) {

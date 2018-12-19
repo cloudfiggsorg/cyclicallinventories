@@ -12,9 +12,9 @@ import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.dao.SapConciliationDao;
 import com.gmodelo.cyclicinventories.dao.SapOperationDao;
 import com.gmodelo.cyclicinventories.exception.InvCicException;
-import com.gmodelo.cyclicinventories.runtime._Runtime_Classification;
-import com.gmodelo.cyclicinventories.runtime._Runtime_Ziacmf_Mov_Final;
-import com.gmodelo.cyclicinventories.runtime._Runtime_Ziacmf_Mov_Initial;
+import com.gmodelo.cyclicinventories.runtime.ClassificationRuntime;
+import com.gmodelo.cyclicinventories.runtime.ZiacmfMovFinalRuntime;
+import com.gmodelo.cyclicinventories.runtime.ZiacmfMovInitialRuntime;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_2;
@@ -37,8 +37,8 @@ public class SapConciliationWorkService {
 		Connection con = connectionManager.createConnection();
 		try {
 			JCoDestination destination = connectionManager.getSapConnection(
-					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
-			new _Runtime_Ziacmf_Mov_Initial(destination, con, docInvBean).start();
+					new Utilities().getValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
+			new ZiacmfMovInitialRuntime(destination, con, docInvBean).start();
 		} catch (InvCicException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
@@ -92,8 +92,8 @@ public class SapConciliationWorkService {
 		Connection con = connectionManager.createConnection();
 		try {
 			JCoDestination destination = connectionManager.getSapConnection(
-					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
-			new _Runtime_Ziacmf_Mov_Final(destination, con, docInvBean).start();
+					new Utilities().getValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
+			new ZiacmfMovFinalRuntime(destination, con, docInvBean).start();
 		} catch (InvCicException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
@@ -230,9 +230,9 @@ public class SapConciliationWorkService {
 		response.setAbstractResult(result);
 		try {
 			JCoDestination destination = connectionManager.getSapConnection(
-					new Utilities().GetValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
+					new Utilities().getValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
 			if (ReturnValues.REP_CLASS_UPDATED == 0) {
-				new _Runtime_Classification(destination, con, null, null, "X").start();
+				new ClassificationRuntime(destination, con, null, null, "X").start();
 			} else {
 				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("Ejecución en progreso");

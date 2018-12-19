@@ -29,13 +29,13 @@ public class UMEDaoE extends UMEdao{
 		
 		try {
 			
-			LDAPUser = iUtils.GetValueRepByKey(con, ReturnValues.REP_LDAP_USER).getStrCom1();
-			LDAPPassword  = iUtils.GetValueRepByKey(con, ReturnValues.REP_LDAP_PASSWORD).getStrCom1();
+			LDAPUser = iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_USER).getStrCom1();
+			LDAPPassword  = iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_PASSWORD).getStrCom1();
 			LDAPInitialContextFactory  = "com.sun.jndi.ldap.LdapCtxFactory";
-			LDAPProviderURL  = iUtils.GetValueRepByKey(con, ReturnValues.REP_LDAP_PROVIDER_URL).getStrCom1();
-			LDAPSearchBase  = iUtils.GetValueRepByKey(con, ReturnValues.REP_LDAP_BASE).getStrCom1();
-			LDAPSecurityAuthentication  = iUtils.GetValueRepByKey(con, ReturnValues.REP_LDAP_SECURITY_AUTH).getStrCom1();;
-			LDAPSecurityPrincipal  = iUtils.GetValueRepByKey(con, ReturnValues.REP_LDAP_DOMAIN).getStrCom1();
+			LDAPProviderURL  = iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_PROVIDER_URL).getStrCom1();
+			LDAPSearchBase  = iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_BASE).getStrCom1();
+			LDAPSecurityAuthentication  = iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_SECURITY_AUTH).getStrCom1();;
+			LDAPSecurityPrincipal  = iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_DOMAIN).getStrCom1();
 			
 		} catch (InvCicException e) {
 			

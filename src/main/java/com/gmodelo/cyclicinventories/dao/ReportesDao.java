@@ -50,9 +50,9 @@ public class ReportesDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<ApegosBean>> res = new Response<List<ApegosBean>>();
+		Response<List<ApegosBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<ApegosBean> listApegosBean = new ArrayList<ApegosBean>();
+		List<ApegosBean> listApegosBean = new ArrayList<>();
 		String INV_VW_REP_APEGOS = null;
 
 		INV_VW_REP_APEGOS = "SELECT DOC_INV_ID, ROUTE_ID,RDESC, BUKRS, BDESC, WERKS, WDESC, LGORT,GDESC, TASK_ID, DTYPE, USER_DOCINV, USER_COUNT, DATE_INI, DATE_FIN, TIEMPO, GROUP_ID, CREACION, EJECUCION FROM INV_VW_REP_APEGOS WITH(NOLOCK) ";
@@ -157,9 +157,9 @@ public class ReportesDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<ReporteConteosBean>> res = new Response<List<ReporteConteosBean>>();
+		Response<List<ReporteConteosBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<ReporteConteosBean> listBean = new ArrayList<ReporteConteosBean>();
+		List<ReporteConteosBean> listBean = new ArrayList<>();
 		String INV_VW_REP = null;
 
 		INV_VW_REP = "SELECT ZONE_ID, ZONE_DESC, LGTYP, LTYPT, LGPLA,MAKTX,COU_MATNR, COU_VHILM, COU_SECUENCY, COU_TARIMAS, COU_CAMAS, COU_CANTIDAD_UNI_MED, COU_TOTAL,"
@@ -257,7 +257,7 @@ public class ReportesDao {
 		ReporteDocInvBeanHeader bean = new ReporteDocInvBeanHeader();
 		Response<ReporteDocInvBeanHeader> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<ReporteDocInvBean> listBean = new ArrayList<ReporteDocInvBean>();
+		List<ReporteDocInvBean> listBean = new ArrayList<>();
 		log.info(INV_VW_REP_HEADER);
 		log.info("[getReporteDocInvDao] Preparing sentence...");
 		try {
@@ -399,14 +399,10 @@ public class ReportesDao {
 		
 	}
 	
-	private static final String INV_VW_REP_POS_CONS_SAP = "SELECT A.DIP_LGORT, A.LGOBE, A.LGTYP, C.LGNUM, A.LTYPT, A.DIP_LGPLA, A.DIP_MATNR, "
-			+ "A.MAKTX, A.MEINS, A.DIP_THEORIC, A.DIP_COUNTED, A.DIP_DIFF_COUNTED, A.IMWM " 
-			+ "FROM INV_VW_DOC_INV_REP_POSITIONS AS A WITH(NOLOCK) " 
-			+ "LEFT JOIN INV_VW_LGPLA_IM AS B ON (A.LGTYP = B.LGTYP_ID AND A.DIP_LGPLA = B.LGPLA_ID) "
-			+ "LEFT JOIN INV_VW_LGTYPE_IM AS C WITH(NOLOCK) ON(A.DIP_LGORT = C.LGORT AND A.LGTYP = C.LGTYP) "
-			+ "WHERE DOC_INV_ID = ? AND (A.LTYPT IS NULL OR (C.BUKRS = ? AND C.WERKS = ?))"
-			+ "GROUP BY A.DIP_LGORT, A.LGOBE, A.LGTYP, C.LGNUM, A.LTYPT, A.DIP_LGPLA, A.DIP_MATNR, "
-			+ "A.MAKTX, A.MEINS, A.DIP_THEORIC, A.DIP_COUNTED, A.DIP_DIFF_COUNTED, A.IMWM";
+	private static final String INV_VW_REP_POS_CONS_SAP = "SELECT A.DIP_MATNR, A.MAKTX, A.MEINS, A.DIP_THEORIC, "
+			+ "A.DIP_COUNTED, A.DIP_DIFF_COUNTED, A.IMWM " 
+			+ "FROM INV_VW_DOC_INV_REP_POSITIONS AS A WITH(NOLOCK) " 			
+			+ "WHERE DOC_INV_ID = ? ";
 	
 	public Response<DocInvBeanHeaderSAP> getNoClosedConsSapReport(DocInvBean docInvBean) {
 		
@@ -416,7 +412,7 @@ public class ReportesDao {
 		DocInvBeanHeaderSAP bean = new DocInvBeanHeaderSAP();
 		Response<DocInvBeanHeaderSAP> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<PosDocInvBean> listBean = new ArrayList<PosDocInvBean>();
+		List<PosDocInvBean> listBean = new ArrayList<>();
 		String lsMatnr = "";
 		
 		log.info(INV_VW_REP_HEADER);
@@ -441,20 +437,12 @@ public class ReportesDao {
 				log.info("[getReporteDocInvDao] Preparing sentence...");
 				stm = con.prepareStatement(INV_VW_REP_POS_CONS_SAP);
 				stm.setInt(1, docInvBean.getDocInvId());
-				stm.setString(2, bean.getBukrs());
-				stm.setString(3, bean.getWerks());
 				
 				rs = stm.executeQuery();
 				while (rs.next()) {
 					
 					PosDocInvBean positionBean = new PosDocInvBean();
 					positionBean.setDoncInvId(docInvBean.getDocInvId());
-					positionBean.setLgort(rs.getString("DIP_LGORT"));
-					positionBean.setLgortD(rs.getString("LGOBE"));
-					positionBean.setLgtyp(rs.getString("LGTYP"));
-					positionBean.setLtypt(rs.getString("LTYPT"));
-					positionBean.setLgNum(rs.getString("LGNUM"));
-					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
 					positionBean.setMatnr(rs.getString("DIP_MATNR"));
 					positionBean.setMatnrD(rs.getString("MAKTX"));
 					positionBean.setMeins(rs.getString("MEINS"));
@@ -676,9 +664,9 @@ public class ReportesDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<ProductivityBean>> res = new Response<List<ProductivityBean>>();
+		Response<List<ProductivityBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<ProductivityBean> listTareasBean = new ArrayList<ProductivityBean>();
+		List<ProductivityBean> listTareasBean = new ArrayList<>();
 		String INV_VW_COUNTED_PRODUCTIVITY_REPORT  = "SELECT DOC_INV_ID, DIH_BUKRS, DIH_WERKS,"
 				+ " DIH_ROUTE_ID, DIP_LGORT, COUNTEDLGPLA, DIH_CREATED_DATE, ASSIGNEDGROUP "
 				+ " FROM INV_VW_COUNTED_PRODUCTIVITY_REPORT  WITH(NOLOCK) ";
@@ -752,9 +740,9 @@ public class ReportesDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 
-		Response<List<ProductivityBean>> res = new Response<List<ProductivityBean>>();
+		Response<List<ProductivityBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<ProductivityBean> listTareasBean = new ArrayList<ProductivityBean>();
+		List<ProductivityBean> listTareasBean = new ArrayList<>();
 		String INV_VW_USER_PRODUCTIVITY_REPORT = null;
 
 		INV_VW_USER_PRODUCTIVITY_REPORT = "SELECT DOC_INV_ID,DIH_BUKRS,DIH_WERKS,RPO_ZONE_ID,"
@@ -838,7 +826,7 @@ public class ReportesDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ConciliationsIDsBean> listConIds = new ArrayList<ConciliationsIDsBean>();
+		List<ConciliationsIDsBean> listConIds = new ArrayList<>();
 		ConciliationsIDsBean conciliationIDsBean;
 
 		try {

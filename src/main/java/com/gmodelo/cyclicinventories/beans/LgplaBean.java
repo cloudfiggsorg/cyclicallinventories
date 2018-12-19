@@ -2,7 +2,6 @@ package com.gmodelo.cyclicinventories.beans;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 public class LgplaBean {
 

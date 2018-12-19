@@ -66,7 +66,7 @@ public class ConciliacionDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ConciliationsIDsBean> listConIds = new ArrayList<ConciliationsIDsBean>();
+		List<ConciliationsIDsBean> listConIds = new ArrayList<>();
 		ConciliationsIDsBean conciliationIDsBean;
 
 		try {
@@ -153,7 +153,7 @@ public class ConciliacionDao {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<ConciliationsIDsBean> listConIds = new ArrayList<ConciliationsIDsBean>();
+		List<ConciliationsIDsBean> listConIds = new ArrayList<>();
 		ConciliationsIDsBean conciliationIDsBean;
 
 		try {
@@ -300,7 +300,7 @@ public class ConciliacionDao {
 		PreparedStatement stm = null;
 		ResultSet rs = null;
 		String errorQuery = "";
-		List<ConciliationPositionBean> listPositions = new ArrayList<ConciliationPositionBean>();
+		List<ConciliationPositionBean> listPositions = new ArrayList<>();
 		try {
 			HashMap<String, ConciliationPositionBean> notesPositions = new HashMap<>();
 
@@ -564,7 +564,7 @@ public class ConciliacionDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		ResultSet rs = null;
-		List<GroupBean> listGroups = new ArrayList<GroupBean>();
+		List<GroupBean> listGroups = new ArrayList<>();
 		Response<List<GroupBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		GroupBean gb = new GroupBean();		

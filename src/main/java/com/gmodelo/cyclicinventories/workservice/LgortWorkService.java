@@ -22,7 +22,7 @@ public class LgortWorkService {
 
 		log.info("[LgortWorkService] " + request.toString());
 		LgortBeanView lgortBean;
-		Response<List<LgortBeanView>> res = new Response<List<LgortBeanView>>();
+		Response<List<LgortBeanView>> res = new Response<>();
 
 		try {
 			lgortBean = gson.fromJson(gson.toJson(request.getLsObject()), LgortBeanView.class);
@@ -44,7 +44,7 @@ public class LgortWorkService {
 
 		log.info("[NgortWorkService] " + request.toString());
 		LgortBeanView lgortBeanView;
-		Response<List<LgortBeanView>> res = new Response<List<LgortBeanView>>();
+		Response<List<LgortBeanView>> res = new Response<>();
 
 		try {
 			lgortBeanView = gson.fromJson(gson.toJson(request.getLsObject()), LgortBeanView.class);
@@ -65,7 +65,7 @@ public class LgortWorkService {
 	public Response<List<LgortBeanView>> getNgortsIM(Request request) {
 		log.info("[NgortWorkService] " + request.toString());
 		LgortBeanView lgortBeanView;
-		Response<List<LgortBeanView>> res = new Response<List<LgortBeanView>>();
+		Response<List<LgortBeanView>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		try {
 			lgortBeanView = gson.fromJson(gson.toJson(request.getLsObject()), LgortBeanView.class);

@@ -15,7 +15,7 @@ public class RouteGroupBean {
 	
 	public RouteGroupBean() {
 		super();
-		this.users = new ArrayList<User>();
+		this.users = new ArrayList<>();
 	}
 	
 	public RouteGroupBean(int routeGroup, String groupId, String gdesc, String countNum, List<User> users) {

@@ -9,14 +9,15 @@ import com.gmodelo.cyclicinventories.dao.SapOperationDao;
 import com.gmodelo.cyclicinventories.workservice.SapConciliationWorkService;
 import com.sap.conn.jco.JCoDestination;
 
-public class _Runtime_Ziacmf_Mov_Final extends Thread {
-	JCoDestination asyncDestination;
-	Connection asyncConnection;
-	DocInvBean docInvBean;
+public class ZiacmfMovFinalRuntime extends Thread {
+	
+	private JCoDestination asyncDestination;
+	private Connection asyncConnection;
+	private DocInvBean docInvBean;
 
-	private Logger log = Logger.getLogger(_Runtime_Ziacmf_Mov_Final.class.getName());
+	private Logger log = Logger.getLogger(ZiacmfMovFinalRuntime.class.getName());
 
-	public _Runtime_Ziacmf_Mov_Final(JCoDestination asyncDestination, Connection asyncConnection,
+	public ZiacmfMovFinalRuntime(JCoDestination asyncDestination, Connection asyncConnection,
 			DocInvBean docInvBean) {
 		super();
 		this.asyncDestination = asyncDestination;

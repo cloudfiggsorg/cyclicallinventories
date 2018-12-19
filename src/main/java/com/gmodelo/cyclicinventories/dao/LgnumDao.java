@@ -27,7 +27,7 @@ private Logger log = Logger.getLogger( LgnumDao.class.getName());
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
-		List<Lgnum> listLgnum = new ArrayList<Lgnum>();
+		List<Lgnum> listLgnum = new ArrayList<>();
 		
 		String INV_VW_NGORT_WITH_GORT = "SELECT [WERKS], [LGORT], [LGNUM], [LNUMT] FROM [INV_CIC_DB].[dbo].[INV_VW_NGORT_WITH_GORT] "; //The Store procedure to call
 		

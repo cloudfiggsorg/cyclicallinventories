@@ -19,8 +19,8 @@ public class RouteBean {
 	
 	public RouteBean(){
 		super();
-		this.positions = new ArrayList<RoutePositionBean>();
-		this.groups = new ArrayList<RouteGroupBean>();
+		this.positions = new ArrayList<>();
+		this.groups = new ArrayList<>();
 	}
 	
 	public RouteBean(String routeId, String bukrs, String werks, String rdesc, String type, String bdesc, String wdesc,

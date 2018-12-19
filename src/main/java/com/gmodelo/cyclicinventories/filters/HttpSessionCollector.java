@@ -15,7 +15,7 @@ import com.bmore.ume001.beans.User;
 public class HttpSessionCollector implements HttpSessionListener{
 	
 	private static Logger log = Logger.getLogger(HttpSessionCollector.class.getName());
-	public static final Map<String, HttpSession> sessions = new HashMap<String, HttpSession>(); 
+	public static final Map<String, HttpSession> sessions = new HashMap<>(); 
 
 	public void sessionCreated(HttpSessionEvent arg0) {
 		log.warn("Registering session...");

@@ -39,14 +39,14 @@ public class ConciliacionWorkService {
 
 		log.info("[getConciliacionWS] " + request.toString());
 		ConciliacionBean tb = new Gson().fromJson(request.getLsObject().toString(), ConciliacionBean.class);
-		Response<ConciliacionBean> res = new Response<ConciliacionBean>();
+		Response<ConciliacionBean> res = new Response<>();
 		return new ConciliacionDao().getConciliacion(tb);
 	}
 
 	public Response<List<GroupBean>> getAvailableGroups(Request<ArrayList<Object>> request) {
 
 		log.info("[getAvailableGroupsWS] " + request.toString());
-		Response<List<GroupBean>> res = new Response<List<GroupBean>>();
+		Response<List<GroupBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		DocInvBean docInv;
 		String type = "";
@@ -77,7 +77,7 @@ public class ConciliacionWorkService {
 
 		log.info("[getFatherTaskByDocIdWS] " + request.toString());
 		String req = request.getLsObject().toString().trim();
-		Response<TaskBean> res = new Response<TaskBean>();
+		Response<TaskBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		int docInvId;
 
@@ -136,7 +136,7 @@ public class ConciliacionWorkService {
 		log.info("[getZonePositionWS] " + request.toString());
 		int zoneId = 0;
 		String lgpla;
-		Response<String> res = new Response<String>();
+		Response<String> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		String req;
 		req = request.getLsObject().toString();

@@ -38,7 +38,7 @@ public class SSessionData {
 	public Response<List<Object>> getSessionData() {
 		Response<List<Object>> resp = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<Object> listObject = new ArrayList<Object>();
+		List<Object> listObject = new ArrayList<>();
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		log.warn(user);
 		ArrayList<String> roles = (ArrayList<String>) httpRequest.getSession().getAttribute("roles");

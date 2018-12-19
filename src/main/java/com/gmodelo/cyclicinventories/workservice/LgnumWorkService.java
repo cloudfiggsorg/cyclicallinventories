@@ -22,7 +22,7 @@ public class LgnumWorkService {
 		
 		log.info("[getLgnumByLgort] "+request.toString());
 		Lgnum lgnum;
-		Response<List<Lgnum>> res = new Response<List<Lgnum>>();
+		Response<List<Lgnum>> res = new Response<>();
 		
 		try {
 			lgnum = gson.fromJson(gson.toJson(request.getLsObject()), Lgnum.class);

@@ -68,7 +68,7 @@ public class SapConciliationDao {
 		
 		try {
 			
-			PATH_TO_SAVE_FILES  = iUtils.GetValueRepByKey(con, ReturnValues.PATH_TO_SAVE_FILES).getStrCom1();			
+			PATH_TO_SAVE_FILES  = iUtils.getValueRepByKey(con, ReturnValues.PATH_TO_SAVE_FILES).getStrCom1();			
 		} catch (InvCicException e) {
 			
 			System.out.println("Some error occurred whiles was trying to get the path...");
@@ -93,7 +93,7 @@ public class SapConciliationDao {
 		CallableStatement csBatch = null;
 
 		String CURRENTSP = "";
-		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?";
 		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 		File file;
@@ -308,14 +308,13 @@ public class SapConciliationDao {
 	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_LGORT, LGOBE, LGTYP, LTYPT, CS_LGPLA, CS_MATNR, MAKTX, MEINS, CS_THEORIC, "
 			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_ACCOUNTANT, IMWM " + "FROM INV_VW_CONC_SAP "
 			+ "WHERE DOC_INV_ID = ?";
-	@SuppressWarnings("rawtypes")
 	public ArrayList<PosDocInvBean> getConciliationSAPPositions(int docInvId, Connection con) throws SQLException {
 
 		PreparedStatement ps = null;
 		ResultSet rs;
 		PosDocInvBean pdib;
 		String lsPosIds = "";
-		ArrayList<PosDocInvBean> lsPdib = new ArrayList<PosDocInvBean>();
+		ArrayList<PosDocInvBean> lsPdib = new ArrayList<>();
 
 		try {
 			ps = con.prepareStatement(GET_POS_CONS_SAP);
@@ -372,7 +371,7 @@ public class SapConciliationDao {
 			+ "FROM INV_JUSTIFY WHERE JS_CON_SAP IN (SELECT * FROM STRING_SPLIT(?, ','))";
 	private ArrayList<Justification> getJustification(String ids, Connection con) throws SQLException {
 
-		ArrayList<Justification> lsJustification = new ArrayList<Justification>();
+		ArrayList<Justification> lsJustification = new ArrayList<>();
 		Justification js;
 		PreparedStatement stm = null;
 		ResultSet rs;

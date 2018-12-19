@@ -6,15 +6,15 @@ import java.util.List;
 import com.gmodelo.cyclicinventories.workservice.SapConciliationWorkService;
 import com.sap.conn.jco.JCoDestination;
 
-public class _Runtime_Classification extends Thread {
+public class ClassificationRuntime extends Thread {
 
-	JCoDestination runnableDestination;
-	Connection runnableConnection;
-	List<String> materialList;
-	String deltaString;
-	String booleanString;
+	private JCoDestination runnableDestination;
+	private Connection runnableConnection;
+	private List<String> materialList;
+	private String deltaString;
+	private String booleanString;
 
-	public _Runtime_Classification(JCoDestination runnableDestination, Connection runnableConnection,
+	public ClassificationRuntime(JCoDestination runnableDestination, Connection runnableConnection,
 			List<String> materialList, String deltaString, String booleanString) {
 		super();
 		this.runnableDestination = runnableDestination;

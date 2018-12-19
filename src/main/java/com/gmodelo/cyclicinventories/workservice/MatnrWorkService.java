@@ -21,7 +21,7 @@ public class MatnrWorkService {
 	public Response<List<MatnrBeanView>> getMatnr(Request request){
 		log.info("[getMatnrWorkService] "+request.toString());
 		MatnrBeanView mantrBean  = null;
-		Response<List<MatnrBeanView>> res = new Response<List<MatnrBeanView>>();
+		Response<List<MatnrBeanView>> res = new Response<>();
 		String req = request.getLsObject().toString().trim();
 		
 		if(!req.isEmpty()){

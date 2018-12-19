@@ -18,7 +18,7 @@ public class Utilities {
 	public static final String GETREPVALUEBYKEY = "SELECT STORED_VALUE, STORED_ENCODED from  INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY  = ?";
 	public static final String UPDATEVALUEBYKEY = "UPDATE INV_CIC_REPOSITORY SET STORED_VALUE = ? WHERE STORED_KEY = ?";
 
-	public AbstractResultsBean GetLangByKey(Connection con, String key, String lang) throws InvCicException {
+	public AbstractResultsBean getLangByKey(Connection con, String key, String lang) throws InvCicException {
 		AbstractResultsBean result = new AbstractResultsBean();
 		try {
 			PreparedStatement stm = con.prepareStatement(GETLANGBYKEY);
@@ -38,7 +38,7 @@ public class Utilities {
 		return result;
 	}
 
-	public AbstractResultsBean GetValueRepByKey(Connection con, String key) throws InvCicException {
+	public AbstractResultsBean getValueRepByKey(Connection con, String key) throws InvCicException {
 		AbstractResultsBean result = new AbstractResultsBean();
 		try {
 			PreparedStatement stm = con.prepareStatement(GETREPVALUEBYKEY);
@@ -59,7 +59,7 @@ public class Utilities {
 	}
 
 	// INV_CIC_CLASSIFICATION_STATUS
-	public AbstractResultsBean UpdateValueRepByKey(Connection con, String key, String value) throws InvCicException {
+	public AbstractResultsBean updateValueRepByKey(Connection con, String key, String value) throws InvCicException {
 		AbstractResultsBean result = new AbstractResultsBean();
 		try {
 			PreparedStatement stm = con.prepareStatement(UPDATEVALUEBYKEY);
@@ -73,16 +73,16 @@ public class Utilities {
 		return result;
 	}
 
-	public String EncodeB64(String toEncode) {
+	public String encodeB64(String toEncode) {
 		return Base64.getEncoder().encodeToString(toEncode.getBytes());
 	}
 
-	public String DecodeB64(String toDecode) {
+	public String decodeB64(String toDecode) {
 		return new String(Base64.getDecoder().decode(toDecode.getBytes()));
 	}
 
 	public String generateLoginToken(LoginBean login) {
-		return this.EncodeB64(login.getLoginId()) + UUID.randomUUID().toString() + new Date().toString();
+		return this.encodeB64(login.getLoginId()) + UUID.randomUUID().toString() + new Date().toString();
 	}
 
 }
