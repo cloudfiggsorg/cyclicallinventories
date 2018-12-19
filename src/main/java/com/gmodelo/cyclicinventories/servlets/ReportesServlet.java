@@ -33,6 +33,7 @@ import com.gmodelo.cyclicinventories.workservice.RouteWorkService;
  */
 @WebServlet("/ReportesServlet")
 public class ReportesServlet extends HttpServlet {
+	
 	private static final long serialVersionUID = 1L;
 	private Logger log = Logger.getLogger(RouteWorkService.class.getName());
 
