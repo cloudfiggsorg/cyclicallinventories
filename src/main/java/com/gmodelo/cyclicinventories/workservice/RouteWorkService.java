@@ -225,7 +225,6 @@ public class RouteWorkService {
 		Response<RouteUserBean> routeResponse = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
 		routeResponse.setAbstractResult(result);
-		RouteUserBean route = new RouteUserBean();
 		try {
 			routeResponse = new Gson().fromJson(getRoutesByUser(request), Response.class);
 			if (routeResponse.getAbstractResult().getResultId() != ReturnValues.ISUCCESS) {

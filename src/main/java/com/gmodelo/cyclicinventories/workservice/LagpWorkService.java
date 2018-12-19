@@ -19,7 +19,6 @@ public class LagpWorkService {
 		log.info("[getLagpWorkService] "+request.toString());
 		LagpEntity lgplaBean = null;
 		String searchFilter = null;
-		Response<List<LagpEntity>> res = new Response<>();
 		String req = request.getLsObject().toString().trim();
 		if(!req.isEmpty()){
 			try {

@@ -957,7 +957,6 @@ public class ReportesDao {
 		String bukrs = "";
 		String werks = "";
 		String rdesc = "";
-		String type = "";
 		String user = "";
 		String docInv = "";
 		String lgort = "";

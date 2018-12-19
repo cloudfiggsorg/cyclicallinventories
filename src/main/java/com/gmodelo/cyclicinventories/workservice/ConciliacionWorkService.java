@@ -39,7 +39,6 @@ public class ConciliacionWorkService {
 
 		log.info("[getConciliacionWS] " + request.toString());
 		ConciliacionBean tb = new Gson().fromJson(request.getLsObject().toString(), ConciliacionBean.class);
-		Response<ConciliacionBean> res = new Response<>();
 		return new ConciliacionDao().getConciliacion(tb);
 	}
 

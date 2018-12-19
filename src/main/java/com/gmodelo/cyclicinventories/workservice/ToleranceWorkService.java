@@ -25,7 +25,6 @@ public class ToleranceWorkService {
 	public Response<List<ToleranceBean>> getMATKL(Request request) {
 
 		log.info("[getMATKLWS] " + request.toString());
-		Response<List<ToleranceBean>> res = new Response<>();
 		ToleranceBean tb = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();

@@ -14,7 +14,6 @@ import com.gmodelo.cyclicinventories.beans.ApegosBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
-import com.gmodelo.cyclicinventories.beans.ReporteCalidadBean;
 import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
