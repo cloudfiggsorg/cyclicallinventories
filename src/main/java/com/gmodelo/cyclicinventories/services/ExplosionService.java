@@ -26,17 +26,17 @@ public class ExplosionService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getExplosionDetail")
-	public Response<ArrayList<ExplosionDetail>> getExplosionDetail(Request<?> request){
+	public Response<ArrayList<ExplosionDetail>> getExplosionDetail(Request request){
 		return new ExplosionWorkService().getLsExplosionDetail(request);
 	}
 		
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/addExplosionDetail")
-	public Response<?> addZone(Request<?> request){
+	@Path("/saveExplosionDetail")
+	public Response saveExplosionDetail(Request request){
 		User user = (User) httpRequest.getSession().getAttribute("user");
-		return new ExplosionWorkService().addExplosionDetail(request, user);
+		return new ExplosionWorkService().saveExplosionDetail(request, user);
 	}
 
 }

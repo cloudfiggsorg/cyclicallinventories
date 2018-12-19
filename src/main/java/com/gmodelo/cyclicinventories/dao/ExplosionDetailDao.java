@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +20,7 @@ public class ExplosionDetailDao {
 	
 	private Logger log = Logger.getLogger(ZoneDao.class.getName());
 	
-	public Response<?> addExplosionDetail(ArrayList<ExplosionDetail> ed, String user) {
+	public Response saveExplosionDetail(ArrayList<ExplosionDetail> ed, String user) {
 
 		Response<?> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -33,7 +32,7 @@ public class ExplosionDetailDao {
 
 		final String INV_SP_SAVE_EXPLOSION = "INV_SP_SAVE_EXPLOSION ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_EXPLOSION = "INV_SP_DEL_EXPLOSION ?, ?";
-		log.info("[addExplosionDetail] Preparing sentence...");
+		log.info("[saveExplosionDetail] Preparing sentence...");
 		
 		try {
 			
@@ -61,10 +60,9 @@ public class ExplosionDetailDao {
 				csBatch.setString(4, obj.getQuantity());
 				csBatch.setByte(5, (byte) (obj.isRelevant()?1:0));
 				csBatch.setString(6, user);
-				csBatch.setNull(7, Types.INTEGER);
 				csBatch.addBatch();
 			}
-			log.info("[addExplosionDetail] Executing batch..." + csBatch.executeBatch());
+			log.info("[saveExplosionDetail] Executing batch..." + csBatch.executeBatch());
 
 			// Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
@@ -77,17 +75,17 @@ public class ExplosionDetailDao {
 			// Free resources
 			cs.close();
 
-			log.info("[addExplosionDetail] Sentence successfully executed.");
+			log.info("[saveExplosionDetail] Sentence successfully executed.");
 
 		} catch (SQLException e) {
 			try {
-				log.log(Level.WARNING, "[addExplosionDetail] Execute rollback");
+				log.log(Level.WARNING, "[saveExplosionDetail] Execute rollback");
 				con.rollback();
 			} catch (SQLException e1) {
-				log.log(Level.SEVERE, "[addExplosionDetail] Not rollback .", e);
+				log.log(Level.SEVERE, "[saveExplosionDetail] Not rollback .", e);
 			}
 
-			log.log(Level.SEVERE, "[addExplosionDetail] Some error occurred while was trying to execute the S.P.: " + currentSP,
+			log.log(Level.SEVERE, "[saveExplosionDetail] Some error occurred while was trying to execute the S.P.: " + currentSP,
 					e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			res.setAbstractResult(abstractResult);
@@ -96,7 +94,7 @@ public class ExplosionDetailDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[addExplosionDetail] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE, "[saveExplosionDetail] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 		res.setAbstractResult(abstractResult);
@@ -124,7 +122,7 @@ public class ExplosionDetailDao {
 			stm = con.prepareStatement(GET_EXPL_DET);
 			stm.setString(1, ed.getWerks());
 			stm.setString(2, ed.getMatnr());
-
+			
 			log.info("[getExplosionDetailByMatnr] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
