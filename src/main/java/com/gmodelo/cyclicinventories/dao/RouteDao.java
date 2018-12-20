@@ -390,7 +390,8 @@ public class RouteDao {
 				INV_VW_ROUTES += condition;
 			}
 		}
-
+		
+		INV_VW_ROUTES += " GROUP BY ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, CREATED_BY, MODIFIED_BY";
 		log.info(INV_VW_ROUTES);
 		log.info("[getRoutesDao] Preparing sentence...");
 		try {
