@@ -19,8 +19,6 @@ import java.util.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
-import com.gmodelo.cyclicinventories.beans.ConciliacionBean;
-import com.gmodelo.cyclicinventories.beans.ConciliationPositionBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.CostByMatnr;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
@@ -31,7 +29,6 @@ import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
-import com.gmodelo.cyclicinventories.beans.ReporteCalidadConteosBean;
 import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBeanHeader;
@@ -886,70 +883,6 @@ public class ReportesDao {
 		res.setLsObject(listConIds);
 		return res;
 	
-	}
-
-	private List<ReporteCalidadConteosBean> getConteos(int docInvId) {
-		List<ReporteCalidadConteosBean> list = new ArrayList<>();
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
-		ConciliacionBean docInvBean = new ConciliacionBean();
-		docInvBean.setDocInvId(docInvId);
-		ConciliacionDao dao = new ConciliacionDao();
-		List<ConciliationPositionBean> conteos = dao.getConciliationPositions(con,docInvBean);
-
-	
-		try {
-			if (conteos.size() > 0) {
-				for (int i = 0; i < conteos.size(); i++) {
-					ConciliationPositionBean row = conteos.get(i);
-					ReporteCalidadConteosBean bean = new ReporteCalidadConteosBean();
-
-					bean.setZoneId(row.getZoneId());
-					bean.setZoneD(row.getZoneD());
-					bean.setMatnr(row.getMatnr());
-					bean.setMatnrD(row.getMatnrD());
-					bean.setLgpla(row.getLgpla());
-					bean.setMeasureUnit(row.getMeasureUnit());
-
-					bean.setCount1A(row.getCount1A());
-					bean.setCount1B(row.getCount1B());
-					bean.setCount2(row.getCount2());
-					bean.setCount3(row.getCount3());
-		
-					String calidad = "-";
-					String count1A = bean.getCount1A() != null ? bean.getCount1A() : "";
-					String count1B = bean.getCount1B() != null ? bean.getCount1B() : "";
-					String count2 = bean.getCount2() != null ? bean.getCount2() : "";
-
-					if (count1A.equalsIgnoreCase(count1B) && count1A.length() > 0 && count1B.length() > 0) {
-						calidad = "1A-1B";
-					} else {
-						if (!count1A.equalsIgnoreCase(count1B) && count1A.equalsIgnoreCase(count2) && count1A.length() > 0
-								&& count2.length() > 0) {
-							calidad = "1A";
-						} else {
-							if (!count1A.equalsIgnoreCase(count1B) && count1B.equalsIgnoreCase(count2)
-									&& count1B.length() > 0 && count2.length() > 0) {
-								calidad = "1B";
-							}
-						}
-					}
-
-					bean.setCalidad(calidad);
-					list.add(bean);
-				}
-			}
-		} catch (Exception e) {
-			// TODO: handle exception
-		}finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[getConteos] Some error occurred while was trying to close the connection.",
-				e);
-			}
-		}
-		return list;
 	}
 
 	private String buildConditionApegos(ApegosBean apegosB) {
