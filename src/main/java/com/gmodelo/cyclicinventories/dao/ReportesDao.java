@@ -396,8 +396,16 @@ public class ReportesDao {
 		
 	}
 	
-	private static final String INV_VW_REP_POS_SAP = "SELECT DIP_LGORT, LGTYP, DIP_LGPLA, DIP_MATNR, "
-			+ " MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+	private static final String INV_VW_REP_POS_SAP = "SELECT DIP_LGORT, " 
+	+ "CASE "
+		+ "WHEN IMWM = 'IM' THEN NULL "
+		+ "WHEN IMWM = 'WM' THEN (SELECT TOP 1 LGNUM "
+			+ "FROM INV_VW_NGORT_WITH_GORT INVG " 
+			+ "WHERE WERKS = ? " 
+			+ "AND LEN(LGNUM) > 0) "
+	+ "END LGNUM, LGTYP, DIP_LGPLA, DIP_MATNR, " 
+	+ "MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM " 
+	+ "FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 	
 	public Response<DocInvBeanHeaderSAP> getNoClosedConsSapReport(DocInvBean docInvBean) {
 		
@@ -432,17 +440,18 @@ public class ReportesDao {
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
 				log.info(INV_VW_REP_POS_SAP);
 				log.info("[getReporteDocInvDao] Preparing sentence...");
-				stm = con.prepareStatement(INV_VW_REP_POS_SAP);
-				stm.setInt(1, docInvBean.getDocInvId());
 				
-				rs = stm.executeQuery();
+				stm = con.prepareStatement(INV_VW_REP_POS_SAP);				
+				stm.setString(1, docInvBean.getWerks());
+				stm.setInt(2, docInvBean.getDocInvId());
 				
+				rs = stm.executeQuery();				
 				while (rs.next()) {
 					
 					PosDocInvBean positionBean = new PosDocInvBean();
 					positionBean.setDoncInvId(docInvBean.getDocInvId());
 					positionBean.setLgort(rs.getString("DIP_LGORT"));
-					//positionBean.setLgNum(rs.getString("LGNUM"));
+					positionBean.setLgNum(rs.getString("LGNUM"));
 					positionBean.setLgtyp(rs.getString("LGTYP"));
 					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
 					positionBean.setMatnr(rs.getString("DIP_MATNR"));
