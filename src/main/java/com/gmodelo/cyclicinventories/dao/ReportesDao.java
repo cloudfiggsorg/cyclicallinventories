@@ -396,9 +396,8 @@ public class ReportesDao {
 		
 	}
 	
-	private static final String INV_VW_REP_POS_CONS_SAP = "SELECT A.DIP_MATNR, A.MAKTX, A.MEINS, A.IMWM " 
-			+ "FROM INV_VW_DOC_INV_REP_POSITIONS AS A WITH(NOLOCK) " 			
-			+ "WHERE DOC_INV_ID = ? ";
+	private static final String INV_VW_REP_POS_SAP = "SELECT DIP_LGORT, LGTYP, DIP_LGPLA, DIP_MATNR, "
+			+ " MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 	
 	public Response<DocInvBeanHeaderSAP> getNoClosedConsSapReport(DocInvBean docInvBean) {
 		
@@ -410,6 +409,8 @@ public class ReportesDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<PosDocInvBean> listBean = new ArrayList<>();
 		String lsMatnr = "";
+		E_Mseg_SapEntity emse;
+		
 		
 		log.info(INV_VW_REP_HEADER);
 		log.info("[getReporteDocInvDao] Preparing sentence...");
@@ -429,29 +430,94 @@ public class ReportesDao {
 				bean.setType(rs.getString("DIH_TYPE"));
 				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
-				log.info(INV_VW_REP_POS_CONS_SAP);
+				log.info(INV_VW_REP_POS_SAP);
 				log.info("[getReporteDocInvDao] Preparing sentence...");
-				stm = con.prepareStatement(INV_VW_REP_POS_CONS_SAP);
+				stm = con.prepareStatement(INV_VW_REP_POS_SAP);
 				stm.setInt(1, docInvBean.getDocInvId());
 				
 				rs = stm.executeQuery();
+				
 				while (rs.next()) {
 					
 					PosDocInvBean positionBean = new PosDocInvBean();
 					positionBean.setDoncInvId(docInvBean.getDocInvId());
+					positionBean.setLgort(rs.getString("DIP_LGORT"));
+					//positionBean.setLgNum(rs.getString("LGNUM"));
+					positionBean.setLgtyp(rs.getString("LGTYP"));
+					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
 					positionBean.setMatnr(rs.getString("DIP_MATNR"));
 					positionBean.setMatnrD(rs.getString("MAKTX"));
 					positionBean.setMeins(rs.getString("MEINS"));
 					positionBean.setCounted(rs.getString("DIP_COUNTED"));
-					positionBean.setImwmMarker(rs.getString("IMWM"));
+					positionBean.setImwmMarker(rs.getString("IMWM"));					
+					emse = new E_Mseg_SapEntity();
+					
+					//Set the movements by matnr on theoric
+					if(positionBean.getImwmMarker().equalsIgnoreCase("IM")){
+						
+						emse.setLgort(positionBean.getLgort());
+						emse.setMatnr(positionBean.getMatnr());
+						positionBean.setTheoric(Double.toString(new SapOperationDao().getMatnrMovementsIM(emse, con)));
+					}else{
+						 		
+						emse.setLgort(positionBean.getLgort());
+						emse.setLgnum(positionBean.getLgNum());						
+						emse.setLgtyp(positionBean.getLgtyp());
+						emse.setLgpla(positionBean.getLgpla());
+						emse.setMatnr(positionBean.getMatnr());						
+						positionBean.setTheoric(Double.toString(new SapOperationDao().getMatnrMovementsWM(emse, con)));
+					}
+					
 					listBean.add(positionBean);
 					lsMatnr += positionBean.getMatnr() + ", ";
+				}
+				
+				ArrayList<E_Mard_SapEntity> lsTheoricIM = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), con);
+				ArrayList<E_Lqua_SapEntity> lsTheoricWM = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), con);
+				boolean found = false;
+				double theoric = 0;
+				
+				//Sum the theoric before group by matnr
+				for(PosDocInvBean pb: listBean){
+				
+					found = false;
+					
+					//Set the theoric 
+					if (pb.getImwmMarker().equals("WM")) {
+						
+						for(E_Lqua_SapEntity ojb: lsTheoricWM){//Set the theoric WM for this matnr
+																				
+							if(ojb.getMatnr().contentEquals(pb.getMatnr())){
+								
+								found = true;								
+								theoric = Double.parseDouble(pb.getTheoric());
+								theoric += Double.parseDouble(ojb.getVerme());
+								pb.setTheoric(Double.toString(theoric));
+								break;
+							}
+						}	
+													
+					} else {
+						
+						for(E_Mard_SapEntity ojb: lsTheoricIM){//Set the theoric IM for this matnr
+																			
+							if(ojb.getMatnr().contentEquals(pb.getMatnr()) ){
+								
+								found = true;
+								theoric = Double.parseDouble(pb.getTheoric());
+								theoric += Double.parseDouble(ojb.getRetme());
+								pb.setTheoric(Double.toString(theoric));
+								break;
+							}
+						}	
+					}					
 				}
 				
 				//Group by matnr
 				HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();				
 				PosDocInvBean pbAux = null;
 				double sumCounted = 0;
+				theoric = 0;
 				
 				for(PosDocInvBean pb: listBean){
 					
@@ -461,6 +527,10 @@ public class ReportesDao {
 						sumCounted = Double.parseDouble(pbAux.getCounted());
 						sumCounted += Double.parseDouble(pb.getCounted());
 						pbAux.setCounted(Double.toString(sumCounted));
+						theoric = Double.parseDouble(pbAux.getTheoric());
+						theoric += Double.parseDouble(pb.getTheoric());
+						pbAux.setTheoric(Double.toString(theoric));
+						
 						mapByMatNr.replace(pb.getMatnr(), pbAux);
 					} else {
 						mapByMatNr.put(pb.getMatnr(), pb);
@@ -476,31 +546,43 @@ public class ReportesDao {
 								
 				ArrayList<E_Mseg_SapEntity> lsTransit = sod.getMatnrOnTransit(docInvBean.getDocInvId(), con);
 				ArrayList<E_Msku_SapEntity> lsCons = sod.getMatnrOnCons(docInvBean.getDocInvId(), con);
-				ArrayList<E_Mard_SapEntity> lsTheoricIM = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), con);
-				ArrayList<E_Lqua_SapEntity> lsTheoricWM = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), con);
 				ArrayList<CostByMatnr> lsMatnrCost = sod.getCostByMatnr(lsMatnr, bean.getWerks(), con);
-											
+																			
 				if (!listBean.isEmpty()) {
 					for (PosDocInvBean singlePos : listBean) {
+						
+						found = false;
 						
 						//Set the value per matnr
 						for(CostByMatnr matnrCost: lsMatnrCost){
 							
 							if(matnrCost.getMatnr().contentEquals(singlePos.getMatnr())){
 								
+								found = true;
 								singlePos.setCostByUnit(matnrCost.getCost());
 								break;
 							}
 						}
+						
+						if(!found){
+							singlePos.setCostByUnit("0");
+						}
+						
+						found = false;
 						
 						//Set the transit measure for this matnr
 						for(E_Mseg_SapEntity ojb: lsTransit){
 							
 							if(ojb.getMatnr().contentEquals(singlePos.getMatnr())){
 								
+								found = true;
 								singlePos.setTransit(ojb.getMeins());
 								break;
 							}
+						}
+						
+						if(!found){
+							singlePos.setTransit("0");
 						}
 						
 						//Set the consignation measure for this matnr
@@ -508,38 +590,16 @@ public class ReportesDao {
 							
 							if(ojb.getMatnr().contentEquals(singlePos.getMatnr())){
 								
+								found = true;
 								singlePos.setConsignation(ojb.getKulab());
 								break;
 							}
 						}
-											
-						//Set the theoric 
-						if (singlePos.getImwmMarker().equals("WM")) {
-							
-							for(E_Lqua_SapEntity ojb: lsTheoricWM){//Set the theoric WM for this matnr
-																					
-								if(ojb.getMatnr().contentEquals(singlePos.getMatnr()) 
-										&& ojb.getLgpla().contentEquals(singlePos.getLgpla())){
-									
-									singlePos.setTheoric(ojb.getVerme());
-									break;
-								}else{
-									singlePos.setTheoric("0");
-								}
-							}	
-														
-						} else {
-							
-							for(E_Mard_SapEntity ojb: lsTheoricIM){//Set the theoric IM for this matnr
-																				
-								if(ojb.getMatnr().contentEquals(singlePos.getMatnr()) ){
-									
-									singlePos.setTheoric(ojb.getRetme());
-									break;
-								}
-							}	
-						}
 						
+						if(!found){
+							singlePos.setConsignation("0");
+						}
+																	
 					}										
 				}
 				
