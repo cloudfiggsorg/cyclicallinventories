@@ -45,25 +45,25 @@ public class SapOperationDao {
 			+ " INNER JOIN MAKT MKT WITH(NOLOCK) ON EC.MATNR = MKT.MATNR"
 			+ " GROUP BY EC.MATNR, MKT.MAKTX, SMBEZ, ATFLV, ATNAM";
 
-	private static final String TRANSIT = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? ";
+	private static final String TRANSIT = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? ";
 
-	private static final String CONSIGNATION = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, SUM((CAST(KULAB AS decimal(10,3)) "
+	private static final String CONSIGNATION = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(10,3)) "
 			+ "+ CAST(KUINS AS decimal(10,3)) + CAST(KUEIN AS decimal(10,3)))) AS CONS FROM E_MSKU WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
-	private static final String THEORIC_IM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, (CAST(LABST AS decimal(10,3)) "
+	private static final String THEORIC_IM = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, (CAST(LABST AS decimal(10,3)) "
 			+ "+ CAST(UMLME AS decimal(10,3)) + CAST(INSME AS decimal(10,3)) + CAST(EINME AS decimal(10,3)) "
 			+ "+ CAST(SPEME AS decimal(10,3)) + CAST(RETME AS decimal(10,3))) AS CONS FROM E_MARD_F WHERE DOC_INV_ID = ?";
 
-	private static final String THEORIC_WM = "SELECT CAST(MATNR AS decimal(10)) AS MATNR, LGPLA, "
-			+ "SUM(CAST(VERME AS decimal(10,3))) AS CONS FROM E_LQUA_F WHERE DOC_INV_ID = ? " + "GROUP BY MATNR, LGPLA";
+	private static final String THEORIC_WM = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, LGPLA, "
+			+ "SUM(CAST(VERME AS decimal(10,3))) AS CONS FROM E_LQUA_F WHERE DOC_INV_ID = ? GROUP BY MATNR, LGPLA";
 
-	public static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3)))" + "FROM E_MSEG "
+	public static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) FROM E_MSEG "
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'S') - "
 			+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) " + "FROM E_MSEG "
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE";
 
-	public static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) " + "FROM E_MSEG"
+	public static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) FROM E_MSEG "
 			+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'S') - " + "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
 			+ "FROM E_MSEG " + "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE ";
 
@@ -252,9 +252,9 @@ public class SapOperationDao {
 		return lsMatnr;
 	}
 	
-	private static final String COST_BY_MATNR = "SELECT CAST(MATNR AS decimal(10)) MATNR, VERPR " 
-			+ "FROM MBEW "
-			+ "WHERE CAST(CAST(MATNR AS DECIMAL (10)) AS VARCHAR(20)) IN (SELECT * FROM STRING_SPLIT(?, ',')) AND BWKEY = ?";
+	private static final String COST_BY_MATNR = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, VERPR " 
+		+ "FROM MBEW " 
+		+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) IN (SELECT * FROM STRING_SPLIT(?, ',')) AND BWKEY = ?";
 	
 	public ArrayList<CostByMatnr> getCostByMatnr(String matnrIds, String werks, Connection con) throws SQLException {
 
@@ -263,7 +263,7 @@ public class SapOperationDao {
 		stm.setString(1, matnrIds);
 		stm.setString(2, werks);
 		ResultSet rs = stm.executeQuery();
-
+		
 		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
 		CostByMatnr els;
 

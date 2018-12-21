@@ -396,10 +396,16 @@ public class ReportesDao {
 		
 	}
 	
-	private static final String INV_VW_REP_POS_CONS_SAP = "SELECT A.DIP_MATNR, A.MAKTX, A.MEINS, A.DIP_THEORIC, "
-			+ "A.DIP_COUNTED, A.DIP_DIFF_COUNTED, A.IMWM " 
-			+ "FROM INV_VW_DOC_INV_REP_POSITIONS AS A WITH(NOLOCK) " 			
-			+ "WHERE DOC_INV_ID = ? ";
+	private static final String INV_VW_REP_POS_SAP = "SELECT DIP_LGORT, " 
+	+ "CASE "
+		+ "WHEN IMWM = 'IM' THEN NULL "
+		+ "WHEN IMWM = 'WM' THEN (SELECT TOP 1 LGNUM "
+			+ "FROM INV_VW_NGORT_WITH_GORT INVG " 
+			+ "WHERE WERKS = ? " 
+			+ "AND LEN(LGNUM) > 0) "
+	+ "END LGNUM, LGTYP, DIP_LGPLA, DIP_MATNR, " 
+	+ "MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM " 
+	+ "FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 	
 	public Response<DocInvBeanHeaderSAP> getNoClosedConsSapReport(DocInvBean docInvBean) {
 		
@@ -411,6 +417,8 @@ public class ReportesDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<PosDocInvBean> listBean = new ArrayList<>();
 		String lsMatnr = "";
+		E_Mseg_SapEntity emse;
+		
 		
 		log.info(INV_VW_REP_HEADER);
 		log.info("[getReporteDocInvDao] Preparing sentence...");
@@ -430,70 +438,160 @@ public class ReportesDao {
 				bean.setType(rs.getString("DIH_TYPE"));
 				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
-				log.info(INV_VW_REP_POS_CONS_SAP);
+				log.info(INV_VW_REP_POS_SAP);
 				log.info("[getReporteDocInvDao] Preparing sentence...");
-				stm = con.prepareStatement(INV_VW_REP_POS_CONS_SAP);
-				stm.setInt(1, docInvBean.getDocInvId());
 				
-				rs = stm.executeQuery();
+				stm = con.prepareStatement(INV_VW_REP_POS_SAP);				
+				stm.setString(1, docInvBean.getWerks());
+				stm.setInt(2, docInvBean.getDocInvId());
+				
+				rs = stm.executeQuery();				
 				while (rs.next()) {
 					
 					PosDocInvBean positionBean = new PosDocInvBean();
 					positionBean.setDoncInvId(docInvBean.getDocInvId());
+					positionBean.setLgort(rs.getString("DIP_LGORT"));
+					positionBean.setLgNum(rs.getString("LGNUM"));
+					positionBean.setLgtyp(rs.getString("LGTYP"));
+					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
 					positionBean.setMatnr(rs.getString("DIP_MATNR"));
 					positionBean.setMatnrD(rs.getString("MAKTX"));
 					positionBean.setMeins(rs.getString("MEINS"));
-					positionBean.setImwmMarker(rs.getString("IMWM"));
-					
-					if (rs.getString("DIP_THEORIC") != null)
-						positionBean.setTheoric(rs.getString("DIP_THEORIC"));
-					else
-						positionBean.setTheoric("");
 					positionBean.setCounted(rs.getString("DIP_COUNTED"));
-					if (rs.getString("DIP_DIFF_COUNTED") != null)
-						positionBean.setDiff(rs.getString("DIP_DIFF_COUNTED"));
-					else
-						positionBean.setDiff("");
+					positionBean.setImwmMarker(rs.getString("IMWM"));					
+					emse = new E_Mseg_SapEntity();
+					
+					//Set the movements by matnr on theoric
+					if(positionBean.getImwmMarker().equalsIgnoreCase("IM")){
+						
+						emse.setLgort(positionBean.getLgort());
+						emse.setMatnr(positionBean.getMatnr());
+						positionBean.setTheoric(Double.toString(new SapOperationDao().getMatnrMovementsIM(emse, con)));
+					}else{
+						 		
+						emse.setLgort(positionBean.getLgort());
+						emse.setLgnum(positionBean.getLgNum());						
+						emse.setLgtyp(positionBean.getLgtyp());
+						emse.setLgpla(positionBean.getLgpla());
+						emse.setMatnr(positionBean.getMatnr());						
+						positionBean.setTheoric(Double.toString(new SapOperationDao().getMatnrMovementsWM(emse, con)));
+					}
 					
 					listBean.add(positionBean);
 					lsMatnr += positionBean.getMatnr() + ", ";
 				}
+				
+				ArrayList<E_Mard_SapEntity> lsTheoricIM = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), con);
+				ArrayList<E_Lqua_SapEntity> lsTheoricWM = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), con);
+				boolean found = false;
+				double theoric = 0;
+				
+				//Sum the theoric before group by matnr
+				for(PosDocInvBean pb: listBean){
+				
+					found = false;
+					
+					//Set the theoric 
+					if (pb.getImwmMarker().equals("WM")) {
+						
+						for(E_Lqua_SapEntity ojb: lsTheoricWM){//Set the theoric WM for this matnr
+																				
+							if(ojb.getMatnr().contentEquals(pb.getMatnr())){
+								
+								found = true;								
+								theoric = Double.parseDouble(pb.getTheoric());
+								theoric += Double.parseDouble(ojb.getVerme());
+								pb.setTheoric(Double.toString(theoric));
+								break;
+							}
+						}	
+													
+					} else {
+						
+						for(E_Mard_SapEntity ojb: lsTheoricIM){//Set the theoric IM for this matnr
+																			
+							if(ojb.getMatnr().contentEquals(pb.getMatnr()) ){
+								
+								found = true;
+								theoric = Double.parseDouble(pb.getTheoric());
+								theoric += Double.parseDouble(ojb.getRetme());
+								pb.setTheoric(Double.toString(theoric));
+								break;
+							}
+						}	
+					}					
+				}
+				
+				//Group by matnr
+				HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();				
+				PosDocInvBean pbAux = null;
+				double sumCounted = 0;
+				theoric = 0;
+				
+				for(PosDocInvBean pb: listBean){
+					
+					if (mapByMatNr.containsKey(pb.getMatnr())) {
+						
+						pbAux = mapByMatNr.get(pb.getMatnr());
+						sumCounted = Double.parseDouble(pbAux.getCounted());
+						sumCounted += Double.parseDouble(pb.getCounted());
+						pbAux.setCounted(Double.toString(sumCounted));
+						theoric = Double.parseDouble(pbAux.getTheoric());
+						theoric += Double.parseDouble(pb.getTheoric());
+						pbAux.setTheoric(Double.toString(theoric));
+						
+						mapByMatNr.replace(pb.getMatnr(), pbAux);
+					} else {
+						mapByMatNr.put(pb.getMatnr(), pb);
+					}
+				}
+				
+				//Reset the list and make a new one with filtered values
+				listBean.clear();
+				
+				for (Map.Entry<String, PosDocInvBean> mapEntry : mapByMatNr.entrySet()){
+					listBean.add(mapEntry.getValue());
+				}				
 								
 				ArrayList<E_Mseg_SapEntity> lsTransit = sod.getMatnrOnTransit(docInvBean.getDocInvId(), con);
 				ArrayList<E_Msku_SapEntity> lsCons = sod.getMatnrOnCons(docInvBean.getDocInvId(), con);
-				ArrayList<E_Mard_SapEntity> lsTheoricIM = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), con);
-				ArrayList<E_Lqua_SapEntity> lsTheoricWM = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), con);
 				ArrayList<CostByMatnr> lsMatnrCost = sod.getCostByMatnr(lsMatnr, bean.getWerks(), con);
-											
-				List<PosDocInvBean> wmList = new ArrayList<>();
-				List<PosDocInvBean> imList = new ArrayList<>();
-				List<PosDocInvBean> imPList = new ArrayList<>();
-
-				// Hashmap Llave Material- Almacen, Contenido Lista de Objetos
-				// que hagan match material almacen.
-				HashMap<String, List<PosDocInvBean>> supportMap = new HashMap<>();
-
+																			
 				if (!listBean.isEmpty()) {
 					for (PosDocInvBean singlePos : listBean) {
+						
+						found = false;
 						
 						//Set the value per matnr
 						for(CostByMatnr matnrCost: lsMatnrCost){
 							
 							if(matnrCost.getMatnr().contentEquals(singlePos.getMatnr())){
 								
+								found = true;
 								singlePos.setCostByUnit(matnrCost.getCost());
 								break;
 							}
 						}
+						
+						if(!found){
+							singlePos.setCostByUnit("0");
+						}
+						
+						found = false;
 						
 						//Set the transit measure for this matnr
 						for(E_Mseg_SapEntity ojb: lsTransit){
 							
 							if(ojb.getMatnr().contentEquals(singlePos.getMatnr())){
 								
+								found = true;
 								singlePos.setTransit(ojb.getMeins());
 								break;
 							}
+						}
+						
+						if(!found){
+							singlePos.setTransit("0");
 						}
 						
 						//Set the consignation measure for this matnr
@@ -501,135 +599,21 @@ public class ReportesDao {
 							
 							if(ojb.getMatnr().contentEquals(singlePos.getMatnr())){
 								
+								found = true;
 								singlePos.setConsignation(ojb.getKulab());
 								break;
 							}
 						}
-												
-						if (singlePos.getImwmMarker().equals("WM")) {
-							
-							for(E_Lqua_SapEntity ojb: lsTheoricWM){//Set the theoric WM for this matnr
-																					
-								if(ojb.getMatnr().contentEquals(singlePos.getMatnr()) 
-										&& ojb.getLgpla().contentEquals(singlePos.getLgpla())){
-									
-									singlePos.setTheoric(ojb.getVerme());
-									break;
-								}else{
-									singlePos.setTheoric("0");
-								}
-							}	
-							
-							wmList.add(singlePos);
-							
-						} else {
-							
-							for(E_Mard_SapEntity ojb: lsTheoricIM){//Set the theoric IM for this matnr
-																				
-								if(ojb.getMatnr().contentEquals(singlePos.getMatnr()) ){
-									
-									singlePos.setTheoric(ojb.getRetme());
-									break;
-								}
-							}	
-							
-							imList.add(singlePos);
+						
+						if(!found){
+							singlePos.setConsignation("0");
 						}
-						
-					}
-					
-					if (!imList.isEmpty()) {
-						for (PosDocInvBean singleIM : imList) {
-							String key = singleIM.getLgort() + singleIM.getMatnr();
-							if (supportMap.containsKey(key)) {
-								supportMap.get(key).add(singleIM);
-							} else {
-								List<PosDocInvBean> addMapList = new ArrayList<>();
-								addMapList.add(singleIM);
-								supportMap.put(key, addMapList);
-							}
-						}
-						Iterator iteAux = supportMap.entrySet().iterator();
-						while (iteAux.hasNext()) {
-							Map.Entry pair = (Map.Entry) iteAux.next();
-							PosDocInvBean supportBean = null;
-							log.info("[getReporteDocInvDao] Iterating hashmap key..." + pair.getKey());
-							for (PosDocInvBean singleIM : (List<PosDocInvBean>) pair.getValue()) {
-								if (supportBean == null) {
-									log.info("[getReporteDocInvDao] support bean null... ");
-									supportBean = singleIM;
-								} else {
-									supportBean.setCounted(String.valueOf(new BigDecimal(supportBean.getCounted())
-											.add(new BigDecimal(singleIM.getCounted()))));
-								}
-								log.info("[getReporteDocInvDao] fos Single IM : " + singleIM);
-								log.info("[getReporteDocInvDao] for supportBean: " + supportBean);
-							}
-							supportBean.setLgtyp("");
-							supportBean.setLtypt("");
-							supportBean.setLgpla("");
-							log.info("[getReporteDocInvDao] final object toAdd: " + supportBean);
-							imPList.add(supportBean);
-						}
-						listBean = new ArrayList<>();
-						listBean.addAll(wmList);
-						listBean.addAll(imPList);
-						bean.setDocInvPosition(listBean);
-					} else {
-						bean.setDocInvPosition(listBean);
-					}
-					
-					double theoric = 0;
-					double counted = 0;					
-					double difference = 0;
-					double movs = 0;
-					
-					E_Mseg_SapEntity emse;
-					
-					//Check if all data sums 0 for every matnr
-					for (PosDocInvBean sp : listBean) {
-						
-						theoric = 0;
-						counted = 0;
-						
-						try {
-							theoric = Double.parseDouble(sp.getTheoric());
-							counted = Double.parseDouble(sp.getCounted());
-						} catch (Exception e) {
-							log.log(Level.SEVERE, "No data found for theoric or counted...", e);
-						}
-						
-						difference = Math.abs(counted - theoric);
-						
-						if(difference != 0){
-							
-							emse = new E_Mseg_SapEntity() ; //Object movement type
-							
-							if(sp.getImwmMarker().equalsIgnoreCase("WM")){
-																
-								emse.setLgort(sp.getLgort());
-								emse.setLgnum(sp.getLgNum());
-								emse.setLgtyp(sp.getLgtyp());
-								emse.setLgpla(sp.getLgpla());
-								emse.setMatnr(sp.getMatnr());
-								
-								movs = sod.getMatnrMovementsWM(emse, con);
-							}else{
-								
-								emse.setLgort(sp.getLgort());
-								emse.setMatnr(sp.getMatnr());
-								
-								movs = sod.getMatnrMovementsIM(emse, con);
-							}
-							
-							theoric = theoric + movs;
-							sp.setTheoric(Double.toString(theoric));
-						}
-						
-					}
+																	
+					}										
 				}
+				
+				bean.setDocInvPosition(listBean);
 			} else {
-				bean = null;
 				abstractResult.setResultId(ReturnValues.IERROR);
 				abstractResult.setResultMsgAbs(
 						"Ocurrio un Error al recuperar los datos de Documento de Invetnario ó Documento Inexistente");

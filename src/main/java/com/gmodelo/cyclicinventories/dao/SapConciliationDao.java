@@ -305,9 +305,11 @@ public class SapConciliationDao {
 		return res;
 	}
 
-	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_LGORT, LGOBE, LGTYP, LTYPT, CS_LGPLA, CS_MATNR, MAKTX, MEINS, CS_THEORIC, "
-			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_ACCOUNTANT, IMWM " + "FROM INV_VW_CONC_SAP "
-			+ "WHERE DOC_INV_ID = ?";
+	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_THEORIC, "
+			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_ACCOUNTANT, IMWM " 
+			+ "FROM INV_VW_CONC_SAP "
+			+ "WHERE DOC_INV_ID = ? "
+			+ "GROUP BY CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_THEORIC, CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_ACCOUNTANT, IMWM";
 	public ArrayList<PosDocInvBean> getConciliationSAPPositions(int docInvId, Connection con) throws SQLException {
 
 		PreparedStatement ps = null;
@@ -315,7 +317,6 @@ public class SapConciliationDao {
 		PosDocInvBean pdib;
 		String lsPosIds = "";
 		ArrayList<PosDocInvBean> lsPdib = new ArrayList<>();
-
 		try {
 			ps = con.prepareStatement(GET_POS_CONS_SAP);
 			ps.setInt(1, docInvId);
@@ -325,11 +326,6 @@ public class SapConciliationDao {
 
 				pdib = new PosDocInvBean();
 				pdib.setPosId(rs.getInt("CS_CON_SAP"));
-				pdib.setLgort(rs.getString("CS_LGORT"));
-				pdib.setLgortD(rs.getString("LGOBE"));
-				pdib.setLgtyp(rs.getString("LGTYP"));
-				pdib.setLtypt(rs.getString("LTYPT"));
-				pdib.setLgpla(rs.getString("CS_LGPLA"));
 				pdib.setMatnr(rs.getString("CS_MATNR"));
 				pdib.setMatnrD(rs.getString("MAKTX"));
 				pdib.setMeins(rs.getString("MEINS"));
@@ -343,6 +339,7 @@ public class SapConciliationDao {
 				lsPosIds += pdib.getPosId() + ",";
 				lsPdib.add(pdib);
 			}
+			
 
 			// Get the justifications
 			ArrayList<Justification> lsJustify = getJustification(lsPosIds, con);
