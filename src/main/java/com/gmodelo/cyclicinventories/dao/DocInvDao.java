@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +37,7 @@ public class DocInvDao {
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		int docInvId = 0;
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?, ?, ?, ?";
 
@@ -85,9 +88,9 @@ public class DocInvDao {
 			if (ls.size() > 0) {
 
 				docInvBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " "
-						+ ls.get(0).getGenInf().getLastName());
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
 			} else {
-				docInvBean.setCreatedBy(cs.getString(6));
+				docInvBean.setCreatedBy(cs.getString(6) + " - " + format.format(new Date()));
 			}
 
 			user.getEntity().setIdentyId(cs.getString(7));
@@ -98,9 +101,9 @@ public class DocInvDao {
 			if (ls.size() > 0) {
 
 				docInvBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " "
-						+ ls.get(0).getGenInf().getLastName());
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
 			} else {
-				docInvBean.setModifiedBy(cs.getString(7));
+				docInvBean.setModifiedBy(cs.getString(7) + " - " + format.format(new Date()));
 			}
 
 			docInvId = cs.getInt(8);
@@ -192,6 +195,8 @@ public class DocInvDao {
 		List<DocInvBean> listDocInv = new ArrayList<>();
 		int aux;
 		String searchFilterNumber = "";
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		
 		try {
 			aux = Integer.parseInt(searchFilter);
 			searchFilterNumber += aux;
@@ -200,7 +205,9 @@ public class DocInvDao {
 			log.info("Is String");
 		}
 
-		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION, CREATED_BY, MODIFIED_BY FROM INV_VW_DOC_INV WITH(NOLOCK) WHERE DOC_FATHER_INV_ID IS NULL ";
+		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, "
+				+ "STATUS, JUSTIFICATION, CREATED_BY, MODIFIED_BY, DCREATED, DMODIFIED "
+				+ "FROM INV_VW_DOC_INV WITH(NOLOCK) WHERE DOC_FATHER_INV_ID IS NULL ";
 		if (searchFilter != null) {
 			INV_VW_DOC_INV += " AND TYPE != '3' AND DOC_INV_ID LIKE '%" + searchFilterNumber + "%' OR ROUTE_ID LIKE '%"
 					+ searchFilterNumber + "%' OR BDESC LIKE '%" + searchFilterNumber + "%' " + " OR WERKSD LIKE '%"
@@ -213,7 +220,8 @@ public class DocInvDao {
 		}
 
 		log.info(INV_VW_DOC_INV);
-		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION, CREATED_BY, MODIFIED_BY";
+		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, "
+				+ "JUSTIFICATION, CREATED_BY, MODIFIED_BY, DCREATED, DMODIFIED";
 		log.info("[getDocInvDao] Preparing sentence...");
 
 		try {
@@ -243,9 +251,9 @@ public class DocInvDao {
 				if (ls.size() > 0) {
 
 					docInvBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
-							+ ls.get(0).getGenInf().getLastName());
+							+ ls.get(0).getGenInf().getLastName() + " - " + format.format(rs.getTimestamp("DCREATED")));
 				} else {
-					docInvBean.setCreatedBy(rs.getString("CREATED_BY"));
+					docInvBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + format.format(rs.getTimestamp("DCREATED")));
 				}
 
 				user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
@@ -256,9 +264,9 @@ public class DocInvDao {
 				if (ls.size() > 0) {
 
 					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
-							+ ls.get(0).getGenInf().getLastName());
+							+ ls.get(0).getGenInf().getLastName() + " - " + format.format(rs.getTimestamp("DMODIFIED")));
 				} else {
-					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY"));
+					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + format.format(rs.getTimestamp("DMODIFIED")));
 				}
 				listDocInv.add(docInvBean);
 			}

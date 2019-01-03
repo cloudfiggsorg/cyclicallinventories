@@ -13,7 +13,9 @@ public class RouteBean {
 	private String bdesc;
 	private String wdesc;	
 	private String createdBy;
+	private String dCreated; 
 	private String modifiedBy;
+	private String dModified;
 	private List<RoutePositionBean> positions;
 	private List<RouteGroupBean> groups;
 	
@@ -22,9 +24,10 @@ public class RouteBean {
 		this.positions = new ArrayList<>();
 		this.groups = new ArrayList<>();
 	}
-	
+
 	public RouteBean(String routeId, String bukrs, String werks, String rdesc, String type, String bdesc, String wdesc,
-			String createdBy, String modifiedBy, List<RoutePositionBean> positions, List<RouteGroupBean> groups) {
+			String createdBy, String dCreated, String modifiedBy, String dModified, List<RoutePositionBean> positions,
+			List<RouteGroupBean> groups) {
 		super();
 		this.routeId = routeId;
 		this.bukrs = bukrs;
@@ -34,16 +37,11 @@ public class RouteBean {
 		this.bdesc = bdesc;
 		this.wdesc = wdesc;
 		this.createdBy = createdBy;
+		this.dCreated = dCreated;
 		this.modifiedBy = modifiedBy;
+		this.dModified = dModified;
 		this.positions = positions;
 		this.groups = groups;
-	}
-
-	@Override
-	public String toString() {
-		return "RouteBean [routeId=" + routeId + ", bukrs=" + bukrs + ", werks=" + werks + ", rdesc=" + rdesc
-				+ ", type=" + type + ", bdesc=" + bdesc + ", wdesc=" + wdesc + ", createdBy=" + createdBy
-				+ ", modifiedBy=" + modifiedBy + ", positions=" + positions + ", groups=" + groups + "]";
 	}
 
 	public String getRouteId() {
@@ -110,12 +108,28 @@ public class RouteBean {
 		this.createdBy = createdBy;
 	}
 
+	public String getdCreated() {
+		return dCreated;
+	}
+
+	public void setdCreated(String dCreated) {
+		this.dCreated = dCreated;
+	}
+
 	public String getModifiedBy() {
 		return modifiedBy;
 	}
 
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
+	}
+
+	public String getdModified() {
+		return dModified;
+	}
+
+	public void setdModified(String dModified) {
+		this.dModified = dModified;
 	}
 
 	public List<RoutePositionBean> getPositions() {
@@ -133,5 +147,13 @@ public class RouteBean {
 	public void setGroups(List<RouteGroupBean> groups) {
 		this.groups = groups;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "RouteBean [routeId=" + routeId + ", bukrs=" + bukrs + ", werks=" + werks + ", rdesc=" + rdesc
+				+ ", type=" + type + ", bdesc=" + bdesc + ", wdesc=" + wdesc + ", createdBy=" + createdBy
+				+ ", dCreated=" + dCreated + ", modifiedBy=" + modifiedBy + ", dModified=" + dModified + ", positions="
+				+ positions + ", groups=" + groups + "]";
+	}
+		
 }

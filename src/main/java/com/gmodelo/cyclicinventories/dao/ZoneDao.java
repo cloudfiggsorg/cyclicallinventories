@@ -49,7 +49,7 @@ public class ZoneDao {
 		CallableStatement csBatch = null;
 		int idPosition = 0;
 		int zoneId = 0;
-		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 		try {
 			zoneId = Integer.parseInt(zoneBean.getZoneId());
@@ -106,12 +106,12 @@ public class ZoneDao {
 			if (ls.size() > 0) {
 
 				zoneBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " "
-						+ ls.get(0).getGenInf().getLastName() + " - " + format.format( new Date()));
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
 			} else {
 				zoneBean.setCreatedBy(cs.getString(6));
 			}
 
-			user.getEntity().setIdentyId(cs.getString(7) + " - " + format.format( new Date()));
+			user.getEntity().setIdentyId(cs.getString(7) + " - " + format.format(new Date()));
 			ls = new ArrayList<>();
 			ls.add(user);
 			ls = ume.getUsersLDAPByCredentials(ls);
@@ -119,9 +119,9 @@ public class ZoneDao {
 			if (ls.size() > 0) {
 
 				zoneBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " "
-						+ ls.get(0).getGenInf().getLastName() + " - " + format.format( new Date()));
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
 			} else {
-				zoneBean.setModifiedBy(cs.getString(7) + " - " + format.format( new Date()));
+				zoneBean.setModifiedBy(cs.getString(7) + " - " + format.format(new Date()));
 			}
 
 			// Eliminar posiciones

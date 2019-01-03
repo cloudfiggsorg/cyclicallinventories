@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,6 +64,7 @@ public class RouteDao {
 		int routeId = 0;
 		ZoneBean zb, zbAux = null; 
 		RoutePositionBean rpb;
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 		try {
 			routeId = Integer.parseInt(routeBean.getRouteId());
@@ -138,9 +141,9 @@ public class RouteDao {
 			if (ls.size() > 0) {
 
 				routeBean.setCreatedBy(cs.getString(5) + " - " + ls.get(0).getGenInf().getName() + " "
-						+ ls.get(0).getGenInf().getLastName());
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
 			} else {
-				routeBean.setCreatedBy(cs.getString(5));
+				routeBean.setCreatedBy(cs.getString(5) + " - " + format.format(new Date()));
 			}
 
 			user.getEntity().setIdentyId(cs.getString(6));
@@ -151,9 +154,9 @@ public class RouteDao {
 			if (ls.size() > 0) {
 
 				routeBean.setModifiedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " "
-						+ ls.get(0).getGenInf().getLastName());
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
 			} else {
-				routeBean.setModifiedBy(cs.getString(6));
+				routeBean.setModifiedBy(cs.getString(6) + " - " + format.format(new Date()));
 			}
 
 			//Delete route position			
@@ -370,6 +373,7 @@ public class RouteDao {
 		String INV_VW_ROUTES = null;
 		int aux;
 		String searchFilterNumber = "";
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
 		try {
 			aux = Integer.parseInt(searchFilter);
@@ -379,7 +383,9 @@ public class RouteDao {
 			log.info("[getRoutesDao] Trying to convert String to Int");
 		}
 
-		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, CREATED_BY, MODIFIED_BY FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
+		INV_VW_ROUTES = "SELECT ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, "
+				+ "WDESC, CREATED_BY, MODIFIED_BY, DCREATED, DMODIFIED "
+				+ "FROM dbo.INV_VW_ROUTES WITH(NOLOCK) ";
 
 		if (searchFilter != null) {
 			INV_VW_ROUTES += "WHERE ROUTE_ID LIKE '%" + searchFilterNumber + "%' OR RDESC LIKE '%" + searchFilter
@@ -391,7 +397,8 @@ public class RouteDao {
 			}
 		}
 		
-		INV_VW_ROUTES += " GROUP BY ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, CREATED_BY, MODIFIED_BY";
+		INV_VW_ROUTES += " GROUP BY ROUTE_ID, BUKRS, WERKS, RDESC, RTYPE, BDESC, WDESC, "
+				+ "CREATED_BY, MODIFIED_BY, DCREATED, DMODIFIED";
 		log.info(INV_VW_ROUTES);
 		log.info("[getRoutesDao] Preparing sentence...");
 		try {
@@ -414,6 +421,7 @@ public class RouteDao {
 
 				user = new User();
 				ume = new UMEDaoE();
+				routeBean.setdCreated(format.format(rs.getTimestamp("DCREATED")));
 				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
 				ArrayList<User> ls = new ArrayList<>();
 				ls.add(user);
@@ -422,11 +430,12 @@ public class RouteDao {
 				if (ls.size() > 0) {
 
 					routeBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
-							+ ls.get(0).getGenInf().getLastName());
+							+ ls.get(0).getGenInf().getLastName() + " - " +  routeBean.getdCreated());
 				} else {
-					routeBean.setCreatedBy(rs.getString("CREATED_BY"));
+					routeBean.setCreatedBy(rs.getString("CREATED_BY") + " - " +  routeBean.getdCreated());
 				}
 
+				routeBean.setdModified(format.format(rs.getTimestamp("DMODIFIED")));
 				user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
 				ls = new ArrayList<>();
 				ls.add(user);
@@ -435,9 +444,9 @@ public class RouteDao {
 				if (ls.size() > 0) {
 
 					routeBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
-							+ ls.get(0).getGenInf().getLastName());
+							+ ls.get(0).getGenInf().getLastName() + " - " + routeBean.getdModified());
 				} else {
-					routeBean.setModifiedBy(rs.getString("MODIFIED_BY"));
+					routeBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + routeBean.getdModified());
 				}
 
 				routeBean.setPositions(this.getPositions(rs.getString(1)));
