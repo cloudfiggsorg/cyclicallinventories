@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,6 +49,7 @@ public class ZoneDao {
 		CallableStatement csBatch = null;
 		int idPosition = 0;
 		int zoneId = 0;
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 
 		try {
 			zoneId = Integer.parseInt(zoneBean.getZoneId());
@@ -103,12 +106,12 @@ public class ZoneDao {
 			if (ls.size() > 0) {
 
 				zoneBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " "
-						+ ls.get(0).getGenInf().getLastName());
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format( new Date()));
 			} else {
 				zoneBean.setCreatedBy(cs.getString(6));
 			}
 
-			user.getEntity().setIdentyId(cs.getString(7));
+			user.getEntity().setIdentyId(cs.getString(7) + " - " + format.format( new Date()));
 			ls = new ArrayList<>();
 			ls.add(user);
 			ls = ume.getUsersLDAPByCredentials(ls);
@@ -116,9 +119,9 @@ public class ZoneDao {
 			if (ls.size() > 0) {
 
 				zoneBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " "
-						+ ls.get(0).getGenInf().getLastName());
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format( new Date()));
 			} else {
-				zoneBean.setModifiedBy(cs.getString(7));
+				zoneBean.setModifiedBy(cs.getString(7) + " - " + format.format( new Date()));
 			}
 
 			// Eliminar posiciones
@@ -182,7 +185,7 @@ public class ZoneDao {
 				log.log(Level.WARNING, warning.getMessage());
 				warning = warning.getNextWarning();
 			}
-
+			
 			con.commit();
 			// Free resources
 			cs.close();
@@ -363,7 +366,7 @@ public class ZoneDao {
 
 				zb.setLgort(rs.getString("LGORT"));
 				zb.setgDesc(rs.getString("LGOBE"));
-				zb.setZoneId(String.format("%08d", Integer.parseInt(rs.getString("ZONE_ID"))));
+				zb.setZoneId(rs.getString("ZONE_ID"));
 				zb.setZdesc(rs.getString("ZON_DESC"));
 				zb.setBukrs(rs.getString("BUKRS"));
 				zb.setWerks(rs.getString("WERKS"));
@@ -507,6 +510,7 @@ public class ZoneDao {
 	}
 
 	public Response<List<ZoneBean>> getZones(ZoneBean zoneBean, String searchFilter) {
+		
 		Response<List<ZoneBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -515,6 +519,8 @@ public class ZoneDao {
 		List<ZoneBean> listZone = new ArrayList<>();
 		int aux;
 		String searchFilterNumber = "";
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		
 		try {
 			aux = Integer.parseInt(searchFilter);
 			searchFilterNumber += aux;
@@ -522,10 +528,12 @@ public class ZoneDao {
 			searchFilterNumber = searchFilter;
 			log.info("Trying to convert String to Int");
 		}
-		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES, CREATED_BY, MODIFIED_BY FROM dbo.INV_VW_ZONES";
+		String INV_VW_ZONES = "SELECT ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, "
+				+ "GDES, CREATED_BY, MODIFIED_BY, DCREATED, DMODIFIED "
+				+ "FROM dbo.INV_VW_ZONES";
 		if (searchFilter != null) {
 			
-			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%" + searchFilter
+			INV_VW_ZONES += " WHERE ZONE_ID LIKE '%" + searchFilterNumber + "%' OR ZDESC LIKE '%" + searchFilter + " "
 					+ "%' ";
 		} else {
 
@@ -534,6 +542,9 @@ public class ZoneDao {
 				INV_VW_ZONES += condition;
 			}
 		}
+		
+		INV_VW_ZONES += "GROUP BY ZONE_ID, ZDESC, BUKRS, WERKS, LGORT, BDESC, WDESC, GDES, "
+				+ "CREATED_BY, MODIFIED_BY, DCREATED, DMODIFIED";
 
 		log.info(INV_VW_ZONES);
 		log.info("[getZonesDao] Preparing sentence...");
@@ -545,7 +556,7 @@ public class ZoneDao {
 			stm = con.prepareCall(INV_VW_ZONES);
 			log.info("[getZonesDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
-			while (rs.next()) {
+			while (rs.next()) {				
 
 				zoneBean = new ZoneBean();
 
@@ -556,9 +567,10 @@ public class ZoneDao {
 				zoneBean.setLgort(rs.getString("LGORT"));
 				zoneBean.setbDesc(rs.getString("BDESC"));
 				zoneBean.setwDesc(rs.getString("WDESC"));
-				zoneBean.setgDesc(rs.getString("GDES"));
+				zoneBean.setgDesc(rs.getString("GDES"));				
 
 				user = new User();
+				zoneBean.setdCreated(format.format(rs.getTimestamp("DCREATED")));
 				user.getEntity().setIdentyId(rs.getString("CREATED_BY"));
 				ArrayList<User> ls = new ArrayList<>();
 				ls.add(user);
@@ -567,11 +579,12 @@ public class ZoneDao {
 				if (ls.size() > 0) {
 
 					zoneBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
-							+ ls.get(0).getGenInf().getLastName());
+							+ ls.get(0).getGenInf().getLastName() + " - " +  zoneBean.getdCreated());
 				} else {
-					zoneBean.setCreatedBy(rs.getString("CREATED_BY"));
+					zoneBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + zoneBean.getdCreated());
 				}
 
+				zoneBean.setdModified(format.format(rs.getTimestamp("DMODIFIED")));
 				user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
 				ls = new ArrayList<>();
 				ls.add(user);
@@ -580,9 +593,9 @@ public class ZoneDao {
 				if (ls.size() > 0) {
 
 					zoneBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
-							+ ls.get(0).getGenInf().getLastName());
+							+ ls.get(0).getGenInf().getLastName() + " - " + zoneBean.getdModified());
 				} else {
-					zoneBean.setModifiedBy(rs.getString("MODIFIED_BY"));
+					zoneBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + zoneBean.getdModified());
 				}
 
 				zoneBean.setPositions(this.getPositionsZone(rs.getString("ZONE_ID")));
