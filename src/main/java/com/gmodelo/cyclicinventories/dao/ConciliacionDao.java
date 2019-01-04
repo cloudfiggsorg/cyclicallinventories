@@ -216,9 +216,10 @@ public class ConciliacionDao {
 		return res;
 	}
 
-	private static final String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)"
-			+ " WHERE DOC_INV_ID = ? "
-			+ " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION";
+	private static final String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION "
+			+ "FROM INV_VW_DOC_INV WITH(NOLOCK) "
+			+ "WHERE DOC_INV_ID = ? "
+			+ "GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, JUSTIFICATION";
 
 	public Response<ConciliacionBean> getConciliacion(ConciliacionBean docInvBean) {
 		Response<ConciliacionBean> res = new Response<>();

@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +34,8 @@ public class TaskDao {
 		Response<TaskBean> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 
-		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?, ?, ?, ?"; 		
+		final String INV_SP_ADD_TASK = "INV_SP_ADD_TASK ?, ?, ?, ?, ?, ?, ?";
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -74,9 +77,10 @@ public class TaskDao {
 			
 			if(ls.size() > 0){
 				
-				taskBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+				taskBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " " 
+				+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
 			}else{
-				taskBean.setCreatedBy(cs.getString(6));
+				taskBean.setCreatedBy(cs.getString(6) + " - " + format.format(new Date()));
 			}
 			
 			user.getEntity().setIdentyId(cs.getString(7));
@@ -86,9 +90,10 @@ public class TaskDao {
 			
 			if(ls.size() > 0){
 				
-				taskBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+				taskBean.setModifiedBy(cs.getString(7) + " - " + ls.get(0).getGenInf().getName() + " " 
+				+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
 			}else{
-				taskBean.setModifiedBy(cs.getString(7));
+				taskBean.setModifiedBy(cs.getString(7) + " - " + format.format(new Date()));
 			}
 			
 			log.info("[addTask] After Excecute query..."+ taskBean);
@@ -277,7 +282,8 @@ public class TaskDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<TaskBean> listTaskBean = new ArrayList<>();
 		String INV_VW_TASK = null;		
-		DocInvDao didao = new DocInvDao();				
+		DocInvDao didao = new DocInvDao();	
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
 		INV_VW_TASK = "SELECT TASK_ID, TAS_GROUP_ID, TAS_DOC_INV_ID, "
 				+ "TAS_CREATED_DATE, TAS_DOWLOAD_DATE, TAS_UPLOAD_DATE, "
@@ -346,9 +352,10 @@ public class TaskDao {
 				
 				if(ls.size() > 0){
 					
-					taskBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+					taskBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + 
+					ls.get(0).getGenInf().getLastName() + " - " + format.format(rs.getTimestamp("TAS_DOWLOAD_DATE")));
 				}else{
-					taskBean.setCreatedBy(rs.getString("CREATED_BY"));
+					taskBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + format.format(rs.getTimestamp("TAS_DOWLOAD_DATE")));
 				}				
 				
 				try {
@@ -360,9 +367,10 @@ public class TaskDao {
 					
 					if(ls.size() > 0){
 						
-						taskBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + ls.get(0).getGenInf().getLastName());
+						taskBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " " + 
+						ls.get(0).getGenInf().getLastName() + " - " + format.format(rs.getTimestamp("TAS_DOWLOAD_DATE")));
 					}else{
-						taskBean.setModifiedBy(rs.getString("MODIFIED_BY"));
+						taskBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + format.format(rs.getTimestamp("TAS_DOWLOAD_DATE")));
 					}					
 				} catch (Exception e) {
 					taskBean.setCreatedBy(null);
