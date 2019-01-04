@@ -348,20 +348,18 @@ public class ConciliacionDao {
 				log.info(
 						"[getPositionsConciliationDao - getConciliationPositions] GET_NOTE_AND_PROD, Executing query...");
 				rs = stm.executeQuery();
-				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-				SimpleDateFormat stf = new SimpleDateFormat("HH:mm:SSs");
-
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:SS");
 				while (rs.next()) {
 					ConciliationPositionBean bean = new ConciliationPositionBean();
 					try {
-						bean.setDateIni(rs.getDate("MIN_DATE") == null ? ""
-								: sdf.format(rs.getDate("MIN_DATE") + " - " + stf.format(rs.getTime("MIN_DATE"))));
+						bean.setDateIni(
+								rs.getTimestamp("MIN_DATE") == null ? "" : sdf.format(rs.getTimestamp("MIN_DATE")));
 					} catch (Exception e) {
 						bean.setDateIni("");
 					}
 					try {
-						bean.setDateEnd(rs.getDate("MAX_DATE") == null ? ""
-								: sdf.format(rs.getDate("MAX_DATE") + " - " + stf.format(rs.getTime("MAX_DATE"))));
+						bean.setDateEnd(
+								rs.getTimestamp("MAX_DATE") == null ? "" : sdf.format(rs.getTimestamp("MAX_DATE")));
 					} catch (Exception e) {
 						bean.setDateEnd("");
 					}
