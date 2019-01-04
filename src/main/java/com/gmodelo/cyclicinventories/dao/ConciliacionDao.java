@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -126,26 +127,18 @@ public class ConciliacionDao {
 		res.setLsObject(listConIds);
 		return res;
 	}
-	
+
 	private static final String CLOSED_DOC_INV = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' "
 			+ " + CONVERT(VARCHAR,inr.ROU_DESC)) AS DESCRIPCION, 0 AS STATUS "
 			+ " FROM INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) "
 			+ " INNER JOIN INV_ROUTE INR WITH(NOLOCK) ON (IDIH.DIH_ROUTE_ID = INR.ROUTE_ID) "
-			+ "	WHERE IDIH.DIH_STATUS = '0' "
-			+ " AND IDIH.DOC_FATHER_INV_ID IS NULL "
-			+ " AND IDIH.DIH_BUKRS LIKE ? "
-			+ " AND IDIH.DIH_WERKS LIKE ? "
-			+ " AND DOC_INV_ID LIKE ? "
-			+ " AND DOC_INV_ID NOT IN (SELECT CS_DOC_INV_ID FROM INV_CONS_SAP GROUP BY CS_DOC_INV_ID) "
-			+ " UNION "
-			+ " SELECT ICS.CS_DOC_INV_ID, IR.ROU_DESC AS DESCRIPCION, 1 AS STS " 
-			+ " FROM INV_CONS_SAP AS ICS "
+			+ "	WHERE IDIH.DIH_STATUS = '0' " + " AND IDIH.DOC_FATHER_INV_ID IS NULL " + " AND IDIH.DIH_BUKRS LIKE ? "
+			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? "
+			+ " AND DOC_INV_ID NOT IN (SELECT CS_DOC_INV_ID FROM INV_CONS_SAP GROUP BY CS_DOC_INV_ID) " + " UNION "
+			+ " SELECT ICS.CS_DOC_INV_ID, IR.ROU_DESC AS DESCRIPCION, 1 AS STS " + " FROM INV_CONS_SAP AS ICS "
 			+ " INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (ICS.CS_DOC_INV_ID = IDIH.DOC_INV_ID) "
-			+ " INNER JOIN INV_ROUTE AS IR ON (IR.ROUTE_ID = IDIH.DIH_ROUTE_ID) "
-			+ " WHERE IDIH.DIH_BUKRS LIKE ? "
-			+ " AND IDIH.DIH_WERKS LIKE ? "
-			+ " AND DOC_INV_ID LIKE ? "
-			+ " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC";
+			+ " INNER JOIN INV_ROUTE AS IR ON (IR.ROUTE_ID = IDIH.DIH_ROUTE_ID) " + " WHERE IDIH.DIH_BUKRS LIKE ? "
+			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? " + " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC";
 
 	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(DocInvBean dib) {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
@@ -288,6 +281,10 @@ public class ConciliacionDao {
 			+ " WHERE COU_TASK_ID IN (SELECT TASK_ID FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?) "
 			+ " AND(COU_NOTE IS NOT NULL  AND COU_NOTE != '') OR (COU_PROD_DATE IS NOT NULL AND COU_PROD_DATE != '')";
 
+	private static final String GET_MIN_MAX_LGPLA_DATE = "SELECT COU_POSITION_ID_ZONE, MIN(COU_START_DATE)  MIN_DATE, MAX(COU_END_DATE) MAX_DATE FROM INV_COUNT WITH(NOLOCK) "
+			+ " WHERE COU_TASK_ID IN (SELECT TASK_ID FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?) "
+			+ " AND (COU_START_DATE IS NOT NULL) OR (COU_END_DATE IS NOT NULL)GROUP BY COU_POSITION_ID_ZONE";
+
 	private static final String GET_MATERIAL_TO_COLOUR = "SELECT ZOPM.PK_ZONPOS_MAT, ZOPM.ZPM_MATNR FROM INV_DOC_INVENTORY_HEADER DOC WITH(NOLOCK) "
 			+ " INNER JOIN INV_ROUTE_POSITION ROP WITH(NOLOCK) ON DOC.DOC_INV_ID = ROP.RPO_POSITION_ROUTE_ID "
 			+ " INNER JOIN INV_ZONE_POSITION ZOP WITH(NOLOCK) ON ROP.RPO_ZONE_ID = ZOP.ZPO_ZONE_ID "
@@ -303,6 +300,7 @@ public class ConciliacionDao {
 		List<ConciliationPositionBean> listPositions = new ArrayList<>();
 		try {
 			HashMap<String, ConciliationPositionBean> notesPositions = new HashMap<>();
+			HashMap<String, ConciliationPositionBean> timesMapPositisoin = new HashMap<>();
 
 			stm = con.prepareStatement(GET_NOTE_AND_PROD);
 
@@ -327,8 +325,7 @@ public class ConciliacionDao {
 						notesPositions.get(key).setProdDate(
 								notesPositions.get(key).getProdDate() + rs.getString("COU_PROD_DATE") == null ? ""
 										: !rs.getString("COU_PROD_DATE").isEmpty()
-												? "|," + rs.getString("COU_PROD_DATE")
-												: "");
+												? "|," + rs.getString("COU_PROD_DATE") : "");
 					} else {
 						notesPositions.get(key).setProdDate(
 								notesPositions.get(key).getProdDate() + rs.getString("COU_PROD_DATE") == null ? ""
@@ -340,6 +337,31 @@ public class ConciliacionDao {
 					bean.setNote(rs.getString("COU_NOTE") == null ? "" : rs.getString("COU_NOTE"));
 					bean.setProdDate(rs.getString("COU_PROD_DATE") == null ? "" : rs.getString("COU_PROD_DATE"));
 					notesPositions.put(rs.getString("COU_POSITION_ID_ZONE") + rs.getString("COU_MATNR"), bean);
+				}
+			}
+
+			if (docInvBean.getType() != null && docInvBean.getType().equals("1")) {
+				stm = con.prepareStatement(GET_MIN_MAX_LGPLA_DATE);
+				errorQuery = GET_MIN_MAX_LGPLA_DATE;
+				stm.setInt(1, docInvBean.getDocInvId());
+				log.info(
+						"[getPositionsConciliationDao - getConciliationPositions] GET_NOTE_AND_PROD, Executing query...");
+				rs = stm.executeQuery();
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:SS");
+
+				while (rs.next()) {
+					ConciliationPositionBean bean = new ConciliationPositionBean();
+					try {
+						bean.setDateIni(rs.getDate("MIN_DATE") == null ? "" : sdf.format(rs.getDate("MIN_DATE")));
+					} catch (Exception e) {
+						bean.setDateIni("");
+					}
+					try {
+						bean.setDateEnd(rs.getDate("MAX_DATE") == null ? "" : sdf.format(rs.getDate("MAX_DATE")));
+					} catch (Exception e) {
+						bean.setDateEnd("");
+					}
+					timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE") + rs.getString("COU_MATNR"), bean);
 				}
 			}
 
@@ -428,6 +450,14 @@ public class ConciliacionDao {
 								.getNote());
 						bean.setProdDate(notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))
 								.getProdDate());
+					}
+					if (docInvBean.getType() != null && docInvBean.getType().equals("1")) {
+						if (timesMapPositisoin.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositisoin
+									.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositisoin
+									.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						}
 					}
 					if (count == 0) {
 						docInvBean.setCountA(true);
@@ -543,22 +573,18 @@ public class ConciliacionDao {
 		}
 		return result;
 	}
-	
-	private static final String INV_VW_AVAILABLE_GROUPS_FOR_INV_DAILY = "SELECT IG.GROUP_ID, IG.GRP_DESC " 
-			+ "FROM INV_GROUPS_USER AS IGU "
-			+ "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
-			+ "AND IG.GRP_BUKRS LIKE ? AND IG.GRP_WERKS LIKE ? "
-			+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
-	
-	private static final String INV_VW_AVAILABLE_GROUPS_FOR_INV_MONTH = "SELECT IG.GROUP_ID, IG.GRP_DESC " 
-			+ "FROM INV_GROUPS_USER AS IGU "
-			+ "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
+
+	private static final String INV_VW_AVAILABLE_GROUPS_FOR_INV_DAILY = "SELECT IG.GROUP_ID, IG.GRP_DESC "
+			+ "FROM INV_GROUPS_USER AS IGU " + "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
+			+ "AND IG.GRP_BUKRS LIKE ? AND IG.GRP_WERKS LIKE ? " + "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
+
+	private static final String INV_VW_AVAILABLE_GROUPS_FOR_INV_MONTH = "SELECT IG.GROUP_ID, IG.GRP_DESC "
+			+ "FROM INV_GROUPS_USER AS IGU " + "INNER JOIN INV_GROUPS AS IG ON (IGU.GRU_GROUP_ID = IG.GROUP_ID) "
 			+ "WHERE GRU_USER_ID NOT IN (SELECT GRU_USER_ID FROM INV_GROUPS_USER "
 			+ "WHERE GRU_GROUP_ID IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?)) "
 			+ "AND GRU_GROUP_ID NOT IN (SELECT TAS_GROUP_ID FROM INV_TASK WHERE TAS_DOC_INV_ID = ?) "
-			+ "AND IG.GRP_BUKRS LIKE ? AND IG.GRP_WERKS LIKE ? "
-			+ "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
-	
+			+ "AND IG.GRP_BUKRS LIKE ? AND IG.GRP_WERKS LIKE ? " + "GROUP BY IG.GROUP_ID, IG.GRP_DESC";
+
 	public Response<List<GroupBean>> getAvailableGroups(DocInvBean docInv, String type) {
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -567,26 +593,26 @@ public class ConciliacionDao {
 		List<GroupBean> listGroups = new ArrayList<>();
 		Response<List<GroupBean>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		GroupBean gb = new GroupBean();		
+		GroupBean gb = new GroupBean();
 		String queryToUse = "";
-		
+
 		try {
-			
-			if(type.trim().equals("1")){
-				
+
+			if (type.trim().equals("1")) {
+
 				queryToUse = INV_VW_AVAILABLE_GROUPS_FOR_INV_DAILY;
 				stm = con.prepareStatement(queryToUse);
-				stm.setString(1, docInv.getBukrs()==null?"%":docInv.getBukrs());
-				stm.setString(2, docInv.getWerks()==null?"%":docInv.getWerks());
-				
-			}else{
-				
-				queryToUse = INV_VW_AVAILABLE_GROUPS_FOR_INV_MONTH;				
+				stm.setString(1, docInv.getBukrs() == null ? "%" : docInv.getBukrs());
+				stm.setString(2, docInv.getWerks() == null ? "%" : docInv.getWerks());
+
+			} else {
+
+				queryToUse = INV_VW_AVAILABLE_GROUPS_FOR_INV_MONTH;
 				stm = con.prepareStatement(queryToUse);
 				stm.setInt(1, docInv.getDocInvId());
 				stm.setInt(2, docInv.getDocInvId());
-				stm.setString(3, docInv.getBukrs()==null?"%":docInv.getBukrs());
-				stm.setString(4, docInv.getWerks()==null?"%":docInv.getWerks());
+				stm.setString(3, docInv.getBukrs() == null ? "%" : docInv.getBukrs());
+				stm.setString(4, docInv.getWerks() == null ? "%" : docInv.getWerks());
 			}
 
 			log.info(queryToUse);
@@ -606,8 +632,8 @@ public class ConciliacionDao {
 
 			log.info("[getAvailableGroups] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[getAvailableGroups] Some error occurred while was trying to execute the query: "
-					+ queryToUse, e);
+			log.log(Level.SEVERE,
+					"[getAvailableGroups] Some error occurred while was trying to execute the query: " + queryToUse, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);

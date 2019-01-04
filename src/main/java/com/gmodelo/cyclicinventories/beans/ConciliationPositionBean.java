@@ -18,6 +18,8 @@ public class ConciliationPositionBean {
 	private String pkAsgId;
 	private String note;
 	private String prodDate;
+	private String dateIni;
+	private String dateEnd;
 	private boolean flagColor;
 
 	public String getZoneId() {
@@ -131,13 +133,29 @@ public class ConciliationPositionBean {
 	public void setPkAsgId(String pkAsgId) {
 		this.pkAsgId = pkAsgId;
 	}
-	
+
 	public String getNote() {
 		return note;
 	}
 
 	public void setNote(String note) {
 		this.note = note;
+	}
+
+	public String getDateIni() {
+		return dateIni;
+	}
+
+	public void setDateIni(String dateIni) {
+		this.dateIni = dateIni;
+	}
+
+	public String getDateEnd() {
+		return dateEnd;
+	}
+
+	public void setDateEnd(String dateEnd) {
+		this.dateEnd = dateEnd;
 	}
 
 	public String getProdDate() {
@@ -147,7 +165,7 @@ public class ConciliationPositionBean {
 	public void setProdDate(String prodDate) {
 		this.prodDate = prodDate;
 	}
-	
+
 	public boolean isFlagColor() {
 		return flagColor;
 	}
@@ -163,7 +181,8 @@ public class ConciliationPositionBean {
 
 	public ConciliationPositionBean(String zoneId, String zoneD, String lgort, String lgobe, String lgpla, String matnr,
 			String matnrD, String measureUnit, String count1a, String count1b, String count2, String count3,
-			String countX, String pkAsgId, String note, String prodDate) {
+			String countX, String pkAsgId, String note, String prodDate, String dateIni, String dateEnd,
+			boolean flagColor) {
 		super();
 		this.zoneId = zoneId;
 		this.zoneD = zoneD;
@@ -181,6 +200,9 @@ public class ConciliationPositionBean {
 		this.pkAsgId = pkAsgId;
 		this.note = note;
 		this.prodDate = prodDate;
+		this.dateIni = dateIni;
+		this.dateEnd = dateEnd;
+		this.flagColor = flagColor;
 	}
 
 	@Override
@@ -189,7 +211,7 @@ public class ConciliationPositionBean {
 				+ lgobe + ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", measureUnit="
 				+ measureUnit + ", count1A=" + count1A + ", count1B=" + count1B + ", count2=" + count2 + ", count3="
 				+ count3 + ", countX=" + countX + ", pkAsgId=" + pkAsgId + ", note=" + note + ", prodDate=" + prodDate
-				+ "]";
+				+ ", dateIni=" + dateIni + ", dateEnd=" + dateEnd + ", flagColor=" + flagColor + "]";
 	}
 
 	@Override
@@ -201,6 +223,9 @@ public class ConciliationPositionBean {
 		result = prime * result + ((count2 == null) ? 0 : count2.hashCode());
 		result = prime * result + ((count3 == null) ? 0 : count3.hashCode());
 		result = prime * result + ((countX == null) ? 0 : countX.hashCode());
+		result = prime * result + ((dateEnd == null) ? 0 : dateEnd.hashCode());
+		result = prime * result + ((dateIni == null) ? 0 : dateIni.hashCode());
+		result = prime * result + (flagColor ? 1231 : 1237);
 		result = prime * result + ((lgobe == null) ? 0 : lgobe.hashCode());
 		result = prime * result + ((lgort == null) ? 0 : lgort.hashCode());
 		result = prime * result + ((lgpla == null) ? 0 : lgpla.hashCode());
@@ -248,6 +273,18 @@ public class ConciliationPositionBean {
 			if (other.countX != null)
 				return false;
 		} else if (!countX.equals(other.countX))
+			return false;
+		if (dateEnd == null) {
+			if (other.dateEnd != null)
+				return false;
+		} else if (!dateEnd.equals(other.dateEnd))
+			return false;
+		if (dateIni == null) {
+			if (other.dateIni != null)
+				return false;
+		} else if (!dateIni.equals(other.dateIni))
+			return false;
+		if (flagColor != other.flagColor)
 			return false;
 		if (lgobe == null) {
 			if (other.lgobe != null)
@@ -305,6 +342,6 @@ public class ConciliationPositionBean {
 		} else if (!zoneId.equals(other.zoneId))
 			return false;
 		return true;
-	}	
+	}
 
 }
