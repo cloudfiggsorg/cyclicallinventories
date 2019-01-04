@@ -210,8 +210,7 @@ public class ConciliacionDao {
 	}
 
 	private static final String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION "
-			+ "FROM INV_VW_DOC_INV WITH(NOLOCK) "
-			+ "WHERE DOC_INV_ID = ? "
+			+ "FROM INV_VW_DOC_INV WITH(NOLOCK) " + "WHERE DOC_INV_ID = ? "
 			+ "GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, JUSTIFICATION";
 
 	public Response<ConciliacionBean> getConciliacion(ConciliacionBean docInvBean) {
@@ -326,7 +325,8 @@ public class ConciliacionDao {
 						notesPositions.get(key).setProdDate(
 								notesPositions.get(key).getProdDate() + rs.getString("COU_PROD_DATE") == null ? ""
 										: !rs.getString("COU_PROD_DATE").isEmpty()
-												? "|," + rs.getString("COU_PROD_DATE") : "");
+												? "|," + rs.getString("COU_PROD_DATE")
+												: "");
 					} else {
 						notesPositions.get(key).setProdDate(
 								notesPositions.get(key).getProdDate() + rs.getString("COU_PROD_DATE") == null ? ""
@@ -337,7 +337,7 @@ public class ConciliacionDao {
 					ConciliationPositionBean bean = new ConciliationPositionBean();
 					bean.setNote(rs.getString("COU_NOTE") == null ? "" : rs.getString("COU_NOTE"));
 					bean.setProdDate(rs.getString("COU_PROD_DATE") == null ? "" : rs.getString("COU_PROD_DATE"));
-					notesPositions.put(rs.getString("COU_POSITION_ID_ZONE") + rs.getString("COU_MATNR"), bean);
+					notesPositions.put(rs.getString("COU_MATNR") + rs.getString("COU_POSITION_ID_ZONE"), bean);
 				}
 			}
 
@@ -362,7 +362,7 @@ public class ConciliacionDao {
 					} catch (Exception e) {
 						bean.setDateEnd("");
 					}
-					timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE") + rs.getString("COU_MATNR"), bean);
+					timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE"), bean);
 				}
 			}
 
@@ -453,11 +453,9 @@ public class ConciliacionDao {
 								.getProdDate());
 					}
 					if (docInvBean.getType() != null && docInvBean.getType().equals("1")) {
-						if (timesMapPositisoin.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")) != null) {
-							bean.setDateIni(timesMapPositisoin
-									.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")).getDateIni());
-							bean.setDateEnd(timesMapPositisoin
-									.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
 						}
 					}
 					if (count == 0) {
