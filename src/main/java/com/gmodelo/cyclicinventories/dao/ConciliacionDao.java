@@ -348,7 +348,7 @@ public class ConciliacionDao {
 				log.info(
 						"[getPositionsConciliationDao - getConciliationPositions] GET_NOTE_AND_PROD, Executing query...");
 				rs = stm.executeQuery();
-				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:SS");
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
 				while (rs.next()) {
 					ConciliationPositionBean bean = new ConciliationPositionBean();
 					try {
