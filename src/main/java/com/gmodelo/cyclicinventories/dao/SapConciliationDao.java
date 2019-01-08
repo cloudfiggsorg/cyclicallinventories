@@ -93,7 +93,7 @@ public class SapConciliationDao {
 		CallableStatement csBatch = null;
 
 		String CURRENTSP = "";
-		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?";
 		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 		File file;
@@ -152,7 +152,7 @@ public class SapConciliationDao {
 
 						js.setJsId(cs.getInt(5));
 						
-						if(!js.getBase64File().isEmpty()){//Write the file if exists
+						if(js.getBase64File() != null){//Write the file if exists
 							
 							file = new File(PATH_TO_SAVE_FILES+ File.separator 
 									+ dipb.getDoncInvId() + File.separator  
@@ -202,7 +202,7 @@ public class SapConciliationDao {
 
 			log.info("[saveConciliationSAP] Executing query...");
 
-		} catch (SQLException | IOException e) {
+		} catch (Exception e) {
 			
 			try {
 				log.log(Level.WARNING, "[saveConciliationSAP] Execute rollback");
