@@ -22,7 +22,6 @@ public class PosDocInvBean {
 	private String imwmMarker;
 	private String consignation;
 	private String transit;
-	private String accountant;
 	private ArrayList<Justification> lsJustification;
 	
 	public PosDocInvBean(){
@@ -33,7 +32,7 @@ public class PosDocInvBean {
 
 	public PosDocInvBean(int posId, int doncInvId, String lgort, String lgortD, String lgtyp, String ltypt,
 			String lgNum, String lgpla, String matnr, String matnrD, String costByUnit, String meins, String theoric, String counted,
-			String diff, String imwmMarker, String consignation, String transit, String accountant,
+			String diff, String imwmMarker, String consignation, String transit,
 			ArrayList<Justification> lsJustification) {
 		super();
 		this.posId = posId;
@@ -54,7 +53,6 @@ public class PosDocInvBean {
 		this.imwmMarker = imwmMarker;
 		this.consignation = consignation;
 		this.transit = transit;
-		this.accountant = accountant;
 		this.lsJustification = lsJustification;
 	}
 
@@ -202,14 +200,6 @@ public class PosDocInvBean {
 		this.transit = transit;
 	}
 
-	public String getAccountant() {
-		return accountant;
-	}
-
-	public void setAccountant(String accountant) {
-		this.accountant = accountant;
-	}
-
 	public ArrayList<Justification> getLsJustification() {
 		return lsJustification;
 	}
@@ -224,7 +214,7 @@ public class PosDocInvBean {
 				+ ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla=" + lgpla + ", matnr=" + matnr
 				+ ", matnrD=" + matnrD + ", costByUnit=" + costByUnit + ", meins=" + meins + ", theoric=" + theoric
 				+ ", counted=" + counted + ", diff=" + diff + ", imwmMarker=" + imwmMarker + ", consignation="
-				+ consignation + ", transit=" + transit + ", accountant=" + accountant + ", lsJustification="
+				+ consignation + ", transit=" + transit + ", lsJustification="
 				+ lsJustification + "]";
 	}
 

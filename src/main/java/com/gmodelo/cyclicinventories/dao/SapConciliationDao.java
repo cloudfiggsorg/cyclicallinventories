@@ -93,7 +93,7 @@ public class SapConciliationDao {
 		CallableStatement csBatch = null;
 
 		String CURRENTSP = "";
-		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?";
 		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 		File file;
@@ -125,9 +125,8 @@ public class SapConciliationDao {
 					cs.setString(11, dipb.getDiff());
 					cs.setString(12, dipb.getConsignation());
 					cs.setString(13, dipb.getTransit());
-					cs.setString(14, dipb.getAccountant());
-					cs.setString(15, userId);
-					cs.registerOutParameter(16, Types.BIGINT);
+					cs.setString(14, userId);
+					cs.registerOutParameter(15, Types.BIGINT);
 
 					cs.execute();
 
@@ -180,9 +179,8 @@ public class SapConciliationDao {
 					csBatch.setString(11, dipb.getDiff());
 					csBatch.setString(12, dipb.getConsignation());
 					csBatch.setString(13, dipb.getTransit());
-					csBatch.setString(14, dipb.getAccountant());
-					csBatch.setString(15, userId);
-					csBatch.setNull(16, Types.NULL);
+					csBatch.setString(14, userId);
+					csBatch.setNull(15, Types.NULL);
 					csBatch.addBatch();
 				}
 			}
@@ -305,11 +303,12 @@ public class SapConciliationDao {
 		return res;
 	}
 
-	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_THEORIC, "
-			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_ACCOUNTANT, IMWM " 
+	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
+			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, IMWM " 
 			+ "FROM INV_VW_CONC_SAP "
 			+ "WHERE DOC_INV_ID = ? "
-			+ "GROUP BY CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_THEORIC, CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_ACCOUNTANT, IMWM";
+			+ "GROUP BY CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
+			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, IMWM";
 	public ArrayList<PosDocInvBean> getConciliationSAPPositions(int docInvId, Connection con) throws SQLException {
 
 		PreparedStatement ps = null;
@@ -325,16 +324,16 @@ public class SapConciliationDao {
 			while (rs.next()) {
 
 				pdib = new PosDocInvBean();
-				pdib.setPosId(rs.getInt("CS_CON_SAP"));
+				pdib.setPosId(rs.getInt("CS_CON_SAP"));				
 				pdib.setMatnr(rs.getString("CS_MATNR"));
 				pdib.setMatnrD(rs.getString("MAKTX"));
 				pdib.setMeins(rs.getString("MEINS"));
+				pdib.setCostByUnit(rs.getString("CS_COST_BY_UNIT"));
 				pdib.setTheoric(rs.getString("CS_THEORIC"));
 				pdib.setCounted(rs.getString("CS_COUNTED"));
 				pdib.setDiff(rs.getString("CS_DIFFERENCE"));
 				pdib.setTransit(rs.getString("CS_TRANSIT"));
 				pdib.setConsignation(rs.getString("CS_CONSIGNATION"));
-				pdib.setAccountant(rs.getString("CS_ACCOUNTANT"));
 				pdib.setImwmMarker(rs.getString("IMWM"));
 				lsPosIds += pdib.getPosId() + ",";
 				lsPdib.add(pdib);
