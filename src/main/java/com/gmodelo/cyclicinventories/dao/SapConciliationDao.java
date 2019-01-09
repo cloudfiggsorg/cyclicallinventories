@@ -132,7 +132,7 @@ public class SapConciliationDao {
 
 					log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 
-					dipb.setPosId(cs.getInt(16));
+					dipb.setPosId(cs.getInt(15));
 					CURRENTSP = INV_SP_ADD_JUSTIFY;
 					
 					ArrayList<Justification> lsJustification = dipb.getLsJustification();
