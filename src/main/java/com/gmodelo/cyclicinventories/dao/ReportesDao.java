@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
+import com.gmodelo.cyclicinventories.beans.ConciAccntReportBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.CostByMatnr;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
@@ -868,6 +869,80 @@ public class ReportesDao {
 		return res;
 	
 	}
+	
+	
+	public Response<List<ConciAccntReportBean>> getReporteConciAccntReport(ConciAccntReportBean carb) {
+		Response<List<ConciAccntReportBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		List<ConciAccntReportBean> listCarb = new ArrayList<>();
+		String GENERATE_CONCILIATION_ACCOUNTANT_REPORT = null;
+
+		GENERATE_CONCILIATION_ACCOUNTANT_REPORT = "SELECT DOC_INV_ID, BUKRS, WERKS, DIH_TYPE, DIH_MODIFIED_DATE, ACCOUNTANT, "
+				+ " JUSTIFICATION, DIFFERENCE FROM INV_VW_CONCI_ACCOUNT_REPORT WITH(NOLOCK) ";
+		
+		String condition = buildConditionConciAccntnt(carb);
+		if (condition != null) {
+			GENERATE_CONCILIATION_ACCOUNTANT_REPORT += condition;
+		}
+		
+		log.info(GENERATE_CONCILIATION_ACCOUNTANT_REPORT);
+		log.info("[getReporteConciAccntReportDao] Preparing sentence...");
+		try {
+			stm = con.prepareStatement(GENERATE_CONCILIATION_ACCOUNTANT_REPORT);
+
+			log.info("[getReporteConciAccntReportDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+
+				carb = new ConciAccntReportBean();
+				carb.setDocInvId(rs.getString("DOC_INV_ID"));
+				carb.setType(rs.getString("DIH_TYPE"));
+				carb.setBukrs(rs.getString("BUKRS"));
+				carb.setWerks(rs.getString("WERKS"));
+				carb.setDateIni(rs.getString("DIH_MODIFIED_DATE"));
+				carb.setAccountant(rs.getDouble("ACCOUNTANT"));
+				carb.setAccDiff(rs.getDouble("DIFFERENCE"));
+				carb.setJustification(rs.getDouble("JUSTIFICATION"));
+				listCarb.add(carb);
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[getReporteConciAccntReportDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getReporteConciAccntReportDao] Some error occurred while was trying to execute the query: "
+							+ GENERATE_CONCILIATION_ACCOUNTANT_REPORT,
+					e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getReporteConciAccntReportDao] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listCarb);
+		return res;
+	}
 
 	private String buildConditionApegos(ApegosBean apegosB) {
 		String routeId = "";
@@ -1045,6 +1120,49 @@ public class ReportesDao {
 		}
 		condition += dates;
 
+		condition = condition.isEmpty() ? null : condition;
+		return condition;
+	}
+	
+	private String buildConditionConciAccntnt(ConciAccntReportBean carb){
+		
+		String docInvId = "";
+		String bukrs = "";
+		String werks = "";
+		String type = "";
+		String dates = "";
+		String condition = "";
+		
+		docInvId = (carb.getDocInvId() != null)
+					? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DOC_INV_ID = " + Integer.parseInt(carb.getDocInvId())  : "";
+		condition += docInvId;
+		
+		bukrs = (carb.getBukrs() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS = '" + carb.getBukrs() + "' " : "";
+		condition += bukrs;
+		
+		werks = (carb.getWerks() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + carb.getWerks() + "' " : "";
+		condition += werks;
+		
+		type = (carb.getType() != null)
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_TYPE = '" + carb.getType() + "' " : "";
+		condition += type;
+		
+		if(carb.getDateIni() != null && carb.getDateFin() != null){
+			dates = (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_MODIFIED_DATE BETWEEN '" + new java.sql.Date(Long.parseLong((carb.getDateIni()))) + "' "
+					+( " AND  '" + new java.sql.Date(Long.parseLong(carb.getDateFin())) + "' ");
+			
+		}else if(carb.getDateIni() != null && carb.getDateFin() == null){
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(Long.parseLong(carb.getDateIni()));
+			c.add(Calendar.DATE, 1);
+			
+			dates = (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_MODIFIED_DATE BETWEEN '" + new java.sql.Date(Long.parseLong((carb.getDateIni()))) + "' "
+					+( " AND  '" + new java.sql.Date(c.getTimeInMillis()) + "' ");
+		}
+		condition += dates;
+		
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
 	}

@@ -1,11 +1,13 @@
 package com.gmodelo.cyclicinventories.workservice;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
+import com.gmodelo.cyclicinventories.beans.ConciAccntReportBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
@@ -140,5 +142,26 @@ public class ReportesWorkService {
 		String bukrs = (String) request.getLsObject().get(0);
 		String werks = (String) request.getLsObject().get(1);
 		return new ReportesDao().getReporteCalidad(bukrs, werks);
+	}
+
+	public Response<List<ConciAccntReportBean>> getReporteConciAccntReport(Request request) {
+		log.info("[getReporteConciAccntReportWorkService] " + request.toString());
+		Response<List<ConciAccntReportBean>> response = new Response<>();
+		List<ConciAccntReportBean> list = new ArrayList<>();
+		ConciAccntReportBean conciAccntReportBean = gson.fromJson(gson.toJson(request.getLsObject()), ConciAccntReportBean.class);
+		response = new ReportesDao().getReporteConciAccntReport(conciAccntReportBean);
+		if(response.getAbstractResult().getResultId() != 1){
+			return response; 
+		}else{
+			list = response.getLsObject();
+			for(ConciAccntReportBean item : list){
+//				item.setAccountant(80000D);
+				item.setType(item.getType() == "1" ? "Diario" : "Mensual");
+				item.setPercAccDiff(String.valueOf((item.getAccDiff()*100)/item.getAccountant()));
+				item.setPercJustification(String.valueOf((item.getJustification()*100)/item.getAccountant()));
+			}
+			response.setLsObject(list);
+		}
+		return response;
 	}
 }
