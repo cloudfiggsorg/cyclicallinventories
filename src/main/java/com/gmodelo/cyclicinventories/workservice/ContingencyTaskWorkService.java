@@ -40,8 +40,7 @@ public class ContingencyTaskWorkService {
 				
 				List<RouteUserPositionBean> listPositions = new ArrayList<>();
 				List<String> listZoneId = new ArrayList<>();
-				List<ZoneUserPositionsBean> listAllPositionsB = new ArrayList<>();//List<String> listlgpla = new ArrayList<>();
-//				List<Integer> listPkAsgId = new ArrayList<>();
+				List<ZoneUserPositionsBean> listAllPositionsB = new ArrayList<>();
 				
 				//for para obtener lista de positions (positionsId y zoneId asociados),obtener lista de ZoneIds unicos y obtener lista de todos los positionsB
 				for(ContingencyTaskBean ctb : requestBeanList){
@@ -51,6 +50,7 @@ public class ContingencyTaskWorkService {
 						positions.setPositionId(ctb.getPositionId());
 						positions.setLgort(ctb.getLgort());
 						positions.setRouteId(ctb.getRouteId());
+						positions.setSecuency(ctb.getZoneSecuency());
 						ZoneUserBean zone = new ZoneUserBean();
 						zone.setZoneId(ctb.getZoneId());
 						positions.setZone(zone);
@@ -68,6 +68,7 @@ public class ContingencyTaskWorkService {
 							positions.setPositionId(ctb.getPositionId());
 							positions.setLgort(ctb.getLgort());
 							positions.setRouteId(ctb.getRouteId());
+							positions.setSecuency(ctb.getZoneSecuency());
 							ZoneUserBean zone = new ZoneUserBean();
 							zone.setZoneId(ctb.getZoneId());
 							positions.setZone(zone);
@@ -80,7 +81,7 @@ public class ContingencyTaskWorkService {
 					}else{
 						boolean inListZone = false;
 						for(String z : listZoneId){
-							if(z == ctb.getZoneId()){
+							if(z.equalsIgnoreCase(ctb.getZoneId()) ){
 								inListZone = true;
 								break;
 							}
@@ -89,24 +90,9 @@ public class ContingencyTaskWorkService {
 							listZoneId.add(ctb.getZoneId());
 						}
 					}
-					////////////////////////////////////////////////////////////
-//					if(listPkAsgId.size() == 0){
-//						listPkAsgId.add(ctb.getPkAsgId());
-//					}else{
-//						boolean inList = false;
-//						for(Integer i : listPkAsgId){
-//							if(i == ctb.getPkAsgId()){
-//								inList = true;
-//								break;
-//							}
-//						}
-//						if(!inList){
-//							listPkAsgId.add(ctb.getPkAsgId());
-//						}
-//					}
 					
 					/////////////////////////////////////////////////////////////
-					//segundo enfoque positionsB
+					// positionsB
 					if(listAllPositionsB.size() == 0){
 						ZoneUserPositionsBean posi = new ZoneUserPositionsBean();
 						posi.setLgpla(ctb.getLgpla());
@@ -121,7 +107,7 @@ public class ContingencyTaskWorkService {
 					}else{
 						boolean inListpositionsB = false;
 						for(ZoneUserPositionsBean p : listAllPositionsB){
-							if(p.getLgpla() == ctb.getLgpla()){
+							if(p.getLgpla().equalsIgnoreCase(ctb.getLgpla())){
 								inListpositionsB = true;
 								break;
 							}
@@ -141,12 +127,11 @@ public class ContingencyTaskWorkService {
 					}
 					
 				}
-				
 
 				//for para setear los valores del hashMap para cada positionsB
 				for(ContingencyTaskBean ctb : requestBeanList){
 					for(ZoneUserPositionsBean pos : listAllPositionsB){
-						if(ctb.getLgpla() == pos.getLgpla()){
+						if(ctb.getLgpla().equalsIgnoreCase(pos.getLgpla())){
 							
 							//put de lgplaValues
 							LgplaValuesBean lvb = new LgplaValuesBean();
@@ -159,32 +144,14 @@ public class ContingencyTaskWorkService {
 					}
 				}
 				/////////////////////////////////////////////////////////////////////////////
-				//Inicial
-				
-//				for(int i=0;i<requestBeanList.size();i++){
-//					for(int k=0;k<listPkAsgId.size();k++){
-//						ZoneUserPositionsBean positionsB = new ZoneUserPositionsBean();
-//						
-//						if(requestBeanList.get(i).getPkAsgId() == listPkAsgId.get(k)){
-//							positionsB.setPkAsgId(requestBeanList.get(i).getPkAsgId());
-//							positionsB.setZoneId(requestBeanList.get(i).getZoneId());
-//							positionsB.setLgtyp(requestBeanList.get(i).getLgtyp());
-//							positionsB.setLgpla(requestBeanList.get(i).getLgpla());
-//							positionsB.setSecuency(requestBeanList.get(i).getLgplaSecuency());
-//							positionsB.setLgplaValues(buildLgplaValues(requestBeanList.get(i)));
-//							
-//							listAllPositionsB.add(positionsB);
-//						}
-//						
-//					}
-//				}
+
 				//for para crear ZoneUserBeans
 				List<ZoneUserPositionsBean> listPositionsB = new ArrayList<>();
 				List<ZoneUserBean> listzone = new ArrayList<>();
 				for(String z : listZoneId){
 					ZoneUserBean zone = new ZoneUserBean();
 					for(ZoneUserPositionsBean positionB :listAllPositionsB){
-						if(positionB.getZoneId() == z){
+						if(positionB.getZoneId().equalsIgnoreCase(z)){
 							listPositionsB.add(positionB);
 						}
 					}
@@ -197,7 +164,7 @@ public class ContingencyTaskWorkService {
 				//for para agregar cada bean zone con su positionId
 				for(RouteUserPositionBean p :listPositions){
 					for(ZoneUserBean z : listzone){
-						if(p.getZone().getZoneId() == z.getZoneId()){
+						if(p.getZone().getZoneId().equalsIgnoreCase(z.getZoneId())){
 							p.setZone(z);
 						}
 					}
@@ -215,7 +182,7 @@ public class ContingencyTaskWorkService {
 			} else {
 				log.log(Level.WARNING, "[buildBeanWS]: Lista Vacia");
 				abstractResult.setResultId(ReturnValues.IEMPTY);
-				abstractResult.setResultMsgAbs("La lista solicitada viene vacia");
+				abstractResult.setResultMsgAbs("La tarea enviada viene vacia");
 				res.setAbstractResult(abstractResult);
 			}
 		} catch (Exception e) {
@@ -227,18 +194,5 @@ public class ContingencyTaskWorkService {
 		
 		return res;
 	}
-	
-//	private HashMap<String, LgplaValuesBean> buildLgplaValues(ContingencyTaskBean ctb){
-//		//creacion de lgplaValues
-//		HashMap<String, LgplaValuesBean> lgplaValues = new HashMap<>();
-//		LgplaValuesBean lvb = new LgplaValuesBean();
-//		lvb.setMatnr(ctb.getMatnr());
-//		lvb.setVhilm(ctb.getVhilm());
-//		lvb.setVhilmQuan(ctb.getVhilmQuan());
-//		lvb.setTotalConverted(ctb.getTotalConverted());
-//		lgplaValues.put(ctb.getPkAsgId()+ctb.getMatnr(), lvb);
-//		
-//		return lgplaValues;
-//	}
 
 }
