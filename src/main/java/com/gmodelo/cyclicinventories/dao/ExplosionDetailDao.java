@@ -57,7 +57,7 @@ public class ExplosionDetailDao {
 				csBatch.setString(1, obj.getWerks());
 				csBatch.setString(2, obj.getMatnr());
 				csBatch.setString(3, obj.getComponent());
-				csBatch.setString(4, obj.getQuantity());
+				csBatch.setString(4, obj.getUmb());
 				csBatch.setByte(5, (byte) (obj.isRelevant()?1:0));
 				csBatch.setString(6, user);
 				csBatch.addBatch();
@@ -110,9 +110,26 @@ public class ExplosionDetailDao {
 		PreparedStatement stm = null;		
 		ArrayList<ExplosionDetail> lsEd = new ArrayList<>();
 
-		final String GET_EXPL_DET = "SELECT EX_WERKS, EX_MATNR, EX_COMPONENT, EX_QUANTITY, EX_RELEVANT "
-				+ "FROM INV_EXPLOSION "
-				+ "WHERE EX_WERKS = ? AND EX_MATNR = ?";
+		final String GET_EXPL_DET = "SELECT  A.WERKS, A.MATNR, SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL, " 
+				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT "
+				+ "FROM MAST AS A "
+				+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) "
+				+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) "
+				+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS D ON (C.IDNRK = D.MATNR) "
+				+ "WHERE A.WERKS = ? AND A.MATNR = ? "
+				+ "AND C.IDNRK NOT IN (SELECT EX_COMPONENT " 
+				+ "FROM INV_EXPLOSION WHERE EX_WERKS = ? AND EX_MATNR = ?) "
+				+ "UNION " 
+				+ "SELECT A.EX_WERKS, A.EX_MATNR, A.EX_COMPONENT, B.MAKTX, A.EX_UMB, A.EX_RELEVANT "
+				+ "FROM INV_EXPLOSION AS A "
+				+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS B ON (A.EX_COMPONENT = B.MATNR) "
+				+ "WHERE EX_WERKS = ? AND EX_MATNR = ? "
+				+ "AND EX_MATNR IN (SELECT SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL "
+				+ "FROM MAST AS A "
+				+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) "
+				+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) "
+				+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS D ON (C.IDNRK = D.MATNR) "
+				+ "WHERE A.WERKS = ? AND A.MATNR = ?) ";
 
 		log.info(GET_EXPL_DET);
 
@@ -122,6 +139,12 @@ public class ExplosionDetailDao {
 			stm = con.prepareStatement(GET_EXPL_DET);
 			stm.setString(1, ed.getWerks());
 			stm.setString(2, ed.getMatnr());
+			stm.setString(3, ed.getWerks());
+			stm.setString(4, ed.getMatnr());
+			stm.setString(5, ed.getWerks());
+			stm.setString(6, ed.getMatnr());
+			stm.setString(7, ed.getWerks());
+			stm.setString(8, ed.getMatnr());
 			
 			log.info("[getExplosionDetailByMatnr] Executing query...");
 
@@ -133,7 +156,8 @@ public class ExplosionDetailDao {
 				ed.setWerks(rs.getString("EX_WERKS"));
 				ed.setMatnr(rs.getString("EX_MATNR"));
 				ed.setComponent(rs.getString("EX_COMPONENT"));
-				ed.setQuantity(rs.getString("EX_QUANTITY"));
+				ed.setCompDesc(rs.getString("EX_MAKTX"));
+				ed.setUmb(rs.getString("EX_UMB"));
 				ed.setRelevant(rs.getBoolean("EX_RELEVANT"));
 				lsEd.add(ed);
 			}

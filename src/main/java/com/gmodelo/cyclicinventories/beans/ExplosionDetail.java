@@ -5,22 +5,25 @@ public class ExplosionDetail {
 	private String werks;
 	private String matnr;
 	private String component;
-	private String quantity;
+	private String compDesc;
+	private String umb;
 	private boolean relevant;
 	
 	public ExplosionDetail() {
 		super();
 	}
 	
-	public ExplosionDetail(String werks, String matnr, String component, String quantity, boolean relevant) {
+	public ExplosionDetail(String werks, String matnr, String component, String compDesc, String umb,
+			boolean relevant) {
 		super();
 		this.werks = werks;
 		this.matnr = matnr;
 		this.component = component;
-		this.quantity = quantity;
+		this.compDesc = compDesc;
+		this.umb = umb;
 		this.relevant = relevant;
 	}
-	
+
 	public String getWerks() {
 		return werks;
 	}
@@ -39,11 +42,17 @@ public class ExplosionDetail {
 	public void setComponent(String component) {
 		this.component = component;
 	}
-	public String getQuantity() {
-		return quantity;
+	public String getCompDesc() {
+		return compDesc;
 	}
-	public void setQuantity(String quantity) {
-		this.quantity = quantity;
+	public void setCompDesc(String compDesc) {
+		this.compDesc = compDesc;
+	}	
+	public String getUmb() {
+		return umb;
+	}
+	public void setUmb(String quantity) {
+		this.umb = quantity;
 	}
 	public boolean isRelevant() {
 		return relevant;
@@ -54,8 +63,8 @@ public class ExplosionDetail {
 
 	@Override
 	public String toString() {
-		return "ExplosionDetail [werks=" + werks + ", matnr=" + matnr + ", component=" + component + ", quantity="
-				+ quantity + ", relevant=" + relevant + "]";
+		return "ExplosionDetail [werks=" + werks + ", matnr=" + matnr + ", component=" + component + ", compDesc="
+				+ compDesc + ", umb=" + umb + ", relevant=" + relevant + "]";
 	}
-	
+
 }
