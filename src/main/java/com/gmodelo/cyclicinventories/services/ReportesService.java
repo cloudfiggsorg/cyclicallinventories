@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
+import com.gmodelo.cyclicinventories.beans.ConciAccntReportBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
@@ -71,5 +72,13 @@ public class ReportesService {
 	@Path("/getReporteCalidad")
 	public Response<List<ConciliationsIDsBean>> getReporteCalidad(Request request) {
 		return new ReportesWorkService().getReporteCalidad(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getReporteConciAccntReport")
+	public Response<List<ConciAccntReportBean>> getReporteConciAccntReport(Request request) {
+		return new ReportesWorkService().getReporteConciAccntReport(request);
 	}
 }
