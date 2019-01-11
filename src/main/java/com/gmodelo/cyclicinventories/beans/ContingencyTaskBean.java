@@ -138,6 +138,10 @@ public class ContingencyTaskBean {
 		this.totalConverted = totalConverted;
 	}
 	
+	
+	public ContingencyTaskBean() {
+		super();
+	}
 	@Override
 	public String toString() {
 		return "ContingencyTaskBean [taskId=" + taskId + ", bukrs=" + bukrs + ", werks=" + werks + ", routeId="

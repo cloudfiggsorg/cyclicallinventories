@@ -16,6 +16,8 @@ import com.gmodelo.cyclicinventories.beans.RouteUserBean;
 import com.gmodelo.cyclicinventories.beans.RouteUserPositionBean;
 import com.gmodelo.cyclicinventories.beans.ZoneUserBean;
 import com.gmodelo.cyclicinventories.beans.ZoneUserPositionsBean;
+import com.gmodelo.cyclicinventories.dao.MatnrDao;
+import com.gmodelo.cyclicinventories.dao.ZoneDao;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -38,11 +40,45 @@ public class ContingencyTaskWorkService {
 					listType);
 			if (!requestBeanList.isEmpty()) {
 				
+				List<String> listMatnr = new ArrayList<>();
+				//Extraer matnr unicos 
+				for(ContingencyTaskBean ctb : requestBeanList){
+					if(listMatnr.size() == 0){
+						listMatnr.add(ctb.getMatnr());
+					}else{
+						boolean inListMatnr = false;
+						for(String m : listMatnr){
+							if(m.equalsIgnoreCase(ctb.getMatnr()) ){
+								inListMatnr = true;
+								break;
+							}
+						}
+						if(!inListMatnr){
+							listMatnr.add(ctb.getMatnr());
+						}
+					}
+				}
+				
+//				verificar si los matnr existen para el centro dado
+				Response<List<String>> response = validateMatnr(listMatnr, requestBeanList.get(0).getWerks());
+				if(response.getAbstractResult().getResultId() != 1){
+					res.getAbstractResult().setResultId(response.getAbstractResult().getResultId());
+					res.getAbstractResult().setResultMsgAbs(response.getAbstractResult().getResultMsgAbs());
+					return res;
+				}
+//				verificar si las posiciones del excel son correctas para los campos bukrs, werks, routeId, positionOd, zoneId, lgpla, pkAsgId
+				Response<List<ContingencyTaskBean>> responsePos = validatePositions(requestBeanList, requestBeanList.get(0).getBukrs(), 
+						requestBeanList.get(0).getWerks(), requestBeanList.get(0).getRouteId());	
+				if(responsePos.getAbstractResult().getResultId() != 1){
+					res.getAbstractResult().setResultId(response.getAbstractResult().getResultId());
+					res.getAbstractResult().setResultMsgAbs(response.getAbstractResult().getResultMsgAbs());
+					return res;
+				}
+				
+				//for para obtener lista de positions (positionsId y zoneId asociados),obtener lista de ZoneIds unicos y obtener lista de todos los positionsB
 				List<RouteUserPositionBean> listPositions = new ArrayList<>();
 				List<String> listZoneId = new ArrayList<>();
 				List<ZoneUserPositionsBean> listAllPositionsB = new ArrayList<>();
-				
-				//for para obtener lista de positions (positionsId y zoneId asociados),obtener lista de ZoneIds unicos y obtener lista de todos los positionsB
 				for(ContingencyTaskBean ctb : requestBeanList){
 				
 					if(listPositions.size() == 0){
@@ -193,6 +229,100 @@ public class ContingencyTaskWorkService {
 		}
 		
 		return res;
+	}
+	
+	private Response<List<String>> validateMatnr(List<String> listoToValidate, String werks){
+		
+		Response<List<String>> response = new MatnrDao().validateMatnr(werks);
+		if(response.getAbstractResult().getResultId() != 1){
+			return response;
+		}
+		
+		List<String> listMatnr = response.getLsObject();
+		if(listMatnr == null){
+			response.getAbstractResult().setResultId(ReturnValues.IERROR);
+			response.getAbstractResult().setResultMsgAbs("No existen materiales para el centro "+werks);
+			return response;
+		}
+		
+		String msg = "Para el centro "+werks+" no existen los materiales: ";
+		boolean wrongMatnr = false;
+		for(String item : listoToValidate){
+			if(!listMatnr.contains(item)){
+				msg+= "  ,"+item;
+				wrongMatnr = true;
+			}
+		}
+		if(wrongMatnr){
+			response.getAbstractResult().setResultId(ReturnValues.IERROR);
+			response.getAbstractResult().setResultMsgAbs(msg);
+		}
+		
+		return response ;
+	}
+	
+	private Response<List<ContingencyTaskBean>> validatePositions(List<ContingencyTaskBean> listToValidate, String bukrs, String werks, String routeId){
+		
+		Response<List<ContingencyTaskBean>> response = new ZoneDao().validateTaskContingencyPositions(bukrs, werks, routeId);
+		if(response.getAbstractResult().getResultId() != 1){
+			return response;
+		}
+		
+		List<ContingencyTaskBean> listCTB = response.getLsObject();
+		if(listCTB == null){
+			response.getAbstractResult().setResultId(ReturnValues.IERROR);
+			response.getAbstractResult().setResultMsgAbs("No existen posiciones para la sociedad "+bukrs+" con  centro "+werks+" y ruta "+routeId);
+			return response;
+		}
+		
+		for(ContingencyTaskBean item : listToValidate){
+			boolean existPkAsgId = false;
+			boolean existLgpla = false;
+			boolean existZoneId = false;
+			boolean existPositionId = false;
+			for(ContingencyTaskBean ctb : listCTB){
+				
+				if(item.getPkAsgId() == ctb.getPkAsgId()){
+					existPkAsgId = true;
+					if(item.getLgpla().equalsIgnoreCase(ctb.getLgpla())){
+						existLgpla = true;
+					}
+					if(item.getZoneId().equalsIgnoreCase(ctb.getZoneId())){
+						existZoneId = true;
+					}
+					if(item.getPositionId() == ctb.getPositionId()){
+						existPositionId = true;
+					}
+					break;
+				}
+			}
+			if(!existPkAsgId){
+				String msgPkAsgId = "No existe el Id de relación "+item.getPkAsgId()+" favor de verificarlo";
+				response.getAbstractResult().setResultId(ReturnValues.IERROR);
+				response.getAbstractResult().setResultMsgAbs(msgPkAsgId);
+				return response ;
+			}
+			if(!existLgpla){
+				String msgLgpla = "No existe el carril "+item.getLgpla()+" favor de verificarlo";
+				response.getAbstractResult().setResultId(ReturnValues.IERROR);
+				response.getAbstractResult().setResultMsgAbs(msgLgpla);
+				return response ;
+			}
+			if(!existZoneId){
+				String msgZoneId = "No existe el Id de Zona "+item.getZoneId()+" favor de verificarlo";
+				response.getAbstractResult().setResultId(ReturnValues.IERROR);
+				response.getAbstractResult().setResultMsgAbs(msgZoneId);
+				return response ;
+			}
+			if(!existPositionId){
+				String msgPositionId = "No existe el Id de Posición "+item.getPositionId()+" favor de verificarlo";
+				response.getAbstractResult().setResultId(ReturnValues.IERROR);
+				response.getAbstractResult().setResultMsgAbs(msgPositionId);
+				return response ;
+			}
+		}
+		
+		return response ;
 	}
 
 }

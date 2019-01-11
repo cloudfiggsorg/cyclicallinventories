@@ -21,6 +21,7 @@ import javax.naming.NamingException;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
+import com.gmodelo.cyclicinventories.beans.ContingencyTaskBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.DocInvPositionBean;
 import com.gmodelo.cyclicinventories.beans.LagpEntity;
@@ -1167,6 +1168,85 @@ public class ZoneDao {
 		}
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(listZone);
+		return res;
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private static final String GET_ROUTE_ZONE_POSITIONS = "SELECT IRP.RPO_ROUTE_ID, IRP.RPO_POSITION_ROUTE_ID, IZ.ZONE_ID, IZP.ZPO_LGPLA, IZP.ZPO_PK_ASG_ID "
+									+"FROM  INV_ZONE IZ WITH(NOLOCK) "
+									+"INNER JOIN INV_ZONE_POSITION IZP WITH(NOLOCK) ON IZ.ZONE_ID = IZP.ZPO_ZONE_ID "
+									+"INNER JOIN INV_ROUTE_POSITION IRP WITH(NOLOCK) ON IZ.ZONE_ID = IRP.RPO_ZONE_ID "
+
+									+"WHERE IZ.ZON_BUKRS = ? AND IZ.ZON_WERKS = ? "
+									+"AND IRP.RPO_ROUTE_ID = ?";
+	
+	public Response<List<ContingencyTaskBean>> validateTaskContingencyPositions(String bukrs, String werks, String routeId) {
+
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+
+		Response<List<ContingencyTaskBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<ContingencyTaskBean> listCTB = new ArrayList<>();
+		ContingencyTaskBean ctb;
+
+		log.info("[validateTaskContingencyPositionsDao] "+GET_ROUTE_ZONE_POSITIONS);
+		try {
+			
+			stm = con.prepareStatement(GET_ROUTE_ZONE_POSITIONS);
+			stm.setString(1, bukrs);
+			stm.setString(2, werks);
+			stm.setString(3, routeId);
+
+			log.info("[validateTaskContingencyPositionsDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+				ctb = new ContingencyTaskBean();
+				ctb.setRouteId(rs.getString("RPO_ROUTE_ID"));
+				ctb.setPositionId(rs.getInt("RPO_POSITION_ROUTE_ID"));
+				ctb.setZoneId(rs.getString("ZONE_ID"));
+				ctb.setLgpla(rs.getString("ZPO_LGPLA"));
+				ctb.setPkAsgId(rs.getInt("ZPO_PK_ASG_ID"));
+
+				listCTB.add(ctb);
+			}
+			
+			if(listCTB.size() == 0){
+				listCTB = null;
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[validateTaskContingencyPositionsDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[validateTaskContingencyPositionsDao] Some error occurred while was trying to execute the query: "
+					+ GET_ROUTE_ZONE_POSITIONS, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[validateTaskContingencyPositionsDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listCTB);
 		return res;
 	}
 
