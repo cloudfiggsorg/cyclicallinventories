@@ -38,5 +38,13 @@ public class ExplosionService {
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new ExplosionWorkService().saveExplosionDetail(request, user);
 	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getExplosionReportByDocInv")
+	public Response<ArrayList<ExplosionDetail>> getExplosionReportByDocInv(Request request){
+		return new ExplosionWorkService().getLsExplosionDetail(request);
+	}
 
 }

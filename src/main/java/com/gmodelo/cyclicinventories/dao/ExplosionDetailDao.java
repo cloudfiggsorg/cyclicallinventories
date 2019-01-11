@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ExplosionDetail;
+import com.gmodelo.cyclicinventories.beans.MatExplReport;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
@@ -198,4 +199,68 @@ public class ExplosionDetailDao {
 		return res;
 	}
 	
+	public Response<ArrayList<MatExplReport>> getExplosionReportByDocInv(int docInvId) {
+		
+		Response<ArrayList<MatExplReport>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();		
+		PreparedStatement stm = null;		
+		MatExplReport expl = new MatExplReport();
+		ArrayList<MatExplReport> lsDetail = new ArrayList<>();
+		final String GET_MST_EXPL_REP = "";
+
+		log.info(GET_MST_EXPL_REP);
+		log.info("[getExplosionReportByDocInv] Preparing sentence...");
+
+		try {
+			stm = con.prepareStatement(GET_MST_EXPL_REP);
+			//stm.setString(1, ed.getWerks());
+			
+			log.info("[getExplosionReportByDocInv] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+
+				expl = new MatExplReport();
+				lsDetail.add(expl);
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+
+			log.info("[getExplosionReportByDocInv] Sentence successfully executed.");
+						
+			res.setAbstractResult(abstractResult);
+			res.setLsObject(lsDetail);			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getExplosionReportByDocInv] Some error occurred while was trying to execute the query: " + GET_MST_EXPL_REP,
+					e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			res.setAbstractResult(abstractResult);
+			
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				
+				log.log(Level.SEVERE, "[getExplosionReportByDocInv] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				res.setAbstractResult(abstractResult);
+			}
+		}
+		
+		return res;
+	}
+		
 }

@@ -2,9 +2,11 @@ package com.gmodelo.cyclicinventories.workservice;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
+
 import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ExplosionDetail;
+import com.gmodelo.cyclicinventories.beans.MatExplReport;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.dao.ExplosionDetailDao;
@@ -29,7 +31,8 @@ public class ExplosionWorkService {
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
-			log.info("[getZoneByLgortWorkService] Probando string");
+			log.info("[getLsExplosionDetail] Ocurrió un problema al intentar obtener la información.");
+			res.setAbstractResult(abstractResult);
 		}
 
 		return res;
@@ -51,10 +54,28 @@ public class ExplosionWorkService {
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
-			return res;
 		}
 
 		return res;
+	}
+	
+	public Response<ArrayList<MatExplReport>> getExplosionReportByDocInv(Request<Integer> request) {
+		log.info("[getExplosionReportByDocInv] " + request.toString());
+		int docInvId = 0;
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		Response<ArrayList<MatExplReport>> res = new Response<>();
+		try {
+			docInvId = request.getLsObject();
+			res = new ExplosionDetailDao().getExplosionReportByDocInv(docInvId);
+		} catch (Exception e) {
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			log.info("[getExplosionReportByDocInv] Probando string");
+		}
+
+		return res;
+
 	}
 	
 }
