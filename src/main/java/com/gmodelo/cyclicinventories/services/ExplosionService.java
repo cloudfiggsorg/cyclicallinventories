@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.ExplosionDetail;
+import com.gmodelo.cyclicinventories.beans.MatExplReport;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.workservice.ExplosionWorkService;
@@ -43,8 +44,8 @@ public class ExplosionService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getExplosionReportByDocInv")
-	public Response<ArrayList<ExplosionDetail>> getExplosionReportByDocInv(Request request){
-		return new ExplosionWorkService().getLsExplosionDetail(request);
+	public Response<ArrayList<MatExplReport>> getExplosionReportByDocInv(Request request){
+		return new ExplosionWorkService().getExplosionReportByDocInv(request);
 	}
 
 }
