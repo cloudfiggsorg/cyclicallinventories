@@ -199,6 +199,69 @@ public class MatnrDao {
 		}
 		return mapMatnrWerks;
 	}
+	private static final String GET_MATNR_BY_WERKS_MARC = "SELECT DISTINCT MATNR from MARC WHERE WERKS = ? WITH(NOLOCK) ";
+	
+	public Response<List<String>> validateMatnr(String werks) {
+
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+
+		Response<List<String>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<String> listValidateMatnr = new ArrayList<>();
+
+
+		log.info("[validateMatnrDao] "+GET_MATNR_BY_WERKS_MARC);
+		try {
+			
+			stm = con.prepareStatement(GET_MATNR_BY_WERKS_MARC);
+			stm.setString(1, werks);
+
+			log.info("[validateMatnrDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+				
+				listValidateMatnr.add(String.valueOf(rs.getInt("MATNR")));
+			}
+			
+			if(listValidateMatnr.size() == 0){
+				listValidateMatnr = null;
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[validateMatnrDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[validateMatnrDao] Some error occurred while was trying to execute the query: "
+					+ GET_MATNR_BY_WERKS_MARC, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[validateMatnrDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listValidateMatnr);
+		return res;
+	}
 
 	private String buildCondition(TmatnrBean tmatnrBean) {
 		String matnr = "";
