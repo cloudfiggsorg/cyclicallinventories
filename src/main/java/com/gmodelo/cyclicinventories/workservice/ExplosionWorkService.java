@@ -59,19 +59,20 @@ public class ExplosionWorkService {
 		return res;
 	}
 	
-	public Response<ArrayList<MatExplReport>> getExplosionReportByDocInv(Request<Integer> request) {
+	public Response<ArrayList<MatExplReport>> getExplosionReportByDocInv(Request request) {
 		log.info("[getExplosionReportByDocInv] " + request.toString());
 		int docInvId = 0;
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		Response<ArrayList<MatExplReport>> res = new Response<>();
 		try {
-			docInvId = request.getLsObject();
+			docInvId = Integer.parseInt(request.getLsObject().toString());
 			res = new ExplosionDetailDao().getExplosionReportByDocInv(docInvId);
 		} catch (Exception e) {
+			log.info("[saveExplosionDetail] Error al convertir json a objeto");
+			e.printStackTrace();
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			log.info("[getExplosionReportByDocInv] Probando string");
+			res.setAbstractResult(abstractResult);	
 		}
 
 		return res;
