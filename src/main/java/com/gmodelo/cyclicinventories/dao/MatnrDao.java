@@ -199,7 +199,7 @@ public class MatnrDao {
 		}
 		return mapMatnrWerks;
 	}
-	private static final String GET_MATNR_BY_WERKS_MARC = "SELECT DISTINCT MATNR from MARC WHERE WERKS = ? WITH(NOLOCK) ";
+	private static final String GET_MATNR_BY_WERKS_MARC = "SELECT DISTINCT MATNR from MARC WITH(NOLOCK) WHERE WERKS = ? ";
 	
 	public Response<List<String>> validateMatnr(String werks) {
 

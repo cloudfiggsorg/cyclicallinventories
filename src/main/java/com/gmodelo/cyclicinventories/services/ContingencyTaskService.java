@@ -18,7 +18,7 @@ public class ContingencyTaskService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/sendContingencyTask")
-	public Response<RouteUserBean> sendContingencyTask(Request request){
+	public Response<Object> sendContingencyTask(Request request){
 		return new ContingencyTaskWorkService().buildBean(request);
 	}
 }

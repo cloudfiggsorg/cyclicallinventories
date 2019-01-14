@@ -27,9 +27,9 @@ public class ContingencyTaskWorkService {
 	private Logger log = Logger.getLogger(ConciliacionWorkService.class.getName());
 	Gson gson = new Gson();
 	
-	public Response<RouteUserBean> buildBean(Request request){
+	public Response<Object> buildBean(Request request){
 		
-		Response<RouteUserBean> res = new Response<>();
+		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		res.setAbstractResult(abstractResult);
 		log.info("[buildBeanWS] toString -> " + request.getLsObject().toString());
@@ -70,8 +70,8 @@ public class ContingencyTaskWorkService {
 				Response<List<ContingencyTaskBean>> responsePos = validatePositions(requestBeanList, requestBeanList.get(0).getBukrs(), 
 						requestBeanList.get(0).getWerks(), requestBeanList.get(0).getRouteId());	
 				if(responsePos.getAbstractResult().getResultId() != 1){
-					res.getAbstractResult().setResultId(response.getAbstractResult().getResultId());
-					res.getAbstractResult().setResultMsgAbs(response.getAbstractResult().getResultMsgAbs());
+					res.getAbstractResult().setResultId(responsePos.getAbstractResult().getResultId());
+					res.getAbstractResult().setResultMsgAbs(responsePos.getAbstractResult().getResultMsgAbs());
 					return res;
 				}
 				
@@ -220,14 +220,18 @@ public class ContingencyTaskWorkService {
 				abstractResult.setResultId(ReturnValues.IEMPTY);
 				abstractResult.setResultMsgAbs("La tarea enviada viene vacia");
 				res.setAbstractResult(abstractResult);
+				return res;
 			}
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[buildBeanWS]", e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
+			return res;
 		}
-		
+//		request.setLsObject(res.getLsObject());
+//		return new CountsWorkService().addCount(request);
+//		Este servicio es de prueba, el que debe quedar esta en TaskService llamando a sendsendContingencyTask
 		return res;
 	}
 	
