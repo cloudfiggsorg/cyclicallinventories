@@ -54,14 +54,18 @@ public class ExplosionDetailDao {
 			csBatch = con.prepareCall(INV_SP_SAVE_EXPLOSION);
 
 			for (ExplosionDetail obj : ed) {
+				
+				if(obj.isRelevant()){
+					
+					csBatch.setString(1, obj.getWerks());
+					csBatch.setString(2, obj.getMatnr());
+					csBatch.setString(3, obj.getComponent());
+					csBatch.setString(4, obj.getUmb());
+					csBatch.setByte(5, (byte) (obj.isRelevant()?1:0));
+					csBatch.setString(6, user);
+					csBatch.addBatch();					
+				}
 
-				csBatch.setString(1, obj.getWerks());
-				csBatch.setString(2, obj.getMatnr());
-				csBatch.setString(3, obj.getComponent());
-				csBatch.setString(4, obj.getUmb());
-				csBatch.setByte(5, (byte) (obj.isRelevant()?1:0));
-				csBatch.setString(6, user);
-				csBatch.addBatch();
 			}
 			log.info("[saveExplosionDetail] Executing batch..." + csBatch.executeBatch());
 
@@ -112,25 +116,32 @@ public class ExplosionDetailDao {
 		ArrayList<ExplosionDetail> lsEd = new ArrayList<>();
 
 		final String GET_EXPL_DET = "SELECT  A.WERKS, A.MATNR, SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL, " 
-				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT "
-				+ "FROM MAST AS A "
-				+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) "
-				+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) "
-				+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS D ON (C.IDNRK = D.MATNR) "
-				+ "WHERE A.WERKS = ? AND A.MATNR = ? "
-				+ "AND C.IDNRK NOT IN (SELECT EX_COMPONENT " 
-				+ "FROM INV_EXPLOSION WHERE EX_WERKS = ? AND EX_MATNR = ?) "
+				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT " 
+				+ "FROM MAST AS A " 
+					+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) " 
+					+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) " 
+					+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS D ON (SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) = D.MATNR) " 
+				+ "WHERE A.WERKS = ? AND SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) = ? " 
+					+ "AND D.WERKS = ? "
+					+ "AND SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) NOT IN (SELECT EX_COMPONENT " 
+					+ "FROM INV_EXPLOSION WHERE EX_WERKS = ? AND SUBSTRING(EX_MATNR, PATINDEX('%[^0 ]%', EX_MATNR + ' '), LEN(EX_MATNR)) = ?) " 
+
 				+ "UNION " 
-				+ "SELECT A.EX_WERKS, A.EX_MATNR, A.EX_COMPONENT, B.MAKTX, A.EX_UMB, A.EX_RELEVANT "
-				+ "FROM INV_EXPLOSION AS A "
-				+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS B ON (A.EX_COMPONENT = B.MATNR) "
-				+ "WHERE EX_WERKS = ? AND EX_MATNR = ? "
-				+ "AND EX_MATNR IN (SELECT SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL "
-				+ "FROM MAST AS A "
-				+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) "
-				+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) "
-				+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS D ON (C.IDNRK = D.MATNR) "
-				+ "WHERE A.WERKS = ? AND A.MATNR = ?) ";
+
+				+ "SELECT A.EX_WERKS, A.EX_MATNR, A.EX_COMPONENT, B.MAKTX, A.EX_UMB, A.EX_RELEVANT " 
+				+ "FROM INV_EXPLOSION AS A " 
+					+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS B ON (A.EX_COMPONENT = B.MATNR) " 
+				+ "WHERE EX_WERKS = ? " 
+					+ "AND B.WERKS = ? "
+					+ "AND SUBSTRING(EX_MATNR, PATINDEX('%[^0 ]%', EX_MATNR + ' '), LEN(EX_MATNR))  = ? " 
+					+ "AND A.EX_COMPONENT IN (SELECT SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) " 
+						+ "FROM MAST AS A " 
+							+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) " 
+							+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) " 
+							+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS D ON (SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) = D.MATNR) " 
+						+ "WHERE A.WERKS = ? " 
+						+ "AND SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) = ? "
+						+ "AND D.WERKS = ?) ";
 
 		log.info(GET_EXPL_DET);
 
@@ -140,12 +151,16 @@ public class ExplosionDetailDao {
 			stm = con.prepareStatement(GET_EXPL_DET);
 			stm.setString(1, ed.getWerks());
 			stm.setString(2, ed.getMatnr());
-			stm.setString(3, ed.getWerks());
-			stm.setString(4, ed.getMatnr());
-			stm.setString(5, ed.getWerks());
-			stm.setString(6, ed.getMatnr());
+			stm.setString(3, ed.getWerks());			
+			stm.setString(4, ed.getWerks());
+			stm.setString(5, ed.getMatnr());	
+			
+			stm.setString(6, ed.getWerks());
 			stm.setString(7, ed.getWerks());
 			stm.setString(8, ed.getMatnr());
+			stm.setString(9, ed.getWerks());
+			stm.setString(10, ed.getMatnr());
+			stm.setString(11, ed.getWerks());
 			
 			log.info("[getExplosionDetailByMatnr] Executing query...");
 
@@ -154,12 +169,12 @@ public class ExplosionDetailDao {
 			while (rs.next()) {
 
 				ed = new ExplosionDetail();
-				ed.setWerks(rs.getString("EX_WERKS"));
-				ed.setMatnr(rs.getString("EX_MATNR"));
-				ed.setComponent(rs.getString("EX_COMPONENT"));
-				ed.setCompDesc(rs.getString("EX_MAKTX"));
-				ed.setUmb(rs.getString("EX_UMB"));
-				ed.setRelevant(rs.getBoolean("EX_RELEVANT"));
+				ed.setWerks(rs.getString("WERKS"));
+				ed.setMatnr(rs.getString("MATNR"));
+				ed.setComponent(new Integer(rs.getString("MATNR_EXPL")).toString());				
+				ed.setCompDesc(rs.getString("MAKTX"));
+				ed.setUmb(rs.getString("MEINS"));
+				ed.setRelevant(rs.getBoolean("IS_RELEVANT"));
 				lsEd.add(ed);
 			}
 
@@ -212,11 +227,11 @@ public class ExplosionDetailDao {
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
 				+ "(CAST(D.MENGE AS decimal(10, 2)) / CAST(C.BMENG AS decimal(10, 2))) * CAST(REPLACE(A.CS_COUNTED, ',', '') AS decimal(10, 2)) AS QUANTITY "				
 				+ "FROM INV_CONS_SAP AS A "
-				+ "LEFT JOIN MAST AS B ON (A.CS_MATNR = (SELECT SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR)))) "
+				+ "LEFT JOIN MAST AS B ON (A.CS_MATNR = (SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR)))) "
 				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) "
 				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) "
 				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.CS_DOC_INV_ID) "
-				+ "INNER JOIN MAKT AS E ON (A.CS_MATNR = (SELECT SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR)))) "
+				+ "INNER JOIN MAKT AS E ON (A.CS_MATNR = (SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR)))) "
 				+ "WHERE CS_DOC_INV_ID = ? " 
 				+ "AND B.WERKS = IDIH.DIH_WERKS "
 				+ "AND D.IDNRK IN (SELECT EX_COMPONENT FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS AND A.CS_MATNR = EX_MATNR AND EX_RELEVANT = 1) "
