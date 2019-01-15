@@ -31,7 +31,7 @@ public class BukrsDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<BukrsBean> listBukrsBean = new ArrayList<>(); 
 		 
-		String INV_VW_BUKRS = "SELECT [BUKRS], [BUTXT] FROM [INV_CIC_DB].[dbo].[INV_VW_BUKRS] WITH(NOLOCK) ";
+		String INV_VW_BUKRS = "SELECT DISTINCT ([BUKRS]), [BUTXT] FROM [INV_CIC_DB].[dbo].[INV_VW_BUKRS] WITH(NOLOCK) ";
 		if(searchFilter ==  null){
 			String condition = buildCondition(bukrsBean);
 			if(condition != null){
