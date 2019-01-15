@@ -14,7 +14,6 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.TaskBean;
-import com.gmodelo.cyclicinventories.workservice.ContingencyTaskWorkService;
 import com.gmodelo.cyclicinventories.workservice.TaskWorkService;
 
 @Path("/services/TaskService")
@@ -56,12 +55,4 @@ public class TaskService {
 		return new TaskWorkService().getTasksByBukrsAndWerks(request);
 	}
 	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/sendContingencyTask")
-	public Response<Object> sendContingencyTask(Request request){
-		User user = (User) httpRequest.getSession().getAttribute("user");
-		return new TaskWorkService().addCountFromContingency(request, user);
-	}
 }

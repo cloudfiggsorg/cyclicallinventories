@@ -2,13 +2,19 @@ package com.gmodelo.cyclicinventories.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.bmore.ume001.beans.User;
+import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.TaskBean;
@@ -135,5 +141,76 @@ public class TaskUserDao {
 			}
 		}
 		return response;
+	}
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private static final String GET_USERS_FROM_TASK = "SELECT DISTINCT IT.TAS_DOWLOAD_DATE, IGU.GRU_USER_ID FROM INV_TASK IT WITH (NOLOCK) "
+			+ "INNER JOIN INV_GROUPS_USER IGU WITH (NOLOCK) ON IT.TAS_GROUP_ID = IGU.GRU_GROUP_ID "
+			+ "WHERE IT.TASK_ID = ?";
+	
+	public Response<List<String>> validateTaskFromContingency(String task) {
+
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+
+		Response<List<String>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<String> listUsers = new ArrayList<>();
+		Date dateDownload = null;
+
+
+		log.info("[validateTaskFromContingencyDao] "+GET_USERS_FROM_TASK);
+		try {
+			
+			stm = con.prepareStatement(GET_USERS_FROM_TASK);
+			stm.setString(1, task);
+
+//			log.info("[validateMatnrDao] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+				
+				listUsers.add(rs.getString("GRU_USER_ID"));
+				dateDownload = rs.getDate("TAS_DOWLOAD_DATE");
+			}
+			
+			if(listUsers.size() == 0){
+				listUsers = null;
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+			log.info("[validateTaskFromContingencyDao] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[validateTaskFromContingencyDao] Some error occurred while was trying to execute the query: "
+					+ GET_USERS_FROM_TASK, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[validateTaskFromContingencyDao] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listUsers);
+		//guardando fecha de descarga de tarea en resultMsgGen
+		res.getAbstractResult().setResultMsgGen(String.valueOf(dateDownload.getTime()));
+		return res;
 	}
 }
