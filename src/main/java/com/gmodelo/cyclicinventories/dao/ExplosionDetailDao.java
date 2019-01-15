@@ -115,7 +115,8 @@ public class ExplosionDetailDao {
 		PreparedStatement stm = null;		
 		ArrayList<ExplosionDetail> lsEd = new ArrayList<>();
 
-		final String GET_EXPL_DET = "SELECT  A.WERKS, A.MATNR, SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL, " 
+		final String GET_EXPL_DET = "SELECT  A.WERKS, SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) AS MATNR, "
+				+ "SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL, " 
 				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT " 
 				+ "FROM MAST AS A " 
 					+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) " 
@@ -171,7 +172,7 @@ public class ExplosionDetailDao {
 				ed = new ExplosionDetail();
 				ed.setWerks(rs.getString("WERKS"));
 				ed.setMatnr(rs.getString("MATNR"));
-				ed.setComponent(new Integer(rs.getString("MATNR_EXPL")).toString());				
+				ed.setComponent(rs.getString("MATNR_EXPL"));				
 				ed.setCompDesc(rs.getString("MAKTX"));
 				ed.setUmb(rs.getString("MEINS"));
 				ed.setRelevant(rs.getBoolean("IS_RELEVANT"));
@@ -223,19 +224,19 @@ public class ExplosionDetailDao {
 		PreparedStatement stm = null;		
 		MatExplReport expl = new MatExplReport();
 		ArrayList<MatExplReport> lsDetail = new ArrayList<>();
-		final String GET_MST_EXPL_REP = "SELECT A.CS_MATNR, E.MAKTX, A.CS_UM, A.CS_COUNTED, D.IDNRK, "
+		final String GET_MST_EXPL_REP = "SELECT A.CS_MATNR, E.MAKTX, A.CS_UM, A.CS_COUNTED, D.IDNRK, D.MEINS, " 
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
-				+ "(CAST(D.MENGE AS decimal(10, 2)) / CAST(C.BMENG AS decimal(10, 2))) * CAST(REPLACE(A.CS_COUNTED, ',', '') AS decimal(10, 2)) AS QUANTITY "				
-				+ "FROM INV_CONS_SAP AS A "
-				+ "LEFT JOIN MAST AS B ON (A.CS_MATNR = (SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR)))) "
-				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) "
-				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) "
-				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.CS_DOC_INV_ID) "
-				+ "INNER JOIN MAKT AS E ON (A.CS_MATNR = (SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR)))) "
-				+ "WHERE CS_DOC_INV_ID = ? " 
-				+ "AND B.WERKS = IDIH.DIH_WERKS "
-				+ "AND D.IDNRK IN (SELECT EX_COMPONENT FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS AND A.CS_MATNR = EX_MATNR AND EX_RELEVANT = 1) "
-				+ "GROUP BY CS_MATNR, E.MAKTX, CS_UM, CS_COUNTED, D.IDNRK, D.MENGE, C.BMENG";
+				+ "(CAST(D.MENGE AS decimal(10, 2)) / CAST(C.BMENG AS decimal(10, 2))) * CAST(REPLACE(A.CS_COUNTED, ',', '') AS decimal(10, 2)) AS QUANTITY " 
+			+ "FROM INV_CONS_SAP AS A " 
+				+ "LEFT JOIN MAST AS B ON (A.CS_MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
+				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) " 
+				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) " 
+				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.CS_DOC_INV_ID) " 
+				+ "INNER JOIN MAKT AS E ON (A.CS_MATNR = SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR))) "
+			+ "WHERE CS_DOC_INV_ID = ? " 
+				+ "AND B.WERKS = IDIH.DIH_WERKS " 
+				+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IN (SELECT EX_COMPONENT FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS AND A.CS_MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
+			+"GROUP BY CS_MATNR, E.MAKTX, CS_UM, CS_COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG ";
 
 		log.info(GET_MST_EXPL_REP);
 		log.info("[getExplosionReportByDocInv] Preparing sentence...");
@@ -243,7 +244,6 @@ public class ExplosionDetailDao {
 		try {
 			stm = con.prepareStatement(GET_MST_EXPL_REP);
 			stm.setInt(1, docInvId);
-			
 			log.info("[getExplosionReportByDocInv] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
@@ -255,8 +255,9 @@ public class ExplosionDetailDao {
 				expl.setDescription(rs.getString("MAKTX"));
 				expl.setUmb(rs.getString("CS_UM"));
 				expl.setCounted(rs.getString("CS_COUNTED"));
-				expl.setMatnrExpl(rs.getString("D.IDNRK"));
+				expl.setMatnrExpl(rs.getString("IDNRK"));
 				expl.setDescMantrExpl(rs.getString("MATNR_EXPL_DESC"));
+				expl.setUmbExpl(rs.getString("MEINS"));
 				expl.setQuantity(rs.getString("QUANTITY"));
 				lsDetail.add(expl);
 			}
