@@ -2,12 +2,15 @@ package com.gmodelo.cyclicinventories.workservice;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
+import com.gmodelo.cyclicinventories.beans.E_Mbew_SapEntity;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.dao.SapConciliationDao;
 import com.gmodelo.cyclicinventories.dao.SapOperationDao;
@@ -19,6 +22,7 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
+import com.gmodelo.cyclicinventories.structure.ZIACMF_MBEW;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.gmodelo.cyclicinventories.utils.Utilities;
@@ -200,6 +204,93 @@ public class SapConciliationWorkService {
 
 	}
 
+	public void getZiacmfMbew(DocInvBean docInvBean, JCoDestination destination, Connection con) {
+		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
+			Integer materialCount = operationDao.getCountMaterialForPivotDocInv(docInvBean, con);
+			if (materialCount > 0) {
+				operationDao.setUpdatePivotBegin(con, docInvBean);
+				List<String> listMaterial = operationDao.getmaterialForPivotDocInv(docInvBean, con);
+				operationDao.setUpdatePivotEnd(con, docInvBean);
+				List<String> pivotList = new ArrayList<>();
+				ZIACMF_MBEW ziacmf_MBEW = new ZIACMF_MBEW();
+				List<E_Mbew_SapEntity> emE_Mbew_SapEntities = new ArrayList<>();
+				ziacmf_MBEW.seteMbewSapEntities(emE_Mbew_SapEntities);
+				if (listMaterial.size() >= 50) {
+					for (String material : listMaterial) {
+						pivotList.add(material);
+						if (pivotList.size() >= 50) {
+							ZIACMF_MBEW ziacmf_MBEW_pvt = conciliationDao.getCostByMaterial(con, destination,
+									pivotList);
+							if (ziacmf_MBEW_pvt.geteError_SapEntities().getType().equals("S")
+									&& ziacmf_MBEW_pvt.geteMbewSapEntities() != null) {
+								ziacmf_MBEW.geteMbewSapEntities().addAll(ziacmf_MBEW_pvt.geteMbewSapEntities());
+								ziacmf_MBEW.seteError_SapEntities(ziacmf_MBEW_pvt.geteError_SapEntities());
+								ziacmf_MBEW_pvt = new ZIACMF_MBEW();
+							}
+						}
+					}
+					if (pivotList.size() > 0) {
+						ZIACMF_MBEW ziacmf_MBEW_pvt = conciliationDao.getCostByMaterial(con, destination, pivotList);
+						if (ziacmf_MBEW_pvt.geteError_SapEntities().getType().equals("S")
+								&& ziacmf_MBEW_pvt.geteMbewSapEntities() != null) {
+							ziacmf_MBEW.geteMbewSapEntities().addAll(ziacmf_MBEW_pvt.geteMbewSapEntities());
+							ziacmf_MBEW.seteError_SapEntities(ziacmf_MBEW_pvt.geteError_SapEntities());
+						}
+					}
+				} else {
+					ziacmf_MBEW = conciliationDao.getCostByMaterial(con, destination, listMaterial);
+				}
+				if (ziacmf_MBEW.geteError_SapEntities().getType().equals("S")
+						&& ziacmf_MBEW.geteMbewSapEntities() != null) {
+					HashMap<String, List<String>> matWerkMap = operationDao.getMbewValues(con);
+					List<E_Mbew_SapEntity> toInsertMbew = new ArrayList<>();
+					List<E_Mbew_SapEntity> toUpdateMbew = new ArrayList<>();
+					for (E_Mbew_SapEntity entity : ziacmf_MBEW.geteMbewSapEntities()) {
+						if (matWerkMap.containsKey(entity.getMatnr())) {
+							if (matWerkMap.get(entity.getMatnr()).contains(entity.getBwkey())) {
+								toUpdateMbew.add(entity);
+							} else {
+								toInsertMbew.add(entity);
+							}
+						} else {
+							toInsertMbew.add(entity);
+						}
+					}
+					if (toInsertMbew.size() > 0) {
+						operationDao.setZIACMF_E_MBEW(con, toInsertMbew);
+					}
+					if (toUpdateMbew.size() > 0) {
+						operationDao.setZIACMF_E_MBEW_UPD(con, toUpdateMbew);
+					}
+				}
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - SQLException: ", e);
+
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - InvCicException: ", e);
+
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - JCoException: ", e);
+
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - RuntimeException: ", e);
+
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Exception: ", e);
+
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Finally Exception: ", e);
+			}
+		}
+	}
+
 	public Response<ZIACMF_I360_EXT_SIS_CLAS> WS_getClassSystem() {
 		Response<ZIACMF_I360_EXT_SIS_CLAS> response = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
@@ -223,6 +314,7 @@ public class SapConciliationWorkService {
 		return response;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Response _WS_SAPClassRuntime() {
 		Response response = new Response<>();
 		Connection con = connectionManager.createConnection();

@@ -10,15 +10,14 @@ import com.gmodelo.cyclicinventories.workservice.SapConciliationWorkService;
 import com.sap.conn.jco.JCoDestination;
 
 public class ZiacmfMovFinalRuntime extends Thread {
-	
+
 	private JCoDestination asyncDestination;
 	private Connection asyncConnection;
 	private DocInvBean docInvBean;
 
 	private Logger log = Logger.getLogger(ZiacmfMovFinalRuntime.class.getName());
 
-	public ZiacmfMovFinalRuntime(JCoDestination asyncDestination, Connection asyncConnection,
-			DocInvBean docInvBean) {
+	public ZiacmfMovFinalRuntime(JCoDestination asyncDestination, Connection asyncConnection, DocInvBean docInvBean) {
 		super();
 		this.asyncDestination = asyncDestination;
 		this.asyncConnection = asyncConnection;
@@ -32,6 +31,7 @@ public class ZiacmfMovFinalRuntime extends Thread {
 			new SapConciliationWorkService().inventorySnapShot_F(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryMovements(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryTransit(docInvBean, asyncConnection, asyncDestination);
+			new SapConciliationWorkService().getZiacmfMbew(docInvBean, asyncDestination, asyncConnection);
 			new SapOperationDao().setUpdateFinalInventory(asyncConnection, docInvBean);
 			asyncConnection.commit();
 		} catch (Exception e) {

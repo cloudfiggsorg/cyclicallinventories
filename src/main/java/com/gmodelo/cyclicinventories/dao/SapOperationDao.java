@@ -13,6 +13,7 @@ import com.gmodelo.cyclicinventories.beans.CostByMatnr;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.E_Lqua_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mard_SapEntity;
+import com.gmodelo.cyclicinventories.beans.E_Mbew_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Xtab6_SapEntity;
@@ -25,7 +26,7 @@ import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 
 public class SapOperationDao {
 
-	// Selects Zone
+	// Selects Area
 
 	private static final String GET_SINGLE_DOC_INV = "SELECT DOC_INV_ID, DIH_ROUTE_ID, DIH_BUKRS, DIH_CREATED_DATE,"
 			+ " DIH_MODIFIED_DATE, DIH_WERKS FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_INV_ID = ?";
@@ -58,14 +59,87 @@ public class SapOperationDao {
 	private static final String THEORIC_WM = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, LGPLA, "
 			+ "SUM(CAST(VERME AS decimal(10,3))) AS CONS FROM E_LQUA_F WHERE DOC_INV_ID = ? GROUP BY MATNR, LGPLA";
 
-	public static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) FROM E_MSEG "
+	private static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) FROM E_MSEG "
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'S') - "
 			+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) " + "FROM E_MSEG "
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE";
 
-	public static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) FROM E_MSEG "
+	private static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) FROM E_MSEG "
 			+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'S') - " + "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
 			+ "FROM E_MSEG " + "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE ";
+
+	private static final String GET_MBEW_PIVOT = "SELECT MATNR from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
+			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
+			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
+			+ " AND MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR)";
+
+	private static final String GET_MBEW_COUNT_PIVOT = "SELECT COUNT(MATNR) AS MAT_UPD from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
+			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
+			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
+			+ " AND MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR)";
+
+	private static final String COST_BY_MATNR = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, VERPR "
+			+ "FROM MBEW "
+			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) IN (SELECT * FROM STRING_SPLIT(?, ',')) AND BWKEY = ?";
+
+	private static final String GET_E_MBEW = "SELECT MATNR, BWKEY, ZPRECIO FROM E_MBEW WITH(NOLOCK)";
+
+	// INSERT AREA
+
+	private static final String SET_E_MSEG = "INSERT INTO E_MSEG (DOC_INV_ID, MBLNR, ZEILE, BWART, MATNR, WERKS, LGORT, INSMK, SHKZG, "
+			+ "MENGE, MEINS, BUKRS, LGNUM, LGTYP, LGPLA, BUDAT_MKPF, CPUTM_MKPF) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	private static final String SET_E_MARD = "INSERT INTO E_MARD (DOC_INV_ID, MATNR, WERKS, LGORT, LABST, UMLME, INSME, EINME, SPEME, RETME) "
+			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	private static final String SET_E_MSKU = "insert into E_MSKU (DOC_INV_ID, MATNR, WERKS, KULAB, KUINS, KUEIN) "
+			+ "VALUES (?, ?, ?, ?, ?, ?)";
+
+	private static final String SET_E_LQUA = "insert into E_LQUA (DOC_INV_ID, LGNUM, MATNR, WERKS, LGORT, LGTYP, LGPLA, VERME, MEINS, LENUM)"
+			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	private static final String SET_E_MARD_F = "INSERT INTO E_MARD_F (DOC_INV_ID, MATNR, WERKS, LGORT, LABST, UMLME, INSME, EINME, SPEME, RETME) "
+			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	private static final String SET_E_MSKU_F = "insert into E_MSKU_F (DOC_INV_ID, MATNR, WERKS, KULAB, KUINS, KUEIN) "
+			+ "VALUES (?, ?, ?, ?, ?, ?)";
+
+	private static final String SET_E_LQUA_F = "insert into E_LQUA_F (DOC_INV_ID, LGNUM, MATNR, WERKS, LGORT, LGTYP, LGPLA, VERME, MEINS, LENUM)"
+			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	private static final String SET_E_XTAB6 = "insert into E_XTAB6 (DOC_INV_ID,WERKS,MATNR,MENGE,MEINS,DMBTR,WAERS,NETWR,BWAER,EBELN,EBELP,SOBKZ,PSTYP,BSTMG,BSTME,RESWK,BSAKZ,LGORT,RESLO)"
+			+ "VALUES (? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? )";
+
+	private static final String SET_E_CLASS = "insert into E_CLASS (MATNR, SMBEZ, ATFLV, ATNAM) values (?,?,?,?)";
+
+	private static final String SET_E_MBEW = "INSERT INTO E_MBEW (MATNR,BWKEY,ZPRECIO) VALUES (?,?,?)";
+
+	// UPDATE AREA
+
+	private static final String UPDATE_INITIAL_INVENTORY = "UPDATE INV_DOC_INVENTORY_HEADER SET INSAP_SNAPSHOT = '1' WHERE DOC_INV_ID = ?";
+
+	private static final String UPDATE_FINAL_INVENTORY = "UPDATE INV_DOC_INVENTORY_HEADER SET FNSAP_SNAPSHOT = '1' WHERE DOC_INV_ID = ?";
+
+	private static final String UPDATE_INV_CIC_MBEW_PIVOT_BEG = " UPDATE INV_CIC_E_PIV_MBEW SET IS_UPDATING = 1 WHERE IS_UPDATING = 0 "
+			+ " AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
+			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
+			+ " AND MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR)";
+
+	private static final String UPDATE_INV_CIC_MBEW_PIVOT_END = " UPDATE INV_CIC_E_PIV_MBEW SET IS_UPDATING = 0, LAST_UPDATED = CONVERT(DATE,GETDATE()) "
+			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
+			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
+			+ " AND MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR)";
+
+	private static final String UPDATE_E_MBEW = "UPDATE E_MBEW SET ZPRECIO = ? WHERE MATNR = ? and BWKEY = ?";
+
+	// DELETE AREA
+
+	private static final String POP_E_CLASS = "DELETE FROM E_CLASS";
+
+	/*
+	 * THIS IS THE SECTION FOR SELECT METHODS
+	 * 
+	 */
 
 	public DocInvBean getDocInvBeanData(DocInvBean docInvBean, Connection con) throws SQLException {
 		DocInvBean outputDoc = new DocInvBean();
@@ -145,7 +219,7 @@ public class SapOperationDao {
 		}
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_MATERIALS_FOR_DOC_INV);
-			stm.setString(1, docInvBean.getRoute());
+			stm.setInt(1, docInvBean.getDocInvId());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				if (!materialList.contains(rs.getString("DIP_MATNR"))) {
@@ -156,6 +230,69 @@ public class SapOperationDao {
 			throw e;
 		}
 		return materialList;
+	}
+
+	public List<String> getmaterialForPivotDocInv(DocInvBean docInvBean, Connection con) throws SQLException {
+		List<String> materialList = new ArrayList<>();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_MBEW_PIVOT);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				if (!materialList.contains(rs.getString("MATNR"))) {
+					materialList.add(rs.getString("MATNR"));
+				}
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return materialList;
+	}
+
+	public Integer getCountMaterialForPivotDocInv(DocInvBean docInvBean, Connection con) throws SQLException {
+		Integer materialCount = 0;
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_MBEW_COUNT_PIVOT);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				materialCount = rs.getInt("MAT_UPD");
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return materialCount;
+	}
+
+	public HashMap<String, List<String>> getMbewValues(Connection con) throws SQLException {
+		HashMap<String, List<String>> matnrCenterMap = new HashMap<>();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_E_MBEW);
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				if (matnrCenterMap.containsKey(rs.getString("MATNR"))) {
+					if (!matnrCenterMap.get(rs.getString("MATNR")).contains(rs.getString("BWKEY"))) {
+						matnrCenterMap.get(rs.getString("MATNR")).add(rs.getString("BWKEY"));
+					}
+				} else {
+					List<String> centerList = new ArrayList<>();
+					centerList.add(rs.getString("BWKEY"));
+					matnrCenterMap.put(rs.getString("MATNR"), centerList);
+				}
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return matnrCenterMap;
 	}
 
 	public ZIACMF_I360_EXT_SIS_CLAS getClassSystem() throws SQLException {
@@ -251,11 +388,7 @@ public class SapOperationDao {
 
 		return lsMatnr;
 	}
-	
-	private static final String COST_BY_MATNR = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, VERPR " 
-		+ "FROM MBEW " 
-		+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) IN (SELECT * FROM STRING_SPLIT(?, ',')) AND BWKEY = ?";
-	
+
 	public ArrayList<CostByMatnr> getCostByMatnr(String matnrIds, String werks, Connection con) throws SQLException {
 
 		PreparedStatement stm = null;
@@ -263,7 +396,7 @@ public class SapOperationDao {
 		stm.setString(1, matnrIds);
 		stm.setString(2, werks);
 		ResultSet rs = stm.executeQuery();
-		
+
 		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
 		CostByMatnr els;
 
@@ -321,35 +454,10 @@ public class SapOperationDao {
 		return menge;
 	}
 
-	// Insert Zone
-
-	private static final String SET_E_MSEG = "INSERT INTO E_MSEG (DOC_INV_ID, MBLNR, ZEILE, BWART, MATNR, WERKS, LGORT, INSMK, SHKZG, "
-			+ "MENGE, MEINS, BUKRS, LGNUM, LGTYP, LGPLA, BUDAT_MKPF, CPUTM_MKPF) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-	private static final String SET_E_MARD = "INSERT INTO E_MARD (DOC_INV_ID, MATNR, WERKS, LGORT, LABST, UMLME, INSME, EINME, SPEME, RETME) "
-			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-	private static final String SET_E_MSKU = "insert into E_MSKU (DOC_INV_ID, MATNR, WERKS, KULAB, KUINS, KUEIN) "
-			+ "VALUES (?, ?, ?, ?, ?, ?)";
-
-	private static final String SET_E_LQUA = "insert into E_LQUA (DOC_INV_ID, LGNUM, MATNR, WERKS, LGORT, LGTYP, LGPLA, VERME, MEINS, LENUM)"
-			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-	private static final String SET_E_MARD_F = "INSERT INTO E_MARD_F (DOC_INV_ID, MATNR, WERKS, LGORT, LABST, UMLME, INSME, EINME, SPEME, RETME) "
-			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-	private static final String SET_E_MSKU_F = "insert into E_MSKU_F (DOC_INV_ID, MATNR, WERKS, KULAB, KUINS, KUEIN) "
-			+ "VALUES (?, ?, ?, ?, ?, ?)";
-
-	private static final String SET_E_LQUA_F = "insert into E_LQUA_F (DOC_INV_ID, LGNUM, MATNR, WERKS, LGORT, LGTYP, LGPLA, VERME, MEINS, LENUM)"
-			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-	private static final String SET_E_XTAB6 = "insert into E_XTAB6 (DOC_INV_ID,WERKS,MATNR,MENGE,MEINS,DMBTR,WAERS,NETWR,BWAER,EBELN,EBELP,SOBKZ,PSTYP,BSTMG,BSTME,RESWK,BSAKZ,LGORT,RESLO)"
-			+ "VALUES (? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? )";
-
-	private static final String SET_E_CLASS = "insert into E_CLASS (MATNR, SMBEZ, ATFLV, ATNAM) values (?,?,?,?)";
-
-	private static final String POP_E_CLASS = "DELETE FROM E_CLASS";
+	/*
+	 * THIS IS THE SECTION FOR INSERT METHODS
+	 * 
+	 */
 
 	public AbstractResultsBean setZIACMF_I360_INV_MOV1(DocInvBean docInvBean, ZIACMF_I360_INV_MOV_1 i360_INV_MOV_1,
 			Connection con) throws SQLException {
@@ -567,11 +675,32 @@ public class SapOperationDao {
 		return result;
 	}
 
-	// UPDATE AREA
+	public AbstractResultsBean setZIACMF_E_MBEW(Connection con, List<E_Mbew_SapEntity> e_Mbew_SapEntities)
+			throws SQLException {
+		AbstractResultsBean result = new AbstractResultsBean();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(SET_E_MBEW);
+			for (E_Mbew_SapEntity entity : e_Mbew_SapEntities) {
+				stm.setString(1, entity.getMatnr());
+				stm.setString(2, entity.getBwkey());
+				stm.setString(3, entity.getZprecio());
+				stm.addBatch();
+			}
+			stm.executeBatch();
+		} catch (SQLException e) {
+			throw e;
+		}
+		return result;
 
-	private static final String UPDATE_INITIAL_INVENTORY = "UPDATE INV_DOC_INVENTORY_HEADER SET INSAP_SNAPSHOT = '1' WHERE DOC_INV_ID = ?";
+	}
 
-	private static final String UPDATE_FINAL_INVENTORY = "UPDATE INV_DOC_INVENTORY_HEADER SET FNSAP_SNAPSHOT = '1' WHERE DOC_INV_ID = ?";
+	/*
+	 * THIS IS THE SECTION FOR UPDATE METHODS
+	 * 
+	 */
 
 	public void setUpdateInitialInventory(Connection con, DocInvBean docInvBean) throws SQLException {
 		if (!con.isValid(0)) {
@@ -597,6 +726,54 @@ public class SapOperationDao {
 		} catch (SQLException e) {
 			throw e;
 		}
+	}
+
+	public void setUpdatePivotBegin(Connection con, DocInvBean docInvBean) throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_BEG);
+			stm.setInt(1, docInvBean.getDocInvId());
+			stm.executeUpdate();
+		} catch (SQLException e) {
+			throw e;
+		}
+	}
+
+	public void setUpdatePivotEnd(Connection con, DocInvBean docInvBean) throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_END);
+			stm.setInt(1, docInvBean.getDocInvId());
+			stm.executeUpdate();
+		} catch (SQLException e) {
+			throw e;
+		}
+	}
+
+	public AbstractResultsBean setZIACMF_E_MBEW_UPD(Connection con, List<E_Mbew_SapEntity> e_Mbew_SapEntities)
+			throws SQLException {
+		AbstractResultsBean result = new AbstractResultsBean();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(UPDATE_E_MBEW);
+			for (E_Mbew_SapEntity entity : e_Mbew_SapEntities) {
+				stm.setString(1, entity.getZprecio());
+				stm.setString(2, entity.getMatnr());
+				stm.setString(3, entity.getBwkey());
+				stm.addBatch();
+			}
+			stm.executeBatch();
+		} catch (SQLException e) {
+			throw e;
+		}
+		return result;
+
 	}
 
 }

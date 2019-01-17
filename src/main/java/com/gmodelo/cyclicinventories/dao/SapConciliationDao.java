@@ -31,6 +31,7 @@ import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.cyclicinventories.beans.E_Error_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Lqua_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mard_SapEntity;
+import com.gmodelo.cyclicinventories.beans.E_Mbew_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Xtab6_SapEntity;
@@ -43,6 +44,7 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
+import com.gmodelo.cyclicinventories.structure.ZIACMF_MBEW;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.gmodelo.cyclicinventories.utils.Utilities;
@@ -56,29 +58,30 @@ public class SapConciliationDao {
 	private static final String ZIACMF_I360_INV_MOV_1 = "ZIACMF_I360_INV_MOV_1";
 	private static final String ZIACMF_I360_INV_MOV_2 = "ZIACMF_I360_INV_MOV_2";
 	private static final String ZIACMF_I360_INV_MOV_3 = "ZIACMF_I360_INV_MOV_3";
-	private static final String ZIACMF_I360_EXT_SIS_CLAS = "ZIACMF_I360_EXT_SIS_CLAS";	
-	private static String PATH_TO_SAVE_FILES ="";
+	private static final String ZIACMF_I360_EXT_SIS_CLAS = "ZIACMF_I360_EXT_SIS_CLAS";
+	private static final String ZIACMF_I360_MBEW = "ZIACMF_MBEW";
+	private static String PATH_TO_SAVE_FILES = "";
 	private Logger log = Logger.getLogger(SapConciliationDao.class.getName());
 	private final SapOperationDao operationDao = new SapOperationDao();
-	
-	static{
-		
+
+	static {
+
 		Utilities iUtils = new Utilities();
 		Connection con = new ConnectionManager().createConnection();
-		
+
 		try {
-			
-			PATH_TO_SAVE_FILES  = iUtils.getValueRepByKey(con, ReturnValues.PATH_TO_SAVE_FILES).getStrCom1();			
+
+			PATH_TO_SAVE_FILES = iUtils.getValueRepByKey(con, ReturnValues.PATH_TO_SAVE_FILES).getStrCom1();
 		} catch (InvCicException e) {
-			
+
 			System.out.println("Some error occurred whiles was trying to get the path...");
-		}finally{
+		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				System.out.println("Some error occurred while was trying to close the DB.");
 			}
-		}		
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -106,9 +109,9 @@ public class SapConciliationDao {
 			for (PosDocInvBean dipb : lsPositionBean) {
 
 				CURRENTSP = INV_SP_ADD_CON_POS_SAP;
-				
+
 				if (!dipb.getLsJustification().isEmpty()) {
-					
+
 					cs = null;
 					cs = con.prepareCall(INV_SP_ADD_CON_POS_SAP);
 
@@ -134,9 +137,9 @@ public class SapConciliationDao {
 
 					dipb.setPosId(cs.getInt(15));
 					CURRENTSP = INV_SP_ADD_JUSTIFY;
-					
+
 					ArrayList<Justification> lsJustification = dipb.getLsJustification();
- 
+
 					// Insert the justification per position
 					for (Justification js : lsJustification) {
 
@@ -150,17 +153,16 @@ public class SapConciliationDao {
 						cs.execute();
 
 						js.setJsId(cs.getInt(5));
-						
-						if(js.getBase64File() != null){//Write the file if exists
-							
-							file = new File(PATH_TO_SAVE_FILES+ File.separator 
-									+ dipb.getDoncInvId() + File.separator  
-									+ js.getJsId() + File.separator 
-									+ js.getFileName());
+
+						if (js.getBase64File() != null) {// Write the file if
+															// exists
+
+							file = new File(PATH_TO_SAVE_FILES + File.separator + dipb.getDoncInvId() + File.separator
+									+ js.getJsId() + File.separator + js.getFileName());
 							bytes = Base64.getDecoder().decode(js.getBase64File());
-							FileUtils.writeByteArrayToFile( file, bytes );
+							FileUtils.writeByteArrayToFile(file, bytes);
 						}
-						
+
 						log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 					}
 
@@ -184,10 +186,10 @@ public class SapConciliationDao {
 					csBatch.addBatch();
 				}
 			}
-			
+
 			log.info("[saveConciliationSAP] Sentence successfully executed.");
 			csBatch.executeBatch();
-			
+
 			cs = null;
 			cs = con.prepareCall(INV_CLS_SAP_DOC_INV);
 			cs.setInt(1, dibhSAP.getDocInvId());
@@ -201,19 +203,18 @@ public class SapConciliationDao {
 			log.info("[saveConciliationSAP] Executing query...");
 
 		} catch (Exception e) {
-			
+
 			try {
 				log.log(Level.WARNING, "[saveConciliationSAP] Execute rollback");
 				con.rollback();
 			} catch (SQLException e1) {
 				log.log(Level.SEVERE, "[saveConciliationSAP] Not rollback .", e);
 			}
-			
-			//Delete directory if was created
-			File directory = new File("I:"+ File.separator + "Files" + File.separator 
-					+ dibhSAP.getDocInvId());
 
-			if(directory.exists()){
+			// Delete directory if was created
+			File directory = new File("I:" + File.separator + "Files" + File.separator + dibhSAP.getDocInvId());
+
+			if (directory.exists()) {
 				directory.delete();
 			}
 
@@ -240,6 +241,7 @@ public class SapConciliationDao {
 	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
 			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE "
 			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE  DOC_INV_ID = ?";
+
 	public Response<DocInvBeanHeaderSAP> getClosedConsSapReport(DocInvBean docInvBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -272,7 +274,7 @@ public class SapConciliationDao {
 				bean.setDocInvPosition(getConciliationSAPPositions(bean.getDocInvId(), con));
 				bean.setCreatedBy(rs.getString("DIH_CLSD_SAP_BY"));
 				bean.setConcSAPDate(sdf.format(new Date(rs.getTimestamp("DIH_CLSD_SAP_DATE").getTime())));
-				
+
 				User user = new User();
 				UMEDaoE ume = new UMEDaoE();
 				user.getEntity().setIdentyId(bean.getCreatedBy());
@@ -281,11 +283,11 @@ public class SapConciliationDao {
 				ls = ume.getUsersLDAPByCredentials(ls);
 				bean.setCreatedBy(bean.getCreatedBy() + " - " + ls.get(0).getGenInf().getName() + " "
 						+ ls.get(0).getGenInf().getLastName() + " / " + bean.getConcSAPDate());
-				
+
 			}
 		} catch (SQLException | NamingException e) {
-			log.log(Level.SEVERE,
-					"[getClosedConsSap] Some error occurred while was trying to execute the query: " + INV_VW_REP_HEADER, e);
+			log.log(Level.SEVERE, "[getClosedConsSap] Some error occurred while was trying to execute the query: "
+					+ INV_VW_REP_HEADER, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 		} finally {
@@ -304,11 +306,10 @@ public class SapConciliationDao {
 	}
 
 	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
-			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, IMWM " 
-			+ "FROM INV_VW_CONC_SAP "
-			+ "WHERE DOC_INV_ID = ? "
-			+ "GROUP BY CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
+			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, IMWM " + "FROM INV_VW_CONC_SAP "
+			+ "WHERE DOC_INV_ID = ? " + "GROUP BY CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
 			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, IMWM";
+
 	public ArrayList<PosDocInvBean> getConciliationSAPPositions(int docInvId, Connection con) throws SQLException {
 
 		PreparedStatement ps = null;
@@ -324,7 +325,7 @@ public class SapConciliationDao {
 			while (rs.next()) {
 
 				pdib = new PosDocInvBean();
-				pdib.setPosId(rs.getInt("CS_CON_SAP"));				
+				pdib.setPosId(rs.getInt("CS_CON_SAP"));
 				pdib.setMatnr(rs.getString("CS_MATNR"));
 				pdib.setMatnrD(rs.getString("MAKTX"));
 				pdib.setMeins(rs.getString("MEINS"));
@@ -338,7 +339,6 @@ public class SapConciliationDao {
 				lsPosIds += pdib.getPosId() + ",";
 				lsPdib.add(pdib);
 			}
-			
 
 			// Get the justifications
 			ArrayList<Justification> lsJustify = getJustification(lsPosIds, con);
@@ -365,6 +365,7 @@ public class SapConciliationDao {
 
 	private static final String GET_JUSTIFICATION = "SELECT JS_ID, JS_CON_SAP, JS_QUANTITY, JS_JUSTIFY, JS_FILE_NAME "
 			+ "FROM INV_JUSTIFY WHERE JS_CON_SAP IN (SELECT * FROM STRING_SPLIT(?, ','))";
+
 	private ArrayList<Justification> getJustification(String ids, Connection con) throws SQLException {
 
 		ArrayList<Justification> lsJustification = new ArrayList<>();
@@ -394,19 +395,19 @@ public class SapConciliationDao {
 		}
 		return lsJustification;
 	}
-	
-	public Response<String> getjsFileBase64(int docInvId, int jsId, String fileName){
-		
+
+	public Response<String> getjsFileBase64(int docInvId, int jsId, String fileName) {
+
 		Response<String> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		
+
 		String PATH = PATH_TO_SAVE_FILES + File.separator;
 		PATH += docInvId + File.separator;
 		PATH += jsId + File.separator;
 		File folder;
-		
+
 		folder = new File(PATH);
-		
+
 		if (!folder.exists()) {
 			log.severe("File not found");
 			abstractResult.setResultId(ReturnValues.FILE_NOT_FOUND);
@@ -414,7 +415,7 @@ public class SapConciliationDao {
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-				
+
 		if (new File(PATH + fileName).isFile()) {
 
 			String base64 = "";
@@ -427,7 +428,7 @@ public class SapConciliationDao {
 				res.setAbstractResult(abstractResult);
 				return res;
 			}
-			
+
 			res.setLsObject(base64);
 			res.setAbstractResult(abstractResult);
 			return res;
@@ -440,7 +441,7 @@ public class SapConciliationDao {
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-		
+
 	}
 
 	public ZIACMF_I360_INV_MOV_1 inventoryMovementsDao(DocInvBean docInvBean, Connection con,
@@ -448,7 +449,7 @@ public class SapConciliationDao {
 		ZIACMF_I360_INV_MOV_1 ziacmf_I360_INV_MOV_1 = new ZIACMF_I360_INV_MOV_1();
 		List<E_Mseg_SapEntity> msegList = new ArrayList<>();
 		try {
-			
+
 			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_1);
 			jcoFunction.getImportParameterList().setValue("I_BUKRS", requestBean.getBukrs());
@@ -646,6 +647,50 @@ public class SapConciliationDao {
 			throw e;
 		}
 		return ziacmf_I360_INV_MOV_3;
+	}
+
+	public ZIACMF_MBEW getCostByMaterial(Connection con, JCoDestination destination, List<String> materialList)
+			throws JCoException, RuntimeException, InvCicException {
+		ZIACMF_MBEW ziacmf_MBEW = new ZIACMF_MBEW();
+		try {
+			List<E_Mbew_SapEntity> mbewData = new ArrayList<>();
+			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_MBEW);
+			if (materialList != null && !materialList.isEmpty()) {
+				JCoTable i_matnr = jcoFunction.getImportParameterList().getTable("I_MATNR");
+				for (String materialS : materialList) {
+					i_matnr.appendRow();
+					i_matnr.setValue("SIGN", "I");
+					i_matnr.setValue("OPTION", "EQ");
+					i_matnr.setValue("LOW", materialS);
+				}
+			}
+			jcoFunction.execute(destination);
+			JCoTable E_MBEW = jcoFunction.getExportParameterList().getTable("E_MBEW");
+			JCoTable E_ERROR = jcoFunction.getExportParameterList().getTable("E_ERROR");
+			E_Error_SapEntity eError = new E_Error_SapEntity();
+			try {
+				eError = new E_Error_SapEntity(E_ERROR);
+			} catch (Exception e1) {
+				log.warning(e1.getMessage());
+			}
+			if (eError.getType().equals("S")) {
+				do {
+					try {
+						mbewData.add(new E_Mbew_SapEntity(E_MBEW));
+					} catch (JCoException | RuntimeException e) {
+						log.warning(e.getMessage());
+					}
+				} while (E_MBEW.nextRow());
+			}
+			ziacmf_MBEW.seteError_SapEntities(eError);
+			ziacmf_MBEW.seteMbewSapEntities(mbewData);
+		} catch (JCoException e) {
+			throw e;
+		} catch (RuntimeException e) {
+			throw e;
+		}
+		return ziacmf_MBEW;
+
 	}
 
 	public ZIACMF_I360_EXT_SIS_CLAS getClassSystem(Connection con, JCoDestination destination,
