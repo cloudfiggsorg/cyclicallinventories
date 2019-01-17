@@ -27,12 +27,14 @@ public class ZiacmfMovFinalRuntime extends Thread {
 	@Override
 	public void run() {
 		try {
+			log.log(Level.INFO, "ZiacmfMovFinalRuntime - onInit");
 			asyncConnection.setAutoCommit(false);
 			new SapConciliationWorkService().inventorySnapShot_F(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryMovements(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryTransit(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().getZiacmfMbew(docInvBean, asyncConnection, asyncDestination);
 			new SapOperationDao().setUpdateFinalInventory(asyncConnection, docInvBean);
+			log.log(Level.INFO, "ZiacmfMovFinalRuntime - onEnd");
 			asyncConnection.commit();
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Ocurrio un error durante la ejecucion del inventario Final" + e);
