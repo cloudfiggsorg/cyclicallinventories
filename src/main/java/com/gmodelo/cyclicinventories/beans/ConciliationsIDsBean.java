@@ -5,16 +5,18 @@ public class ConciliationsIDsBean {
 	private String id;
 	private String desc;
 	private boolean status;
+	private boolean available;
 	
 	public ConciliationsIDsBean() {
 		super();
 	}
 	
-	public ConciliationsIDsBean(String id, String desc, boolean status) {
+	public ConciliationsIDsBean(String id, String desc, boolean status, boolean available) {
 		super();
 		this.id = id;
 		this.desc = desc;
 		this.status = status;
+		this.available = available;
 	}
 
 	public String getId() {
@@ -41,9 +43,18 @@ public class ConciliationsIDsBean {
 		this.status = status;
 	}
 
+	public boolean isAvailable() {
+		return available;
+	}
+
+	public void setAvailable(boolean available) {
+		this.available = available;
+	}
+
 	@Override
 	public String toString() {
-		return "ConciliationsIDsBean [id=" + id + ", desc=" + desc + ", status=" + status + "]";
+		return "ConciliationsIDsBean [id=" + id + ", desc=" + desc + ", status=" + status + ", available=" + available
+				+ "]";
 	}
-	
+		
 }

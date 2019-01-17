@@ -252,8 +252,8 @@ public class SapOperationDao {
 		return lsMatnr;
 	}
 	
-	private static final String COST_BY_MATNR = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, VERPR " 
-		+ "FROM MBEW " 
+	private static final String COST_BY_MATNR = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, ZPRECIO " 
+		+ "FROM E_MBEW " 
 		+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) IN (SELECT * FROM STRING_SPLIT(?, ',')) AND BWKEY = ?";
 	
 	public ArrayList<CostByMatnr> getCostByMatnr(String matnrIds, String werks, Connection con) throws SQLException {
@@ -270,7 +270,7 @@ public class SapOperationDao {
 		while (rs.next()) {
 			els = new CostByMatnr();
 			els.setMatnr(rs.getString("MATNR"));
-			els.setCost(rs.getString("VERPR"));
+			els.setCost(rs.getString("ZPRECIO"));
 			lsMatnr.add(els);
 		}
 

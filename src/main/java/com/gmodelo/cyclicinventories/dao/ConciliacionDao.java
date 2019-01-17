@@ -129,7 +129,7 @@ public class ConciliacionDao {
 	}
 
 	private static final String CLOSED_DOC_INV = "SELECT DOC_INV_ID as DOC_INV, (CONVERT(VARCHAR, DOC_INV_ID) + ' - ' "
-			+ " + CONVERT(VARCHAR,inr.ROU_DESC)) AS DESCRIPCION, 0 AS STATUS "
+			+ " + CONVERT(VARCHAR,inr.ROU_DESC)) AS DESCRIPCION, 0 AS STATUS, FNSAP_SNAPSHOT "
 			+ " FROM INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) "
 			+ " INNER JOIN INV_ROUTE INR WITH(NOLOCK) ON (IDIH.DIH_ROUTE_ID = INR.ROUTE_ID) "
 			+ "	WHERE IDIH.DIH_STATUS = '0' " + " AND IDIH.DOC_FATHER_INV_ID IS NULL " + " AND IDIH.DIH_BUKRS LIKE ? "
@@ -138,7 +138,7 @@ public class ConciliacionDao {
 			+ " SELECT ICS.CS_DOC_INV_ID, IR.ROU_DESC AS DESCRIPCION, 1 AS STS " + " FROM INV_CONS_SAP AS ICS "
 			+ " INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (ICS.CS_DOC_INV_ID = IDIH.DOC_INV_ID) "
 			+ " INNER JOIN INV_ROUTE AS IR ON (IR.ROUTE_ID = IDIH.DIH_ROUTE_ID) " + " WHERE IDIH.DIH_BUKRS LIKE ? "
-			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? " + " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC";
+			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? " + " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC, FNSAP_SNAPSHOT";
 
 	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(DocInvBean dib) {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
@@ -169,6 +169,7 @@ public class ConciliacionDao {
 				conciliationIDsBean.setId(rs.getString("DOC_INV"));
 				conciliationIDsBean.setDesc(rs.getString("DESCRIPCION"));
 				conciliationIDsBean.setStatus(rs.getBoolean("STATUS"));
+				conciliationIDsBean.setAvailable(rs.getBoolean("FNSAP_SNAPSHOT"));
 
 				listConIds.add(conciliationIDsBean);
 			}
