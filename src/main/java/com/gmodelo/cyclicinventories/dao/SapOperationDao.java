@@ -560,7 +560,6 @@ public class SapOperationDao {
 			con = new ConnectionManager().createConnection();
 		}
 		try {
-			con.setAutoCommit(false);
 			PreparedStatement stm = con.prepareStatement(SET_E_MARD_F);
 			for (E_Mard_SapEntity emardEntity : i360_INV_MOV_2.geteMard_SapEntities()) {
 				stm.setString(1, String.valueOf(docInvBean.getDocInvId()));
@@ -576,7 +575,6 @@ public class SapOperationDao {
 				stm.addBatch();
 			}
 			stm.executeBatch();
-
 			stm = con.prepareStatement(SET_E_MSKU_F);
 			for (E_Msku_SapEntity emskuEntity : i360_INV_MOV_2.geteMsku_SapEntities()) {
 				stm.setString(1, String.valueOf(docInvBean.getDocInvId()));
@@ -588,7 +586,6 @@ public class SapOperationDao {
 				stm.addBatch();
 			}
 			stm.executeBatch();
-
 			stm = con.prepareStatement(SET_E_LQUA_F);
 			for (E_Lqua_SapEntity elquaEntity : i360_INV_MOV_2.geteLqua_SapEntities()) {
 				stm.setString(1, String.valueOf(docInvBean.getDocInvId()));
@@ -604,11 +601,7 @@ public class SapOperationDao {
 				stm.addBatch();
 			}
 			stm.executeBatch();
-			con.commit();
-			con.setAutoCommit(true);
 		} catch (SQLException e) {
-			con.rollback();
-			con.setAutoCommit(true);
 			throw e;
 		}
 		return result;
