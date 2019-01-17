@@ -46,19 +46,19 @@ public class SapConciliationWorkService {
 		} catch (InvCicException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventorySnapShot] - InvCicException: ", e);
 		} catch (JCoException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventorySnapShot] - JCoException: ", e);
 		} catch (RuntimeException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventorySnapShot] - RuntimeException: ", e);
 		} catch (Exception e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventorySnapShot] - Exception: ", e);
 		}
 		return results;
 	}
@@ -72,15 +72,15 @@ public class SapConciliationWorkService {
 				operationDao.setUpdateInitialInventory(con, docInvBean);
 			}
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - SQLException: ", e);
 		} catch (InvCicException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - InvCicException: ", e);
 		} catch (JCoException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - JCoException: ", e);
 		} catch (RuntimeException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - RuntimeException: ", e);
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - Exception: ", e);
 		} finally {
 			try {
 				con.close();
@@ -101,19 +101,22 @@ public class SapConciliationWorkService {
 		} catch (InvCicException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventoryFinalSnapShot] - InvCicException: ",
+					e);
 		} catch (JCoException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventoryFinalSnapShot] - JCoException: ",
+					e);
 		} catch (RuntimeException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+			log.log(Level.SEVERE,
+					"[SapConciliationWorkService - WS_RuntimeInventoryFinalSnapShot] - RuntimeException: ", e);
 		} catch (Exception e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventoryFinalSnapShot] - Exception: ", e);
 		}
 		return results;
 	}
@@ -186,25 +189,25 @@ public class SapConciliationWorkService {
 				operationDao.setZIACMF_I360_INV_MOV2_F(docInvBean, getSnapshot, con);
 			}
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - SQLException: ", e);
 			throw e;
 		} catch (InvCicException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - InvCicException: ", e);
 			throw e;
 		} catch (JCoException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService -inventorySnapShot_F] - JCoException: ", e);
 			throw e;
 		} catch (RuntimeException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - RuntimeException: ", e);
 			throw e;
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - Exception: ", e);
 			throw e;
 		}
 
 	}
 
-	public void getZiacmfMbew(DocInvBean docInvBean, JCoDestination destination, Connection con) {
+	public void getZiacmfMbew(DocInvBean docInvBean, Connection con, JCoDestination destination) {
 		try {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
 				con = connectionManager.createConnection();
@@ -268,25 +271,25 @@ public class SapConciliationWorkService {
 				}
 			}
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - SQLException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - SQLException: ", e);
 
 		} catch (InvCicException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - InvCicException: ", e);
 
 		} catch (JCoException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - JCoException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - JCoException: ", e);
 
 		} catch (RuntimeException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - RuntimeException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - RuntimeException: ", e);
 
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Exception: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - Exception: ", e);
 
 		} finally {
 			try {
 				con.close();
 			} catch (Exception e) {
-				log.log(Level.SEVERE, "[SapConciliationWorkService-clasificationSystem] - Finally Exception: ", e);
+				log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - Finally Exception: ", e);
 			}
 		}
 	}
