@@ -608,7 +608,11 @@ public class SapConciliationDao {
 				materialTable.appendRow();
 				materialTable.setValue("SIGN", "I");
 				materialTable.setValue("OPTION", "EQ");
-				materialTable.setValue("LOW", material);
+				try {
+					materialTable.setValue("LOW", String.format("%018d", Integer.parseInt(material)));
+				} catch (Exception e) {
+					materialTable.setValue("LOW", material);
+				}
 			}
 			JCoTable werksTable = jcoFunction.getImportParameterList().getTable("I_R_WERKS");
 			werksTable.appendRow();
@@ -656,12 +660,17 @@ public class SapConciliationDao {
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_MBEW);
 			JCoTable i_matnr = jcoFunction.getImportParameterList().getTable("I_MATNR");
 			if (materialList != null && !materialList.isEmpty()) {
-				
+
 				for (String materialS : materialList) {
 					i_matnr.appendRow();
 					i_matnr.setValue("SIGN", "I");
 					i_matnr.setValue("OPTION", "EQ");
-					i_matnr.setValue("LOW", materialS);
+					try {
+						i_matnr.setValue("LOW", String.format("%018d", Integer.parseInt(materialS)));
+					} catch (Exception e) {
+						i_matnr.setValue("LOW", materialS);
+					}
+
 				}
 			}
 			jcoFunction.execute(destination);
