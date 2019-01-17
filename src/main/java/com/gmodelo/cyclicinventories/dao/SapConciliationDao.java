@@ -474,7 +474,7 @@ public class SapConciliationDao {
 				eError = new E_Error_SapEntity(jcoE_Error);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
-				log.warning(e1.getMessage());
+				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_1]:" + e1.getMessage());
 			}
 			if (eError.getType().equals("S")) {
 				do {
@@ -482,7 +482,7 @@ public class SapConciliationDao {
 					try {
 						msegList.add(new E_Mseg_SapEntity(jcoE_MsegTable));
 					} catch (JCoException | RuntimeException e) {
-						log.warning(e.getMessage());
+						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_1]:" + e.getMessage());
 						// Not Readable Row or EOF
 					}
 				} while (jcoE_MsegTable.nextRow());
@@ -549,7 +549,7 @@ public class SapConciliationDao {
 				eError = new E_Error_SapEntity(E_ERROR);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
-				log.warning(e1.getMessage());
+				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2]: " + e1.getMessage());
 			}
 			if (eError.getType().equals("S")) {
 				// Cycle of the E_MARD Export Table
@@ -558,7 +558,7 @@ public class SapConciliationDao {
 						eMard_SapEntities.add(new E_Mard_SapEntity(E_MARD));
 					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
-						log.warning(e.getMessage());
+						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2]: " + e.getMessage());
 					}
 				} while (E_MARD.nextRow());
 
@@ -568,7 +568,7 @@ public class SapConciliationDao {
 						eMsku_SapEntities.add(new E_Msku_SapEntity(E_MSKU));
 					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
-						log.warning(e.getMessage());
+						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2]: " + e.getMessage());
 					}
 				} while (E_MSKU.nextRow());
 
@@ -578,7 +578,7 @@ public class SapConciliationDao {
 						eLqua_SapEntities.add(new E_Lqua_SapEntity(E_LQUA));
 					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
-						log.warning(e.getMessage());
+						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2]: " + e.getMessage());
 					}
 				} while (E_LQUA.nextRow());
 			}
@@ -624,16 +624,15 @@ public class SapConciliationDao {
 				eError = new E_Error_SapEntity(E_ERROR);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
-				log.warning(e1.getMessage());
+				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_3]: " + e1.getMessage());
 			}
 			if (eError.getType().equals("S")) {
 				do {
 					try {
 						xtab6_SapEntities.add(new E_Xtab6_SapEntity(E_XTAB6));
 					} catch (JCoException | RuntimeException e) {
-						log.warning(e.getMessage());
+						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_3]: " + e.getMessage());
 						// Not Readable Row or EOF
-						e.getMessage();
 					}
 				} while (E_XTAB6.nextRow());
 			}
@@ -671,14 +670,14 @@ public class SapConciliationDao {
 			try {
 				eError = new E_Error_SapEntity(E_ERROR);
 			} catch (Exception e1) {
-				log.warning(e1.getMessage());
+				log.warning("SapConciliationDao: [getCostByMaterial]: " + e1.getMessage());
 			}
 			if (eError.getType().equals("S")) {
 				do {
 					try {
 						mbewData.add(new E_Mbew_SapEntity(E_MBEW));
 					} catch (JCoException | RuntimeException e) {
-						log.warning(e.getMessage());
+						log.warning("SapConciliationDao: [getCostByMaterial]: " + e.getMessage());
 					}
 				} while (E_MBEW.nextRow());
 			}
