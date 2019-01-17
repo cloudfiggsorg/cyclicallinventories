@@ -690,6 +690,7 @@ public class SapOperationDao {
 				stm.addBatch();
 			}
 			stm.executeBatch();
+			con.commit();
 		} catch (SQLException e) {
 			throw e;
 		}
@@ -736,6 +737,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_BEG);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.executeUpdate();
+			con.commit();
 		} catch (SQLException e) {
 			throw e;
 		}
@@ -749,6 +751,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_END);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.executeUpdate();
+			con.commit();
 		} catch (SQLException e) {
 			throw e;
 		}
@@ -769,6 +772,7 @@ public class SapOperationDao {
 				stm.addBatch();
 			}
 			stm.executeBatch();
+			con.commit();
 		} catch (SQLException e) {
 			throw e;
 		}
