@@ -220,6 +220,8 @@ public class CountsWorkService {
 							
 							//put de lgplaValues
 							LgplaValuesBean lvb = new LgplaValuesBean();
+							lvb.setDateStart(new Date().getTime());
+							lvb.setDateEnd(new Date().getTime());
 							lvb.setMatnr(ctb.getMatnr());
 							lvb.setVhilm(ctb.getVhilm());
 							lvb.setVhilmQuan(ctb.getVhilmQuan());
@@ -287,6 +289,7 @@ public class CountsWorkService {
 		res = new CountsWorkService().addCount(request);
 		if(res.getAbstractResult().getResultId() == 1){
 			res.setLsObject(rub);
+			log.info("[addCountFromContingencyWS] Tarea de Contingencia "+ rub.getTaskId());
 		}
 		
 		return res;

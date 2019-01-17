@@ -2,12 +2,15 @@ package com.gmodelo.cyclicinventories.workservice;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
+import com.gmodelo.cyclicinventories.beans.E_Mbew_SapEntity;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.dao.SapConciliationDao;
 import com.gmodelo.cyclicinventories.dao.SapOperationDao;
@@ -19,6 +22,7 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
+import com.gmodelo.cyclicinventories.structure.ZIACMF_MBEW;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.gmodelo.cyclicinventories.utils.Utilities;
@@ -42,19 +46,19 @@ public class SapConciliationWorkService {
 		} catch (InvCicException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventorySnapShot] - InvCicException: ", e);
 		} catch (JCoException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventorySnapShot] - JCoException: ", e);
 		} catch (RuntimeException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventorySnapShot] - RuntimeException: ", e);
 		} catch (Exception e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventorySnapShot] - Exception: ", e);
 		}
 		return results;
 	}
@@ -68,15 +72,15 @@ public class SapConciliationWorkService {
 				operationDao.setUpdateInitialInventory(con, docInvBean);
 			}
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - SQLException: ", e);
 		} catch (InvCicException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - InvCicException: ", e);
 		} catch (JCoException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - JCoException: ", e);
 		} catch (RuntimeException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - RuntimeException: ", e);
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - Exception: ", e);
 		} finally {
 			try {
 				con.close();
@@ -97,19 +101,22 @@ public class SapConciliationWorkService {
 		} catch (InvCicException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventoryFinalSnapShot] - InvCicException: ",
+					e);
 		} catch (JCoException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventoryFinalSnapShot] - JCoException: ",
+					e);
 		} catch (RuntimeException e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+			log.log(Level.SEVERE,
+					"[SapConciliationWorkService - WS_RuntimeInventoryFinalSnapShot] - RuntimeException: ", e);
 		} catch (Exception e) {
 			results.setResultId(ReturnValues.IEXCEPTION);
 			results.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - WS_RuntimeInventoryFinalSnapShot] - Exception: ", e);
 		}
 		return results;
 	}
@@ -182,22 +189,112 @@ public class SapConciliationWorkService {
 				operationDao.setZIACMF_I360_INV_MOV2_F(docInvBean, getSnapshot, con);
 			}
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - SQLException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - SQLException: ", e);
 			throw e;
 		} catch (InvCicException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - InvCicException: ", e);
 			throw e;
 		} catch (JCoException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - JCoException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService -inventorySnapShot_F] - JCoException: ", e);
 			throw e;
 		} catch (RuntimeException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - RuntimeException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - RuntimeException: ", e);
 			throw e;
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService] - Exception: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - Exception: ", e);
 			throw e;
 		}
 
+	}
+
+	public void getZiacmfMbew(DocInvBean docInvBean, Connection con, JCoDestination destination) {
+		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
+			Integer materialCount = operationDao.getCountMaterialForPivotDocInv(docInvBean, con);
+			if (materialCount > 0) {
+				operationDao.setUpdatePivotBegin(con, docInvBean);
+				List<String> listMaterial = operationDao.getmaterialForPivotDocInv(docInvBean, con);
+				operationDao.setUpdatePivotEnd(con, docInvBean);
+				List<String> pivotList = new ArrayList<>();
+				ZIACMF_MBEW ziacmf_MBEW = new ZIACMF_MBEW();
+				List<E_Mbew_SapEntity> emE_Mbew_SapEntities = new ArrayList<>();
+				ziacmf_MBEW.seteMbewSapEntities(emE_Mbew_SapEntities);
+				if (listMaterial.size() >= 50) {
+					for (String material : listMaterial) {
+						pivotList.add(material);
+						if (pivotList.size() >= 50) {
+							ZIACMF_MBEW ziacmf_MBEW_pvt = conciliationDao.getCostByMaterial(con, destination,
+									pivotList);
+							if (ziacmf_MBEW_pvt.geteError_SapEntities().getType().equals("S")
+									&& ziacmf_MBEW_pvt.geteMbewSapEntities() != null) {
+								ziacmf_MBEW.geteMbewSapEntities().addAll(ziacmf_MBEW_pvt.geteMbewSapEntities());
+								ziacmf_MBEW.seteError_SapEntities(ziacmf_MBEW_pvt.geteError_SapEntities());
+								ziacmf_MBEW_pvt = new ZIACMF_MBEW();
+							}
+						}
+					}
+					if (pivotList.size() > 0) {
+						ZIACMF_MBEW ziacmf_MBEW_pvt = conciliationDao.getCostByMaterial(con, destination, pivotList);
+						if (ziacmf_MBEW_pvt.geteError_SapEntities().getType().equals("S")
+								&& ziacmf_MBEW_pvt.geteMbewSapEntities() != null) {
+							ziacmf_MBEW.geteMbewSapEntities().addAll(ziacmf_MBEW_pvt.geteMbewSapEntities());
+							ziacmf_MBEW.seteError_SapEntities(ziacmf_MBEW_pvt.geteError_SapEntities());
+						}
+					}
+				} else {
+					ziacmf_MBEW = conciliationDao.getCostByMaterial(con, destination, listMaterial);
+				}
+				if (ziacmf_MBEW.geteError_SapEntities().getType().equals("S")
+						&& ziacmf_MBEW.geteMbewSapEntities() != null) {
+
+					log.log(Level.INFO,
+							"[SapConciliationWorkService-getZiacmfMbew] : ziacmf_MBEW " + ziacmf_MBEW.toString());
+
+					HashMap<String, List<String>> matWerkMap = operationDao.getMbewValues(con);
+					List<E_Mbew_SapEntity> toInsertMbew = new ArrayList<>();
+					List<E_Mbew_SapEntity> toUpdateMbew = new ArrayList<>();
+					for (E_Mbew_SapEntity entity : ziacmf_MBEW.geteMbewSapEntities()) {
+						if (matWerkMap.containsKey(entity.getMatnr())) {
+							if (matWerkMap.get(entity.getMatnr()).contains(entity.getBwkey())) {
+								toUpdateMbew.add(entity);
+							} else {
+								toInsertMbew.add(entity);
+							}
+						} else {
+							toInsertMbew.add(entity);
+						}
+					}
+					if (toInsertMbew.size() > 0) {
+						operationDao.setZIACMF_E_MBEW(con, toInsertMbew);
+						log.log(Level.INFO,
+								"[SapConciliationWorkService-getZiacmfMbew] : toInsert: " + toInsertMbew.toString());
+					}
+					if (toUpdateMbew.size() > 0) {
+						operationDao.setZIACMF_E_MBEW_UPD(con, toUpdateMbew);
+						log.log(Level.INFO,
+								"[SapConciliationWorkService-getZiacmfMbew] : toUpdate: " + toUpdateMbew.toString());
+					}
+				}else{
+					log.log(Level.SEVERE,"[SapConciliationWorkService-getZiacmfMbew] :"+ziacmf_MBEW.geteError_SapEntities().toString());
+				}
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - SQLException: ", e);
+
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - InvCicException: ", e);
+
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - JCoException: ", e);
+
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - RuntimeException: ", e);
+
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - Exception: ", e);
+		}
 	}
 
 	public Response<ZIACMF_I360_EXT_SIS_CLAS> WS_getClassSystem() {
@@ -223,6 +320,7 @@ public class SapConciliationWorkService {
 		return response;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Response _WS_SAPClassRuntime() {
 		Response response = new Response<>();
 		Connection con = connectionManager.createConnection();

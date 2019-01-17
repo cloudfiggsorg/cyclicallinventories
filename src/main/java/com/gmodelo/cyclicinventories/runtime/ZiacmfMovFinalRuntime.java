@@ -10,15 +10,14 @@ import com.gmodelo.cyclicinventories.workservice.SapConciliationWorkService;
 import com.sap.conn.jco.JCoDestination;
 
 public class ZiacmfMovFinalRuntime extends Thread {
-	
+
 	private JCoDestination asyncDestination;
 	private Connection asyncConnection;
 	private DocInvBean docInvBean;
 
 	private Logger log = Logger.getLogger(ZiacmfMovFinalRuntime.class.getName());
 
-	public ZiacmfMovFinalRuntime(JCoDestination asyncDestination, Connection asyncConnection,
-			DocInvBean docInvBean) {
+	public ZiacmfMovFinalRuntime(JCoDestination asyncDestination, Connection asyncConnection, DocInvBean docInvBean) {
 		super();
 		this.asyncDestination = asyncDestination;
 		this.asyncConnection = asyncConnection;
@@ -28,11 +27,14 @@ public class ZiacmfMovFinalRuntime extends Thread {
 	@Override
 	public void run() {
 		try {
+			log.log(Level.INFO, "ZiacmfMovFinalRuntime - onInit");
 			asyncConnection.setAutoCommit(false);
 			new SapConciliationWorkService().inventorySnapShot_F(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryMovements(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryTransit(docInvBean, asyncConnection, asyncDestination);
+			new SapConciliationWorkService().getZiacmfMbew(docInvBean, asyncConnection, asyncDestination);
 			new SapOperationDao().setUpdateFinalInventory(asyncConnection, docInvBean);
+			log.log(Level.INFO, "ZiacmfMovFinalRuntime - onEnd");
 			asyncConnection.commit();
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Ocurrio un error durante la ejecucion del inventario Final" + e);
