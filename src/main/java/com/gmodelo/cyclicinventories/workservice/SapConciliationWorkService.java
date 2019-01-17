@@ -284,14 +284,7 @@ public class SapConciliationWorkService {
 
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - Exception: ", e);
-
-		} finally {
-			try {
-				con.close();
-			} catch (Exception e) {
-				log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - Finally Exception: ", e);
-			}
-		}
+		} 	
 	}
 
 	public Response<ZIACMF_I360_EXT_SIS_CLAS> WS_getClassSystem() {

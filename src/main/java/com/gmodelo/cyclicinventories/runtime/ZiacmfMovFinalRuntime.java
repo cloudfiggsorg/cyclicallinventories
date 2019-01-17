@@ -28,13 +28,10 @@ public class ZiacmfMovFinalRuntime extends Thread {
 	public void run() {
 		try {
 			asyncConnection.setAutoCommit(false);
-			log.log(Level.SEVERE, "Initiating Mbew Extraction");
-			new SapConciliationWorkService().getZiacmfMbew(docInvBean, asyncConnection, asyncDestination);
-			log.log(Level.SEVERE, "Finalization Mbew Extraction");
 			new SapConciliationWorkService().inventorySnapShot_F(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryMovements(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryTransit(docInvBean, asyncConnection, asyncDestination);
-		
+			new SapConciliationWorkService().getZiacmfMbew(docInvBean, asyncConnection, asyncDestination);
 			new SapOperationDao().setUpdateFinalInventory(asyncConnection, docInvBean);
 			asyncConnection.commit();
 		} catch (Exception e) {
