@@ -276,6 +276,8 @@ public class SapConciliationWorkService {
 						log.log(Level.INFO,
 								"[SapConciliationWorkService-getZiacmfMbew] : toUpdate: " + toUpdateMbew.toString());
 					}
+				}else{
+					log.log(Level.SEVERE,"[SapConciliationWorkService-getZiacmfMbew] :"+ziacmf_MBEW.geteError_SapEntities().toString());
 				}
 			}
 		} catch (SQLException e) {

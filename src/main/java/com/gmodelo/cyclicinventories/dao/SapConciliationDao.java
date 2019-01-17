@@ -654,8 +654,9 @@ public class SapConciliationDao {
 		try {
 			List<E_Mbew_SapEntity> mbewData = new ArrayList<>();
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_MBEW);
+			JCoTable i_matnr = jcoFunction.getImportParameterList().getTable("I_MATNR");
 			if (materialList != null && !materialList.isEmpty()) {
-				JCoTable i_matnr = jcoFunction.getImportParameterList().getTable("I_MATNR");
+				
 				for (String materialS : materialList) {
 					i_matnr.appendRow();
 					i_matnr.setValue("SIGN", "I");
