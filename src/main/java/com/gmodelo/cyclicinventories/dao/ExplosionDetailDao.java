@@ -224,19 +224,27 @@ public class ExplosionDetailDao {
 		PreparedStatement stm = null;		
 		MatExplReport expl = new MatExplReport();
 		ArrayList<MatExplReport> lsDetail = new ArrayList<>();
-		final String GET_MST_EXPL_REP = "SELECT A.CS_MATNR, E.MAKTX, A.CS_UM, A.CS_COUNTED, D.IDNRK, D.MEINS, " 
+		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, A.MEINS, A.COUNTED, "
+				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, D.MEINS MEINS_EXLP, " 
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
-				+ "(CAST(D.MENGE AS decimal(10, 2)) / CAST(C.BMENG AS decimal(10, 2))) * CAST(REPLACE(A.CS_COUNTED, ',', '') AS decimal(10, 2)) AS QUANTITY " 
-			+ "FROM INV_CONS_SAP AS A " 
-				+ "LEFT JOIN MAST AS B ON (A.CS_MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
+				+ "(CAST(D.MENGE AS decimal(10, 2)) / CAST(C.BMENG AS decimal(10, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(10, 2)) AS QUANTITY " 
+			+ "FROM (SELECT DIP_MATNR MATNR, DIP_DOC_INV_ID, SUM(CAST(DIP_COUNTED AS decimal(10, 2))) COUNTED, " 
+				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS "
+				+ "FROM INV_DOC_INVENTORY_POSITIONS "
+				+ "WHERE DIP_DOC_INV_ID = 196 " 
+			+ "GROUP BY DIP_DOC_INV_ID, DIP_MATNR) AS A " 
+				+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
 				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) " 
 				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) " 
-				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.CS_DOC_INV_ID) " 
-				+ "INNER JOIN MAKT AS E ON (A.CS_MATNR = SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR))) "
-			+ "WHERE CS_DOC_INV_ID = ? " 
-				+ "AND B.WERKS = IDIH.DIH_WERKS " 
-				+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IN (SELECT EX_COMPONENT FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS AND A.CS_MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
-			+"GROUP BY CS_MATNR, E.MAKTX, CS_UM, CS_COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG ";
+				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DIP_DOC_INV_ID) " 
+				+ "INNER JOIN MAKT AS E ON (A.MATNR = SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR))) " 
+					+ "WHERE DIP_DOC_INV_ID = ? " 
+						+ "AND B.WERKS = IDIH.DIH_WERKS " 
+						+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " 
+							+ "IN (SELECT EX_COMPONENT " 
+								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
+								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
+			+ "GROUP BY A.MATNR, E.MAKTX, A.MEINS, COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG ";
 
 		log.info(GET_MST_EXPL_REP);
 		log.info("[getExplosionReportByDocInv] Preparing sentence...");
@@ -251,13 +259,13 @@ public class ExplosionDetailDao {
 			while (rs.next()) {
 
 				expl = new MatExplReport();
-				expl.setMatnr(rs.getString("CS_MATNR"));
+				expl.setMatnr(rs.getString("MATNR"));
 				expl.setDescription(rs.getString("MAKTX"));
-				expl.setUmb(rs.getString("CS_UM"));
-				expl.setCounted(rs.getString("CS_COUNTED"));
+				expl.setUmb(rs.getString("MEINS"));
+				expl.setCounted(rs.getString("COUNTED"));
 				expl.setMatnrExpl(rs.getString("IDNRK"));
 				expl.setDescMantrExpl(rs.getString("MATNR_EXPL_DESC"));
-				expl.setUmbExpl(rs.getString("MEINS"));
+				expl.setUmbExpl(rs.getString("MEINS_EXLP"));
 				expl.setQuantity(rs.getString("QUANTITY"));
 				lsDetail.add(expl);
 			}
