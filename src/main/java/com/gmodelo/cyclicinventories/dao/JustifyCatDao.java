@@ -29,7 +29,7 @@ public class JustifyCatDao {
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
-		final String SP = "SP_ADD_JS_CAT ?, ?, ?"; //The Store procedure to call
+		final String SP = "INV_SP_ADD_JS_CAT ?, ?, ?"; //The Store procedure to call
 		
 		log.info("[addGroup] Preparing sentence...");
 

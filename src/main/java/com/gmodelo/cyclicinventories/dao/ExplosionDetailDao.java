@@ -55,7 +55,7 @@ public class ExplosionDetailDao {
 
 			for (ExplosionDetail obj : ed) {
 				
-				if(obj.isRelevant()){
+				if(!obj.isRelevant()){
 					
 					csBatch.setString(1, obj.getWerks());
 					csBatch.setString(2, obj.getMatnr());
@@ -117,7 +117,7 @@ public class ExplosionDetailDao {
 
 		final String GET_EXPL_DET = "SELECT  A.WERKS, SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) AS MATNR, "
 				+ "SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL, " 
-				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT " 
+				+ "D.MAKTX, C.MEINS, 1 IS_RELEVANT " 
 				+ "FROM MAST AS A " 
 					+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) " 
 					+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) " 
@@ -231,7 +231,7 @@ public class ExplosionDetailDao {
 			+ "FROM (SELECT DIP_MATNR MATNR, DIP_DOC_INV_ID, SUM(CAST(DIP_COUNTED AS decimal(10, 2))) COUNTED, " 
 				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS "
 				+ "FROM INV_DOC_INVENTORY_POSITIONS "
-				+ "WHERE DIP_DOC_INV_ID = 196 " 
+				+ "WHERE DIP_DOC_INV_ID = ? " 
 			+ "GROUP BY DIP_DOC_INV_ID, DIP_MATNR) AS A " 
 				+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
 				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) " 
@@ -241,9 +241,9 @@ public class ExplosionDetailDao {
 					+ "WHERE DIP_DOC_INV_ID = ? " 
 						+ "AND B.WERKS = IDIH.DIH_WERKS " 
 						+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " 
-							+ "IN (SELECT EX_COMPONENT " 
+							+ "NOT IN (SELECT EX_COMPONENT " 
 								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
-								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
+								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 0) " 
 			+ "GROUP BY A.MATNR, E.MAKTX, A.MEINS, COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG ";
 
 		log.info(GET_MST_EXPL_REP);
@@ -252,6 +252,7 @@ public class ExplosionDetailDao {
 		try {
 			stm = con.prepareStatement(GET_MST_EXPL_REP);
 			stm.setInt(1, docInvId);
+			stm.setInt(2, docInvId);
 			log.info("[getExplosionReportByDocInv] Executing query...");
 
 			ResultSet rs = stm.executeQuery();

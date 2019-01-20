@@ -13,8 +13,7 @@ public class Justification {
 		super();
 	}
 
-	public Justification(int consPosSAPId, int jsId, String quantity, String justify, String fileName,
-			String base64File) {
+	public Justification(int consPosSAPId, int jsId, String quantity, String justify, String fileName, String base64File) {
 		super();
 		this.consPosSAPId = consPosSAPId;
 		this.jsId = jsId;
@@ -31,7 +30,7 @@ public class Justification {
 	public void setConsPosSAPId(int consPosSAPId) {
 		this.consPosSAPId = consPosSAPId;
 	}
-	
+
 	public int getJsId() {
 		return jsId;
 	}
@@ -63,7 +62,7 @@ public class Justification {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-	
+
 	public String getBase64File() {
 		return base64File;
 	}

@@ -32,11 +32,10 @@ public class JustifyCatWorkService {
 		}
 
 		return res;
-
 	}
 
 	public Response<Object> deleteJustifies(Request<?> request) {
-		log.info("[addJustifyWS] " + request.toString());
+		log.info("[deleteJustifiesWS] " + request.toString());
 		String jsIds = null;
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		Response<Object> res = new Response<>();
