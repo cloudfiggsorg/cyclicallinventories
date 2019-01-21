@@ -384,10 +384,13 @@ public class GroupDao {
 		String INV_VW_GET_GROUPS = null;						
 
 		INV_VW_GET_GROUPS = "SELECT IP_GROUP, GDESC, IVWBB.BUKRS, BUTXT, IVWBB.WERKS, NAME1 FROM [INV_CIC_DB].[dbo].[INV_VW_GET_GROUPS] AS IVGG WITH(NOLOCK) ";
-		INV_VW_GET_GROUPS += "INNER JOIN INV_VW_WERKS_BY_BUKRS AS IVWBB ON (IVWBB.BUKRS = IVGG.BUKRS AND IVWBB.WERKS = IVGG.WERKS) ";		
-		INV_VW_GET_GROUPS += "WHERE IP_GROUP LIKE '%" + searchFilter + "%' OR GDESC LIKE '%" + searchFilter + "%' ";
-		INV_VW_GET_GROUPS += "AND IVWBB.BUKRS LIKE '%" + (groupBean.getBukrs() == null? "" : groupBean.getBukrs()) + "%' ";
-		INV_VW_GET_GROUPS += "AND IVWBB.WERKS LIKE '%" + (groupBean.getWerks() == null? "" : groupBean.getWerks()) + "%' ";		
+		INV_VW_GET_GROUPS += "INNER JOIN INV_VW_WERKS_BY_BUKRS AS IVWBB ON (IVWBB.BUKRS = IVGG.BUKRS AND IVWBB.WERKS = IVGG.WERKS) ";
+		INV_VW_GET_GROUPS += "WHERE ";
+		if(searchFilter.trim().length() > 0){
+			INV_VW_GET_GROUPS += "IP_GROUP LIKE '%" + searchFilter + "%' OR GDESC LIKE '%" + searchFilter + "%' AND ";
+		}
+		INV_VW_GET_GROUPS += "(IVWBB.BUKRS LIKE '%" + (groupBean.getBukrs() == null? "" : groupBean.getBukrs()) + "%' ";
+		INV_VW_GET_GROUPS += "AND IVWBB.WERKS LIKE '%" + (groupBean.getWerks() == null? "" : groupBean.getWerks()) + "%' )";		
 		
 		log.info(INV_VW_GET_GROUPS);
 		log.info("[getGroupsDao] Preparing sentence...");
