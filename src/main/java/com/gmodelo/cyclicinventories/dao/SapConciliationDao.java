@@ -147,7 +147,7 @@ public class SapConciliationDao {
 						cs = con.prepareCall(INV_SP_ADD_JUSTIFY);
 						cs.setLong(1, dipb.getPosId());
 						cs.setString(2, js.getQuantity());
-						cs.setString(3, js.getJustify());
+						cs.setInt(3, js.getJsId());
 						cs.setString(4, js.getFileName());
 						cs.registerOutParameter(5, Types.BIGINT);
 						cs.execute();
@@ -363,8 +363,11 @@ public class SapConciliationDao {
 		return lsPdib;
 	}
 
-	private static final String GET_JUSTIFICATION = "SELECT JS_ID, JS_CON_SAP, JS_QUANTITY, JS_JUSTIFY, JS_FILE_NAME "
-			+ "FROM INV_JUSTIFY WHERE JS_CON_SAP IN (SELECT * FROM STRING_SPLIT(?, ','))";
+	private static final String GET_JUSTIFICATION = "SELECT A.JS_ID, JS_CON_SAP, JS_QUANTITY, "
+				+ "(CAST(A.JS_JUSTIFY AS varchar(200)) + ' - ' + B.JUSTIFICATION) JUSTIFICATION, JS_FILE_NAME " 
+				+ "FROM INV_JUSTIFY AS A " 
+				+ "INNER JOIN INV_CAT_JUSTIFY AS B ON (A.JS_JUSTIFY = B.JS_ID) "
+				+ "WHERE JS_CON_SAP IN (SELECT * FROM STRING_SPLIT(?, ',')) "; 
 
 	private ArrayList<Justification> getJustification(String ids, Connection con) throws SQLException {
 
@@ -384,7 +387,7 @@ public class SapConciliationDao {
 				js.setJsId(rs.getInt("JS_ID"));
 				js.setConsPosSAPId(rs.getInt("JS_CON_SAP"));
 				js.setQuantity(rs.getString("JS_QUANTITY"));
-				js.setJustify(rs.getString("JS_JUSTIFY"));
+				js.setJustify(rs.getString("JUSTIFICATION"));
 				js.setFileName(rs.getString("JS_FILE_NAME"));
 				lsJustification.add(js);
 			}

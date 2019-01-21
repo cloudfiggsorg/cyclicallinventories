@@ -394,7 +394,8 @@ public class SapOperationDao {
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COST_BY_MATNR);
 		stm.setString(1, matnrIds);
-		stm.setString(2, werks);
+		stm.setString(2, werks);		
+		
 		ResultSet rs = stm.executeQuery();
 
 		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
@@ -406,7 +407,7 @@ public class SapOperationDao {
 			els.setCost(rs.getString("ZPRECIO"));
 			lsMatnr.add(els);
 		}
-
+		
 		return lsMatnr;
 	}
 

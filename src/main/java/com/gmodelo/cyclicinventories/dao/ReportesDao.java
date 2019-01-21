@@ -458,9 +458,9 @@ public class ReportesDao {
 					}
 					
 					listBean.add(positionBean);
-					lsMatnr += positionBean.getMatnr() + ", ";
+					lsMatnr += positionBean.getMatnr() + ",";
 				}
-				
+								
 				ArrayList<E_Mard_SapEntity> lsTheoricIM = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), con);
 				ArrayList<E_Lqua_SapEntity> lsTheoricWM = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), con);
 				boolean found = false;
