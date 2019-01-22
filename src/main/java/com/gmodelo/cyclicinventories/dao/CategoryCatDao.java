@@ -11,55 +11,56 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
-import com.gmodelo.cyclicinventories.beans.JustifyCat;
+import com.gmodelo.cyclicinventories.beans.Category;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 
-public class JustifyCatDao {
+public class CategoryCatDao {
 	
-	private Logger log = Logger.getLogger(JustifyCatDao.class.getName());
+	private Logger log = Logger.getLogger(CategoryCatDao.class.getName());
 	
-	public Response<JustifyCat> addJustify(JustifyCat justify, String userId){
+	public Response<Category> saveCategory(Category category, String userId){
 		
-		Response<JustifyCat> res = new Response<>();
+		Response<Category> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
-		final String SP = "INV_SP_ADD_JS_CAT ?, ?, ?"; //The Store procedure to call
+		final String SP = "INV_SP_ADD_CATEGORY ?, ?, ?"; //The Store procedure to call
 		
 		log.info("[addGroup] Preparing sentence...");
 
 		try {
 			cs = con.prepareCall(SP);
 			
-			cs.setInt(1, justify.getJsId());			
-			cs.setString(2, justify.getJustification());	
+			cs.setInt(1, category.getCatId());			
+			cs.setString(2, category.getCategory());	
 			cs.setString(3, userId);
 			
 			cs.registerOutParameter(1, Types.INTEGER);
-			log.info("[addJustify] Executing query...");
+			log.info("[saveCategory] Executing query...");
 			
 			cs.execute();
-			justify.setJsId(cs.getInt(1));
+			category.setCatId(cs.getInt(1));
 			abstractResult.setResultId(ReturnValues.ISUCCESS);
 			
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
-				log.log(Level.WARNING,"[addJustify] "+ warning.getMessage());
+				log.log(Level.WARNING,"[saveCategory] "+ warning.getMessage());
 				warning = warning.getNextWarning();
 			}
 			
 			//Free resources
 			cs.close();	
 			
-			log.info("[addJustify] Sentence successfully executed.");
+			log.info("[saveCategory] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[addJustify] Some error occurred while was trying to execute the S.P.: " + SP, e);
+			log.log(Level.SEVERE,"[saveCategory] Some error occurred while was trying to execute the S.P.: " + SP, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -68,16 +69,16 @@ public class JustifyCatDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[addJustify] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE,"[saveCategory] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 	
 		res.setAbstractResult(abstractResult);
-		res.setLsObject(justify);
+		res.setLsObject(category);
 		return res ;
 	}
 	
-	public Response<Object> deleteJustify(String jsIds){
+	public Response<Object> deleteCategories(String catIds){
 		
 		Response<Object> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -85,16 +86,16 @@ public class JustifyCatDao {
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
-		final String SP = "INV_SP_DEL_JS_CAT ?"; //The Store procedure to call
+		final String SP = "INV_SP_DEL_CAT ?"; //The Store procedure to call
 		
-		log.info("[deleteJustify] Preparing sentence...");
+		log.info("[deleteCategories] Preparing sentence...");
 		
 		try {
 			
 			cs = con.prepareCall(SP);			
-			cs.setString(1, jsIds);
+			cs.setString(1, catIds);
 			
-			log.log(Level.WARNING,"[deleteJustify] Executing query...");
+			log.log(Level.WARNING,"[deleteCategories] Executing query...");
 			
 			cs.execute();
 			
@@ -103,17 +104,17 @@ public class JustifyCatDao {
 			//Retrive the warnings if there're
 			SQLWarning warning = cs.getWarnings();
 			while (warning != null) {
-				log.log(Level.WARNING,"[deleteJustify] "+warning.getMessage());
+				log.log(Level.WARNING,"[deleteCategories] "+warning.getMessage());
 				warning = warning.getNextWarning();
 			}
 			
 			//Free resources
 			cs.close();	
 			
-			log.info("[deleteJustify] Sentence successfully executed.");
+			log.info("[deleteCategories] Sentence successfully executed.");
 			
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,"[deleteJustify] Some error occurred while was trying to execute the S.P.: "+ SP, e);
+			log.log(Level.SEVERE,"[deleteCategories] Some error occurred while was trying to execute the S.P.: "+ SP, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -122,42 +123,42 @@ public class JustifyCatDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,"[deleteJustify] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE,"[deleteCategories] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 		res.setAbstractResult(abstractResult);
 		return res ;
 	}
 	
-	public Response<List<JustifyCat>> getJustifies() {
+	public Response<List<Category>> getCategories() {
 		
-		Response<List<JustifyCat>> res = new Response<>();
+		Response<List<Category>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		Statement stm = null;		
-		List<JustifyCat> lsJustify = new ArrayList<>();
-		JustifyCat justify = new JustifyCat();
+		List<Category> lsCategory = new ArrayList<>();
+		Category category = new Category();
 		
-		String QUERY = "SELECT JS_ID, JUSTIFICATION FROM INV_CAT_JUSTIFY ";		
+		String QUERY = "SELECT CAT_ID, CATEGORY FROM INV_CAT_CATEGORY ";		
 		log.info(QUERY);
-		log.info("[getJustifies] Preparing sentence...");
+		log.info("[getCategories] Preparing sentence...");
 		
 		try {
 			stm = con.createStatement();
-			log.info("[getJustifies] Executing query...");
+			log.info("[getCategories] Executing query...");
 			ResultSet rs = stm.executeQuery(QUERY);
 			
 			while (rs.next()) {
 				
-				justify = new JustifyCat();
-				justify.setJsId(rs.getInt("JS_ID"));
-				justify.setJustification(rs.getString("JUSTIFICATION"));				
-				lsJustify.add(justify);
+				category = new Category();
+				category.setCatId(rs.getInt("CAT_ID"));
+				category.setCategory(rs.getString("CATEGORY"));				
+				lsCategory.add(category);
 			}
-			log.info("[getJustifies] Sentence successfully executed.");
+			log.info("[getCategories] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[getJustifies] Some error occurred while was trying to execute the query: "
+			log.log(Level.SEVERE, "[getCategories] Some error occurred while was trying to execute the query: "
 					+ QUERY, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
@@ -166,11 +167,11 @@ public class JustifyCatDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[getJustifies] Some error occurred while was trying to close the connection.", e);
+						"[getCategories] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 		res.setAbstractResult(abstractResult);
-		res.setLsObject(lsJustify);
+		res.setLsObject(lsCategory);
 		return res;
 	}
 
