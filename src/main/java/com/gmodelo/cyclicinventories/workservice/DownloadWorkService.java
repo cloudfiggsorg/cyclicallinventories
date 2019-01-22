@@ -225,7 +225,8 @@ public class DownloadWorkService {
 		log.log(Level.WARNING, "Init... GetDeltaMobileDataWS(Request<LoginBean<?>> request)");
 		log.log(Level.WARNING, "Request Data" + request.toString());
 		// Get from lsobject request last updated long date
-		Date lastUpdatedDate = new Date(new Long((String) request.getLsObject()));
+		String updateDate = request.getLsObject().toString();
+		Date lastUpdatedDate = new Date(new Long(updateDate));
 		Response<String> response = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		DownloadDao downloadDao = new DownloadDao();
