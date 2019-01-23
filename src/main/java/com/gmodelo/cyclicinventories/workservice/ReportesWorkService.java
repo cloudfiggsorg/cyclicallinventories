@@ -157,18 +157,15 @@ public class ReportesWorkService {
 			list = response.getLsObject();
 			
 			List<String> listDocInv = new ArrayList<>();
-			
 			HashMap<String, List<ConciAccntReportBean>> map = new HashMap<>(); 
 			
 			
 			for(ConciAccntReportBean item : list){
-//				item.setAccountant(80000D);
-				item.setType(item.getType() == "1" ? "Diario" : "Mensual");
+				item.setType(item.getType().equalsIgnoreCase("1") ? "Diario" : "Mensual");
 //				Obteniendo los DocId unicos y generando listas para cada doc inv existente
 				if(listDocInv.size() == 0){
 					listDocInv.add(item.getDocInvId());
 					List<ConciAccntReportBean> listBean = new ArrayList<>();
-					
 					map.put(item.getDocInvId(), listBean);
 				}else{
 					boolean existDocId = false;
