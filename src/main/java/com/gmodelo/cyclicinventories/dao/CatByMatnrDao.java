@@ -2,10 +2,13 @@ package com.gmodelo.cyclicinventories.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.CatByMatnr;
 import com.gmodelo.cyclicinventories.beans.Response;
@@ -22,10 +25,48 @@ public class CatByMatnrDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-		CallableStatement csBatch = null;
-		final String SP = "INV_SP_SAVE_CAT_BY_MATNR ?, ?, ?";
+		CallableStatement csBatch = null;	
+		PreparedStatement stm = null;
+		String lsMatnr = "";
+		final String SP = "INV_SP_SAVE_CAT_BY_MATNR ?, ?, ?";		
+		final String QUERY = "SELECT A.value FROM (SELECT * FROM STRING_SPLIT(?, ',') AS MATNR) AS A "
+				+ " WHERE A.value NOT IN (SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) FROM MAKT)";
+		
+		for(CatByMatnr matnr: lsCatByMatnr){
+			
+			lsMatnr += matnr.getMatnr() + ",";
+		}
 
 		try {
+			
+			log.info(QUERY);
+			log.info("Preparing sentence...");			
+			stm = con.prepareStatement(QUERY);
+			stm.setString(1, lsMatnr);
+			
+			log.info("Executing query...");
+			ResultSet rs = stm.executeQuery();
+			
+			lsMatnr = "";
+			
+			while (rs.next()) {
+				
+				lsMatnr += rs.getString(1) + ", "; 
+			}
+			
+			if(lsMatnr.trim().length() > 0){
+				
+				con.close();
+				
+				lsMatnr = lsMatnr.substring(0, lsMatnr.length() -4);
+				
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("Materiales no encontrados: " + lsMatnr + ".");
+				resp.setAbstractResult(abstractResult);
+				resp.setLsObject(lsMatnr);
+				
+				return resp;
+			}
 			
 			con.setAutoCommit(false);
 			csBatch = con.prepareCall(SP);
