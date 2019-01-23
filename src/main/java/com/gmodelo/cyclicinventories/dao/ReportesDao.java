@@ -438,15 +438,22 @@ public class ReportesDao {
 					positionBean.setMatnrD(rs.getString("MAKTX"));
 					positionBean.setMeins(rs.getString("MEINS"));
 					positionBean.setCounted(rs.getString("DIP_COUNTED"));
-					positionBean.setImwmMarker(rs.getString("IMWM"));					
+					positionBean.setImwmMarker(rs.getString("IMWM"));
+					
 					emse = new E_Mseg_SapEntity();
+					emse.setBukrs(docInvBean.getBukrs());
+					emse.setWerks(docInvBean.getWerks());
 					
 					//Set the movements by matnr on theoric
 					if(positionBean.getImwmMarker().equalsIgnoreCase("IM")){
 						
 						emse.setLgort(positionBean.getLgort());
 						emse.setMatnr(positionBean.getMatnr());
-						positionBean.setTheoric(Double.toString(new SapOperationDao().getMatnrMovementsIM(emse, con)));
+						positionBean.setTheoric(Double.toString(new SapOperationDao().getMatnrMovementsIM(emse, docInvBean.getDocInvId(), con)));
+						
+						System.out.println("Moves IM " + emse.getMatnr() + " - " 
+								+  Double.toString(new SapOperationDao().getMatnrMovementsIM(emse, docInvBean.getDocInvId(), con)));
+						
 					}else{
 						 		
 						emse.setLgort(positionBean.getLgort());
@@ -454,7 +461,10 @@ public class ReportesDao {
 						emse.setLgtyp(positionBean.getLgtyp());
 						emse.setLgpla(positionBean.getLgpla());
 						emse.setMatnr(positionBean.getMatnr());						
-						positionBean.setTheoric(Double.toString(new SapOperationDao().getMatnrMovementsWM(emse, con)));
+						positionBean.setTheoric(Double.toString(new SapOperationDao().getMatnrMovementsWM(emse, docInvBean.getDocInvId(), con)));
+						
+						System.out.println("Moves WM " + emse.getMatnr() + " - " 
+						+  Double.toString(new SapOperationDao().getMatnrMovementsWM(emse, docInvBean.getDocInvId(), con)));
 					}
 					
 					listBean.add(positionBean);
@@ -463,6 +473,17 @@ public class ReportesDao {
 								
 				ArrayList<E_Mard_SapEntity> lsTheoricIM = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), con);
 				ArrayList<E_Lqua_SapEntity> lsTheoricWM = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), con);
+				
+				for(int i = 0; i < lsTheoricIM.size(); i++){
+					
+					System.out.println("Theoric IM " + lsTheoricIM.get(i).getMatnr() + " - " + lsTheoricIM.get(i).getRetme());
+				}
+				
+				for(int i = 0; i < lsTheoricWM.size(); i++){
+					
+					System.out.println("Theoric WM " + lsTheoricWM.get(i).getMatnr() + " - " + lsTheoricWM.get(i).getVerme());
+				}
+				
 				boolean found = false;
 				double theoric = 0;
 				

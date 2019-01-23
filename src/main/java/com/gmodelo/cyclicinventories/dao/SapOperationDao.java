@@ -60,13 +60,15 @@ public class SapOperationDao {
 			+ "SUM(CAST(VERME AS decimal(10,3))) AS CONS FROM E_LQUA_F WHERE DOC_INV_ID = ? GROUP BY MATNR, LGPLA";
 
 	private static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) FROM E_MSEG "
-			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'S') - "
+			+ "WHERE BUKRS = ? AND WERKS = ? AND LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? "
+			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ?) - "
 			+ "(SELECT SUM(CAST(MENGE AS decimal(10,3))) " + "FROM E_MSEG "
-			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE";
+			+ "WHERE BUKRS = ? AND WERKS = ? AND LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? "
+			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ?) AS MENGE";
 
 	private static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(10,3))) FROM E_MSEG "
-			+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'S') - " + "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
-			+ "FROM E_MSEG " + "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'H') AS MENGE ";
+			+ "WHERE BUKRS = ? AND WERKS = ? AND LGORT = ? AND MATNR = ? AND SHKZG = 'S' AND DOC_INV_ID = ?) - " + "(SELECT SUM(CAST(MENGE AS decimal(10,3))) "
+			+ "FROM E_MSEG " + "WHERE BUKRS = ? AND WERKS = ? AND LGORT = ? AND MATNR = ? AND SHKZG = 'H' AND DOC_INV_ID = ?) AS MENGE ";
 
 	private static final String GET_MBEW_PIVOT = "SELECT MATNR from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
@@ -411,20 +413,28 @@ public class SapOperationDao {
 		return lsMatnr;
 	}
 
-	public long getMatnrMovementsWM(E_Mseg_SapEntity emse, Connection con) throws SQLException {
+	public long getMatnrMovementsWM(E_Mseg_SapEntity emse, int docInvId, Connection con) throws SQLException {
 
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(MOVEMENTS_WM);
-		stm.setString(1, emse.getLgort());
-		stm.setString(2, emse.getLgnum());
-		stm.setString(3, emse.getLgtyp());
-		stm.setString(4, emse.getLgpla());
-		stm.setString(5, emse.getMatnr());
-		stm.setString(6, emse.getLgort());
-		stm.setString(7, emse.getLgnum());
-		stm.setString(8, emse.getLgtyp());
-		stm.setString(9, emse.getLgpla());
-		stm.setString(10, emse.getMatnr());
+		
+		stm.setString(1, emse.getBukrs());
+		stm.setString(2, emse.getWerks());		
+		stm.setString(3, emse.getLgort());
+		stm.setString(4, emse.getLgnum());		
+		stm.setString(5, emse.getLgtyp());
+		stm.setString(6, emse.getLgpla());		
+		stm.setString(7, emse.getMatnr());
+		stm.setInt(8, docInvId);
+		
+		stm.setString(9, emse.getBukrs());
+		stm.setString(10, emse.getWerks());		
+		stm.setString(11, emse.getLgort());
+		stm.setString(12, emse.getLgnum());		
+		stm.setString(13, emse.getLgtyp());
+		stm.setString(14, emse.getLgpla());		
+		stm.setString(15, emse.getMatnr());
+		stm.setInt(16, docInvId);
 
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
@@ -436,15 +446,22 @@ public class SapOperationDao {
 		return menge;
 	}
 
-	public long getMatnrMovementsIM(E_Mseg_SapEntity emse, Connection con) throws SQLException {
+	public long getMatnrMovementsIM(E_Mseg_SapEntity emse, int docInvId, Connection con) throws SQLException {
 
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(MOVEMENTS_IM);
-		stm.setString(1, emse.getLgort());
-		stm.setString(2, emse.getMatnr());
-		stm.setString(3, emse.getLgort());
+		stm.setString(1, emse.getBukrs());
+		stm.setString(2, emse.getWerks());
+		stm.setString(3, emse.getLgort());		
 		stm.setString(4, emse.getMatnr());
-
+		stm.setInt(5, docInvId);
+		
+		stm.setString(6, emse.getBukrs());
+		stm.setString(7, emse.getWerks());
+		stm.setString(8, emse.getLgort());		
+		stm.setString(9, emse.getMatnr());
+		stm.setInt(10, docInvId);
+		
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
 
