@@ -14,6 +14,7 @@ public class PosDocInvBean {
 	private String lgpla;
 	private String matnr;
 	private String matnrD;
+	private String category;
 	private String costByUnit;
 	private String meins;
 	private String theoric;
@@ -31,8 +32,8 @@ public class PosDocInvBean {
 	}
 
 	public PosDocInvBean(int posId, int doncInvId, String lgort, String lgortD, String lgtyp, String ltypt,
-			String lgNum, String lgpla, String matnr, String matnrD, String costByUnit, String meins, String theoric, String counted,
-			String diff, String imwmMarker, String consignation, String transit,
+			String lgNum, String lgpla, String matnr, String matnrD, String category, String costByUnit, String meins,
+			String theoric, String counted, String diff, String imwmMarker, String consignation, String transit,
 			ArrayList<Justification> lsJustification) {
 		super();
 		this.posId = posId;
@@ -45,6 +46,7 @@ public class PosDocInvBean {
 		this.lgpla = lgpla;
 		this.matnr = matnr;
 		this.matnrD = matnrD;
+		this.category = category;
 		this.costByUnit = costByUnit;
 		this.meins = meins;
 		this.theoric = theoric;
@@ -75,7 +77,7 @@ public class PosDocInvBean {
 	public String getLgort() {
 		return lgort;
 	}
-
+	
 	public void setLgort(String lgort) {
 		this.lgort = lgort;
 	}
@@ -134,6 +136,14 @@ public class PosDocInvBean {
 
 	public void setMatnrD(String matnrD) {
 		this.matnrD = matnrD;
+	}
+	
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public String getCostByUnit() {
@@ -212,10 +222,10 @@ public class PosDocInvBean {
 	public String toString() {
 		return "PosDocInvBean [posId=" + posId + ", doncInvId=" + doncInvId + ", lgort=" + lgort + ", lgortD=" + lgortD
 				+ ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla=" + lgpla + ", matnr=" + matnr
-				+ ", matnrD=" + matnrD + ", costByUnit=" + costByUnit + ", meins=" + meins + ", theoric=" + theoric
-				+ ", counted=" + counted + ", diff=" + diff + ", imwmMarker=" + imwmMarker + ", consignation="
-				+ consignation + ", transit=" + transit + ", lsJustification="
-				+ lsJustification + "]";
+				+ ", matnrD=" + matnrD + ", category=" + category + ", costByUnit=" + costByUnit + ", meins=" + meins
+				+ ", theoric=" + theoric + ", counted=" + counted + ", diff=" + diff + ", imwmMarker=" + imwmMarker
+				+ ", consignation=" + consignation + ", transit=" + transit + ", lsJustification=" + lsJustification
+				+ "]";
 	}
 
 }

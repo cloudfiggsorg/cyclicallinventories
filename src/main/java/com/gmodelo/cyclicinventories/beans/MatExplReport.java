@@ -5,6 +5,7 @@ public class MatExplReport {
 	private int item;
 	private String matnr;
 	private String description;
+	private String category;
 	private String umb;
 	private String counted;
 	private String matnrExpl;
@@ -16,12 +17,13 @@ public class MatExplReport {
 		super();
 	}
 	
-	public MatExplReport(int item, String matnr, String description, String umb, String counted, String matnrExpl,
-			String descMantrExpl, String umbExpl, String quantity) {
+	public MatExplReport(int item, String matnr, String description, String category, String umb, String counted,
+			String matnrExpl, String descMantrExpl, String umbExpl, String quantity) {
 		super();
 		this.item = item;
 		this.matnr = matnr;
 		this.description = description;
+		this.category = category;
 		this.umb = umb;
 		this.counted = counted;
 		this.matnrExpl = matnrExpl;
@@ -52,6 +54,14 @@ public class MatExplReport {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public String getUmb() {
@@ -104,9 +114,9 @@ public class MatExplReport {
 
 	@Override
 	public String toString() {
-		return "MatExplReport [item=" + item + ", matnr=" + matnr + ", description=" + description + ", umb=" + umb
-				+ ", counted=" + counted + ", matnrExpl=" + matnrExpl + ", descMantrExpl=" + descMantrExpl
-				+ ", umbExpl=" + umbExpl + ", quantity=" + quantity + "]";
+		return "MatExplReport [item=" + item + ", matnr=" + matnr + ", description=" + description + ", category="
+				+ category + ", umb=" + umb + ", counted=" + counted + ", matnrExpl=" + matnrExpl + ", descMantrExpl="
+				+ descMantrExpl + ", umbExpl=" + umbExpl + ", quantity=" + quantity + "]";
 	}
-	
+			
 }

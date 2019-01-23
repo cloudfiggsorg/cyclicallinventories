@@ -55,7 +55,7 @@ public class ExplosionDetailDao {
 
 			for (ExplosionDetail obj : ed) {
 				
-				if(!obj.isRelevant()){
+				if(obj.isRelevant()){
 					
 					csBatch.setString(1, obj.getWerks());
 					csBatch.setString(2, obj.getMatnr());
@@ -117,7 +117,7 @@ public class ExplosionDetailDao {
 
 		final String GET_EXPL_DET = "SELECT  A.WERKS, SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) AS MATNR, "
 				+ "SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL, " 
-				+ "D.MAKTX, C.MEINS, 1 IS_RELEVANT " 
+				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT " 
 				+ "FROM MAST AS A " 
 					+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) " 
 					+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) " 
@@ -224,7 +224,7 @@ public class ExplosionDetailDao {
 		PreparedStatement stm = null;		
 		MatExplReport expl = new MatExplReport();
 		ArrayList<MatExplReport> lsDetail = new ArrayList<>();
-		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, A.MEINS, A.COUNTED, "
+		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MEINS, A.COUNTED, "
 				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, D.MEINS MEINS_EXLP, " 
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
 				+ "(CAST(D.MENGE AS decimal(10, 2)) / CAST(C.BMENG AS decimal(10, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(10, 2)) AS QUANTITY " 
@@ -237,14 +237,16 @@ public class ExplosionDetailDao {
 				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) " 
 				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) " 
 				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DIP_DOC_INV_ID) " 
-				+ "INNER JOIN MAKT AS E ON (A.MATNR = SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR))) " 
+				+ "INNER JOIN MAKT AS E ON (A.MATNR = SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR))) "
+				+ "LEFT JOIN INV_REL_CAT_MAT AS F ON (F.REL_MATNR = A.MATNR) "
+				+ "LEFT JOIN INV_CAT_CATEGORY AS G ON (F.REL_CAT_ID = G.CAT_ID) "
 					+ "WHERE DIP_DOC_INV_ID = ? " 
 						+ "AND B.WERKS = IDIH.DIH_WERKS " 
 						+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " 
-							+ "NOT IN (SELECT EX_COMPONENT " 
+							+ "IN (SELECT EX_COMPONENT " 
 								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
-								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 0) " 
-			+ "GROUP BY A.MATNR, E.MAKTX, A.MEINS, COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG ";
+								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
+			+ "GROUP BY A.MATNR, E.MAKTX, G.CATEGORY, A.MEINS, COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG ";
 
 		log.info(GET_MST_EXPL_REP);
 		log.info("[getExplosionReportByDocInv] Preparing sentence...");
@@ -262,6 +264,7 @@ public class ExplosionDetailDao {
 				expl = new MatExplReport();
 				expl.setMatnr(rs.getString("MATNR"));
 				expl.setDescription(rs.getString("MAKTX"));
+				expl.setCategory(rs.getString("CATEGORY"));
 				expl.setUmb(rs.getString("MEINS"));
 				expl.setCounted(rs.getString("COUNTED"));
 				expl.setMatnrExpl(rs.getString("IDNRK"));

@@ -376,16 +376,19 @@ public class ReportesDao {
 		
 	}
 	
-	private static final String INV_VW_REP_POS_SAP = "SELECT DIP_LGORT, " 
-	+ "CASE "
-		+ "WHEN IMWM = 'IM' THEN NULL "
-		+ "WHEN IMWM = 'WM' THEN (SELECT TOP 1 LGNUM "
+	private static final String INV_VW_REP_POS_SAP = "SELECT DIP_LGORT, "
+			+ "CASE " 
+			+ "WHEN IMWM = 'IM' THEN NULL " 
+			+ "WHEN IMWM = 'WM' THEN (SELECT TOP 1 LGNUM " 
 			+ "FROM INV_VW_NGORT_WITH_GORT INVG " 
-			+ "WHERE WERKS = ? " 
-			+ "AND LEN(LGNUM) > 0) "
-	+ "END LGNUM, LGTYP, DIP_LGPLA, DIP_MATNR, " 
-	+ "MAKTX,MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM " 
-	+ "FROM INV_VW_DOC_INV_REP_POSITIONS WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+			+ "WHERE WERKS = ? "
+			+ "AND LEN(LGNUM) > 0) " 
+			+ "END LGNUM, LGTYP, DIP_LGPLA, DIP_MATNR, " 
+			+ "MAKTX, ISNULL(CATEGORY, '') CATEGORY, MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM " 
+			+ "FROM INV_VW_DOC_INV_REP_POSITIONS AS A WITH(NOLOCK) " 
+			+ "LEFT JOIN INV_REL_CAT_MAT AS B ON (A.DIP_MATNR = B.REL_MATNR) "
+			+ "LEFT JOIN INV_CAT_CATEGORY AS C ON (B.REL_CAT_ID = C.CAT_ID) "
+			+ "WHERE DOC_INV_ID = ?";
 	
 	public Response<DocInvBeanHeaderSAP> getNoClosedConsSapReport(DocInvBean docInvBean) {
 		
@@ -436,6 +439,7 @@ public class ReportesDao {
 					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
 					positionBean.setMatnr(rs.getString("DIP_MATNR"));
 					positionBean.setMatnrD(rs.getString("MAKTX"));
+					positionBean.setCategory(rs.getString("CATEGORY"));	
 					positionBean.setMeins(rs.getString("MEINS"));
 					positionBean.setCounted(rs.getString("DIP_COUNTED"));
 					positionBean.setImwmMarker(rs.getString("IMWM"));
