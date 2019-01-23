@@ -885,7 +885,7 @@ public class ReportesDao {
 		String GENERATE_CONCILIATION_ACCOUNTANT_REPORT = null;
 
 		GENERATE_CONCILIATION_ACCOUNTANT_REPORT = "SELECT DOC_INV_ID, BUKRS, WERKS, DIH_TYPE, DIH_MODIFIED_DATE, ACCOUNTANT, "
-				+ " JUSTIFICATION, DIFFERENCE FROM INV_VW_CONCI_ACCOUNT_REPORT WITH(NOLOCK) ";
+				+ " JUSTIFICATION, DIFFERENCE, CAT_ID, CATEGORY FROM INV_VW_CONCI_ACCOUNT_REPORT WITH(NOLOCK) ";
 		
 		String condition = buildConditionConciAccntnt(carb);
 		if (condition != null) {
@@ -912,6 +912,8 @@ public class ReportesDao {
 				carb.setAccountant(rs.getDouble("ACCOUNTANT"));
 				carb.setAccDiff(rs.getDouble("DIFFERENCE"));
 				carb.setJustification(rs.getDouble("JUSTIFICATION"));
+				carb.setCatId(rs.getInt("CAT_ID"));
+				carb.setCategory(rs.getString("CATEGORY"));
 				listCarb.add(carb);
 			}
 

@@ -1,6 +1,7 @@
 package com.gmodelo.cyclicinventories.workservice;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -154,13 +155,105 @@ public class ReportesWorkService {
 			return response; 
 		}else{
 			list = response.getLsObject();
+			
+			List<String> listDocInv = new ArrayList<>();
+			HashMap<String, List<ConciAccntReportBean>> map = new HashMap<>(); 
+			
+			
 			for(ConciAccntReportBean item : list){
-//				item.setAccountant(80000D);
-				item.setType(item.getType() == "1" ? "Diario" : "Mensual");
+				item.setType(item.getType().equalsIgnoreCase("1") ? "Diario" : "Mensual");
+//				Obteniendo los DocId unicos y generando listas para cada doc inv existente
+				if(listDocInv.size() == 0){
+					listDocInv.add(item.getDocInvId());
+					List<ConciAccntReportBean> listBean = new ArrayList<>();
+					map.put(item.getDocInvId(), listBean);
+				}else{
+					boolean existDocId = false;
+					if(listDocInv.contains(item.getDocInvId())){
+						existDocId = true;
+					}
+					if(!existDocId){
+						listDocInv.add(item.getDocInvId());
+						List<ConciAccntReportBean> listBean = new ArrayList<>();
+						map.put(item.getDocInvId(), listBean);
+					}
+				}
+
+			}
+			
+//			Agregando cada item en su lista por doc inv correspondiente
+			for(String id : listDocInv){
+				for(ConciAccntReportBean item : list){
+					if(id.equalsIgnoreCase(item.getDocInvId())){
+						map.get(id).add(item);
+					}
+				}
+			}
+			
+			List<ConciAccntReportBean> finalList = new ArrayList<>();
+			
+			for(String id : listDocInv){
+				List<Integer> catIdList = new ArrayList<>();
+//				obteniendo todas las categorias de un docInv y creando los beans final
+				for(ConciAccntReportBean carb :map.get(id)){
+					if(catIdList.size() == 0){
+						catIdList.add(carb.getCatId());
+						ConciAccntReportBean finalCArb = new ConciAccntReportBean();
+						finalCArb.setCatId(carb.getCatId());
+						finalCArb.setDocInvId(carb.getDocInvId());
+						finalCArb.setBukrs(carb.getBukrs());
+						finalCArb.setWerks(carb.getWerks());
+						finalCArb.setType(carb.getType());
+						finalCArb.setDateIni(carb.getDateIni());
+						finalCArb.setCategory(carb.getCategory());
+						finalCArb.setAccountant(0D);
+						finalCArb.setJustification(0D);
+						finalCArb.setAccDiff(0D);
+						
+						finalList.add(finalCArb);
+					}else{
+						boolean existCatId = false;
+						if(catIdList.contains(carb.getCatId())){
+							existCatId = true;
+						}
+						if(!existCatId){
+							catIdList.add(carb.getCatId());
+							ConciAccntReportBean finalCArb = new ConciAccntReportBean();
+							finalCArb.setCatId(carb.getCatId());
+							finalCArb.setDocInvId(carb.getDocInvId());
+							finalCArb.setBukrs(carb.getBukrs());
+							finalCArb.setWerks(carb.getWerks());
+							finalCArb.setType(carb.getType());
+							finalCArb.setDateIni(carb.getDateIni());
+							finalCArb.setCategory(carb.getCategory());
+							finalCArb.setAccountant(0D);
+							finalCArb.setJustification(0D);
+							finalCArb.setAccDiff(0D);
+							
+							finalList.add(finalCArb);
+						}
+					}
+				}
+				
+//				usando listaFinal para sumar accountant, justification y difference en los beans finales
+				for(ConciAccntReportBean finalBean : finalList){
+					for(ConciAccntReportBean carb :map.get(id)){
+						
+						if(finalBean.getDocInvId().equalsIgnoreCase(id) && finalBean.getCatId() == carb.getCatId()){
+							finalBean.setAccountant(finalBean.getAccountant()+carb.getAccountant());
+							finalBean.setJustification(finalBean.getJustification()+carb.getJustification());
+							finalBean.setAccDiff(finalBean.getAccDiff()+carb.getAccDiff());
+						}
+					}
+				}
+				
+			}
+			
+			for(ConciAccntReportBean item : finalList){
 				item.setPercAccDiff(String.valueOf((item.getAccDiff()*100)/item.getAccountant()));
 				item.setPercJustification(String.valueOf((item.getJustification()*100)/item.getAccountant()));
 			}
-			response.setLsObject(list);
+			response.setLsObject(finalList);
 		}
 		return response;
 	}
