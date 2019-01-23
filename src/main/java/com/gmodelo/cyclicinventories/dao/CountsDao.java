@@ -71,16 +71,24 @@ public class CountsDao {
 							cs.setString(7,
 									entrada.getValue().getCamas() != null ? entrada.getValue().getCamas() : "0");
 							cs.setString(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : "0");
-							cs.setString(9, entrada.getValue().getTotalConverted() != null
-									? entrada.getValue().getTotalConverted() : "0");
+							cs.setString(9,
+									entrada.getValue().getTotalConverted() != null
+											? entrada.getValue().getTotalConverted()
+											: "0");
 							cs.setString(10, user);
 							cs.setLong(11, entrada.getValue().getDateStart());
 							cs.setLong(12, entrada.getValue().getDateEnd());
-							cs.setString(13, entrada.getValue().getProdDate() != null
-									? entrada.getValue().getProdDate() : "");
-							cs.setString(14, entrada.getValue().getMaterialNotes() != null
-									? entrada.getValue().getMaterialNotes() : "");
-							cs.registerOutParameter(15, Types.INTEGER);
+							cs.setString(13,
+									entrada.getValue().getProdDate() != null ? entrada.getValue().getProdDate() : "");
+							cs.setString(14,
+									entrada.getValue().getMaterialNotes() != null
+											? entrada.getValue().getMaterialNotes()
+											: "");
+							cs.setString(15, entrada.getValue().getCpc() != null ? entrada.getValue().getCpc() : "");
+							cs.setString(16, entrada.getValue().getCpp() != null ? entrada.getValue().getCpp() : "");
+							cs.setString(17,
+									entrada.getValue().getVhilmQuan() != null ? entrada.getValue().getVhilmQuan() : "");
+							cs.registerOutParameter(18, Types.INTEGER);
 							cs.execute();
 
 							log.info("[addConteo] Executing query...");
@@ -147,6 +155,5 @@ public class CountsDao {
 		}
 		return res;
 	}
-
 
 }
