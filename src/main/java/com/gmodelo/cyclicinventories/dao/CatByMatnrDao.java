@@ -36,6 +36,8 @@ public class CatByMatnrDao {
 			
 			lsMatnr += matnr.getMatnr() + ",";
 		}
+		
+		lsMatnr = lsMatnr.substring(0, lsMatnr.length() -1);
 
 		try {
 			
@@ -58,7 +60,7 @@ public class CatByMatnrDao {
 				
 				con.close();
 				
-				lsMatnr = lsMatnr.substring(0, lsMatnr.length() -4);
+				lsMatnr = lsMatnr.substring(0, lsMatnr.length() -2);
 				
 				abstractResult.setResultId(ReturnValues.IEXCEPTION);
 				abstractResult.setResultMsgAbs("Materiales no encontrados: " + lsMatnr + ".");
