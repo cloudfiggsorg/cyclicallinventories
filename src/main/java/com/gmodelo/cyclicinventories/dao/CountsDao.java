@@ -92,7 +92,7 @@ public class CountsDao {
 							cs.execute();
 
 							log.info("[addConteo] Executing query...");
-							int responseAddCount = cs.getInt(15);
+							int responseAddCount = cs.getInt(18);
 
 							if (responseAddCount != 1) {
 								abstractResult.setResultId(ReturnValues.IERROR);
