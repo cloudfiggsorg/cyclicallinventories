@@ -31,7 +31,7 @@ public class CountsDao {
 		CallableStatement cs = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
-		final String INV_SP_ADD_COUNT = "INV_SP_ADD_COUNT ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_COUNT = "INV_SP_ADD_COUNT ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?";
 		String UPDATE_TASK = "SELECT TAS_UPLOAD_DATE FROM INV_TASK WHERE TASK_ID =? ";
 		String INV_SP_UPDATE_TASK = "INV_SP_UPDATE_TASK ?,?,?,?";
 		log.info("[addConteo] Preparing sentence...");
