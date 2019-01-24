@@ -31,7 +31,7 @@ public class CountsDao {
 		CallableStatement cs = null;
 		PreparedStatement stm = null;
 		ResultSet rs = null;
-		final String INV_SP_ADD_COUNT = "INV_SP_ADD_COUNT ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_COUNT = "INV_SP_ADD_COUNT ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?";
 		String UPDATE_TASK = "SELECT TAS_UPLOAD_DATE FROM INV_TASK WHERE TASK_ID =? ";
 		String INV_SP_UPDATE_TASK = "INV_SP_UPDATE_TASK ?,?,?,?";
 		log.info("[addConteo] Preparing sentence...");
@@ -71,20 +71,28 @@ public class CountsDao {
 							cs.setString(7,
 									entrada.getValue().getCamas() != null ? entrada.getValue().getCamas() : "0");
 							cs.setString(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : "0");
-							cs.setString(9, entrada.getValue().getTotalConverted() != null
-									? entrada.getValue().getTotalConverted() : "0");
+							cs.setString(9,
+									entrada.getValue().getTotalConverted() != null
+											? entrada.getValue().getTotalConverted()
+											: "0");
 							cs.setString(10, user);
 							cs.setLong(11, entrada.getValue().getDateStart());
 							cs.setLong(12, entrada.getValue().getDateEnd());
-							cs.setString(13, entrada.getValue().getProdDate() != null
-									? entrada.getValue().getProdDate() : "");
-							cs.setString(14, entrada.getValue().getMaterialNotes() != null
-									? entrada.getValue().getMaterialNotes() : "");
-							cs.registerOutParameter(15, Types.INTEGER);
+							cs.setString(13,
+									entrada.getValue().getProdDate() != null ? entrada.getValue().getProdDate() : "");
+							cs.setString(14,
+									entrada.getValue().getMaterialNotes() != null
+											? entrada.getValue().getMaterialNotes()
+											: "");
+							cs.setString(15, entrada.getValue().getCpc() != null ? entrada.getValue().getCpc() : "");
+							cs.setString(16, entrada.getValue().getCpp() != null ? entrada.getValue().getCpp() : "");
+							cs.setString(17,
+									entrada.getValue().getVhilmQuan() != null ? entrada.getValue().getVhilmQuan() : "");
+							cs.registerOutParameter(18, Types.INTEGER);
 							cs.execute();
 
 							log.info("[addConteo] Executing query...");
-							int responseAddCount = cs.getInt(15);
+							int responseAddCount = cs.getInt(18);
 
 							if (responseAddCount != 1) {
 								abstractResult.setResultId(ReturnValues.IERROR);
@@ -147,6 +155,5 @@ public class CountsDao {
 		}
 		return res;
 	}
-
 
 }
