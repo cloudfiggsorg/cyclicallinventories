@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -224,6 +225,8 @@ public class ExplosionDetailDao {
 		PreparedStatement stm = null;		
 		MatExplReport expl = new MatExplReport();
 		ArrayList<MatExplReport> lsDetail = new ArrayList<>();
+		HashMap<String, ArrayList<MatExplReport>> map = new HashMap<>(); 
+		
 		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MEINS, A.COUNTED, "
 				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, D.MEINS MEINS_EXLP, " 
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
@@ -252,6 +255,10 @@ public class ExplosionDetailDao {
 		log.info("[getExplosionReportByDocInv] Preparing sentence...");
 
 		try {
+			
+			//Get the VHILM by doc inventory
+			ArrayList<MatExplReport> lsVHILM = getVHILM(docInvId, con);
+			
 			stm = con.prepareStatement(GET_MST_EXPL_REP);
 			stm.setInt(1, docInvId);
 			stm.setInt(2, docInvId);
@@ -260,7 +267,7 @@ public class ExplosionDetailDao {
 			ResultSet rs = stm.executeQuery();
 
 			while (rs.next()) {
-
+				
 				expl = new MatExplReport();
 				expl.setMatnr(rs.getString("MATNR"));
 				expl.setDescription(rs.getString("MAKTX"));
@@ -271,9 +278,35 @@ public class ExplosionDetailDao {
 				expl.setDescMantrExpl(rs.getString("MATNR_EXPL_DESC"));
 				expl.setUmbExpl(rs.getString("MEINS_EXLP"));
 				expl.setQuantity(rs.getString("QUANTITY"));
-				lsDetail.add(expl);
-			}
 
+				if(map.containsKey(expl.getMatnr())){
+					map.get(expl.getMatnr()).add(expl);					
+				}else{
+					ArrayList<MatExplReport> lsMatnr = new ArrayList<>();					
+					lsMatnr.add(expl);					
+					map.put(expl.getMatnr(), lsMatnr);					
+				}				
+			}
+			
+			for(MatExplReport matnr: lsVHILM){
+				
+				if(map.containsKey(matnr.getMatnr())){
+					map.get(matnr.getMatnr()).add(matnr);
+					
+				}else{
+					
+					ArrayList<MatExplReport> lsMatnr = new ArrayList<>();
+					lsMatnr.add(matnr);
+					map.put(matnr.getMatnr(), lsMatnr);
+				}
+			}
+									
+			//Iterate the map and create the final list
+			for (ArrayList<MatExplReport> lsMatnr : map.values()) {
+			    			
+				lsDetail.addAll(lsMatnr);
+			}
+			
 			// Retrive the warnings if there're
 			SQLWarning warning = stm.getWarnings();
 			while (warning != null) {
@@ -308,6 +341,54 @@ public class ExplosionDetailDao {
 		}
 		
 		return res;
+	}
+	
+	
+	private ArrayList<MatExplReport> getVHILM(int docInvId, Connection con) throws SQLException {
+		
+		ArrayList<MatExplReport> lsVHILM = new ArrayList<>();
+		final String QUERY = "SELECT A.MATNR, A.COU_VHILM, MEINS, A.MAKTX, SUM(COUNTED) COUNTED " 
+				+ "FROM (SELECT SUBSTRING(A.COU_MATNR, PATINDEX('%[^0 ]%', A.COU_MATNR + ' '), LEN(A.COU_MATNR)) MATNR, COU_VHILM, MEINS, " 
+				+ "MAKTX, CAST(ISNULL(A.COU_VHILM_COUNT, '0') AS decimal(10,3)) COUNTED " 
+				+ "FROM INV_COUNT AS A " 
+				+ "INNER JOIN INV_TASK AS B ON (A.COU_TASK_ID = B.TASK_ID) " 
+				+ "INNER JOIN MAKT AS C ON (A.COU_VHILM = SUBSTRING(C.MATNR, PATINDEX('%[^0 ]%', C.MATNR + ' '), LEN(C.MATNR))) " 
+				+ "INNER JOIN MARA AS F ON (A.COU_VHILM = SUBSTRING(F.MATNR, PATINDEX('%[^0 ]%', F.MATNR + ' '), LEN(F.MATNR))) " 
+				+ "WHERE B.TAS_DOC_INV_ID = ? " 
+				+ "AND COU_VHILM IS NOT NULL " 
+				+ "GROUP BY COU_MATNR, COU_VHILM, MEINS, COU_VHILM_COUNT, MAKTX) AS A " 
+				+ "GROUP BY A.MATNR, A.COU_VHILM, MEINS, A.MAKTX";  
+		PreparedStatement stm = null;	
+		MatExplReport matnrRec = null;
+		stm = con.prepareStatement(QUERY);
+		stm.setInt(1, docInvId);
+		log.info("[getVHILM] Executing query...");
+
+		ResultSet rs = stm.executeQuery();
+
+		while (rs.next()) {
+
+			matnrRec = new MatExplReport();
+			matnrRec.setMatnr(rs.getString("MATNR"));
+			matnrRec.setMatnrExpl(rs.getString("COU_VHILM"));	
+			matnrRec.setUmbExpl(rs.getString("MEINS"));
+			matnrRec.setDescMantrExpl(rs.getString("MAKTX"));			
+			matnrRec.setQuantity(rs.getString("COUNTED"));			
+			lsVHILM.add(matnrRec);
+		}
+
+		// Retrive the warnings if there're
+		SQLWarning warning = stm.getWarnings();
+		while (warning != null) {
+			log.log(Level.WARNING, warning.getMessage());
+			warning = warning.getNextWarning();
+		}
+
+		// Free resources
+		rs.close();
+		stm.close();
+		
+		return lsVHILM;		
 	}
 		
 }

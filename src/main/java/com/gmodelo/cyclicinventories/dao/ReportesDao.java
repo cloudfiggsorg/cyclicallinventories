@@ -401,8 +401,7 @@ public class ReportesDao {
 		List<PosDocInvBean> listBean = new ArrayList<>();
 		String lsMatnr = "";
 		E_Mseg_SapEntity emse;
-		
-		
+				
 		log.info(INV_VW_REP_HEADER);
 		log.info("[getReporteDocInvDao] Preparing sentence...");
 		try {
