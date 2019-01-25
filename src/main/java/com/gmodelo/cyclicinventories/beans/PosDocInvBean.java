@@ -1,6 +1,7 @@
 package com.gmodelo.cyclicinventories.beans;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class PosDocInvBean {
 		
@@ -23,6 +24,7 @@ public class PosDocInvBean {
 	private String imwmMarker;
 	private String consignation;
 	private String transit;
+	private Date dCounted;
 	private ArrayList<Justification> lsJustification;
 	
 	public PosDocInvBean(){
@@ -34,7 +36,7 @@ public class PosDocInvBean {
 	public PosDocInvBean(int posId, int doncInvId, String lgort, String lgortD, String lgtyp, String ltypt,
 			String lgNum, String lgpla, String matnr, String matnrD, String category, String costByUnit, String meins,
 			String theoric, String counted, String diff, String imwmMarker, String consignation, String transit,
-			ArrayList<Justification> lsJustification) {
+			Date dCounted, ArrayList<Justification> lsJustification) {
 		super();
 		this.posId = posId;
 		this.doncInvId = doncInvId;
@@ -55,6 +57,7 @@ public class PosDocInvBean {
 		this.imwmMarker = imwmMarker;
 		this.consignation = consignation;
 		this.transit = transit;
+		this.dCounted = dCounted;
 		this.lsJustification = lsJustification;
 	}
 
@@ -77,7 +80,7 @@ public class PosDocInvBean {
 	public String getLgort() {
 		return lgort;
 	}
-	
+
 	public void setLgort(String lgort) {
 		this.lgort = lgort;
 	}
@@ -137,7 +140,7 @@ public class PosDocInvBean {
 	public void setMatnrD(String matnrD) {
 		this.matnrD = matnrD;
 	}
-	
+
 	public String getCategory() {
 		return category;
 	}
@@ -210,6 +213,14 @@ public class PosDocInvBean {
 		this.transit = transit;
 	}
 
+	public Date getdCounted() {
+		return dCounted;
+	}
+
+	public void setdCounted(Date dCounted) {
+		this.dCounted = dCounted;
+	}
+
 	public ArrayList<Justification> getLsJustification() {
 		return lsJustification;
 	}
@@ -224,8 +235,8 @@ public class PosDocInvBean {
 				+ ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla=" + lgpla + ", matnr=" + matnr
 				+ ", matnrD=" + matnrD + ", category=" + category + ", costByUnit=" + costByUnit + ", meins=" + meins
 				+ ", theoric=" + theoric + ", counted=" + counted + ", diff=" + diff + ", imwmMarker=" + imwmMarker
-				+ ", consignation=" + consignation + ", transit=" + transit + ", lsJustification=" + lsJustification
-				+ "]";
+				+ ", consignation=" + consignation + ", transit=" + transit + ", dCounted=" + dCounted
+				+ ", lsJustification=" + lsJustification + "]";
 	}
 
 }
