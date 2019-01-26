@@ -240,7 +240,7 @@ public class SapConciliationDao {
 
 	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
 			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE "
-			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE  DOC_INV_ID = ?";
+			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE DOC_INV_ID = ?";
 
 	public Response<DocInvBeanHeaderSAP> getClosedConsSapReport(DocInvBean docInvBean) {
 
