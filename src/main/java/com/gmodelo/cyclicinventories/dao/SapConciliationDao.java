@@ -307,9 +307,13 @@ public class SapConciliationDao {
 		return res;
 	}
 
-	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
-			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION FROM INV_VW_CONC_SAP "
-			+ "WHERE DOC_INV_ID = ? " + "GROUP BY CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
+	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_MATNR, ISNULL(CATEGORY, '') CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, " 
+			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION " 
+			+ "FROM INV_VW_CONC_SAP AS A "
+			+ "LEFT JOIN INV_REL_CAT_MAT AS B ON (A.CS_MATNR = B.REL_MATNR) "
+			+ "LEFT JOIN INV_CAT_CATEGORY AS C ON (B.REL_CAT_ID = C.CAT_ID) "
+			+ "WHERE DOC_INV_ID = ? "
+			+ "GROUP BY CS_CON_SAP, CS_MATNR, CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, " 
 			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION";
 
 	public ArrayList<PosDocInvBean> getConciliationSAPPositions(int docInvId, Connection con) throws SQLException {
@@ -330,6 +334,7 @@ public class SapConciliationDao {
 				pdib.setPosId(rs.getInt("CS_CON_SAP"));
 				pdib.setMatnr(rs.getString("CS_MATNR"));
 				pdib.setMatnrD(rs.getString("MAKTX"));
+				pdib.setCategory(rs.getString("CATEGORY"));
 				pdib.setMeins(rs.getString("MEINS"));
 				pdib.setCostByUnit(rs.getString("CS_COST_BY_UNIT"));
 				pdib.setTheoric(rs.getString("CS_THEORIC"));
