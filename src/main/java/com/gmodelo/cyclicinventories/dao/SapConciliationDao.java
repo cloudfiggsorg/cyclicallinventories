@@ -243,6 +243,8 @@ public class SapConciliationDao {
 			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE DOC_INV_ID = ?";
 
 	public Response<DocInvBeanHeaderSAP> getClosedConsSapReport(DocInvBean docInvBean) {
+		
+		System.out.println("here");
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -306,9 +308,9 @@ public class SapConciliationDao {
 	}
 
 	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
-			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, IMWM " + "FROM INV_VW_CONC_SAP "
+			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION FROM INV_VW_CONC_SAP "
 			+ "WHERE DOC_INV_ID = ? " + "GROUP BY CS_CON_SAP, CS_MATNR, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
-			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, IMWM";
+			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION";
 
 	public ArrayList<PosDocInvBean> getConciliationSAPPositions(int docInvId, Connection con) throws SQLException {
 
@@ -335,7 +337,6 @@ public class SapConciliationDao {
 				pdib.setDiff(rs.getString("CS_DIFFERENCE"));
 				pdib.setTransit(rs.getString("CS_TRANSIT"));
 				pdib.setConsignation(rs.getString("CS_CONSIGNATION"));
-				pdib.setImwmMarker(rs.getString("IMWM"));
 				lsPosIds += pdib.getPosId() + ",";
 				lsPdib.add(pdib);
 			}
