@@ -17,6 +17,7 @@ import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.GroupBean;
 import com.gmodelo.cyclicinventories.beans.LgplaValuesBean;
+import com.gmodelo.cyclicinventories.beans.LoginBean;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.RouteUserBean;
@@ -201,9 +202,11 @@ public class ConciliacionWorkService {
 					Response<TaskBean> resTask = new TaskWorkService().addTaskSpecial(taskBean, user);
 					if (resTask.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
 						Request req = new Request<>();
+						LoginBean tokenObject = new LoginBean<>();
+						req.setTokenObject(tokenObject);
 						req.getTokenObject().setLoginId(listUser.get(0));
-						String rubString = routeWorkService.getRoutesByUser(req);
-						RouteUserBean rub = gson.fromJson(gson.toJson(rubString), RouteUserBean.class);
+						Response<RouteUserBean> respRUB = routeWorkService.getRoutesByUserSAP(req);
+						RouteUserBean rub = respRUB.getLsObject();
 
 						for (RouteUserPositionBean rubPos : rub.getPositions()) {
 							for (ZoneUserPositionsBean zonePos : rubPos.getZone().getPositionsB()) {
