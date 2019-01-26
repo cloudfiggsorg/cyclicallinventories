@@ -434,8 +434,6 @@ public class ReportesDao {
 				
 				rs = stm.executeQuery();	
 				
-				int count = 0;
-				
 				while (rs.next()) {
 					
 					PosDocInvBean positionBean = new PosDocInvBean();
@@ -457,32 +455,25 @@ public class ReportesDao {
 					
 					listBean.add(positionBean);
 					lsMatnr += positionBean.getMatnr() + ",";
-					
-					if(positionBean.getImwmMarker().equals("WM")){
-						count ++;
-					}
-					
+										
 				}
-				
-				System.out.println(count);
-				
+								
 				//Group by matnr and set the teoric for WM
 				HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();				
 				PosDocInvBean pbAux = null;
 				double sumCounted = 0;
 				double theoric = 0;
+				int count = 0;
 				
 				//Get the dates were the matnr was counted
 				ArrayList<PosDocInvBean> lsMatnrDates = sod.getMatnrDates(docInvBean.getDocInvId(), con);
-				
-				count = 0;
 				
 				for(PosDocInvBean pb: listBean){
 					
 					//Get the teoric only for WM
 					if(pb.getImwmMarker().equals("WM")){
 						
-						count++;
+						count ++;
 						
 						Date dateCounted = null;
 						
@@ -522,7 +513,7 @@ public class ReportesDao {
 					}
 				}
 				
-				System.out.println("2 " + count);
+				System.out.println("COUNT WM " + count);
 				
 				//Reset the list and make a new one with filtered values
 				listBean.clear();
@@ -540,7 +531,9 @@ public class ReportesDao {
 				Pattern patron = Pattern.compile("INVIM[0-9]{4,}");
 			    Matcher mat; 
 				
-				//Set the transit, consignation, and cost by matnr
+			    count = 0;
+			    
+				//Set the transit, consignation, and cost by matnr			    
 				for(PosDocInvBean pb: listBean){
 					
 					//Set the teoric for IM
@@ -549,15 +542,22 @@ public class ReportesDao {
 						//Set the theoric + the movements by matnr
 						Date dateCounted = null;
 						for(PosDocInvBean pdib: lsMatnrDates){
-							
+														
 							mat = patron.matcher(pdib.getLgtyp());
 							if(mat.matches() 
 									&& pdib.getLgort().contentEquals(pb.getLgort())
 									&& pdib.getMatnr().contentEquals(pb.getMatnr())){
+								count ++;
+								
 								dateCounted = pdib.getdCounted();																
 								break;
 							}
-						}						
+						}
+						
+						if(dateCounted == null){
+							System.out.println("dateCounted NULL");
+							System.out.println(pb.toString());
+						}
 						
 						E_Mard_SapEntity ems = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), pb,  con);
 						long movementsIM = sod.getMatnrMovementsIM(pb, docInvBean.getDocInvId(), dateCounted, con);
@@ -598,6 +598,8 @@ public class ReportesDao {
 					}
 										
 				}
+				
+				System.out.println("count IM " + count); 
 																
 				bean.setDocInvPosition(listBean);
 			} else {
