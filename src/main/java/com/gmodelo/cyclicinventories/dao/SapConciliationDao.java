@@ -244,8 +244,6 @@ public class SapConciliationDao {
 
 	public Response<DocInvBeanHeaderSAP> getClosedConsSapReport(DocInvBean docInvBean) {
 		
-		System.out.println("here");
-
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
