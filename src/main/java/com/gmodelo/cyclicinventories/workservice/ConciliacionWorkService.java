@@ -198,6 +198,9 @@ public class ConciliacionWorkService {
 				taskBean.setTaskJSON(null);
 				Response<DocInvBean> resDao = new DocInvDao().addDocInv(docInvBean, docInvBean.getCreatedBy());
 				if (resDao.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
+					//INICIOfoto inventario
+					new SapConciliationWorkService().WS_RuntimeInventorySnapShot(resDao.getLsObject());
+					//FINfoto inventario 
 					taskBean.setDocInvId(resDao.getLsObject());
 					Response<TaskBean> resTask = new TaskWorkService().addTaskSpecial(taskBean, user);
 					if (resTask.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
