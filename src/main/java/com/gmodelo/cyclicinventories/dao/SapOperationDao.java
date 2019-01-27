@@ -83,7 +83,7 @@ public class SapOperationDao {
 			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
 			+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS B ON (A.DIP_DOC_INV_ID = B.DOC_INV_ID) "
 			+ "INNER JOIN INV_VW_NGORT_WITH_GORT AS C ON (B.DIH_WERKS = C.WERKS AND A.DIP_LGORT = C.LGORT) "
-			+ "WHERE DIP_DOC_INV_ID = ? AND LEN(LGNUM) > 0 "
+			+ "WHERE DIP_DOC_INV_ID = ? AND LEN(LGNUM) > 0 AND DIP_COUNT_DATE IS NOT NULL "
 			+ "GROUP BY LGNUM, LNUMT, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR) AS TAB "
 			+ "GROUP BY LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE";
 
@@ -496,10 +496,8 @@ public class SapOperationDao {
 		
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COUNTED_MATNRS);
-		stm.setInt(1, docInvId);		
-		
+		stm.setInt(1, docInvId);				
 		ResultSet rs = stm.executeQuery();
-
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
 		PosDocInvBean matnr;
 
@@ -512,13 +510,12 @@ public class SapOperationDao {
 			matnr.setMatnr(rs.getString("DIP_MATNR"));
 			matnr.setdCounted(rs.getDate("DIP_COUNT_DATE"));
 			lsMatnr.add(matnr);
-		}		
+			System.out.println(matnr);
+		}
 		
 		return lsMatnr;
 	}
-	
-	
-
+		
 	/*
 	 * THIS IS THE SECTION FOR INSERT METHODS
 	 * 
