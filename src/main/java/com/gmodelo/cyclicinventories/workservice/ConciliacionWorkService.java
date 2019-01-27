@@ -191,9 +191,6 @@ public class ConciliacionWorkService {
 			if (!listUser.isEmpty()) {
 				docInvBean = taskBean.getDocInvId();
 				docInvBean.setCreatedBy(user.getEntity().getIdentyId());
-				docInvBean.setType(String.valueOf(ReturnValues.CONTEO_ESPECIAL));
-				docInvBean.setDocFatherInvId(docInvBean.getDocInvId());
-				docInvBean.setDocInvId(null);
 				String[] arrMatnr = taskBean.getTaskJSON().split("\\|");
 				taskBean.setTaskJSON(null);
 				Response<DocInvBean> resDao = new DocInvDao().addDocInv(docInvBean, docInvBean.getCreatedBy());
