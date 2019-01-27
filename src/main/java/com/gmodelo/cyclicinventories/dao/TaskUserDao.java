@@ -20,6 +20,7 @@ import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.TaskBean;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
+import com.gmodelo.cyclicinventories.workservice.SapConciliationWorkService;
 
 public class TaskUserDao {
 
@@ -53,6 +54,7 @@ public class TaskUserDao {
 				DocInvDao dao = new DocInvDao();
 				Response<DocInvBean> res = dao.addDocInv(docInv, user);
 				if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
+					new SapConciliationWorkService().WS_RuntimeInventorySnapShot(res.getLsObject());
 					TaskBean taskBean = new TaskBean();
 					taskBean.setDocInvId(res.getLsObject());
 					taskBean.setGroupId(rs.getString("GROUP_ID"));
