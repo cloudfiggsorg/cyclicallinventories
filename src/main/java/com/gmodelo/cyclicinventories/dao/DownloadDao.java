@@ -30,7 +30,8 @@ public class DownloadDao {
 			+ "INNER JOIN MARM MM ON MR.MATNR = MM.MATNR "
 			+ "GROUP BY MR.MATNR, MK.MAKTX, MR.MEINS, MM.MEINH, MM.UMREZ, MM.UMREN, MR.EANNR, MR.EAN11";
 
-	public static final String GET_CLASS_SYSTEM = "SELECT MATNR, SMBEZ, ATFLV, ATNAM FROM E_CLASS WITH(NOLOCK)";
+	public static final String GET_CLASS_SYSTEM = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, "
+			+ "SMBEZ, ATFLV, ATNAM FROM E_CLASS WITH(NOLOCK)";
 
 	public List<MaterialTarimasBean> getAllMaterialCrossTarimas(Connection con) throws InvCicException {
 		List<MaterialTarimasBean> materialTarimasList = new ArrayList<>();
