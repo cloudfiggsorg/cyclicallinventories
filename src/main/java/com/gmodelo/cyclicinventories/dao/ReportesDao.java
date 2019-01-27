@@ -489,16 +489,19 @@ public class ReportesDao {
 								break;
 							}
 						}
-						
-						long movements = sod.getMatnrMovementsWM(pb, docInvBean.getDocInvId(), dateCounted, con);
-						
-						//Get the teoric for this matnr
-						E_Lqua_SapEntity els = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), pb,  con);
-						//Get the movements for this matnr
-													
-						theoric = Double.parseDouble(pb.getTheoric());
-						theoric += Double.parseDouble(els.getVerme() + movements);
-						pb.setTheoric(Double.toString(theoric));
+												
+						if(dateCounted != null){
+							
+							long movements = sod.getMatnrMovementsWM(pb, docInvBean.getDocInvId(), dateCounted, con);
+							//Get the teoric for this matnr
+							E_Lqua_SapEntity els = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), pb,  con);
+							//Get the movements for this matnr
+														
+							theoric = Double.parseDouble(pb.getTheoric());
+							theoric += Double.parseDouble(els.getVerme() + movements);
+							pb.setTheoric(Double.toString(theoric));
+						}
+												
 					}
 					
 					if (mapByMatNr.containsKey(pb.getMatnr())) {
@@ -554,16 +557,13 @@ public class ReportesDao {
 							}
 						}
 						
-						if(dateCounted == null){
-							System.out.println("dateCounted NULL");
-							System.out.println(pb.toString());
+						if(dateCounted != null){
+							E_Mard_SapEntity ems = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), pb,  con);
+							long movementsIM = sod.getMatnrMovementsIM(pb, docInvBean.getDocInvId(), dateCounted, con);
+													
+							movementsIM += Long.parseLong(ems.getRetme());
+							pb.setTheoric(Long.toString(movementsIM));
 						}
-						
-						E_Mard_SapEntity ems = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), pb,  con);
-						long movementsIM = sod.getMatnrMovementsIM(pb, docInvBean.getDocInvId(), dateCounted, con);
-												
-						movementsIM += Long.parseLong(ems.getRetme());
-						pb.setTheoric(Long.toString(movementsIM));
 						
 					}
 					
