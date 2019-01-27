@@ -429,7 +429,7 @@ public class ReportesDao {
 				log.info("[getReporteDocInvDao] Preparing sentence...");
 				
 				stm = con.prepareStatement(INV_VW_REP_POS_SAP);				
-				stm.setString(1, docInvBean.getWerks());
+				stm.setString(1, bean.getWerks());
 				stm.setInt(2, docInvBean.getDocInvId());
 				
 				rs = stm.executeQuery();	
