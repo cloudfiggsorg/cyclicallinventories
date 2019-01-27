@@ -76,8 +76,8 @@ public class CountsDao {
 											? entrada.getValue().getTotalConverted()
 											: "0");
 							cs.setString(10, user);
-							cs.setLong(11, entrada.getValue().getDateStart());
-							cs.setLong(12, entrada.getValue().getDateEnd());
+							cs.setDate(11,new java.sql.Date(entrada.getValue().getDateStart()));
+							cs.setDate(12, new java.sql.Date(entrada.getValue().getDateEnd()));
 							cs.setString(13,
 									entrada.getValue().getProdDate() != null ? entrada.getValue().getProdDate() : "");
 							cs.setString(14,
