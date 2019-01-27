@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Types;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -475,12 +476,13 @@ public class DocInvDao {
 	}
 
 	private static final String INSERT_DOCUMENT_INVENTORY_POSITIONS = "INSERT INTO INV_DOC_INVENTORY_POSITIONS "
-			+ " (DIP_DOC_INV_ID,DIP_LGORT,DIP_LGTYP,DIP_LGPLA,DIP_MATNR,DIP_COUNTED) VALUES (?,?,?,?,?,?)";
+			+ " (DIP_DOC_INV_ID,DIP_LGORT,DIP_LGTYP,DIP_LGPLA,DIP_MATNR,DIP_COUNTED,DIP_COUNT_DATE_INI,DIP_COUNT_DATE) VALUES (?,?,?,?,?,?,?,?)";
 
 	public AbstractResultsBean addDocumentPosition(List<DocInvPositionBean> positionBean, Connection con)
 			throws SQLException {
 		AbstractResultsBean resultBean = new AbstractResultsBean();
 		PreparedStatement stm = con.prepareStatement(INSERT_DOCUMENT_INVENTORY_POSITIONS);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
 		for (DocInvPositionBean singleBean : positionBean) {
 			stm.setInt(1, singleBean.getDocInvId());
 			stm.setString(2, singleBean.getLgort());
@@ -488,6 +490,28 @@ public class DocInvDao {
 			stm.setString(4, singleBean.getLgpla());
 			stm.setString(5, singleBean.getMatnr());
 			stm.setString(6, singleBean.getCounted());
+			if(singleBean.getDateIni() == null){
+				stm.setNull(7,Types.TIMESTAMP);
+			}else{
+				
+				try {
+					stm.setTimestamp(7, new java.sql.Timestamp(sdf.parse(singleBean.getDateIni()).getTime()));
+				} catch (ParseException e) {
+					stm.setNull(7,Types.TIMESTAMP);
+					e.printStackTrace();
+				}
+			}
+			
+			if(singleBean.getDateEnd() == null){
+				stm.setNull(8,Types.TIMESTAMP);
+			}else{
+				try {
+					stm.setTimestamp(8, new java.sql.Timestamp(sdf.parse(singleBean.getDateEnd()).getTime()));
+				} catch (ParseException e) {
+					stm.setNull(8,Types.TIMESTAMP);
+					e.printStackTrace();
+				}
+			}
 			stm.addBatch();
 		}
 		stm.executeBatch();

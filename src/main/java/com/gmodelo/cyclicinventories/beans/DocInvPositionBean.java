@@ -14,6 +14,8 @@ public class DocInvPositionBean {
 	private String meins;
 	private String explosion;
 	private Integer zoneId;
+	private String dateIni;
+	private String dateEnd;
 
 	public int getDocInvId() {
 		return docInvId;
@@ -111,15 +113,33 @@ public class DocInvPositionBean {
 		this.zoneId = zoneId;
 	}
 
+	public String getDateIni() {
+		return dateIni;
+	}
+
+	public void setDateIni(String dateIni) {
+		this.dateIni = dateIni;
+	}
+
+	public String getDateEnd() {
+		return dateEnd;
+	}
+
+	public void setDateEnd(String dateEnd) {
+		this.dateEnd = dateEnd;
+	}
+
 	@Override
 	public String toString() {
 		return "DocInvPositionBean [docInvId=" + docInvId + ", lgort=" + lgort + ", lgtyp=" + lgtyp + ", lgpla=" + lgpla
 				+ ", matnr=" + matnr + ", theoric=" + theoric + ", counted=" + counted + ", diffCounted=" + diffCounted
-				+ ", flag=" + flag + ", meins=" + meins + ", explosion=" + explosion + ", zoneId=" + zoneId + "]";
+				+ ", flag=" + flag + ", meins=" + meins + ", explosion=" + explosion + ", zoneId=" + zoneId
+				+ ", dateIni=" + dateIni + ", dateEnd=" + dateEnd + "]";
 	}
 
 	public DocInvPositionBean(int docInvId, String lgort, String lgtyp, String lgpla, String matnr, String theoric,
-			String counted, String diffCounted, String flag, String meins, String explosion, Integer zoneId) {
+			String counted, String diffCounted, String flag, String meins, String explosion, Integer zoneId,
+			String dateIni, String dateEnd) {
 		super();
 		this.docInvId = docInvId;
 		this.lgort = lgort;
@@ -133,6 +153,8 @@ public class DocInvPositionBean {
 		this.meins = meins;
 		this.explosion = explosion;
 		this.zoneId = zoneId;
+		this.dateIni = dateIni;
+		this.dateEnd = dateEnd;
 	}
 
 	public DocInvPositionBean() {
