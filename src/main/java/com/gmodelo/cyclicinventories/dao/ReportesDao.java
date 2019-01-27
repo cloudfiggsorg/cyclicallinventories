@@ -464,7 +464,7 @@ public class ReportesDao {
 				double sumCounted = 0;
 				double theoric = 0;
 				int count = 0;
-				
+								
 				//Get the dates were the matnr was counted
 				ArrayList<PosDocInvBean> lsMatnrDates = sod.getMatnrDates(docInvBean.getDocInvId(), con);
 				
