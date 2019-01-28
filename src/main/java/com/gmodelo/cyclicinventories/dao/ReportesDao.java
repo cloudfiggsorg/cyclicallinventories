@@ -471,38 +471,40 @@ public class ReportesDao {
 				for(PosDocInvBean pb: listBean){
 					
 					//Get the teoric only for WM
-					if(pb.getImwmMarker().equals("WM")){
-						
-						count ++;
-						
-						Date dateCounted = null;
-						
-						for(PosDocInvBean pdib: lsMatnrDates){
-							
-							if(pdib.getLgNum().contentEquals(pb.getLgNum())
-									&& pdib.getLgort().contentEquals(pb.getLgort())
-									&& pdib.getLgtyp().contentEquals(pb.getLgtyp())
-									&& pdib.getLgpla().contentEquals(pb.getLgpla())
-									&& pdib.getMatnr().contentEquals(pb.getMatnr())){
-								dateCounted = pdib.getdCounted();
-								
-								break;
-							}
-						}
-												
-						if(dateCounted != null){
-							
-							long movements = sod.getMatnrMovementsWM(pb, docInvBean.getDocInvId(), dateCounted, con);
-							//Get the teoric for this matnr
-							E_Lqua_SapEntity els = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), pb,  con);
-							//Get the movements for this matnr
-														
-							theoric = Double.parseDouble(pb.getTheoric());
-							theoric += Double.parseDouble(els.getVerme() + movements);
-							pb.setTheoric(Double.toString(theoric));
-						}
-												
-					}
+//					if(pb.getImwmMarker().equals("WM")){
+//						
+//						count ++;
+//						
+//						Date dateCounted = null;
+//						
+//						for(PosDocInvBean pdib: lsMatnrDates){
+//							
+//							if(pdib.getLgNum().contentEquals(pb.getLgNum())
+//									&& pdib.getLgort().contentEquals(pb.getLgort())
+//									&& pdib.getLgtyp().contentEquals(pb.getLgtyp())
+//									&& pdib.getLgpla().contentEquals(pb.getLgpla())
+//									&& pdib.getMatnr().contentEquals(pb.getMatnr())){
+//								dateCounted = pdib.getdCounted();
+//								
+//								break;
+//							}
+//						}
+//												
+//						if(dateCounted != null){
+//							
+//							long movements = sod.getMatnrMovementsWM(pb, docInvBean.getDocInvId(), dateCounted, con);
+//							System.out.println(movements);
+//							
+//							//Get the teoric for this matnr
+//							E_Lqua_SapEntity els = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), pb,  con);
+//							//Get the movements for this matnr
+//														
+//							theoric = Double.parseDouble(pb.getTheoric());
+//							theoric += Double.parseDouble(els.getVerme() + movements);
+//							pb.setTheoric(Double.toString(theoric));
+//						}
+//												
+//					}
 					
 					if (mapByMatNr.containsKey(pb.getMatnr())) {
 						
@@ -531,8 +533,8 @@ public class ReportesDao {
 				ArrayList<E_Msku_SapEntity> lsCons = sod.getMatnrOnCons(docInvBean.getDocInvId(), con);
 				ArrayList<CostByMatnr> lsMatnrCost = sod.getCostByMatnr(lsMatnr, bean.getWerks(), con);
 				
-				Pattern patron = Pattern.compile("INVIM[0-9]{4,}");
-			    Matcher mat; 
+//				Pattern patron = Pattern.compile("INVIM[0-9]{4,}");
+//			    Matcher mat; 
 				
 			    count = 0;
 			    
@@ -540,31 +542,56 @@ public class ReportesDao {
 				for(PosDocInvBean pb: listBean){
 					
 					//Set the teoric for IM
-					if(pb.getImwmMarker().equals("IM")){
-						
-						//Set the theoric + the movements by matnr
-						Date dateCounted = null;
-						for(PosDocInvBean pdib: lsMatnrDates){
-														
-							mat = patron.matcher(pdib.getLgtyp());
-							if(mat.matches() 
-									&& pdib.getLgort().contentEquals(pb.getLgort())
-									&& pdib.getMatnr().contentEquals(pb.getMatnr())){
-								count ++;
-								
-								dateCounted = pdib.getdCounted();																
-								break;
-							}
-						}
-						
-						if(dateCounted != null){
-							E_Mard_SapEntity ems = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), pb,  con);
-							long movementsIM = sod.getMatnrMovementsIM(pb, docInvBean.getDocInvId(), dateCounted, con);
+//					if(pb.getImwmMarker().equals("IM")){
+//						
+//						//Set the theoric + the movements by matnr
+//						Date dateCounted = null;
+//						for(PosDocInvBean pdib: lsMatnrDates){
+//														
+//							mat = patron.matcher(pdib.getLgtyp());
+//							if(mat.matches() 
+//									&& pdib.getLgort().contentEquals(pb.getLgort())
+//									&& pdib.getMatnr().contentEquals(pb.getMatnr())){
+//								count ++;
+//								
+//								dateCounted = pdib.getdCounted();																
+//								break;
+//							}
+//						}
+//						
+//						if(dateCounted != null){
+//							E_Mard_SapEntity ems = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), pb,  con);
+//							long movementsIM = sod.getMatnrMovementsIM(pb, docInvBean.getDocInvId(), dateCounted, con);
+//													
+//							movementsIM += Long.parseLong(ems.getRetme());
+//							pb.setTheoric(Long.toString(movementsIM));
+//						}
+//						
+//					}
+					
+					Date dateCounted = null;
+					for(PosDocInvBean pdib: lsMatnrDates){
 													
-							movementsIM += Long.parseLong(ems.getRetme());
-							pb.setTheoric(Long.toString(movementsIM));
+						//mat = patron.matcher(pdib.getLgtyp());
+						if(pdib.getLgort().contentEquals(pb.getLgort())
+								&& pdib.getMatnr().contentEquals(pb.getMatnr())){
+							count ++;
+							
+							dateCounted = pdib.getdCounted();																
+							break;
 						}
+					}
+					
+					if(dateCounted != null){
+						E_Mard_SapEntity ems = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), pb,  con);
+						long movementsIM = sod.getMatnrMovementsIM(pb, docInvBean.getDocInvId(), dateCounted, con);
 						
+						System.out.println(movementsIM);
+						
+						
+												
+						movementsIM += Long.parseLong(ems.getRetme());
+						pb.setTheoric(Long.toString(movementsIM));
 					}
 					
 					//Set the cost by matnr
