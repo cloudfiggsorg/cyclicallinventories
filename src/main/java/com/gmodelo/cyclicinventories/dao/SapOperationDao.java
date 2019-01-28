@@ -446,12 +446,12 @@ public class SapOperationDao {
 		stm.setString(1, pdib.getLgort());		
 		stm.setString(2, pdib.getMatnr());
 		stm.setInt(3, docInvId);
-		stm.setDate(4, new java.sql.Date(dcounted.getTime()));
+		stm.setTimestamp(4, new java.sql.Timestamp(dcounted.getTime()));
 		
 		stm.setString(5, pdib.getLgort());		
 		stm.setString(6, pdib.getMatnr());
 		stm.setInt(7, docInvId);
-		stm.setDate(8, new java.sql.Date(dcounted.getTime()));
+		stm.setTimestamp(8, new java.sql.Timestamp(dcounted.getTime()));
 		
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
@@ -472,7 +472,7 @@ public class SapOperationDao {
 		stm.setString(2, pdib.getLgNum());		
 		stm.setString(3, pdib.getLgtyp());
 		stm.setString(4, pdib.getLgpla());
-		stm.setDate(5, new java.sql.Date(dcounted.getTime()));
+		stm.setTimestamp(5, new java.sql.Timestamp(dcounted.getTime()));
 		stm.setString(6, pdib.getMatnr());
 		stm.setInt(7, docInvId);
 				
@@ -480,7 +480,7 @@ public class SapOperationDao {
 		stm.setString(9, pdib.getLgNum());		
 		stm.setString(10, pdib.getLgtyp());
 		stm.setString(11, pdib.getLgpla());
-		stm.setDate(12, new java.sql.Date(dcounted.getTime()));
+		stm.setTimestamp(12, new java.sql.Timestamp(dcounted.getTime()));
 		stm.setString(13, pdib.getMatnr());
 		stm.setInt(14, docInvId);
 		
