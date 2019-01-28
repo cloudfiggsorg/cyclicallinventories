@@ -140,7 +140,8 @@ public class ConciliacionDao {
 			+ " FROM INV_CONS_SAP AS ICS "
 			+ " INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (ICS.CS_DOC_INV_ID = IDIH.DOC_INV_ID) "
 			+ " INNER JOIN INV_ROUTE AS IR ON (IR.ROUTE_ID = IDIH.DIH_ROUTE_ID) " + " WHERE IDIH.DIH_BUKRS LIKE ? "
-			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? " + " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC, FNSAP_SNAPSHOT ";
+			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? " + " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC, FNSAP_SNAPSHOT "
+			+ " ORDER BY DOC_INV_ID";
 
 	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(DocInvBean dib) {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
