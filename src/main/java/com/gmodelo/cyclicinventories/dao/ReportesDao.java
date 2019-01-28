@@ -583,15 +583,22 @@ public class ReportesDao {
 					}
 					
 					if(dateCounted != null){
-						E_Mard_SapEntity ems = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), pb,  con);
-						long movementsIM = sod.getMatnrMovementsIM(pb, docInvBean.getDocInvId(), dateCounted, con);
 						
-						System.out.println(movementsIM);
+						double movementsIM = sod.getMatnrMovementsIM(pb, docInvBean.getDocInvId(), dateCounted, con);
 						
+						if(pb.getImwmMarker().equals("IM")){
+							
+							E_Mard_SapEntity ems = sod.getMatnrTheoricIM(docInvBean.getDocInvId(), pb,  con);
+							movementsIM += Double.parseDouble(ems.getRetme());
+							pb.setTheoric(Double.toString(movementsIM));
+							
+						}else{
+							
+							E_Lqua_SapEntity els = sod.getMatnrTheoricWM(docInvBean.getDocInvId(), pb,  con);
+							movementsIM += Double.parseDouble(els.getVerme());
+							pb.setTheoric(Double.toString(movementsIM));							
+						}																														
 						
-												
-						movementsIM += Long.parseLong(ems.getRetme());
-						pb.setTheoric(Long.toString(movementsIM));
 					}
 					
 					//Set the cost by matnr

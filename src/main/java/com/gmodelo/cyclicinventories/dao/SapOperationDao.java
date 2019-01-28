@@ -54,7 +54,7 @@ public class SapOperationDao {
 			+ "GROUP BY MATNR";
 
 	private static final String CONSIGNATION = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(15,3)) "
-			+ "+ CAST(KUINS AS decimal(15,3)) + CAST(KUEIN AS decimal(15,3)))) AS CONS FROM E_MSKU WHERE DOC_INV_ID = ? "
+			+ "+ CAST(KUINS AS decimal(15,3)) + CAST(KUEIN AS decimal(15,3)))) AS CONS FROM E_MSKU_F WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
 	private static final String THEORIC_IM = "SELECT LGORT, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
@@ -74,11 +74,11 @@ public class SapOperationDao {
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ? "
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ?) AS MENGE";
 
-	private static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(15,3))) "
-			+ "FROM E_MSEG "
-			+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - "
-			+ "(SELECT SUM(CAST(MENGE AS decimal(15,3))) "
-			+ "FROM E_MSEG WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) AS MENGE ";
+	private static final String MOVEMENTS_IM = "SELECT (SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+			+ "FROM E_MSEG " 
+			+ "WHERE LGORT = ? AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - " 
+			+ "(SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+			+ "FROM E_MSEG WHERE LGORT = ? AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) AS MENGE"; 
 	
 	private static final String COUNTED_MATNRS = "SELECT LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE, LEN(LGNUM) FROM (SELECT LGNUM, LNUMT, "
 			+ "DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE "
@@ -441,6 +441,8 @@ public class SapOperationDao {
 
 	public long getMatnrMovementsIM(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con) throws SQLException {
 
+		System.out.println(MOVEMENTS_IM);
+		
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(MOVEMENTS_IM);		
 		stm.setString(1, pdib.getLgort());		
