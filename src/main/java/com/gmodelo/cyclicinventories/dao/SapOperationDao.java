@@ -510,7 +510,7 @@ public class SapOperationDao {
 			matnr.setLgtyp(rs.getString("DIP_LGTYP"));
 			matnr.setLgpla(rs.getString("DIP_LGPLA"));
 			matnr.setMatnr(rs.getString("DIP_MATNR"));
-			matnr.setdCounted(rs.getDate("DIP_COUNT_DATE"));
+			matnr.setdCounted(rs.getTimestamp("DIP_COUNT_DATE"));
 			lsMatnr.add(matnr);
 			System.out.println(matnr);
 		}
