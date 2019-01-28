@@ -175,8 +175,8 @@ public class SapOperationDao {
 				outputDoc.setDocInvId(docInvBean.getDocInvId());
 				outputDoc.setBukrs(rs.getString("DIH_BUKRS"));
 				outputDoc.setWerks(rs.getString("DIH_WERKS"));
-				outputDoc.setCreatedDate(rs.getDate("DIH_CREATED_DATE").getTime());
-				outputDoc.setModifiedDate(rs.getDate("DIH_MODIFIED_DATE").getTime());
+				outputDoc.setCreatedDate(rs.getTimestamp("DIH_CREATED_DATE").getTime());
+				outputDoc.setModifiedDate(rs.getTimestamp("DIH_MODIFIED_DATE").getTime());
 				outputDoc.setRoute(rs.getString("DIH_ROUTE_ID"));
 			} else {
 				outputDoc = null;

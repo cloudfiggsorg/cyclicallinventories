@@ -465,8 +465,9 @@ public class SapConciliationDao {
 		ZIACMF_I360_INV_MOV_1 ziacmf_I360_INV_MOV_1 = new ZIACMF_I360_INV_MOV_1();
 		List<E_Mseg_SapEntity> msegList = new ArrayList<>();
 		try {
-
+			
 			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
+			log.info(requestBean.toString());
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_1);
 			jcoFunction.getImportParameterList().setValue("I_BUKRS", requestBean.getBukrs());
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
