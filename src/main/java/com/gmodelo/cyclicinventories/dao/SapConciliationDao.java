@@ -84,10 +84,9 @@ public class SapConciliationDao {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
-	public Response saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, String userId) {
+	public Response<DocInvBeanHeaderSAP> saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, String userId) {
 
-		Response resp = new Response();
+		Response<DocInvBeanHeaderSAP> resp = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<PosDocInvBean> lsPositionBean = dibhSAP.getDocInvPosition();
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -186,7 +185,7 @@ public class SapConciliationDao {
 					csBatch.addBatch();
 				}
 			}
-
+			
 			log.info("[saveConciliationSAP] Sentence successfully executed.");
 			csBatch.executeBatch();
 
@@ -195,6 +194,15 @@ public class SapConciliationDao {
 			cs.setInt(1, dibhSAP.getDocInvId());
 			cs.setString(2, userId);
 			cs.execute();
+			
+			User user = new User();
+			UMEDaoE ume = new UMEDaoE();
+			user.getEntity().setIdentyId(dibhSAP.getCreatedBy());
+			ArrayList<User> ls = new ArrayList<>();
+			ls.add(user);
+			ls = ume.getUsersLDAPByCredentials(ls);
+			dibhSAP.setCreatedBy(dibhSAP.getCreatedBy() + " - " + ls.get(0).getGenInf().getName() + " "
+					+ ls.get(0).getGenInf().getLastName() + " / " + dibhSAP.getConcSAPDate());
 
 			con.commit();
 			con.setAutoCommit(true);
@@ -234,6 +242,7 @@ public class SapConciliationDao {
 		}
 
 		resp.setAbstractResult(abstractResult);
+		resp.setLsObject(dibhSAP);
 		return resp;
 
 	}
