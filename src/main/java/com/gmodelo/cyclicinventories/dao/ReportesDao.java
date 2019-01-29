@@ -462,7 +462,7 @@ public class ReportesDao {
 				HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();				
 				PosDocInvBean pbAux = null;
 				double sumCounted = 0;
-				double theoric = 0;
+				//double theoric = 0;
 				int count = 0;
 								
 				//Get the dates were the matnr was counted
@@ -518,7 +518,7 @@ public class ReportesDao {
 					}
 				}
 				
-				System.out.println("COUNT WM " + count);
+				//WSystem.out.println("COUNT WM " + count);
 				
 				//Reset the list and make a new one with filtered values
 				listBean.clear();
@@ -633,7 +633,7 @@ public class ReportesDao {
 										
 				}
 				
-				System.out.println("count IM " + count); 
+				//System.out.println("count IM " + count); 
 																
 				bean.setDocInvPosition(listBean);
 			} else {

@@ -440,8 +440,6 @@ public class SapOperationDao {
 	}	
 
 	public long getMatnrMovementsIM(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con) throws SQLException {
-
-		System.out.println(MOVEMENTS_IM);
 		
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(MOVEMENTS_IM);		
@@ -514,7 +512,6 @@ public class SapOperationDao {
 			matnr.setMatnr(rs.getString("DIP_MATNR"));
 			matnr.setdCounted(rs.getTimestamp("DIP_COUNT_DATE"));
 			lsMatnr.add(matnr);
-			System.out.println(matnr);
 		}
 		
 		return lsMatnr;
