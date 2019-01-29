@@ -100,6 +100,7 @@ public class SapConciliationDao {
 		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 		File file;
 		byte[] bytes;
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 		try {
 			con.setAutoCommit(false);
@@ -195,15 +196,21 @@ public class SapConciliationDao {
 			cs.setString(2, userId);
 			cs.execute();
 			
-			User user = new User();
 			UMEDaoE ume = new UMEDaoE();
-			user.getEntity().setIdentyId(dibhSAP.getCreatedBy());
+			User user = new User();
+			user.getEntity().setIdentyId(userId);
 			ArrayList<User> ls = new ArrayList<>();
 			ls.add(user);
 			ls = ume.getUsersLDAPByCredentials(ls);
-			dibhSAP.setCreatedBy(dibhSAP.getCreatedBy() + " - " + ls.get(0).getGenInf().getName() + " "
-					+ ls.get(0).getGenInf().getLastName() + " / " + dibhSAP.getConcSAPDate());
 
+			if (ls.size() > 0) {
+
+				dibhSAP.setCreatedBy(userId + " - " + ls.get(0).getGenInf().getName() + " "
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
+			} else {
+				dibhSAP.setCreatedBy(userId + " - " + format.format(new Date()));
+			}
+			
 			con.commit();
 			con.setAutoCommit(true);
 			cs.close();
@@ -291,7 +298,7 @@ public class SapConciliationDao {
 				ls.add(user);
 				ls = ume.getUsersLDAPByCredentials(ls);
 				bean.setCreatedBy(bean.getCreatedBy() + " - " + ls.get(0).getGenInf().getName() + " "
-						+ ls.get(0).getGenInf().getLastName() + " / " + bean.getConcSAPDate());
+						+ ls.get(0).getGenInf().getLastName() + " - " + bean.getConcSAPDate());
 
 			}
 		} catch (SQLException | NamingException e) {

@@ -24,11 +24,11 @@ public class ConciliationSAPWorkService {
 	private Gson gson = new Gson();
 
 	@SuppressWarnings("rawtypes")
-	public Response saveConciliation(Request request, String userId) {
+	public Response<DocInvBeanHeaderSAP> saveConciliation(Request request, String userId) {
 
 		log.info("[saveConciliation] " + request.toString());
 
-		Response res = new Response();
+		Response<DocInvBeanHeaderSAP> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		DocInvBeanHeaderSAP dibhSAP;
 

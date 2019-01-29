@@ -109,7 +109,7 @@ public class ZoneDao {
 				zoneBean.setCreatedBy(cs.getString(6) + " - " + ls.get(0).getGenInf().getName() + " "
 						+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
 			} else {
-				zoneBean.setCreatedBy(cs.getString(6));
+				zoneBean.setCreatedBy(cs.getString(6) + " - " + format.format(new Date()));
 			}
 
 			user.getEntity().setIdentyId(cs.getString(7) + " - " + format.format(new Date()));
