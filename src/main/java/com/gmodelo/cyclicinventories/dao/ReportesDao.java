@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
@@ -55,7 +53,7 @@ public class ReportesDao {
 		List<ApegosBean> listApegosBean = new ArrayList<>();
 		String INV_VW_REP_APEGOS = null;
 
-		INV_VW_REP_APEGOS = "SELECT DOC_INV_ID, ROUTE_ID,RDESC, BUKRS, BDESC, WERKS, WDESC, LGORT,GDESC, TASK_ID, DTYPE, USER_DOCINV, USER_COUNT, DATE_INI, DATE_FIN, TIEMPO, GROUP_ID, CREACION, EJECUCION FROM INV_VW_REP_APEGOS WITH(NOLOCK) ";
+		INV_VW_REP_APEGOS = "SELECT DOC_INV_ID, ROUTE_ID, RDESC, BUKRS, WERKS, LGORT, TASK_ID, DTYPE, USER_DOCINV, USER_COUNT, DATE_INI, DATE_FIN, TIEMPO, GROUP_ID, CREACION, EJECUCION FROM INV_VW_REP_APEGOS WITH(NOLOCK) ";
 
 		String condition = buildConditionApegos(apegosBean);
 		if (condition != null) {
@@ -78,11 +76,11 @@ public class ReportesDao {
 				apegosBean.setRouteId(rs.getString("ROUTE_ID"));
 				apegosBean.setRdesc(rs.getString("RDESC"));
 				apegosBean.setBukrs(rs.getString("BUKRS"));
-				apegosBean.setBdesc(rs.getString("BDESC"));
+//				apegosBean.setBdesc(rs.getString("BDESC"));
 				apegosBean.setWerks(rs.getString("WERKS"));
-				apegosBean.setWdesc(rs.getString("WDESC"));
+//				apegosBean.setWdesc(rs.getString("WDESC"));
 				apegosBean.setLgort(rs.getString("LGORT"));
-				apegosBean.setLgDesc(rs.getString("GDESC"));
+//				apegosBean.setLgDesc(rs.getString("GDESC"));
 				apegosBean.setdType((rs.getString("DTYPE").equalsIgnoreCase("1")) ? "DIARIO" : "MENSUAL");
 				apegosBean.setTaskId(rs.getString("TASK_ID"));
 				apegosBean.setDateIni(rs.getString("DATE_INI"));
