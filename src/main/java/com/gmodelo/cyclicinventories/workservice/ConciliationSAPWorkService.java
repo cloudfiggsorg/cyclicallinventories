@@ -1,6 +1,5 @@
 package com.gmodelo.cyclicinventories.workservice;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +44,7 @@ public class ConciliationSAPWorkService {
 		return new SapConciliationDao().saveConciliationSAP(dibhSAP, userId);
 	}
 
-	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(Request request) {
+	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(Request<?> request) {
 
 		log.info("[getClosedConciliationIDs] " + request.toString());
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
@@ -63,30 +62,6 @@ public class ConciliationSAPWorkService {
 		}
 
 		return new ConciliacionDao().getClosedConciliationIDs(docInv);
-	}
-
-	public Response<String> getjsFileBase64(Request<ArrayList<String>> request) {
-
-		log.info("[getjsFileBase64] " + request.toString());
-		Response<String> res = new Response<>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		int docInvId = 0;
-		int jsId = 0;
-		String fileName = "";
-
-		try {
-			docInvId = Integer.parseInt(request.getLsObject().get(0));
-			jsId = Integer.parseInt(request.getLsObject().get(1));
-			fileName = (String) request.getLsObject().get(2);
-		} catch (JSONException e) {
-			log.log(Level.SEVERE, "[getjsFileBase64] Objeto no válido.");
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-			res.setAbstractResult(abstractResult);
-			return res;
-		}
-
-		return new SapConciliationDao().getjsFileBase64(docInvId, jsId, fileName);
 	}
 
 }

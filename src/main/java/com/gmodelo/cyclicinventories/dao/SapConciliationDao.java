@@ -1,18 +1,15 @@
 package com.gmodelo.cyclicinventories.dao;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.naming.NamingException;
-import javax.xml.bind.DatatypeConverter;
-
-import org.apache.commons.io.FileUtils;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
@@ -47,7 +41,6 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_MBEW;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
-import com.gmodelo.cyclicinventories.utils.Utilities;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
@@ -60,29 +53,8 @@ public class SapConciliationDao {
 	private static final String ZIACMF_I360_INV_MOV_3 = "ZIACMF_I360_INV_MOV_3";
 	private static final String ZIACMF_I360_EXT_SIS_CLAS = "ZIACMF_I360_EXT_SIS_CLAS";
 	private static final String ZIACMF_I360_MBEW = "ZIACMF_MBEW";
-	private static String PATH_TO_SAVE_FILES = "";
 	private Logger log = Logger.getLogger(SapConciliationDao.class.getName());
 	private final SapOperationDao operationDao = new SapOperationDao();
-
-	static {
-
-		Utilities iUtils = new Utilities();
-		Connection con = new ConnectionManager().createConnection();
-
-		try {
-
-			PATH_TO_SAVE_FILES = iUtils.getValueRepByKey(con, ReturnValues.PATH_TO_SAVE_FILES).getStrCom1();
-		} catch (InvCicException e) {
-
-			System.out.println("Some error occurred whiles was trying to get the path...");
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				System.out.println("Some error occurred while was trying to close the DB.");
-			}
-		}
-	}
 
 	public Response<DocInvBeanHeaderSAP> saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, String userId) {
 
@@ -98,8 +70,6 @@ public class SapConciliationDao {
 		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?";
 		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
-		File file;
-		byte[] bytes;
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 		try {
@@ -153,16 +123,7 @@ public class SapConciliationDao {
 						cs.execute();
 
 						js.setJsId(cs.getInt(5));
-
-						if (js.getBase64File() != null) {// Write the file if
-															// exists
-
-							file = new File(PATH_TO_SAVE_FILES + File.separator + dipb.getDoncInvId() + File.separator
-									+ js.getJsId() + File.separator + js.getFileName());
-							bytes = Base64.getDecoder().decode(js.getBase64File());
-							FileUtils.writeByteArrayToFile(file, bytes);
-						}
-
+						
 						log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 					}
 
@@ -226,13 +187,6 @@ public class SapConciliationDao {
 				log.log(Level.SEVERE, "[saveConciliationSAP] Not rollback .", e);
 			}
 
-			// Delete directory if was created
-			File directory = new File("I:" + File.separator + "Files" + File.separator + dibhSAP.getDocInvId());
-
-			if (directory.exists()) {
-				directory.delete();
-			}
-
 			log.log(Level.SEVERE,
 					"[saveConciliationSAP] Some error occurred while was trying to execute the S.P.: " + CURRENTSP, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -252,6 +206,58 @@ public class SapConciliationDao {
 		resp.setLsObject(dibhSAP);
 		return resp;
 
+	}
+	
+	public Response<Object> deleteConciliationSAP(int docInvId){
+		
+		Response<Object> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		CallableStatement cs = null;
+		
+		final String SP = "INV_SP_DEL_CONS_SAP ?"; //The Store procedure to call
+		
+		log.info("[deleteConciliationSAP] Preparing sentence...");
+		
+		try {
+			
+			cs = con.prepareCall(SP);			
+			cs.setInt(1, docInvId);
+			
+			log.log(Level.WARNING,"[deleteConciliationSAP] Executing query...");
+			
+			cs.execute();
+			
+			abstractResult.setResultId(ReturnValues.ISUCCESS);
+			
+			//Retrive the warnings if there're
+			SQLWarning warning = cs.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING,"[deleteConciliationSAP] "+warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+			
+			//Free resources
+			cs.close();	
+			
+			log.info("[deleteConciliationSAP] Sentence successfully executed.");
+			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,"[deleteConciliationSAP] Some error occurred while was trying to execute the S.P.: "+ SP, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,"[deleteConciliationSAP] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		return res ;
 	}
 
 	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
@@ -338,6 +344,7 @@ public class SapConciliationDao {
 		String lsPosIds = "";
 		ArrayList<PosDocInvBean> lsPdib = new ArrayList<>();
 		try {
+			
 			ps = con.prepareStatement(GET_POS_CONS_SAP);
 			ps.setInt(1, docInvId);
 			rs = ps.executeQuery();
@@ -417,54 +424,6 @@ public class SapConciliationDao {
 			throw e;
 		}
 		return lsJustification;
-	}
-
-	public Response<String> getjsFileBase64(int docInvId, int jsId, String fileName) {
-
-		Response<String> res = new Response<>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-
-		String PATH = PATH_TO_SAVE_FILES + File.separator;
-		PATH += docInvId + File.separator;
-		PATH += jsId + File.separator;
-		File folder;
-
-		folder = new File(PATH);
-
-		if (!folder.exists()) {
-			log.severe("File not found");
-			abstractResult.setResultId(ReturnValues.FILE_NOT_FOUND);
-			abstractResult.setResultMsgAbs("File not found...");
-			res.setAbstractResult(abstractResult);
-			return res;
-		}
-
-		if (new File(PATH + fileName).isFile()) {
-
-			String base64 = "";
-			try {
-				base64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(Paths.get(PATH + fileName)));
-			} catch (IOException e) {
-				log.severe("Some error occurred while was trying to get the file " + e.getMessage());
-				abstractResult.setResultId(ReturnValues.FILE_EXCEPTION);
-				abstractResult.setResultMsgAbs(e.getMessage());
-				res.setAbstractResult(abstractResult);
-				return res;
-			}
-
-			res.setLsObject(base64);
-			res.setAbstractResult(abstractResult);
-			return res;
-
-		} else {
-
-			log.severe("File not found");
-			abstractResult.setResultId(ReturnValues.FILE_NOT_FOUND);
-			abstractResult.setResultMsgAbs("File not found...");
-			res.setAbstractResult(abstractResult);
-			return res;
-		}
-
 	}
 
 	public ZIACMF_I360_INV_MOV_1 inventoryMovementsDao(DocInvBean docInvBean, Connection con,
