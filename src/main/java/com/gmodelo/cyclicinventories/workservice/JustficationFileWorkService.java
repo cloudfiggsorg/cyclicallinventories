@@ -80,7 +80,11 @@ public class JustficationFileWorkService {
 			}
 			
 			//Delete the records inserted
-			new SapConciliationDao().deleteConciliationSAP(jsFile.getDocInvId());
+			Response<Object> respAux = new SapConciliationDao().deleteConciliationSAP(jsFile.getDocInvId());
+			if(respAux.getAbstractResult().getResultId() != 1){
+				abstractResult.setResultId(respAux.getAbstractResult().getResultId());
+				abstractResult.setResultMsgAbs(respAux.getAbstractResult().getResultMsgAbs());
+			}
 			
 			log.info("[uploadFile] Error al tratar de grabar el archivo.");
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);

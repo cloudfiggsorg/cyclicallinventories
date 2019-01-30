@@ -11,8 +11,8 @@ import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.workservice.JustficationFileWorkService;
 
-@Path("/services/JustficationFileService")
-public class JustficationFileService {
+@Path("/services/JustificationFileService")
+public class JustificationFileService {
 	
 	
 	@POST
