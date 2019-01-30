@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
 import com.gmodelo.cyclicinventories.beans.ConciAccntReportBean;
@@ -18,6 +19,7 @@ import com.gmodelo.cyclicinventories.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.dao.ReportesDao;
+import com.gmodelo.cyclicinventories.dao.UMEDaoE;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
 
@@ -127,6 +129,34 @@ public class ReportesWorkService {
 			log.info("[getUserProductivityWorkService] try");
 			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), ProductivityBean.class);
 			response = new ReportesDao().getUserProductivityDao(tareasBean); 
+			if(response.getAbstractResult().getResultId() != 1){
+				return response;
+			}
+			List<ProductivityBean> listBean = response.getLsObject();
+			ArrayList<User> listUser = new ArrayList<>();
+			User user;
+			UMEDaoE umeDao = new UMEDaoE();
+			for(ProductivityBean b : listBean){
+				user = new User();
+				user.getEntity().setIdentyId(b.getUser());
+				user.getGenInf().setName(b.getUser());
+				
+				listUser.add(user);
+			}
+			
+			listUser = umeDao.getUsersLDAPByCredentials(listUser);
+			
+			for(ProductivityBean pb : listBean){
+				for(User u : listUser){
+					if(pb.getUser().trim().equalsIgnoreCase(u.getEntity().getIdentyId().trim())){
+						pb.setUser(u.getGenInf().getName()+" "+u.getGenInf().getLastName());
+					}
+				}
+			}
+			
+			response.setLsObject(listBean);
+			
+			
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[getUserProductivityWorkService] catch", e );
 			result.setResultId(ReturnValues.IEXCEPTION);
