@@ -61,8 +61,8 @@ public class ExplosionDetailDao {
 					csBatch.setString(1, obj.getWerks());
 					csBatch.setString(2, obj.getMatnr());
 					csBatch.setString(3, obj.getComponent());
-					csBatch.setString(4, obj.getUmb());
-					csBatch.setByte(5, (byte) (obj.isRelevant()?1:0));
+					csBatch.setByte(4, (byte) (obj.isRelevant()?1:0));
+					csBatch.setString(5, obj.getLgort());
 					csBatch.setString(6, user);
 					csBatch.addBatch();					
 				}
@@ -118,7 +118,7 @@ public class ExplosionDetailDao {
 
 		final String GET_EXPL_DET = "SELECT  A.WERKS, SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) AS MATNR, "
 				+ "SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL, " 
-				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT " 
+				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT, '' LGORT " 
 				+ "FROM MAST AS A " 
 					+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) " 
 					+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) " 
@@ -130,9 +130,10 @@ public class ExplosionDetailDao {
 
 				+ "UNION " 
 
-				+ "SELECT A.EX_WERKS, A.EX_MATNR, A.EX_COMPONENT, B.MAKTX, A.EX_UMB, A.EX_RELEVANT " 
+				+ "SELECT A.EX_WERKS, A.EX_MATNR, A.EX_COMPONENT, B.MAKTX, C.MEINS, A.EX_RELEVANT, A.EX_LGORT LGORT " 
 				+ "FROM INV_EXPLOSION AS A " 
 					+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS B ON (A.EX_COMPONENT = B.MATNR) " 
+					+ "INNER JOIN MARA AS C ON (SUBSTRING(C.MATNR, PATINDEX('%[^0 ]%', C.MATNR + ' '), LEN(C.MATNR)) = A.EX_MATNR) "
 				+ "WHERE EX_WERKS = ? " 
 					+ "AND B.WERKS = ? "
 					+ "AND SUBSTRING(EX_MATNR, PATINDEX('%[^0 ]%', EX_MATNR + ' '), LEN(EX_MATNR))  = ? " 
@@ -177,6 +178,7 @@ public class ExplosionDetailDao {
 				ed.setCompDesc(rs.getString("MAKTX"));
 				ed.setUmb(rs.getString("MEINS"));
 				ed.setRelevant(rs.getBoolean("IS_RELEVANT"));
+				ed.setLgort(rs.getString("LGORT"));
 				lsEd.add(ed);
 			}
 
