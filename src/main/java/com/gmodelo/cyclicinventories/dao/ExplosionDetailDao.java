@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +32,77 @@ public class ExplosionDetailDao {
 		CallableStatement cs = null;
 		CallableStatement csBatch = null;	
 		String currentSP = "";
+		
+		/////////////////////////INICIO VALIDACIONES ANTES DE GUARDAR//////////////////////////////////////
+		//GENERANDO LISTA DE LGORTS UNICOS
+		List<String> uniqueLgortList = new ArrayList<>();
+		for(ExplosionDetail item : ed){
+			if(uniqueLgortList.isEmpty() && item.isRelevant()){
+				uniqueLgortList.add(item.getLgort());
+			}else{
+				boolean existLgort = false;
+				for(String l : uniqueLgortList){
+					if(l.equalsIgnoreCase(item.getLgort()) && item.isRelevant()){
+						existLgort = true;
+						break;
+					}
+				}
+				if(!existLgort && item.isRelevant()){
+					uniqueLgortList.add(item.getLgort());
+				}
+			}
+		}
+		//Obteniendo el universo de lgorts para el centro dado
+		final String  LGORT_BY_WERK = "SELECT DISTINCT LGORT FROM dbo.T001L WITH (NOLOCK) WHERE WERKS = ? ";
+		List<String> lgortsList = new ArrayList<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(LGORT_BY_WERK);
+			stm.setString(1, ed.get(0).getWerks());
+			
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()){
+				lgortsList.add(rs.getString("LGORT"));
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[saveExplosionDetail] Ocurrió un error al buscar la lista de almacenes para validar información, query: "+LGORT_BY_WERK, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+//		verificando que la consulta no venga vacia
+		if(lgortsList.isEmpty()){
+			log.log(Level.SEVERE, "[saveExplosionDetail] No existen almacenes para el centro "+ed.get(0).getWerks());
+			abstractResult.setResultId(ReturnValues.IERROR);
+			abstractResult.setResultMsgAbs("No existen almacenes para el centro "+ed.get(0).getWerks());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+//		Validando que el lgort ingresado exista en el centro
+		String msg = "Almacenes incorrectos para centro  "+ed.get(0).getWerks()+" : ";
+		int size = msg.length();
+		boolean validateError = false;
+		for(String lgortToValidate : uniqueLgortList){
+			if(!lgortsList.contains(lgortToValidate)){
+				validateError = true;
+				if(msg.length() > size){
+					msg+= ", "+lgortToValidate;
+				}else{
+					msg+= lgortToValidate;
+				}
+				
+			}
+		}
+		if(validateError){
+			abstractResult.setResultId(ReturnValues.IERROR);
+			abstractResult.setResultMsgAbs(msg);
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		
+		//////////////////////////FIN VALIDACIONES ANTES DE GUARDAR///////////////////////////////////
+		
 
 		final String INV_SP_SAVE_EXPLOSION = "INV_SP_SAVE_EXPLOSION ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_EXPLOSION = "INV_SP_DEL_EXPLOSION ?, ?";
