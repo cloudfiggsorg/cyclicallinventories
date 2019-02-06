@@ -59,7 +59,7 @@ public class TaskWorkService {
 		return res;
 	}
 
-	public Response<TaskBean> addTask(Request<?> request, User user) {
+	public Response<TaskBean> addTask(Request request, User user) {
 		log.info("[addTaskWS] " + request.toString());
 		TaskBean taskBean = null;
 		Response<TaskBean> res = new Response<>();
@@ -104,7 +104,7 @@ public class TaskWorkService {
 		return res;
 	}
 
-	public Response<Object> deleteTask(Request<?> request) {
+	public Response<Object> deleteTask(Request request) {
 		log.info("[deleteTaskWS] " + request.toString());
 		String arrayIdTask;
 		Response<Object> res = new Response<>();
@@ -127,7 +127,7 @@ public class TaskWorkService {
 		return new TaskDao().deleteTask(arrayIdTask);
 	}
 
-	public Response<List<TaskBean>> getTasks(Request<?> request) {
+	public Response<List<TaskBean>> getTasks(Request request) {
 
 		log.info("getTasksWS] " + request.toString());
 		TaskBean tb = null;
@@ -162,7 +162,7 @@ public class TaskWorkService {
 		return new TaskDao().getTasks(tb, searchFilter);
 	}
 
-	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request<?> request) {
+	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request request) {
 
 		log.info("[getTasksByBukrsAndWerks] " + request.toString());
 		String bukrs;

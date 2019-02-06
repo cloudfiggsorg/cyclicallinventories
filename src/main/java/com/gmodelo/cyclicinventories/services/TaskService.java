@@ -26,7 +26,7 @@ public class TaskService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/addTask")
-	public Response<TaskBean> addTask(Request<?> request) {
+	public Response<TaskBean> addTask(Request request) {
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new TaskWorkService().addTask(request, user);
 	}
@@ -35,7 +35,7 @@ public class TaskService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/deleteTask")
-	public Response<Object> deleteTask(Request<?> request) {
+	public Response<Object> deleteTask(Request request) {
 		return new TaskWorkService().deleteTask(request);
 	}
 
@@ -43,7 +43,7 @@ public class TaskService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getTasks")
-	public Response<List<TaskBean>> getTasks(Request<?> request) {
+	public Response<List<TaskBean>> getTasks(Request request) {
 		return new TaskWorkService().getTasks(request);
 	}
 
@@ -51,7 +51,7 @@ public class TaskService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getTasksByBukrsAndWerks")
-	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request<?> request) {
+	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request request) {
 		return new TaskWorkService().getTasksByBukrsAndWerks(request);
 	}
 
