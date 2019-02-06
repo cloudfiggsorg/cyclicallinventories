@@ -76,8 +76,18 @@ public class CountsDao {
 											? entrada.getValue().getTotalConverted()
 											: "0");
 							cs.setString(10, user);
-							cs.setDate(11,new java.sql.Date(entrada.getValue().getDateStart()));
-							cs.setDate(12, new java.sql.Date(entrada.getValue().getDateEnd()));
+							
+							if(entrada.getValue().getDateStart()==0){
+								cs.setNull(11, Types.TIMESTAMP);
+							}else{
+								cs.setTimestamp(11,new java.sql.Timestamp(entrada.getValue().getDateStart()));
+							}
+							if(entrada.getValue().getDateEnd()==0){
+								cs.setNull(12, Types.TIMESTAMP);
+							}else{
+								cs.setTimestamp(12, new java.sql.Timestamp(entrada.getValue().getDateEnd()));
+							}
+							
 							cs.setString(13,
 									entrada.getValue().getProdDate() != null ? entrada.getValue().getProdDate() : "");
 							cs.setString(14,

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
 import com.gmodelo.cyclicinventories.beans.ConciAccntReportBean;
@@ -18,6 +19,7 @@ import com.gmodelo.cyclicinventories.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.dao.ReportesDao;
+import com.gmodelo.cyclicinventories.dao.UMEDaoE;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
 
@@ -127,6 +129,34 @@ public class ReportesWorkService {
 			log.info("[getUserProductivityWorkService] try");
 			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), ProductivityBean.class);
 			response = new ReportesDao().getUserProductivityDao(tareasBean); 
+			if(response.getAbstractResult().getResultId() != 1){
+				return response;
+			}
+			List<ProductivityBean> listBean = response.getLsObject();
+			ArrayList<User> listUser = new ArrayList<>();
+			User user;
+			UMEDaoE umeDao = new UMEDaoE();
+			for(ProductivityBean b : listBean){
+				user = new User();
+				user.getEntity().setIdentyId(b.getUser());
+				user.getGenInf().setName(b.getUser());
+				
+				listUser.add(user);
+			}
+			
+			listUser = umeDao.getUsersLDAPByCredentials(listUser);
+			
+			for(ProductivityBean pb : listBean){
+				for(User u : listUser){
+					if(pb.getUser().trim().equalsIgnoreCase(u.getEntity().getIdentyId().trim())){
+						pb.setUser(u.getGenInf().getName()+" "+u.getGenInf().getLastName());
+					}
+				}
+			}
+			
+			response.setLsObject(listBean);
+			
+			
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[getUserProductivityWorkService] catch", e );
 			result.setResultId(ReturnValues.IEXCEPTION);
@@ -250,10 +280,42 @@ public class ReportesWorkService {
 			}
 			
 			for(ConciAccntReportBean item : finalList){
-				item.setPercAccDiff(String.valueOf((item.getAccDiff()*100)/item.getAccountant()));
-				item.setPercJustification(String.valueOf((item.getJustification()*100)/item.getAccountant()));
+				if(item.getAccountant() != 0D && item.getAccDiff() != 0D){
+					item.setPercAccDiff(String.valueOf((item.getAccDiff()*100)/item.getAccountant()));
+				}else if(item.getAccountant() == 0D && item.getAccDiff() != 0D){
+					item.setPercAccDiff("100");
+				}else if(item.getAccountant() == 0D && item.getAccDiff() == 0D){
+					item.setPercAccDiff("");
+				}
+				
+				if(item.getAccountant() != 0D && item.getJustification() != 0D){
+					item.setPercJustification(String.valueOf((item.getJustification()*100)/item.getAccountant()));
+				}else if(item.getAccountant() == 0D && item.getJustification() != 0D){
+					item.setPercJustification("100");
+				}else if(item.getAccountant() == 0D && item.getJustification() == 0D){
+					item.setPercJustification("");
+				}
+				
 			}
 			response.setLsObject(finalList);
+		}
+		return response;
+	}
+
+	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
+		log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] " + request.toString());
+		Response<DocInvBeanHeaderSAP> response = new Response<>();		
+		DocInvBean bean = null;
+		try {
+			log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] try");
+			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+			response = new ReportesDao().getConcSAPByPosition(bean);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInvSAPByLgpla] catch", e);
+			AbstractResultsBean result = new AbstractResultsBean();
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+			response.setAbstractResult(result);
 		}
 		return response;
 	}

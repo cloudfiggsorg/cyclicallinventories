@@ -8,13 +8,14 @@ public class ExplosionDetail {
 	private String compDesc;
 	private String umb;
 	private boolean relevant;
+	private String lgort;
 	
 	public ExplosionDetail() {
 		super();
 	}
 	
 	public ExplosionDetail(String werks, String matnr, String component, String compDesc, String umb,
-			boolean relevant) {
+			boolean relevant, String lgort) {
 		super();
 		this.werks = werks;
 		this.matnr = matnr;
@@ -22,6 +23,7 @@ public class ExplosionDetail {
 		this.compDesc = compDesc;
 		this.umb = umb;
 		this.relevant = relevant;
+		this.lgort = lgort;
 	}
 
 	public String getWerks() {
@@ -59,12 +61,19 @@ public class ExplosionDetail {
 	}
 	public void setRelevant(boolean relevant) {
 		this.relevant = relevant;
+	}	
+	public String getLgort() {
+		return lgort;
+	}
+
+	public void setLgort(String lgort) {
+		this.lgort = lgort;
 	}
 
 	@Override
 	public String toString() {
 		return "ExplosionDetail [werks=" + werks + ", matnr=" + matnr + ", component=" + component + ", compDesc="
-				+ compDesc + ", umb=" + umb + ", relevant=" + relevant + "]";
+				+ compDesc + ", umb=" + umb + ", relevant=" + relevant + ", lgort=" + lgort + "]";
 	}
 
 }

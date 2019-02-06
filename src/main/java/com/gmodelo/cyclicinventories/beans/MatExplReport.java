@@ -10,15 +10,16 @@ public class MatExplReport {
 	private String counted;
 	private String matnrExpl;
 	private String descMantrExpl;
+	private String catExpl;
 	private String umbExpl;
 	private String quantity;
 	
 	public MatExplReport(){
 		super();
 	}
-	
+
 	public MatExplReport(int item, String matnr, String description, String category, String umb, String counted,
-			String matnrExpl, String descMantrExpl, String umbExpl, String quantity) {
+			String matnrExpl, String descMantrExpl, String catExpl, String umbExpl, String quantity) {
 		super();
 		this.item = item;
 		this.matnr = matnr;
@@ -28,6 +29,7 @@ public class MatExplReport {
 		this.counted = counted;
 		this.matnrExpl = matnrExpl;
 		this.descMantrExpl = descMantrExpl;
+		this.catExpl = catExpl;
 		this.umbExpl = umbExpl;
 		this.quantity = quantity;
 	}
@@ -96,6 +98,14 @@ public class MatExplReport {
 		this.descMantrExpl = descMantrExpl;
 	}
 
+	public String getCatExpl() {
+		return catExpl;
+	}
+
+	public void setCatExpl(String catExpl) {
+		this.catExpl = catExpl;
+	}
+
 	public String getUmbExpl() {
 		return umbExpl;
 	}
@@ -116,7 +126,7 @@ public class MatExplReport {
 	public String toString() {
 		return "MatExplReport [item=" + item + ", matnr=" + matnr + ", description=" + description + ", category="
 				+ category + ", umb=" + umb + ", counted=" + counted + ", matnrExpl=" + matnrExpl + ", descMantrExpl="
-				+ descMantrExpl + ", umbExpl=" + umbExpl + ", quantity=" + quantity + "]";
+				+ descMantrExpl + ", catExpl=" + catExpl + ", umbExpl=" + umbExpl + ", quantity=" + quantity + "]";
 	}
-			
+		
 }

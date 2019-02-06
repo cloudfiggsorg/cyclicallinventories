@@ -54,7 +54,7 @@ public class SapOperationDao {
 			+ "GROUP BY MATNR";
 
 	private static final String CONSIGNATION = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(15,3)) "
-			+ "+ CAST(KUINS AS decimal(15,3)) + CAST(KUEIN AS decimal(15,3)))) AS CONS FROM E_MSKU WHERE DOC_INV_ID = ? "
+			+ "+ CAST(KUINS AS decimal(15,3)) + CAST(KUEIN AS decimal(15,3)))) AS CONS FROM E_MSKU_F WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
 	private static final String THEORIC_IM = "SELECT LGORT, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
@@ -63,9 +63,21 @@ public class SapOperationDao {
 			+ "+ CAST(SPEME AS decimal(15,3)) + CAST(RETME AS decimal(15,3))) AS CONS FROM E_MARD WHERE LGORT = ? "
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ?";
 	
+	private static final String THEORIC_IM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, " 
+			+ "SUM((CAST(LABST AS decimal(15,3))  + CAST(UMLME AS decimal(15,3)) " 
+			+ "CAST(INSME AS decimal(15,3)) + CAST(EINME AS decimal(15,3)) "
+			+ "CAST(SPEME AS decimal(15,3)) + CAST(RETME AS decimal(15,3)))) AS CONS " 
+			+ "FROM E_MARD " 
+			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ? "
+			+ "GROUP BY MATNR";
+	
 	private static final String THEORIC_WM = "SELECT LGNUM, LGORT, LGTYP, LGPLA, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, " 
 			+ "SUM(CAST(VERME AS decimal(15,3))) AS CONS FROM E_LQUA WHERE "
 			+ "LGNUM = ? AND LGORT = ? AND LGTYP = ? AND LGPLA = ? AND DOC_INV_ID = ? GROUP BY LGNUM, LGORT, LGTYP, LGPLA, MATNR ";
+	
+	private static final String THEORIC_WM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, " 
+			+ "SUM(CAST(VERME AS decimal(15,3))) AS CONS FROM E_LQUA WHERE "
+			+ "DOC_INV_ID = ? GROUP BY MATNR ";
 
 	private static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(15,3))) FROM E_MSEG "
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ? "
@@ -74,20 +86,30 @@ public class SapOperationDao {
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ? "
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ?) AS MENGE";
 
-	private static final String MOVEMENTS_IM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(15,3))) "
-			+ "FROM E_MSEG "
-			+ "WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - "
-			+ "(SELECT SUM(CAST(MENGE AS decimal(15,3))) "
-			+ "FROM E_MSEG WHERE LGORT = ? AND MATNR = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) AS MENGE ";
+	private static final String MOVEMENTS_IM = "SELECT (SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+			+ "FROM E_MSEG " 
+			+ "WHERE LGORT = ? AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - " 
+			+ "(SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+			+ "FROM E_MSEG WHERE LGORT = ? AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) AS MENGE";
 	
-	private static final String COUNTED_MATNRS = "SELECT LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE, LEN(LGNUM) FROM (SELECT LGNUM, LNUMT, "
+	private static final String MOVEMENTS_BY_BUKRS = "SELECT (SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+			+ "FROM E_MSEG " 
+			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - " 
+			+ "(SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+			+ "FROM E_MSEG WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) AS MENGE";
+	
+	private static final String COUNTED_MATNRS = "SELECT LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE FROM (SELECT LGNUM, LNUMT, "
 			+ "DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE "
 			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
 			+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS B ON (A.DIP_DOC_INV_ID = B.DOC_INV_ID) "
 			+ "INNER JOIN INV_VW_NGORT_WITH_GORT AS C ON (B.DIH_WERKS = C.WERKS AND A.DIP_LGORT = C.LGORT) "
-			+ "WHERE DIP_DOC_INV_ID = ? AND LEN(LGNUM) > 0 "
+			+ "WHERE DIP_DOC_INV_ID = ? AND LEN(LGNUM) > 0 AND DIP_COUNT_DATE IS NOT NULL "
 			+ "GROUP BY LGNUM, LNUMT, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR) AS TAB "
 			+ "GROUP BY LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE";
+	
+	private static final String COUNTED_MATNRS_BY_BUKRS = "SELECT DIP_MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE " 
+			+ "FROM INV_DOC_INVENTORY_POSITIONS WHERE DIP_DOC_INV_ID = ? "
+			+ "GROUP BY DIP_MATNR";
 
 	private static final String GET_MBEW_PIVOT = "SELECT MATNR from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
@@ -175,8 +197,8 @@ public class SapOperationDao {
 				outputDoc.setDocInvId(docInvBean.getDocInvId());
 				outputDoc.setBukrs(rs.getString("DIH_BUKRS"));
 				outputDoc.setWerks(rs.getString("DIH_WERKS"));
-				outputDoc.setCreatedDate(rs.getDate("DIH_CREATED_DATE").getTime());
-				outputDoc.setModifiedDate(rs.getDate("DIH_MODIFIED_DATE").getTime());
+				outputDoc.setCreatedDate(rs.getTimestamp("DIH_CREATED_DATE").getTime());
+				outputDoc.setModifiedDate(rs.getTimestamp("DIH_MODIFIED_DATE").getTime());
 				outputDoc.setRoute(rs.getString("DIH_ROUTE_ID"));
 			} else {
 				outputDoc = null;
@@ -389,6 +411,25 @@ public class SapOperationDao {
 
 		return ems;
 	}
+	
+	public E_Mard_SapEntity getMatnrTheoricImByBukrs(int docInvId, PosDocInvBean pb, Connection con) throws SQLException {
+
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(THEORIC_IM_BY_BUKRS);					
+		stm.setString(1, pb.getMatnr());
+		stm.setInt(2, docInvId);
+		ResultSet rs = stm.executeQuery();
+
+		E_Mard_SapEntity ems = new E_Mard_SapEntity();
+		ems.setRetme("0");
+
+		while (rs.next()) {
+			ems.setMatnr(rs.getString("MATNR"));
+			ems.setRetme(rs.getString("CONS"));// The total here
+		}
+
+		return ems;
+	}
 
 	public E_Lqua_SapEntity getMatnrTheoricWM(int docInvId, PosDocInvBean pb, Connection con) throws SQLException {
 
@@ -410,6 +451,25 @@ public class SapOperationDao {
 			els.setLgort(rs.getString("LGORT"));
 			els.setLgtyp(rs.getString("LGTYP"));
 			els.setLgpla(rs.getString("LGPLA"));
+			els.setMatnr(rs.getString("MATNR"));			
+			els.setVerme(rs.getString("CONS"));// The total here
+		}
+
+		return els;
+	}
+	
+	public E_Lqua_SapEntity getMatnrTheoricWmByBukrs(int docInvId, PosDocInvBean pb, Connection con) throws SQLException {
+
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(THEORIC_WM_BY_BUKRS);
+		stm.setInt(1, docInvId);
+		
+		ResultSet rs = stm.executeQuery();
+
+		E_Lqua_SapEntity els = new E_Lqua_SapEntity();
+		els.setVerme("0");
+
+		while (rs.next()) {			
 			els.setMatnr(rs.getString("MATNR"));			
 			els.setVerme(rs.getString("CONS"));// The total here
 		}
@@ -440,18 +500,18 @@ public class SapOperationDao {
 	}	
 
 	public long getMatnrMovementsIM(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con) throws SQLException {
-
+		
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(MOVEMENTS_IM);		
 		stm.setString(1, pdib.getLgort());		
 		stm.setString(2, pdib.getMatnr());
 		stm.setInt(3, docInvId);
-		stm.setDate(4, new java.sql.Date(dcounted.getTime()));
+		stm.setTimestamp(4, new java.sql.Timestamp(dcounted.getTime()));
 		
 		stm.setString(5, pdib.getLgort());		
 		stm.setString(6, pdib.getMatnr());
 		stm.setInt(7, docInvId);
-		stm.setDate(8, new java.sql.Date(dcounted.getTime()));
+		stm.setTimestamp(8, new java.sql.Timestamp(dcounted.getTime()));
 		
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
@@ -463,6 +523,28 @@ public class SapOperationDao {
 		return menge;
 	}
 	
+	public long getMatnrMovementsByBukrs(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con) throws SQLException {
+		
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(MOVEMENTS_BY_BUKRS);		
+		stm.setString(1, pdib.getMatnr());
+		stm.setInt(2, docInvId);
+		stm.setTimestamp(3, new java.sql.Timestamp(dcounted.getTime()));
+				
+		stm.setString(4, pdib.getMatnr());
+		stm.setInt(5, docInvId);
+		stm.setTimestamp(6, new java.sql.Timestamp(dcounted.getTime()));
+		
+		ResultSet rs = stm.executeQuery();
+		long menge = 0;
+
+		while (rs.next()) {
+			menge = rs.getLong("MENGE");// The total here
+		}
+
+		return menge;
+	}
+		
 	public long getMatnrMovementsWM(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con) throws SQLException {
 
 		PreparedStatement stm = null;
@@ -472,7 +554,7 @@ public class SapOperationDao {
 		stm.setString(2, pdib.getLgNum());		
 		stm.setString(3, pdib.getLgtyp());
 		stm.setString(4, pdib.getLgpla());
-		stm.setDate(5, new java.sql.Date(dcounted.getTime()));
+		stm.setTimestamp(5, new java.sql.Timestamp(dcounted.getTime()));
 		stm.setString(6, pdib.getMatnr());
 		stm.setInt(7, docInvId);
 				
@@ -480,7 +562,7 @@ public class SapOperationDao {
 		stm.setString(9, pdib.getLgNum());		
 		stm.setString(10, pdib.getLgtyp());
 		stm.setString(11, pdib.getLgpla());
-		stm.setDate(12, new java.sql.Date(dcounted.getTime()));
+		stm.setTimestamp(12, new java.sql.Timestamp(dcounted.getTime()));
 		stm.setString(13, pdib.getMatnr());
 		stm.setInt(14, docInvId);
 		
@@ -498,10 +580,8 @@ public class SapOperationDao {
 		
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COUNTED_MATNRS);
-		stm.setInt(1, docInvId);		
-		
+		stm.setInt(1, docInvId);				
 		ResultSet rs = stm.executeQuery();
-
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
 		PosDocInvBean matnr;
 
@@ -512,15 +592,32 @@ public class SapOperationDao {
 			matnr.setLgtyp(rs.getString("DIP_LGTYP"));
 			matnr.setLgpla(rs.getString("DIP_LGPLA"));
 			matnr.setMatnr(rs.getString("DIP_MATNR"));
-			matnr.setdCounted(rs.getDate("DIP_COUNT_DATE"));
+			matnr.setdCounted(rs.getTimestamp("DIP_COUNT_DATE"));
 			lsMatnr.add(matnr);
-		}		
+		}
 		
 		return lsMatnr;
 	}
 	
-	
+	public ArrayList<PosDocInvBean> getMatnrDatesByBukrs(int docInvId, Connection con) throws SQLException{
+		
+		PreparedStatement stm = null;
+		stm = con.prepareStatement(COUNTED_MATNRS_BY_BUKRS);
+		stm.setInt(1, docInvId);				
+		ResultSet rs = stm.executeQuery();
+		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
+		PosDocInvBean matnr;
 
+		while (rs.next()) {
+			matnr = new PosDocInvBean();
+			matnr.setMatnr(rs.getString("DIP_MATNR"));
+			matnr.setdCounted(rs.getTimestamp("DIP_COUNT_DATE"));
+			lsMatnr.add(matnr);
+		}
+		
+		return lsMatnr;
+	}
+		
 	/*
 	 * THIS IS THE SECTION FOR INSERT METHODS
 	 * 

@@ -40,13 +40,5 @@ public class ConciliacionSAPService {
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new ConciliationSAPWorkService().saveConciliation(request, user.getEntity().getIdentyId());
 	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getjsFileBase64")
-	public Response<String> getjsFileBase64(Request request){
 		
-		return new ConciliationSAPWorkService().getjsFileBase64(request);
-	}
 }

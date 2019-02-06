@@ -4,6 +4,7 @@ public class Justification {
 
 	private int consPosSAPId;
 	private int jsId;
+	private int jsCount;
 	private String quantity;
 	private String justify;
 	private String fileName;
@@ -13,10 +14,12 @@ public class Justification {
 		super();
 	}
 
-	public Justification(int consPosSAPId, int jsId, String quantity, String justify, String fileName, String base64File) {
+	public Justification(int consPosSAPId, int jsId, int jsCount, String quantity, String justify, String fileName,
+			String base64File) {
 		super();
 		this.consPosSAPId = consPosSAPId;
 		this.jsId = jsId;
+		this.jsCount = jsCount;
 		this.quantity = quantity;
 		this.justify = justify;
 		this.fileName = fileName;
@@ -37,6 +40,14 @@ public class Justification {
 
 	public void setJsId(int jsId) {
 		this.jsId = jsId;
+	}
+
+	public int getJsCount() {
+		return jsCount;
+	}
+
+	public void setJsCount(int jsCount) {
+		this.jsCount = jsCount;
 	}
 
 	public String getQuantity() {
@@ -73,8 +84,8 @@ public class Justification {
 
 	@Override
 	public String toString() {
-		return "Justification [consPosSAPId=" + consPosSAPId + ", jsId=" + jsId + ", quantity=" + quantity
-				+ ", justify=" + justify + ", fileName=" + fileName + ", base64File=" + base64File + "]";
+		return "Justification [consPosSAPId=" + consPosSAPId + ", jsId=" + jsId + ", jsCount=" + jsCount + ", quantity="
+				+ quantity + ", justify=" + justify + ", fileName=" + fileName + ", base64File=" + base64File + "]";
 	}
-
+	
 }

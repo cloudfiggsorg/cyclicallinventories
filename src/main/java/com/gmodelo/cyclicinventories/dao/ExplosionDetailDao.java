@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +32,77 @@ public class ExplosionDetailDao {
 		CallableStatement cs = null;
 		CallableStatement csBatch = null;	
 		String currentSP = "";
+		
+		/////////////////////////INICIO VALIDACIONES ANTES DE GUARDAR//////////////////////////////////////
+		//GENERANDO LISTA DE LGORTS UNICOS
+		List<String> uniqueLgortList = new ArrayList<>();
+		for(ExplosionDetail item : ed){
+			if(uniqueLgortList.isEmpty() && item.isRelevant()){
+				uniqueLgortList.add(item.getLgort());
+			}else{
+				boolean existLgort = false;
+				for(String l : uniqueLgortList){
+					if(l.equalsIgnoreCase(item.getLgort()) && item.isRelevant()){
+						existLgort = true;
+						break;
+					}
+				}
+				if(!existLgort && item.isRelevant()){
+					uniqueLgortList.add(item.getLgort());
+				}
+			}
+		}
+		//Obteniendo el universo de lgorts para el centro dado
+		final String  LGORT_BY_WERK = "SELECT DISTINCT LGORT FROM dbo.T001L WITH (NOLOCK) WHERE WERKS = ? ";
+		List<String> lgortsList = new ArrayList<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(LGORT_BY_WERK);
+			stm.setString(1, ed.get(0).getWerks());
+			
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()){
+				lgortsList.add(rs.getString("LGORT"));
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[saveExplosionDetail] Ocurrió un error al buscar la lista de almacenes para validar información, query: "+LGORT_BY_WERK, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+//		verificando que la consulta no venga vacia
+		if(lgortsList.isEmpty()){
+			log.log(Level.SEVERE, "[saveExplosionDetail] No existen almacenes para el centro "+ed.get(0).getWerks());
+			abstractResult.setResultId(ReturnValues.IERROR);
+			abstractResult.setResultMsgAbs("No existen almacenes para el centro "+ed.get(0).getWerks());
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+//		Validando que el lgort ingresado exista en el centro
+		String msg = "Almacenes incorrectos para centro  "+ed.get(0).getWerks()+" : ";
+		int size = msg.length();
+		boolean validateError = false;
+		for(String lgortToValidate : uniqueLgortList){
+			if(!lgortsList.contains(lgortToValidate)){
+				validateError = true;
+				if(msg.length() > size){
+					msg+= ", "+lgortToValidate;
+				}else{
+					msg+= lgortToValidate;
+				}
+				
+			}
+		}
+		if(validateError){
+			abstractResult.setResultId(ReturnValues.IERROR);
+			abstractResult.setResultMsgAbs(msg);
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+		
+		//////////////////////////FIN VALIDACIONES ANTES DE GUARDAR///////////////////////////////////
+		
 
 		final String INV_SP_SAVE_EXPLOSION = "INV_SP_SAVE_EXPLOSION ?, ?, ?, ?, ?, ?";
 		final String INV_SP_DEL_EXPLOSION = "INV_SP_DEL_EXPLOSION ?, ?";
@@ -61,8 +133,8 @@ public class ExplosionDetailDao {
 					csBatch.setString(1, obj.getWerks());
 					csBatch.setString(2, obj.getMatnr());
 					csBatch.setString(3, obj.getComponent());
-					csBatch.setString(4, obj.getUmb());
-					csBatch.setByte(5, (byte) (obj.isRelevant()?1:0));
+					csBatch.setByte(4, (byte) (obj.isRelevant()?1:0));
+					csBatch.setString(5, obj.getLgort());
 					csBatch.setString(6, user);
 					csBatch.addBatch();					
 				}
@@ -118,7 +190,7 @@ public class ExplosionDetailDao {
 
 		final String GET_EXPL_DET = "SELECT  A.WERKS, SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) AS MATNR, "
 				+ "SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL, " 
-				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT " 
+				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT, '' LGORT " 
 				+ "FROM MAST AS A " 
 					+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) " 
 					+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) " 
@@ -130,9 +202,10 @@ public class ExplosionDetailDao {
 
 				+ "UNION " 
 
-				+ "SELECT A.EX_WERKS, A.EX_MATNR, A.EX_COMPONENT, B.MAKTX, A.EX_UMB, A.EX_RELEVANT " 
+				+ "SELECT A.EX_WERKS, A.EX_MATNR, A.EX_COMPONENT, B.MAKTX, C.MEINS, A.EX_RELEVANT, A.EX_LGORT LGORT " 
 				+ "FROM INV_EXPLOSION AS A " 
 					+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS B ON (A.EX_COMPONENT = B.MATNR) " 
+					+ "INNER JOIN MARA AS C ON (SUBSTRING(C.MATNR, PATINDEX('%[^0 ]%', C.MATNR + ' '), LEN(C.MATNR)) = A.EX_COMPONENT) "
 				+ "WHERE EX_WERKS = ? " 
 					+ "AND B.WERKS = ? "
 					+ "AND SUBSTRING(EX_MATNR, PATINDEX('%[^0 ]%', EX_MATNR + ' '), LEN(EX_MATNR))  = ? " 
@@ -177,6 +250,7 @@ public class ExplosionDetailDao {
 				ed.setCompDesc(rs.getString("MAKTX"));
 				ed.setUmb(rs.getString("MEINS"));
 				ed.setRelevant(rs.getBoolean("IS_RELEVANT"));
+				ed.setLgort(rs.getString("LGORT"));
 				lsEd.add(ed);
 			}
 
@@ -230,7 +304,10 @@ public class ExplosionDetailDao {
 		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MEINS, A.COUNTED, "
 				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, D.MEINS MEINS_EXLP, " 
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
-				+ "(CAST(D.MENGE AS decimal(15, 2)) / CAST(C.BMENG AS decimal(15, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(15, 2)) AS QUANTITY " 
+				+ "(CAST(D.MENGE AS decimal(15, 2)) / CAST(C.BMENG AS decimal(15, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(15, 2)) AS QUANTITY, "
+				+ "ISNULL((SELECT CATEGORY FROM INV_CAT_CATEGORY AS ICC "
+						+ "INNER JOIN INV_REL_CAT_MAT AS IRCM ON (ICC.CAT_ID = IRCM.REL_CAT_ID) " 
+						+ "WHERE REL_MATNR = SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK))), '') AS CAT_EXPL "
 			+ "FROM (SELECT DIP_MATNR MATNR, DIP_DOC_INV_ID, SUM(CAST(DIP_COUNTED AS decimal(15, 2))) COUNTED, " 
 				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS "
 				+ "FROM INV_DOC_INVENTORY_POSITIONS "
@@ -276,6 +353,7 @@ public class ExplosionDetailDao {
 				expl.setCounted(rs.getString("COUNTED"));
 				expl.setMatnrExpl(rs.getString("IDNRK"));
 				expl.setDescMantrExpl(rs.getString("MATNR_EXPL_DESC"));
+				expl.setCatExpl(rs.getString("CAT_EXPL"));
 				expl.setUmbExpl(rs.getString("MEINS_EXLP"));
 				expl.setQuantity(rs.getString("QUANTITY"));
 
