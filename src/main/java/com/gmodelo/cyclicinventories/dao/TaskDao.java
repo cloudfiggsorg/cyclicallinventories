@@ -460,29 +460,50 @@ public class TaskDao {
 	}
 
 	private static final String GET_USERS_FROM_GROUP = "SELECT GRU_USER_ID FROM INV_GROUPS_USER WITH(NOLOCK) WHERE GRU_GROUP_ID = ? ";
-	
+
 	public List<String> getUsersFromTaskGroup(String userGroup) throws SQLException {
 		Connection con = iConnectionManager.createConnection();
 		List<String> userList = new ArrayList<>();
 		try {
-			PreparedStatement stm = con .prepareStatement(GET_USERS_FROM_GROUP);
+			PreparedStatement stm = con.prepareStatement(GET_USERS_FROM_GROUP);
 			stm.setString(1, userGroup);
 			ResultSet rs = stm.executeQuery();
-			while(rs.next()) {
-				if(!userList.contains(rs.getString("GRU_USER_ID"))) {
+			while (rs.next()) {
+				if (!userList.contains(rs.getString("GRU_USER_ID"))) {
 					userList.add(rs.getString("GRU_USER_ID"));
 				}
 			}
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[TaskDao - getUsersFromTaskGroup] Some error occurred while was trying to execute the query: ");
+			log.log(Level.SEVERE,
+					"[TaskDao - getUsersFromTaskGroup] Some error occurred while was trying to execute the query: ");
 			throw e;
 		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[TaskDao -getUsersFromTaskGroup] Some error occurred while was trying to close the connection.", e);
+						"[TaskDao -getUsersFromTaskGroup] Some error occurred while was trying to close the connection.",
+						e);
 			}
+		}
+		return userList;
+	}
+
+	public List<String> getUsersFromTaskGroup(String userGroup, Connection con) throws SQLException {
+		List<String> userList = new ArrayList<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_USERS_FROM_GROUP);
+			stm.setString(1, userGroup);
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				if (!userList.contains(rs.getString("GRU_USER_ID"))) {
+					userList.add(rs.getString("GRU_USER_ID"));
+				}
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[TaskDao - getUsersFromTaskGroup] Some error occurred while was trying to execute the query: ");
+			throw e;
 		}
 		return userList;
 	}

@@ -27,7 +27,7 @@ public class RouteWorkService {
 	private Logger log = Logger.getLogger(RouteWorkService.class.getName());
 	Gson gson = new Gson();
 
-	public Response<RouteBean> addRoute(Request request, User user) {
+	public Response<RouteBean> addRoute(Request<?> request, User user) {
 
 		log.info("[addRouteWS] " + request.toString());
 		RouteBean routeBean;
@@ -58,7 +58,7 @@ public class RouteWorkService {
 
 	}
 
-	public Response<Object> deleteRoute(Request request) {
+	public Response<Object> deleteRoute(Request<?> request) {
 
 		log.info("[deleteRouteWS] " + request.toString());
 		String arrayIdRoutes;
@@ -66,15 +66,15 @@ public class RouteWorkService {
 		return new RouteDao().deleteRoute(arrayIdRoutes);
 	}
 
-	public Response<List<RouteBean>> getRoutes(Request request) {
+	public Response<List<RouteBean>> getRoutes(Request<?> request) {
 		log.info("[getRoutesService] " + request.toString());
 		RouteBean routeBean = null;
 		String searchFilter = null;
 		String req = request.getLsObject().toString().trim();
-		
+
 		if (!req.isEmpty()) {
 			try {
-				
+
 				routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteBean.class);
 				log.info("Fue objeto");
 			} catch (JsonSyntaxException e) {
@@ -88,18 +88,18 @@ public class RouteWorkService {
 		return new RouteDao().getRoutes(routeBean, searchFilter);
 	}
 
-	public Response<List<RouteBean>> getOnlyRoutes(Request request) {
-		
+	public Response<List<RouteBean>> getOnlyRoutes(Request<?> request) {
+
 		log.info("[getRoutesService] " + request.toString());
 		RouteBean routeBean = null;
-		
+
 		try {
-			
+
 			routeBean = gson.fromJson(gson.toJson(request.getLsObject()), RouteBean.class);
 			log.info("Fue objeto");
-			
+
 		} catch (JsonSyntaxException e) {
-			
+
 			log.log(Level.SEVERE, "[validateZonePositions] Error al pasar de Json a ZonePositionsBean");
 			AbstractResultsBean abstractResult = new AbstractResultsBean();
 			Response<List<RouteBean>> res = new Response<>();
@@ -185,7 +185,7 @@ public class RouteWorkService {
 		return new Gson().toJson(routeResponse);
 	}
 
-	public String getRoutesByUser(Request request) {
+	public String getRoutesByUser(Request<?> request) {
 
 		Response<RouteUserBean> routeResponse = new Response<>();
 		RouteUserDao routeDao = new RouteUserDao();
@@ -219,8 +219,8 @@ public class RouteWorkService {
 
 		return new Gson().toJson(routeResponse);
 	}
-	
-	public Response<RouteUserBean> getRoutesByUserSAP(Request request) {
+
+	public Response<RouteUserBean> getRoutesByUserSAP(Request<?> request) {
 
 		Response<RouteUserBean> routeResponse = new Response<>();
 		RouteUserDao routeDao = new RouteUserDao();
@@ -255,7 +255,8 @@ public class RouteWorkService {
 		return routeResponse;
 	}
 
-	public String getAutoTaskByUser(Request request) {
+	@SuppressWarnings("unchecked")
+	public String getAutoTaskByUser(Request<?> request) {
 
 		Response<RouteUserBean> routeResponse = new Response<>();
 		AbstractResultsBean result = new AbstractResultsBean();
@@ -286,7 +287,7 @@ public class RouteWorkService {
 		return new Gson().toJson(routeResponse);
 	}
 
-	public Response<List<RouteUserPositionBean>> getPositionsByIdRoute(Request request) {
+	public Response<List<RouteUserPositionBean>> getPositionsByIdRoute(Request<?> request) {
 		log.info(request.toString());
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		Response<List<RouteUserPositionBean>> res = new Response<>();

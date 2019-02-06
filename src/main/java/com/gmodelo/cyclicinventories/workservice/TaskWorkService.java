@@ -1,8 +1,6 @@
 package com.gmodelo.cyclicinventories.workservice;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.sql.Connection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,28 +10,22 @@ import org.json.JSONObject;
 
 import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
-import com.gmodelo.cyclicinventories.beans.ContingencyTaskBean;
-import com.gmodelo.cyclicinventories.beans.LgplaValuesBean;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
-import com.gmodelo.cyclicinventories.beans.RouteUserBean;
-import com.gmodelo.cyclicinventories.beans.RouteUserPositionBean;
 import com.gmodelo.cyclicinventories.beans.TaskBean;
-import com.gmodelo.cyclicinventories.beans.ZoneUserBean;
-import com.gmodelo.cyclicinventories.beans.ZoneUserPositionsBean;
-import com.gmodelo.cyclicinventories.dao.MatnrDao;
 import com.gmodelo.cyclicinventories.dao.RouteDao;
 import com.gmodelo.cyclicinventories.dao.TaskDao;
-import com.gmodelo.cyclicinventories.dao.ZoneDao;
+import com.gmodelo.cyclicinventories.runtime.TaskGsonRuntime;
+import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 
 public class TaskWorkService {
 
 	private Logger log = Logger.getLogger(TaskWorkService.class.getName());
 	private Gson gson = new Gson();
+	private ConnectionManager iConnectionManager = new ConnectionManager();
 
 	public Response<TaskBean> addTaskSpecial(TaskBean taskBean, User user) {
 		log.info("[addTaskWS] " + taskBean.toString());
@@ -67,7 +59,7 @@ public class TaskWorkService {
 		return res;
 	}
 
-	public Response<TaskBean> addTask(Request request, User user) {
+	public Response<TaskBean> addTask(Request<?> request, User user) {
 		log.info("[addTaskWS] " + request.toString());
 		TaskBean taskBean = null;
 		Response<TaskBean> res = new Response<>();
@@ -75,7 +67,7 @@ public class TaskWorkService {
 		try {
 			taskBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
 			if (taskBean.getRub() != null) {
-				log.log(Level.WARNING, "[addTaskWS] Ingreso con JSON " + taskBean.toString());
+				log.log(Level.WARNING, "[TaskWorkService - addTaskWS] Ingreso con JSON " + taskBean.toString());
 				if ((new RouteDao().assingRecountGroup(taskBean, user)).getResultId() == ReturnValues.ISUCCESS) {
 					TaskBean subBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
 					subBean.setRub(null);
@@ -83,22 +75,26 @@ public class TaskWorkService {
 					if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
 						taskBean.setTaskId(res.getLsObject().getTaskId());
 						taskBean.getRub().setTaskId(res.getLsObject().getTaskId());
-						log.log(Level.WARNING, "[addTaskWS] Previo a ejecutar New Task" + taskBean.toString());
+						log.log(Level.WARNING,
+								"[TaskWorkService - addTaskWS] Previo a ejecutar New Task" + taskBean.toString());
 						res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
 					}
 				} else {
-					log.log(Level.WARNING, "[addTaskWS] Fallo al Ingresar el grupo a la ruta " + taskBean.toString());
+					log.log(Level.WARNING, "[TaskWorkService - addTaskWS] Fallo al Ingresar el grupo a la ruta "
+							+ taskBean.toString());
 					abstractResult.setResultId(ReturnValues.IERROR);
 					abstractResult.setResultMsgAbs("Fallo al Ingresar el grupo a la ruta");
 					res.setAbstractResult(abstractResult);
 				}
 			} else {
-				log.log(Level.WARNING, "[addTaskWS] Ingreso sin JSON " + taskBean.toString());
+				log.log(Level.WARNING, "[TaskWorkService - addTaskWS] Ingreso sin JSON " + taskBean.toString());
 				res = new TaskDao().addTask(taskBean, user.getEntity().getIdentyId());
+				if (res.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
+					WS_RuntimeTaskGson(taskBean, user);
+				}
 			}
-			log.log(Level.WARNING, "[addTaskWS] ");
 		} catch (JsonSyntaxException e) {
-			log.log(Level.SEVERE, "[addTaskWS] Error al pasar de Json a TaskBean", e);
+			log.log(Level.SEVERE, "[TaskWorkService - addTaskWS] Error al pasar de Json a TaskBean", e);
 			taskBean = null;
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
@@ -108,7 +104,7 @@ public class TaskWorkService {
 		return res;
 	}
 
-	public Response<Object> deleteTask(Request request) {
+	public Response<Object> deleteTask(Request<?> request) {
 		log.info("[deleteTaskWS] " + request.toString());
 		String arrayIdTask;
 		Response<Object> res = new Response<>();
@@ -131,7 +127,7 @@ public class TaskWorkService {
 		return new TaskDao().deleteTask(arrayIdTask);
 	}
 
-	public Response<List<TaskBean>> getTasks(Request request) {
+	public Response<List<TaskBean>> getTasks(Request<?> request) {
 
 		log.info("getTasksWS] " + request.toString());
 		TaskBean tb = null;
@@ -166,7 +162,7 @@ public class TaskWorkService {
 		return new TaskDao().getTasks(tb, searchFilter);
 	}
 
-	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request request) {
+	public Response<List<TaskBean>> getTasksByBukrsAndWerks(Request<?> request) {
 
 		log.info("[getTasksByBukrsAndWerks] " + request.toString());
 		String bukrs;
@@ -193,5 +189,20 @@ public class TaskWorkService {
 
 		return new TaskDao().getTasksbyBukrsAndWerks(bukrs, werks);
 	}
-	
+
+	public AbstractResultsBean WS_RuntimeTaskGson(TaskBean taskBean, User user) {
+		AbstractResultsBean abstractResultsBean = new AbstractResultsBean();
+		Connection con = iConnectionManager.createConnection();
+		try {
+			new TaskGsonRuntime(con, taskBean, user).start();
+		} catch (RuntimeException e) {
+			abstractResultsBean.setResultId(ReturnValues.IEXCEPTION);
+			abstractResultsBean.setResultMsgAbs(e.getMessage());
+		} catch (Exception e) {
+			abstractResultsBean.setResultId(ReturnValues.IEXCEPTION);
+			abstractResultsBean.setResultMsgAbs(e.getMessage());
+		}
+		return abstractResultsBean;
+	}
+
 }

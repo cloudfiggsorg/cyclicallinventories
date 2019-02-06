@@ -43,7 +43,7 @@ public class ConciliacionWorkService {
 		return new ConciliacionDao().getConciliationIDs(bukrs, werks);
 	}
 
-	public Response<ConciliacionBean> getConciliacion(Request request) {
+	public Response<ConciliacionBean> getConciliacion(Request<?> request) {
 
 		log.info("[getConciliacionWS] " + request.toString());
 		ConciliacionBean tb = new Gson().fromJson(request.getLsObject().toString(), ConciliacionBean.class);
@@ -80,7 +80,7 @@ public class ConciliacionWorkService {
 		return res;
 	}
 
-	public Response<TaskBean> getFatherTaskByDocId(Request request) {
+	public Response<TaskBean> getFatherTaskByDocId(Request<?> request) {
 
 		log.info("[getFatherTaskByDocIdWS] " + request.toString());
 		String req = request.getLsObject().toString().trim();
@@ -138,7 +138,7 @@ public class ConciliacionWorkService {
 		return res;
 	}
 
-	public Response<String> getZonePosition(Request request) {
+	public Response<String> getZonePosition(Request<?> request) {
 
 		log.info("[getZonePositionWS] " + request.toString());
 		int zoneId = 0;
@@ -176,7 +176,7 @@ public class ConciliacionWorkService {
 
 	}
 
-	public Response<TaskBean> getSpecialSAPCount(Request request, User user) {
+	public Response<TaskBean> getSpecialSAPCount(Request<?> request, User user) {
 		log.info("[getSpecialSAPCount] " + request.toString());
 		Response<TaskBean> res = new Response<>();
 		TaskBean taskBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
@@ -195,19 +195,18 @@ public class ConciliacionWorkService {
 				taskBean.setTaskJSON(null);
 				Response<DocInvBean> resDao = new DocInvDao().addDocInv(docInvBean, docInvBean.getCreatedBy());
 				if (resDao.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
-					//INICIOfoto inventario
+					// INICIO foto inventario
 					new SapConciliationWorkService().WS_RuntimeInventorySnapShot(resDao.getLsObject());
-					//FINfoto inventario 
+					// FIN foto inventario
 					taskBean.setDocInvId(resDao.getLsObject());
 					Response<TaskBean> resTask = new TaskWorkService().addTaskSpecial(taskBean, user);
 					if (resTask.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
-						Request req = new Request<>();
-						LoginBean tokenObject = new LoginBean<>();
+						Request<?> req = new Request<>();
+						LoginBean<?> tokenObject = new LoginBean<>();
 						req.setTokenObject(tokenObject);
 						req.getTokenObject().setLoginId(listUser.get(0));
 						Response<RouteUserBean> respRUB = routeWorkService.getRoutesByUserSAP(req);
 						RouteUserBean rub = respRUB.getLsObject();
-
 						for (RouteUserPositionBean rubPos : rub.getPositions()) {
 							for (ZoneUserPositionsBean zonePos : rubPos.getZone().getPositionsB()) {
 								mapLVB = new HashMap<>();
