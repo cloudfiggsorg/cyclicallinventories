@@ -304,7 +304,10 @@ public class ExplosionDetailDao {
 		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MEINS, A.COUNTED, "
 				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, D.MEINS MEINS_EXLP, " 
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
-				+ "(CAST(D.MENGE AS decimal(15, 2)) / CAST(C.BMENG AS decimal(15, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(15, 2)) AS QUANTITY " 
+				+ "(CAST(D.MENGE AS decimal(15, 2)) / CAST(C.BMENG AS decimal(15, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(15, 2)) AS QUANTITY, "
+				+ "ISNULL((SELECT CATEGORY FROM INV_CAT_CATEGORY AS ICC "
+						+ "INNER JOIN INV_REL_CAT_MAT AS IRCM ON (ICC.CAT_ID = IRCM.REL_CAT_ID) " 
+						+ "WHERE REL_MATNR = SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK))), '') AS CAT_EXPL "
 			+ "FROM (SELECT DIP_MATNR MATNR, DIP_DOC_INV_ID, SUM(CAST(DIP_COUNTED AS decimal(15, 2))) COUNTED, " 
 				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS "
 				+ "FROM INV_DOC_INVENTORY_POSITIONS "
@@ -350,6 +353,7 @@ public class ExplosionDetailDao {
 				expl.setCounted(rs.getString("COUNTED"));
 				expl.setMatnrExpl(rs.getString("IDNRK"));
 				expl.setDescMantrExpl(rs.getString("MATNR_EXPL_DESC"));
+				expl.setCatExpl(rs.getString("CAT_EXPL"));
 				expl.setUmbExpl(rs.getString("MEINS_EXLP"));
 				expl.setQuantity(rs.getString("QUANTITY"));
 
