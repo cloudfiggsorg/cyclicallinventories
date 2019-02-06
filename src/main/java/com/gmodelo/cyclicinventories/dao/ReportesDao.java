@@ -30,6 +30,7 @@ import com.gmodelo.cyclicinventories.beans.E_Lqua_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mard_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
+import com.gmodelo.cyclicinventories.beans.MatExplReport;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
 import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
@@ -453,13 +454,11 @@ public class ReportesDao {
 					lsMatnr += positionBean.getMatnr() + ",";
 
 				}
-
+				
 				HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();
 				PosDocInvBean pbAux = null;
 				double sumCounted = 0.0D;
 				int count = 0;
-
-				ArrayList<PosDocInvBean> lsMatnrDates = sod.getMatnrDatesByBukrs(docInvBean.getDocInvId().intValue(), con);
 				
 				//Create a map by matnr
 				for (PosDocInvBean pb : listBean) {
@@ -478,15 +477,67 @@ public class ReportesDao {
 					}
 				}
 				
+				//Get the explosion detail
+				ArrayList<MatExplReport> lsExpDet = null;				
+				lsExpDet = new ExplosionDetailDao().getExplosionReportByDocInv(docInvBean.getDocInvId()).getLsObject();
+				
 				listBean.clear();
 				
+				//Set the counted explosioned
+				double countedExpl;
+				PosDocInvBean pdibAux = null;				
 				for (Map.Entry<String, PosDocInvBean> mapEntry : mapByMatNr.entrySet()) {
-					listBean.add((PosDocInvBean) mapEntry.getValue());
+					
+					pdibAux = (PosDocInvBean) mapEntry.getValue();
+					
+					countedExpl = 0;
+										
+					for(MatExplReport obj: lsExpDet){
+						
+						if(pdibAux.getMatnr().equalsIgnoreCase(obj.getMatnrExpl())){
+							
+							countedExpl += Double.parseDouble(obj.getQuantity());
+						}
+					}
+					
+					pdibAux.setCountedExpl(Double.toString(countedExpl));
+					
+					listBean.add(pdibAux);
 				}
 				
+				//Add the not listed matnrs from explosion
+				boolean found = false;
+				for(MatExplReport obj: lsExpDet){
+					
+					found = false;
+					for(PosDocInvBean pdib :listBean){
+						
+						if(obj.getMatnrExpl().equalsIgnoreCase(pdib.getMatnr())){
+							found = true;
+						}
+					}
+					
+					if(!found){
+						
+						PosDocInvBean pdib = new PosDocInvBean();
+						pdib.setMatnr(obj.getMatnrExpl());
+						pdib.setMatnrD(obj.getDescMantrExpl());
+						pdib.setCategory(obj.getCatExpl());
+						pdib.setMeins(obj.getUmbExpl());
+						pdib.setCounted("0");
+						pdib.setCountedExpl(obj.getQuantity());	
+						pdib.setTheoric("0");
+						pdib.setTransit("0");
+						pdib.setCostByUnit("0");
+						pdib.setConsignation("0");
+						listBean.add(pdib);
+					}
+				}
+												
 				ArrayList<E_Mseg_SapEntity> lsTransit = this.sod.getMatnrOnTransit(docInvBean.getDocInvId().intValue(),	con);
 				ArrayList<E_Msku_SapEntity> lsCons = this.sod.getMatnrOnCons(docInvBean.getDocInvId().intValue(), con);
 				ArrayList<CostByMatnr> lsMatnrCost = this.sod.getCostByMatnr(lsMatnr, bean.getWerks(), con);
+				ArrayList<PosDocInvBean> lsMatnrDates = sod.getMatnrDatesByBukrs(docInvBean.getDocInvId().intValue(), con);
 
 				count = 0;
 				for (PosDocInvBean pb : listBean) {

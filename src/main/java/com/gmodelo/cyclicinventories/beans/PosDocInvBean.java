@@ -7,6 +7,7 @@ public class PosDocInvBean {
 		
 	private int posId;
 	private int doncInvId;
+	private int item;
 	private String lgort;
 	private String lgortD;
 	private String lgtyp;
@@ -20,6 +21,7 @@ public class PosDocInvBean {
 	private String meins;
 	private String theoric;
 	private String counted;
+	private String countedExpl;
 	private String diff;
 	private String imwmMarker;
 	private String consignation;
@@ -33,13 +35,14 @@ public class PosDocInvBean {
 		this.costByUnit = "CND";
 	}
 
-	public PosDocInvBean(int posId, int doncInvId, String lgort, String lgortD, String lgtyp, String ltypt,
+	public PosDocInvBean(int posId, int doncInvId, int item, String lgort, String lgortD, String lgtyp, String ltypt,
 			String lgNum, String lgpla, String matnr, String matnrD, String category, String costByUnit, String meins,
-			String theoric, String counted, String diff, String imwmMarker, String consignation, String transit,
-			Date dCounted, ArrayList<Justification> lsJustification) {
+			String theoric, String counted, String countedExpl, String diff, String imwmMarker, String consignation,
+			String transit, Date dCounted, ArrayList<Justification> lsJustification) {
 		super();
 		this.posId = posId;
 		this.doncInvId = doncInvId;
+		this.item = item;
 		this.lgort = lgort;
 		this.lgortD = lgortD;
 		this.lgtyp = lgtyp;
@@ -53,6 +56,7 @@ public class PosDocInvBean {
 		this.meins = meins;
 		this.theoric = theoric;
 		this.counted = counted;
+		this.countedExpl = countedExpl;
 		this.diff = diff;
 		this.imwmMarker = imwmMarker;
 		this.consignation = consignation;
@@ -75,6 +79,14 @@ public class PosDocInvBean {
 
 	public void setDoncInvId(int doncInvId) {
 		this.doncInvId = doncInvId;
+	}
+
+	public int getItem() {
+		return item;
+	}
+
+	public void setItem(int item) {
+		this.item = item;
 	}
 
 	public String getLgort() {
@@ -181,6 +193,14 @@ public class PosDocInvBean {
 		this.counted = counted;
 	}
 
+	public String getCountedExpl() {
+		return countedExpl;
+	}
+
+	public void setCountedExpl(String countedExpl) {
+		this.countedExpl = countedExpl;
+	}
+
 	public String getDiff() {
 		return diff;
 	}
@@ -231,12 +251,12 @@ public class PosDocInvBean {
 
 	@Override
 	public String toString() {
-		return "PosDocInvBean [posId=" + posId + ", doncInvId=" + doncInvId + ", lgort=" + lgort + ", lgortD=" + lgortD
-				+ ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla=" + lgpla + ", matnr=" + matnr
-				+ ", matnrD=" + matnrD + ", category=" + category + ", costByUnit=" + costByUnit + ", meins=" + meins
-				+ ", theoric=" + theoric + ", counted=" + counted + ", diff=" + diff + ", imwmMarker=" + imwmMarker
-				+ ", consignation=" + consignation + ", transit=" + transit + ", dCounted=" + dCounted
-				+ ", lsJustification=" + lsJustification + "]";
+		return "PosDocInvBean [posId=" + posId + ", doncInvId=" + doncInvId + ", item=" + item + ", lgort=" + lgort
+				+ ", lgortD=" + lgortD + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla="
+				+ lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", category=" + category + ", costByUnit="
+				+ costByUnit + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted + ", countedExpl="
+				+ countedExpl + ", diff=" + diff + ", imwmMarker=" + imwmMarker + ", consignation=" + consignation
+				+ ", transit=" + transit + ", dCounted=" + dCounted + ", lsJustification=" + lsJustification + "]";
 	}
-
+	
 }
