@@ -81,4 +81,13 @@ public class ReportesService {
 	public Response<List<ConciAccntReportBean>> getReporteConciAccntReport(Request request) {
 		return new ReportesWorkService().getReporteConciAccntReport(request);
 	}
+	
+	@POST//Cons SAP
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getReporteDocInvByLgpla")
+	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
+		return new ReportesWorkService().getReporteDocInvSAPByLgpla(request);
+	}
+
 }
