@@ -27,7 +27,7 @@ public class PosDocInvBean {
 	private String consignation;
 	private String transit;
 	private Date dCounted;
-	private boolean isExplosion;
+	private boolean explosion;
 	private ArrayList<Justification> lsJustification;
 	
 	public PosDocInvBean(){
@@ -38,7 +38,7 @@ public class PosDocInvBean {
 	public PosDocInvBean(int posId, int doncInvId, int item, String lgort, String lgortD, String lgtyp, String ltypt,
 			String lgNum, String lgpla, String matnr, String matnrD, String category, String costByUnit, String meins,
 			String theoric, String counted, String countedExpl, String diff, String imwmMarker, String consignation,
-			String transit, Date dCounted, boolean isExplosion, ArrayList<Justification> lsJustification) {
+			String transit, Date dCounted, boolean explosion, ArrayList<Justification> lsJustification) {
 		super();
 		this.posId = posId;
 		this.doncInvId = doncInvId;
@@ -62,7 +62,7 @@ public class PosDocInvBean {
 		this.consignation = consignation;
 		this.transit = transit;
 		this.dCounted = dCounted;
-		this.isExplosion = isExplosion;
+		this.explosion = explosion;
 		this.lsJustification = lsJustification;
 	}
 
@@ -243,11 +243,11 @@ public class PosDocInvBean {
 	}
 
 	public boolean isExplosion() {
-		return isExplosion;
+		return explosion;
 	}
 
-	public void setExplosion(boolean isExplosion) {
-		this.isExplosion = isExplosion;
+	public void setExplosion(boolean explosion) {
+		this.explosion = explosion;
 	}
 
 	public ArrayList<Justification> getLsJustification() {
@@ -265,7 +265,7 @@ public class PosDocInvBean {
 				+ lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", category=" + category + ", costByUnit="
 				+ costByUnit + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted + ", countedExpl="
 				+ countedExpl + ", diff=" + diff + ", imwmMarker=" + imwmMarker + ", consignation=" + consignation
-				+ ", transit=" + transit + ", dCounted=" + dCounted + ", isExplosion=" + isExplosion
+				+ ", transit=" + transit + ", dCounted=" + dCounted + ", explosion=" + explosion
 				+ ", lsJustification=" + lsJustification + "]";
 	}
 

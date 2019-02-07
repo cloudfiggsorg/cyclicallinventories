@@ -530,6 +530,7 @@ public class ReportesDao {
 						}
 						
 						PosDocInvBean pdib = new PosDocInvBean();
+						pdib.setDoncInvId(docInvBean.getDocInvId());
 						pdib.setMatnr(obj.getMatnrExpl());
 						pdib.setMatnrD(obj.getDescMantrExpl());
 						pdib.setCategory(obj.getCatExpl());						
