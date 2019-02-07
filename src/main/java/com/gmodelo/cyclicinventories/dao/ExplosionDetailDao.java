@@ -356,7 +356,7 @@ public class ExplosionDetailDao {
 				expl.setCatExpl(rs.getString("CAT_EXPL"));
 				expl.setUmbExpl(rs.getString("MEINS_EXLP"));
 				expl.setQuantity(rs.getString("QUANTITY"));
-
+				
 				if(map.containsKey(expl.getMatnr())){
 					map.get(expl.getMatnr()).add(expl);					
 				}else{
@@ -425,7 +425,10 @@ public class ExplosionDetailDao {
 	private ArrayList<MatExplReport> getVHILM(int docInvId, Connection con) throws SQLException {
 		
 		ArrayList<MatExplReport> lsVHILM = new ArrayList<>();
-		final String QUERY = "SELECT A.MATNR, A.COU_VHILM, MEINS, A.MAKTX, SUM(COUNTED) COUNTED " 
+		final String QUERY = "SELECT A.MATNR, A.COU_VHILM, MEINS, A.MAKTX, SUM(COUNTED) COUNTED, "
+				+ "ISNULL((SELECT CATEGORY FROM INV_CAT_CATEGORY AS ICC "
+				+ "INNER JOIN INV_REL_CAT_MAT AS IRCM ON (ICC.CAT_ID = IRCM.REL_CAT_ID) " 
+				+ "WHERE REL_MATNR = SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR))), '') AS CAT_EXPL "
 				+ "FROM (SELECT SUBSTRING(A.COU_MATNR, PATINDEX('%[^0 ]%', A.COU_MATNR + ' '), LEN(A.COU_MATNR)) MATNR, COU_VHILM, MEINS, " 
 				+ "MAKTX, CASE WHEN A.COU_VHILM_COUNT IS NULL THEN 0 "  
 				+ "WHEN LEN(A.COU_VHILM_COUNT) = 0 THEN 0 "
@@ -450,7 +453,8 @@ public class ExplosionDetailDao {
 
 			matnrRec = new MatExplReport();
 			matnrRec.setMatnr(rs.getString("MATNR"));
-			matnrRec.setMatnrExpl(rs.getString("COU_VHILM"));	
+			matnrRec.setMatnrExpl(rs.getString("COU_VHILM"));
+			matnrRec.setCatExpl(rs.getString("CAT_EXPL"));			
 			matnrRec.setUmbExpl(rs.getString("MEINS"));
 			matnrRec.setDescMantrExpl(rs.getString("MAKTX"));			
 			matnrRec.setQuantity(rs.getString("COUNTED"));			

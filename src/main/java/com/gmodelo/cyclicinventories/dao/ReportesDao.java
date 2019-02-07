@@ -488,7 +488,7 @@ public class ReportesDao {
 				PosDocInvBean pdibAux = null;				
 				for (Map.Entry<String, PosDocInvBean> mapEntry : mapByMatNr.entrySet()) {
 					
-					pdibAux = (PosDocInvBean) mapEntry.getValue();
+					pdibAux = mapEntry.getValue();
 					
 					countedExpl = 0;
 										
@@ -519,17 +519,28 @@ public class ReportesDao {
 					
 					if(!found){
 						
+						countedExpl = 0;
+						
+						for(MatExplReport objAux: lsExpDet){
+							
+							if(obj.getMatnrExpl().equalsIgnoreCase(objAux.getMatnrExpl())){
+								
+								countedExpl += Double.parseDouble(objAux.getQuantity());
+							}
+						}
+						
 						PosDocInvBean pdib = new PosDocInvBean();
 						pdib.setMatnr(obj.getMatnrExpl());
 						pdib.setMatnrD(obj.getDescMantrExpl());
-						pdib.setCategory(obj.getCatExpl());
+						pdib.setCategory(obj.getCatExpl());						
 						pdib.setMeins(obj.getUmbExpl());
 						pdib.setCounted("0");
-						pdib.setCountedExpl(obj.getQuantity());	
+						pdib.setCountedExpl(Double.toString(countedExpl));	
 						pdib.setTheoric("0");
 						pdib.setTransit("0");
 						pdib.setCostByUnit("0");
 						pdib.setConsignation("0");
+						pdib.setExplosion(true);
 						listBean.add(pdib);
 					}
 				}
