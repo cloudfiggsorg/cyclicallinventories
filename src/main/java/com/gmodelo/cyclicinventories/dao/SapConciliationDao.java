@@ -67,7 +67,7 @@ public class SapConciliationDao {
 		CallableStatement csBatch = null;
 
 		String CURRENTSP = "";
-		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?";
 		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -94,18 +94,19 @@ public class SapConciliationDao {
 					cs.setString(7, dipb.getCostByUnit());
 					cs.setString(8, dipb.getMeins());
 					cs.setString(9, dipb.getCounted());
-					cs.setString(10, dipb.getTheoric());
-					cs.setString(11, dipb.getDiff());
-					cs.setString(12, dipb.getConsignation());
-					cs.setString(13, dipb.getTransit());
-					cs.setString(14, userId);
-					cs.registerOutParameter(15, Types.BIGINT);
+					cs.setString(10, dipb.getCountedExpl());
+					cs.setString(11, dipb.getTheoric());
+					cs.setString(12, dipb.getDiff());
+					cs.setString(13, dipb.getConsignation());
+					cs.setString(14, dipb.getTransit());
+					cs.setString(15, userId);
+					cs.registerOutParameter(16, Types.BIGINT);
 
 					cs.execute();
 
 					log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 
-					dipb.setPosId(cs.getInt(15));
+					dipb.setPosId(cs.getInt(16));
 					CURRENTSP = INV_SP_ADD_JUSTIFY;
 
 					ArrayList<Justification> lsJustification = dipb.getLsJustification();
@@ -328,13 +329,13 @@ public class SapConciliationDao {
 	}
 
 	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_MATNR, ISNULL(CATEGORY, '') CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, " 
-			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION " 
+			+ "CS_COUNTED, CS_COUNTED_EXPL, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION " 
 			+ "FROM INV_VW_CONC_SAP AS A "
 			+ "LEFT JOIN INV_REL_CAT_MAT AS B ON (A.CS_MATNR = B.REL_MATNR) "
 			+ "LEFT JOIN INV_CAT_CATEGORY AS C ON (B.REL_CAT_ID = C.CAT_ID) "
 			+ "WHERE DOC_INV_ID = ? "
 			+ "GROUP BY CS_CON_SAP, CS_MATNR, CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, " 
-			+ "CS_COUNTED, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION";
+			+ "CS_COUNTED, CS_COUNTED_EXPL, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION";
 
 	public ArrayList<PosDocInvBean> getConciliationSAPPositions(int docInvId, Connection con) throws SQLException {
 
@@ -360,6 +361,7 @@ public class SapConciliationDao {
 				pdib.setCostByUnit(rs.getString("CS_COST_BY_UNIT"));
 				pdib.setTheoric(rs.getString("CS_THEORIC"));
 				pdib.setCounted(rs.getString("CS_COUNTED"));
+				pdib.setCountedExpl(rs.getString("CS_COUNTED_EXPL"));
 				pdib.setDiff(rs.getString("CS_DIFFERENCE"));
 				pdib.setTransit(rs.getString("CS_TRANSIT"));
 				pdib.setConsignation(rs.getString("CS_CONSIGNATION"));

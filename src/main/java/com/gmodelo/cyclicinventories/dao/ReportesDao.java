@@ -444,15 +444,15 @@ public class ReportesDao {
 					positionBean.setCategory(rs.getString("CATEGORY"));
 					positionBean.setMeins(rs.getString("MEINS"));
 					positionBean.setCounted(rs.getString("DIP_COUNTED"));
+					positionBean.setCountedExpl("0");
 					positionBean.setImwmMarker(rs.getString("IMWM"));
-					positionBean.setTheoric("0");
+					positionBean.setTheoric("0");					
 					positionBean.setTransit("0");
 					positionBean.setCostByUnit("0");
 					positionBean.setConsignation("0");
 
 					listBean.add(positionBean);
-					lsMatnr += positionBean.getMatnr() + ",";
-
+					lsMatnr += positionBean.getMatnr() + ",";					
 				}
 				
 				HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();
