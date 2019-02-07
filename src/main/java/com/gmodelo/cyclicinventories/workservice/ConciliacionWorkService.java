@@ -80,7 +80,7 @@ public class ConciliacionWorkService {
 		return res;
 	}
 
-	public Response<TaskBean> getFatherTaskByDocId(Request<?> request) {
+	public Response<TaskBean> getFatherTaskByDocId(Request request) {
 
 		log.info("[getFatherTaskByDocIdWS] " + request.toString());
 		String req = request.getLsObject().toString().trim();
@@ -138,7 +138,7 @@ public class ConciliacionWorkService {
 		return res;
 	}
 
-	public Response<String> getZonePosition(Request<?> request) {
+	public Response<String> getZonePosition(Request request) {
 
 		log.info("[getZonePositionWS] " + request.toString());
 		int zoneId = 0;
@@ -176,7 +176,7 @@ public class ConciliacionWorkService {
 
 	}
 
-	public Response<TaskBean> getSpecialSAPCount(Request<?> request, User user) {
+	public Response<TaskBean> getSpecialSAPCount(Request request, User user) {
 		log.info("[getSpecialSAPCount] " + request.toString());
 		Response<TaskBean> res = new Response<>();
 		TaskBean taskBean = gson.fromJson(gson.toJson(request.getLsObject()), TaskBean.class);
