@@ -201,7 +201,9 @@ public class RouteWorkService {
 				} else {
 					route.setPositions(routeDao.getPositions(route.getRouteId(), reconteo));
 					if (!route.getPositions().isEmpty()) {
-						routeResponse.setLsObject(route);
+						result.setResultId(ReturnValues.IUSERNOTTASK);
+						result.setResultMsgAbs("Preparando tarea intente mas tarde");
+//						routeResponse.setLsObject(route);
 					} else {
 						result.setResultId(ReturnValues.IUSERNOTTASK);
 						result.setResultMsgAbs("Tarea Incompleta Contacte Administrador");
