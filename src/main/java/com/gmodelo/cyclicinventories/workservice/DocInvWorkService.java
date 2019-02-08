@@ -204,4 +204,41 @@ public class DocInvWorkService {
 		return response;
 	}
 
+	public Response<List<DocInvBean>> getOnlyDocInvNoTask(Request<List<Object>> request) {
+
+
+		log.info("[getOnlyDocInvNoTaskWS] " + request.toString());
+		DocInvBean tb = null;
+		String searchFilter = "";
+		String req = request.getLsObject().toString().trim();
+		Response<List<DocInvBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+
+		if (!req.isEmpty()) {
+			try {
+				log.info("[getOnlyDocInvNoTaskWS] Getting Object DocInvBean ");
+				tb = gson.fromJson(gson.toJson(request.getLsObject().get(0)), DocInvBean.class);
+				log.info("[getOnlyDocInvNoTaskWS] Getting String filter");
+				searchFilter = request.getLsObject().get(1).toString().trim();
+			} catch (JsonSyntaxException | JSONException e) {
+				e.printStackTrace();
+				log.log(Level.SEVERE, "[getOnlyDocInvNoTaskWS] Error al pasar de Json a Objeto");
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs("Error al pasar de Json a Objeto.");
+				res.setAbstractResult(abstractResult);
+				return res;
+			}
+		} else {
+
+			log.log(Level.SEVERE, "[getOnlyDocInvNoTaskWS] Datos ausentes durante la recpeción.");
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs("Datos ausentes durante la recepción");
+			res.setAbstractResult(abstractResult);
+			return res;
+		}
+
+		return new DocInvDao().getOnlyDocInvNoTask(tb, searchFilter);
+	
+	}
+
 }

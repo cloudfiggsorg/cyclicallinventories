@@ -518,4 +518,78 @@ public class DocInvDao {
 		return resultBean;
 	}
 
+	public Response<List<DocInvBean>> getOnlyDocInvNoTask(DocInvBean docInvBean, String searchFilter) {
+
+		Response<List<DocInvBean>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		List<DocInvBean> listDocInv = new ArrayList<>();
+		 
+		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";		
+		INV_VW_DOC_INV += "AND TYPE != '3' AND DOC_INV_ID NOT IN (SELECT DISTINCT TAS_DOC_INV_ID FROM INV_TASK WITH (NOLOCK))"
+				+ " AND (DOC_INV_ID LIKE '%" + searchFilter + "%' OR ROUTE_ID LIKE '%";
+		INV_VW_DOC_INV += searchFilter + "%' OR BDESC LIKE '%" + searchFilter + "%' " + " OR WERKSD LIKE '% ";
+		INV_VW_DOC_INV += searchFilter + "%') ";
+		INV_VW_DOC_INV += docInvBean.getBukrs() != null ? ("AND BUKRS = '" + docInvBean.getBukrs() +"' AND WERKS = '" + docInvBean.getWerks() + "'") : "";
+		
+		log.info(INV_VW_DOC_INV);
+		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";
+		log.info("[getOnlyDocInvNoTaskDao] Preparing sentence...");
+
+		try {
+			stm = con.prepareCall(INV_VW_DOC_INV);
+			log.info("[getOnlyDocInvNoTaskDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+
+				docInvBean = new DocInvBean();
+				docInvBean.setRoute(rs.getString("ROUTE_ID"));
+				docInvBean.setDocInvId(rs.getInt("DOC_INV_ID"));
+				docInvBean.setBukrs(rs.getString("BUKRS"));
+				docInvBean.setBukrsD(rs.getString("BDESC"));
+				docInvBean.setWerks(rs.getString("WERKS"));
+				docInvBean.setWerksD(rs.getString("WERKSD"));
+				docInvBean.setType(rs.getString("TYPE"));
+				docInvBean.setStatus(rs.getString("STATUS"));
+
+				listDocInv.add(docInvBean);
+
+			}
+
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+
+			log.info("[getOnlyDocInvNoTaskDao] Sentence successfully executed.");
+
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getOnlyDocInvNoTaskDao] Some error occurred while was trying to execute the query: " + INV_VW_DOC_INV, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getOnlyDocInvNoTaskDao] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(listDocInv);
+		return res;
+	
+	}
+
 }

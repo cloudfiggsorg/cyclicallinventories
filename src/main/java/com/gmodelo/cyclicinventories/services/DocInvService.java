@@ -58,6 +58,15 @@ public class DocInvService {
 	public Response<List<DocInvBean>> getOnlyDocInv(Request request) {
 		return new DocInvWorkService().getOnlyDocInv(request);
 	}
+	
+	@SuppressWarnings("rawtypes")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getOnlyDocInvNoTask")
+	public Response<List<DocInvBean>> getOnlyDocInvNoTask(Request request) {
+		return new DocInvWorkService().getOnlyDocInvNoTask(request);
+	}
 
 	@SuppressWarnings("rawtypes")
 	@POST
