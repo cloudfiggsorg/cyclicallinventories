@@ -215,6 +215,7 @@ public class SapConciliationWorkService {
 				con = connectionManager.createConnection();
 			}
 			ZIACMF_I360_MOV wm_movements = new ZIACMF_I360_MOV();
+			
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - SQLException: ", e);
 			throw e;

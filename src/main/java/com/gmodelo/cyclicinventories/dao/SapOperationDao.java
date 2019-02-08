@@ -1,30 +1,43 @@
 package com.gmodelo.cyclicinventories.dao;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.naming.NamingException;
+
+import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.CostByMatnr;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
+import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.cyclicinventories.beans.E_Lqua_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mard_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mbew_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Xtab6_SapEntity;
+import com.gmodelo.cyclicinventories.beans.Justification;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
+import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.ZIACST_I360_OBJECTDATA_SapEntity;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
+import com.gmodelo.cyclicinventories.utils.ReturnValues;
 
 public class SapOperationDao {
 
@@ -62,22 +75,20 @@ public class SapOperationDao {
 			+ "+ CAST(UMLME AS decimal(15,3)) + CAST(INSME AS decimal(15,3)) + CAST(EINME AS decimal(15,3)) "
 			+ "+ CAST(SPEME AS decimal(15,3)) + CAST(RETME AS decimal(15,3))) AS CONS FROM E_MARD WHERE LGORT = ? "
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ?";
-	
-	private static final String THEORIC_IM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, " 
-			+ "SUM((CAST(LABST AS decimal(15,3))  + CAST(UMLME AS decimal(15,3)) " 
+
+	private static final String THEORIC_IM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
+			+ "SUM((CAST(LABST AS decimal(15,3))  + CAST(UMLME AS decimal(15,3)) "
 			+ "CAST(INSME AS decimal(15,3)) + CAST(EINME AS decimal(15,3)) "
-			+ "CAST(SPEME AS decimal(15,3)) + CAST(RETME AS decimal(15,3)))) AS CONS " 
-			+ "FROM E_MARD " 
+			+ "CAST(SPEME AS decimal(15,3)) + CAST(RETME AS decimal(15,3)))) AS CONS " + "FROM E_MARD "
 			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
-	
-	private static final String THEORIC_WM = "SELECT LGNUM, LGORT, LGTYP, LGPLA, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, " 
+
+	private static final String THEORIC_WM = "SELECT LGNUM, LGORT, LGTYP, LGPLA, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
 			+ "SUM(CAST(VERME AS decimal(15,3))) AS CONS FROM E_LQUA WHERE "
 			+ "LGNUM = ? AND LGORT = ? AND LGTYP = ? AND LGPLA = ? AND DOC_INV_ID = ? GROUP BY LGNUM, LGORT, LGTYP, LGPLA, MATNR ";
-	
-	private static final String THEORIC_WM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, " 
-			+ "SUM(CAST(VERME AS decimal(15,3))) AS CONS FROM E_LQUA WHERE "
-			+ "DOC_INV_ID = ? GROUP BY MATNR ";
+
+	private static final String THEORIC_WM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
+			+ "SUM(CAST(VERME AS decimal(15,3))) AS CONS FROM E_LQUA WHERE " + "DOC_INV_ID = ? GROUP BY MATNR ";
 
 	private static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(15,3))) FROM E_MSEG "
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ? "
@@ -87,17 +98,17 @@ public class SapOperationDao {
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ?) AS MENGE";
 
 	private static final String MOVEMENTS_IM = "SELECT (SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
-			+ "FROM E_MSEG " 
-			+ "WHERE LGORT = ? AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - " 
+			+ "FROM E_MSEG "
+			+ "WHERE LGORT = ? AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - "
 			+ "(SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
 			+ "FROM E_MSEG WHERE LGORT = ? AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) AS MENGE";
-	
+
 	private static final String MOVEMENTS_BY_BUKRS = "SELECT (SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
-			+ "FROM E_MSEG " 
-			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - " 
+			+ "FROM E_MSEG "
+			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - "
 			+ "(SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
 			+ "FROM E_MSEG WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) AS MENGE";
-	
+
 	private static final String COUNTED_MATNRS = "SELECT LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE FROM (SELECT LGNUM, LNUMT, "
 			+ "DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE "
 			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
@@ -106,10 +117,9 @@ public class SapOperationDao {
 			+ "WHERE DIP_DOC_INV_ID = ? AND LEN(LGNUM) > 0 AND DIP_COUNT_DATE IS NOT NULL "
 			+ "GROUP BY LGNUM, LNUMT, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR) AS TAB "
 			+ "GROUP BY LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE";
-	
-	private static final String COUNTED_MATNRS_BY_BUKRS = "SELECT DIP_MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE " 
-			+ "FROM INV_DOC_INVENTORY_POSITIONS WHERE DIP_DOC_INV_ID = ? "
-			+ "GROUP BY DIP_MATNR";
+
+	private static final String COUNTED_MATNRS_BY_BUKRS = "SELECT DIP_MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE "
+			+ "FROM INV_DOC_INVENTORY_POSITIONS WHERE DIP_DOC_INV_ID = ? " + "GROUP BY DIP_MATNR";
 
 	private static final String GET_MBEW_PIVOT = "SELECT MATNR from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
@@ -121,8 +131,8 @@ public class SapOperationDao {
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ " AND MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR)";
 
-	private static final String COST_BY_MATNR = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, ZPRECIO " 
-			+ "FROM E_MBEW " 
+	private static final String COST_BY_MATNR = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, ZPRECIO "
+			+ "FROM E_MBEW "
 			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) IN (SELECT * FROM STRING_SPLIT(?, ',')) AND BWKEY = ?";
 
 	private static final String GET_E_MBEW = "SELECT MATNR, BWKEY, ZPRECIO FROM E_MBEW WITH(NOLOCK)";
@@ -183,6 +193,8 @@ public class SapOperationDao {
 	 * THIS IS THE SECTION FOR SELECT METHODS
 	 * 
 	 */
+
+	private Logger log = Logger.getLogger(SapOperationDao.class.getName());
 
 	public DocInvBean getDocInvBeanData(DocInvBean docInvBean, Connection con) throws SQLException {
 		DocInvBean outputDoc = new DocInvBean();
@@ -394,7 +406,7 @@ public class SapOperationDao {
 	public E_Mard_SapEntity getMatnrTheoricIM(int docInvId, PosDocInvBean pb, Connection con) throws SQLException {
 
 		PreparedStatement stm = null;
-		stm = con.prepareStatement(THEORIC_IM);					
+		stm = con.prepareStatement(THEORIC_IM);
 		stm.setString(1, pb.getLgort());
 		stm.setString(2, pb.getMatnr());
 		stm.setInt(3, docInvId);
@@ -411,11 +423,12 @@ public class SapOperationDao {
 
 		return ems;
 	}
-	
-	public E_Mard_SapEntity getMatnrTheoricImByBukrs(int docInvId, PosDocInvBean pb, Connection con) throws SQLException {
+
+	public E_Mard_SapEntity getMatnrTheoricImByBukrs(int docInvId, PosDocInvBean pb, Connection con)
+			throws SQLException {
 
 		PreparedStatement stm = null;
-		stm = con.prepareStatement(THEORIC_IM_BY_BUKRS);					
+		stm = con.prepareStatement(THEORIC_IM_BY_BUKRS);
 		stm.setString(1, pb.getMatnr());
 		stm.setInt(2, docInvId);
 		ResultSet rs = stm.executeQuery();
@@ -438,52 +451,53 @@ public class SapOperationDao {
 		stm.setString(1, pb.getLgNum());
 		stm.setString(2, pb.getLgort());
 		stm.setString(3, pb.getLgtyp());
-		stm.setString(4, pb.getLgpla());		
+		stm.setString(4, pb.getLgpla());
 		stm.setInt(5, docInvId);
-		
+
 		ResultSet rs = stm.executeQuery();
 
 		E_Lqua_SapEntity els = new E_Lqua_SapEntity();
 		els.setVerme("0");
 
-		while (rs.next()) {			
+		while (rs.next()) {
 			els.setLgnum(rs.getString("LGNUM"));
 			els.setLgort(rs.getString("LGORT"));
 			els.setLgtyp(rs.getString("LGTYP"));
 			els.setLgpla(rs.getString("LGPLA"));
-			els.setMatnr(rs.getString("MATNR"));			
+			els.setMatnr(rs.getString("MATNR"));
 			els.setVerme(rs.getString("CONS"));// The total here
 		}
 
 		return els;
 	}
-	
-	public E_Lqua_SapEntity getMatnrTheoricWmByBukrs(int docInvId, PosDocInvBean pb, Connection con) throws SQLException {
+
+	public E_Lqua_SapEntity getMatnrTheoricWmByBukrs(int docInvId, PosDocInvBean pb, Connection con)
+			throws SQLException {
 
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(THEORIC_WM_BY_BUKRS);
 		stm.setInt(1, docInvId);
-		
+
 		ResultSet rs = stm.executeQuery();
 
 		E_Lqua_SapEntity els = new E_Lqua_SapEntity();
 		els.setVerme("0");
 
-		while (rs.next()) {			
-			els.setMatnr(rs.getString("MATNR"));			
+		while (rs.next()) {
+			els.setMatnr(rs.getString("MATNR"));
 			els.setVerme(rs.getString("CONS"));// The total here
 		}
 
 		return els;
 	}
-	
+
 	public ArrayList<CostByMatnr> getCostByMatnr(String matnrIds, String werks, Connection con) throws SQLException {
 
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COST_BY_MATNR);
 		stm.setString(1, matnrIds);
-		stm.setString(2, werks);		
-		
+		stm.setString(2, werks);
+
 		ResultSet rs = stm.executeQuery();
 
 		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
@@ -495,24 +509,25 @@ public class SapOperationDao {
 			els.setCost(rs.getString("ZPRECIO"));
 			lsMatnr.add(els);
 		}
-		
-		return lsMatnr;
-	}	
 
-	public long getMatnrMovementsIM(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con) throws SQLException {
-		
+		return lsMatnr;
+	}
+
+	public long getMatnrMovementsIM(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con)
+			throws SQLException {
+
 		PreparedStatement stm = null;
-		stm = con.prepareStatement(MOVEMENTS_IM);		
-		stm.setString(1, pdib.getLgort());		
+		stm = con.prepareStatement(MOVEMENTS_IM);
+		stm.setString(1, pdib.getLgort());
 		stm.setString(2, pdib.getMatnr());
 		stm.setInt(3, docInvId);
 		stm.setTimestamp(4, new java.sql.Timestamp(dcounted.getTime()));
-		
-		stm.setString(5, pdib.getLgort());		
+
+		stm.setString(5, pdib.getLgort());
 		stm.setString(6, pdib.getMatnr());
 		stm.setInt(7, docInvId);
 		stm.setTimestamp(8, new java.sql.Timestamp(dcounted.getTime()));
-		
+
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
 
@@ -522,19 +537,20 @@ public class SapOperationDao {
 
 		return menge;
 	}
-	
-	public long getMatnrMovementsByBukrs(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con) throws SQLException {
-		
+
+	public long getMatnrMovementsByBukrs(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con)
+			throws SQLException {
+
 		PreparedStatement stm = null;
-		stm = con.prepareStatement(MOVEMENTS_BY_BUKRS);		
+		stm = con.prepareStatement(MOVEMENTS_BY_BUKRS);
 		stm.setString(1, pdib.getMatnr());
 		stm.setInt(2, docInvId);
 		stm.setTimestamp(3, new java.sql.Timestamp(dcounted.getTime()));
-				
+
 		stm.setString(4, pdib.getMatnr());
 		stm.setInt(5, docInvId);
 		stm.setTimestamp(6, new java.sql.Timestamp(dcounted.getTime()));
-		
+
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
 
@@ -544,28 +560,29 @@ public class SapOperationDao {
 
 		return menge;
 	}
-		
-	public long getMatnrMovementsWM(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con) throws SQLException {
+
+	public long getMatnrMovementsWM(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con)
+			throws SQLException {
 
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(MOVEMENTS_WM);
-				
+
 		stm.setString(1, pdib.getLgort());
-		stm.setString(2, pdib.getLgNum());		
+		stm.setString(2, pdib.getLgNum());
 		stm.setString(3, pdib.getLgtyp());
 		stm.setString(4, pdib.getLgpla());
 		stm.setTimestamp(5, new java.sql.Timestamp(dcounted.getTime()));
 		stm.setString(6, pdib.getMatnr());
 		stm.setInt(7, docInvId);
-				
+
 		stm.setString(8, pdib.getLgort());
-		stm.setString(9, pdib.getLgNum());		
+		stm.setString(9, pdib.getLgNum());
 		stm.setString(10, pdib.getLgtyp());
 		stm.setString(11, pdib.getLgpla());
 		stm.setTimestamp(12, new java.sql.Timestamp(dcounted.getTime()));
 		stm.setString(13, pdib.getMatnr());
 		stm.setInt(14, docInvId);
-		
+
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
 
@@ -575,12 +592,12 @@ public class SapOperationDao {
 
 		return menge;
 	}
-	
-	public ArrayList<PosDocInvBean> getMatnrDates(int docInvId, Connection con) throws SQLException{
-		
+
+	public ArrayList<PosDocInvBean> getMatnrDates(int docInvId, Connection con) throws SQLException {
+
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COUNTED_MATNRS);
-		stm.setInt(1, docInvId);				
+		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
 		PosDocInvBean matnr;
@@ -595,15 +612,15 @@ public class SapOperationDao {
 			matnr.setdCounted(rs.getTimestamp("DIP_COUNT_DATE"));
 			lsMatnr.add(matnr);
 		}
-		
+
 		return lsMatnr;
 	}
-	
-	public ArrayList<PosDocInvBean> getMatnrDatesByBukrs(int docInvId, Connection con) throws SQLException{
-		
+
+	public ArrayList<PosDocInvBean> getMatnrDatesByBukrs(int docInvId, Connection con) throws SQLException {
+
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COUNTED_MATNRS_BY_BUKRS);
-		stm.setInt(1, docInvId);				
+		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
 		PosDocInvBean matnr;
@@ -614,10 +631,10 @@ public class SapOperationDao {
 			matnr.setdCounted(rs.getTimestamp("DIP_COUNT_DATE"));
 			lsMatnr.add(matnr);
 		}
-		
+
 		return lsMatnr;
 	}
-		
+
 	/*
 	 * THIS IS THE SECTION FOR INSERT METHODS
 	 * 
@@ -931,6 +948,384 @@ public class SapOperationDao {
 		}
 		return result;
 
+	}
+
+	// SapConciliationDao Moved Code
+
+	public Response<DocInvBeanHeaderSAP> saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, String userId) {
+
+		Response<DocInvBeanHeaderSAP> resp = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		List<PosDocInvBean> lsPositionBean = dibhSAP.getDocInvPosition();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		CallableStatement cs = null;
+		CallableStatement csBatch = null;
+
+		String CURRENTSP = "";
+		final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?";
+		final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+		try {
+			con.setAutoCommit(false);
+			csBatch = con.prepareCall(INV_SP_ADD_CON_POS_SAP);
+
+			for (PosDocInvBean dipb : lsPositionBean) {
+
+				CURRENTSP = INV_SP_ADD_CON_POS_SAP;
+
+				if (!dipb.getLsJustification().isEmpty()) {
+
+					cs = null;
+					cs = con.prepareCall(INV_SP_ADD_CON_POS_SAP);
+
+					cs.setInt(1, dipb.getDoncInvId());
+					cs.setString(2, dipb.getLgort());
+					cs.setString(3, dipb.getImwmMarker());
+					cs.setString(4, dipb.getLgtyp());
+					cs.setString(5, dipb.getLgpla());
+					cs.setString(6, dipb.getMatnr());
+					cs.setString(7, dipb.getCostByUnit());
+					cs.setString(8, dipb.getMeins());
+					cs.setString(9, dipb.getCounted());
+					cs.setString(10, dipb.getCountedExpl());
+					cs.setString(11, dipb.getTheoric());
+					cs.setString(12, dipb.getDiff());
+					cs.setString(13, dipb.getConsignation());
+					cs.setString(14, dipb.getTransit());
+					cs.setByte(15, (byte) (dipb.isExplosion() ? 1 : 0));
+					cs.setString(16, userId);
+					cs.registerOutParameter(17, Types.BIGINT);
+
+					cs.execute();
+
+					log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
+
+					dipb.setPosId(cs.getInt(17));
+					CURRENTSP = INV_SP_ADD_JUSTIFY;
+
+					ArrayList<Justification> lsJustification = dipb.getLsJustification();
+
+					// Insert the justification per position
+					for (Justification js : lsJustification) {
+
+						cs = null;
+						cs = con.prepareCall(INV_SP_ADD_JUSTIFY);
+						cs.setLong(1, dipb.getPosId());
+						cs.setString(2, js.getQuantity());
+						cs.setInt(3, js.getJsId());
+						cs.setString(4, js.getFileName());
+						cs.registerOutParameter(5, Types.BIGINT);
+						cs.execute();
+
+						js.setJsId(cs.getInt(5));
+
+						log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
+					}
+
+				} else {
+
+					csBatch.setInt(1, dipb.getDoncInvId());
+					csBatch.setString(2, dipb.getLgort());
+					csBatch.setString(3, dipb.getImwmMarker());
+					csBatch.setString(4, dipb.getLgtyp());
+					csBatch.setString(5, dipb.getLgpla());
+					csBatch.setString(6, dipb.getMatnr());
+					csBatch.setString(7, dipb.getCostByUnit());
+					csBatch.setString(8, dipb.getMeins());
+					csBatch.setString(9, dipb.getCounted());
+					csBatch.setString(10, dipb.getCountedExpl());
+					csBatch.setString(11, dipb.getTheoric());
+					csBatch.setString(12, dipb.getDiff());
+					csBatch.setString(13, dipb.getConsignation());
+					csBatch.setString(14, dipb.getTransit());
+					csBatch.setByte(15, (byte) (dipb.isExplosion() ? 1 : 0));
+					csBatch.setString(16, userId);
+					csBatch.setNull(17, Types.NULL);
+					csBatch.addBatch();
+				}
+			}
+
+			log.info("[saveConciliationSAP] Sentence successfully executed.");
+			csBatch.executeBatch();
+
+			cs = null;
+			cs = con.prepareCall(INV_CLS_SAP_DOC_INV);
+			cs.setInt(1, dibhSAP.getDocInvId());
+			cs.setString(2, userId);
+			cs.execute();
+
+			UMEDaoE ume = new UMEDaoE();
+			User user = new User();
+			user.getEntity().setIdentyId(userId);
+			ArrayList<User> ls = new ArrayList<>();
+			ls.add(user);
+			ls = ume.getUsersLDAPByCredentials(ls);
+
+			if (ls.size() > 0) {
+
+				dibhSAP.setCreatedBy(userId + " - " + ls.get(0).getGenInf().getName() + " "
+						+ ls.get(0).getGenInf().getLastName() + " - " + format.format(new Date()));
+			} else {
+				dibhSAP.setCreatedBy(userId + " - " + format.format(new Date()));
+			}
+
+			con.commit();
+			con.setAutoCommit(true);
+			cs.close();
+
+			log.info("[saveConciliationSAP] Executing query...");
+
+		} catch (Exception e) {
+
+			try {
+				log.log(Level.WARNING, "[saveConciliationSAP] Execute rollback");
+				con.rollback();
+			} catch (SQLException e1) {
+				log.log(Level.SEVERE, "[saveConciliationSAP] Not rollback .", e);
+			}
+
+			log.log(Level.SEVERE,
+					"[saveConciliationSAP] Some error occurred while was trying to execute the S.P.: " + CURRENTSP, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			resp.setAbstractResult(abstractResult);
+			return resp;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[saveConciliationSAP] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+
+		resp.setAbstractResult(abstractResult);
+		resp.setLsObject(dibhSAP);
+		return resp;
+
+	}
+
+	public Response<Object> deleteConciliationSAP(int docInvId) {
+
+		Response<Object> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		CallableStatement cs = null;
+
+		final String SP = "INV_SP_DEL_CONS_SAP ?"; // The Store procedure to
+													// call
+
+		log.info("[deleteConciliationSAP] Preparing sentence...");
+
+		try {
+
+			cs = con.prepareCall(SP);
+			cs.setInt(1, docInvId);
+
+			log.log(Level.WARNING, "[deleteConciliationSAP] Executing query...");
+
+			cs.execute();
+
+			abstractResult.setResultId(ReturnValues.ISUCCESS);
+
+			// Retrive the warnings if there're
+			SQLWarning warning = cs.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, "[deleteConciliationSAP] " + warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			cs.close();
+
+			log.info("[deleteConciliationSAP] Sentence successfully executed.");
+
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[deleteConciliationSAP] Some error occurred while was trying to execute the S.P.: " + SP, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+			res.setAbstractResult(abstractResult);
+			return res;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[deleteConciliationSAP] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		return res;
+	}
+
+	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
+			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE "
+			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE DOC_INV_ID = ?";
+
+	public Response<DocInvBeanHeaderSAP> getClosedConsSapReport(DocInvBean docInvBean) {
+
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;
+		DocInvBeanHeaderSAP bean = new DocInvBeanHeaderSAP();
+		Response<DocInvBeanHeaderSAP> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		log.info(INV_VW_REP_HEADER);
+		log.info("[getReporteDocInvDao] Preparing sentence...");
+
+		try {
+			stm = con.prepareStatement(INV_VW_REP_HEADER);
+			stm.setInt(1, docInvBean.getDocInvId());
+			log.info("[getReporteDocInvDao] Executing query...");
+			ResultSet rs = stm.executeQuery();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss");
+
+			if (rs.next()) {
+
+				bean.setDocInvId(docInvBean.getDocInvId());
+				bean.setBukrs(rs.getString("DIH_BUKRS"));
+				bean.setBukrsD(rs.getString("BUTXT"));
+				bean.setRoute(rs.getString("ROU_DESC"));
+				bean.setWerks(rs.getString("DIH_WERKS"));
+				bean.setWerksD(rs.getString("NAME1"));
+				bean.setType(rs.getString("DIH_TYPE"));
+				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
+				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
+				bean.setDocInvPosition(getConciliationSAPPositions(bean.getDocInvId(), con));
+				bean.setCreatedBy(rs.getString("DIH_CLSD_SAP_BY"));
+				bean.setConcSAPDate(sdf.format(new Date(rs.getTimestamp("DIH_CLSD_SAP_DATE").getTime())));
+
+				User user = new User();
+				UMEDaoE ume = new UMEDaoE();
+				user.getEntity().setIdentyId(bean.getCreatedBy());
+				ArrayList<User> ls = new ArrayList<>();
+				ls.add(user);
+				ls = ume.getUsersLDAPByCredentials(ls);
+				bean.setCreatedBy(bean.getCreatedBy() + " - " + ls.get(0).getGenInf().getName() + " "
+						+ ls.get(0).getGenInf().getLastName() + " - " + bean.getConcSAPDate());
+
+			}
+		} catch (SQLException | NamingException e) {
+			log.log(Level.SEVERE, "[getClosedConsSap] Some error occurred while was trying to execute the query: "
+					+ INV_VW_REP_HEADER, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getClosedConsSap] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(bean);
+
+		return res;
+	}
+
+	private static final String GET_POS_CONS_SAP = "SELECT CS_CON_SAP, CS_MATNR, ISNULL(CATEGORY, '') CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
+			+ "CS_COUNTED, CS_COUNTED_EXPL, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_IS_EXPL "
+			+ "FROM INV_VW_CONC_SAP AS A " + "LEFT JOIN INV_REL_CAT_MAT AS B ON (A.CS_MATNR = B.REL_MATNR) "
+			+ "LEFT JOIN INV_CAT_CATEGORY AS C ON (B.REL_CAT_ID = C.CAT_ID) " + "WHERE DOC_INV_ID = ? "
+			+ "GROUP BY CS_CON_SAP, CS_MATNR, CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
+			+ "CS_COUNTED, CS_COUNTED_EXPL, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_IS_EXPL";
+
+	public ArrayList<PosDocInvBean> getConciliationSAPPositions(int docInvId, Connection con) throws SQLException {
+
+		PreparedStatement ps = null;
+		ResultSet rs;
+		PosDocInvBean pdib;
+		String lsPosIds = "";
+		ArrayList<PosDocInvBean> lsPdib = new ArrayList<>();
+		try {
+
+			ps = con.prepareStatement(GET_POS_CONS_SAP);
+			ps.setInt(1, docInvId);
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+
+				pdib = new PosDocInvBean();
+				pdib.setPosId(rs.getInt("CS_CON_SAP"));
+				pdib.setMatnr(rs.getString("CS_MATNR"));
+				pdib.setMatnrD(rs.getString("MAKTX"));
+				pdib.setCategory(rs.getString("CATEGORY"));
+				pdib.setMeins(rs.getString("MEINS"));
+				pdib.setCostByUnit(rs.getString("CS_COST_BY_UNIT"));
+				pdib.setTheoric(rs.getString("CS_THEORIC"));
+				pdib.setCounted(rs.getString("CS_COUNTED"));
+				pdib.setCountedExpl(rs.getString("CS_COUNTED_EXPL"));
+				pdib.setDiff(rs.getString("CS_DIFFERENCE"));
+				pdib.setTransit(rs.getString("CS_TRANSIT"));
+				pdib.setConsignation(rs.getString("CS_CONSIGNATION"));
+				pdib.setExplosion(rs.getBoolean("CS_IS_EXPL"));
+				lsPosIds += pdib.getPosId() + ",";
+				lsPdib.add(pdib);
+			}
+
+			// Get the justifications
+			ArrayList<Justification> lsJustify = getJustification(lsPosIds, con);
+
+			// Add the justification to positions
+			for (PosDocInvBean obj : lsPdib) {
+
+				for (Justification js : lsJustify) {
+
+					if (js.getConsPosSAPId() == obj.getPosId()) {
+						obj.getLsJustification().add(js);
+					}
+				}
+			}
+
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getConciliationSAPPositions] Some error occurred while was trying to retrive the positions.", e);
+			throw e;
+		}
+
+		return lsPdib;
+	}
+
+	private static final String GET_JUSTIFICATION = "SELECT A.JS_ID, JS_CON_SAP, JS_QUANTITY, "
+			+ "(CAST(A.JS_JUSTIFY AS varchar(200)) + ' - ' + B.JUSTIFICATION) JUSTIFICATION, JS_FILE_NAME "
+			+ "FROM INV_JUSTIFY AS A " + "INNER JOIN INV_CAT_JUSTIFY AS B ON (A.JS_JUSTIFY = B.JS_ID) "
+			+ "WHERE JS_CON_SAP IN (SELECT * FROM STRING_SPLIT(?, ',')) ";
+
+	private ArrayList<Justification> getJustification(String ids, Connection con) throws SQLException {
+
+		ArrayList<Justification> lsJustification = new ArrayList<>();
+		Justification js;
+		PreparedStatement stm = null;
+		ResultSet rs;
+		try {
+
+			stm = con.prepareStatement(GET_JUSTIFICATION);
+			stm.setString(1, ids);
+			rs = stm.executeQuery();
+
+			while (rs.next()) {
+
+				js = new Justification();
+				js.setJsId(rs.getInt("JS_ID"));
+				js.setConsPosSAPId(rs.getInt("JS_CON_SAP"));
+				js.setQuantity(rs.getString("JS_QUANTITY"));
+				js.setJustify(rs.getString("JUSTIFICATION"));
+				js.setFileName(rs.getString("JS_FILE_NAME"));
+				lsJustification.add(js);
+			}
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getJustification] Some error occurred while was trying to retrive the justifications.", e);
+			throw e;
+		}
+		return lsJustification;
 	}
 
 }

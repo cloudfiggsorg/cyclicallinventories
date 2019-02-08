@@ -13,7 +13,7 @@ import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.dao.ConciliacionDao;
-import com.gmodelo.cyclicinventories.dao.SapConciliationDao;
+import com.gmodelo.cyclicinventories.dao.SapOperationDao;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
 
@@ -41,7 +41,7 @@ public class ConciliationSAPWorkService {
 			return res;
 		}
 
-		return new SapConciliationDao().saveConciliationSAP(dibhSAP, userId);
+		return new SapOperationDao().saveConciliationSAP(dibhSAP, userId);
 	}
 
 	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(Request<?> request) {

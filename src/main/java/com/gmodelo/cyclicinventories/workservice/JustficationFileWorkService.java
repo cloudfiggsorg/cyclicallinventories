@@ -21,6 +21,7 @@ import com.gmodelo.cyclicinventories.beans.JustificationFile;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.dao.SapConciliationDao;
+import com.gmodelo.cyclicinventories.dao.SapOperationDao;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.gmodelo.cyclicinventories.utils.Utilities;
@@ -80,7 +81,7 @@ public class JustficationFileWorkService {
 			}
 			
 			//Delete the records inserted
-			Response<Object> respAux = new SapConciliationDao().deleteConciliationSAP(jsFile.getDocInvId());
+			Response<Object> respAux = new SapOperationDao().deleteConciliationSAP(jsFile.getDocInvId());
 			if(respAux.getAbstractResult().getResultId() != 1){
 				abstractResult.setResultId(respAux.getAbstractResult().getResultId());
 				abstractResult.setResultMsgAbs(respAux.getAbstractResult().getResultMsgAbs());
