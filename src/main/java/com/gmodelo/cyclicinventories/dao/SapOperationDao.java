@@ -50,6 +50,11 @@ public class SapOperationDao {
 	private static final String GET_LGORT_FROM_DOC_INV = "SELECT ZON.ZON_LGORT FROM INV_ROUTE_POSITION ROP WITH(NOLOCK) "
 			+ " INNER JOIN INV_ZONE ZON WITH(NOLOCK) ON ZON.ZONE_ID = ROP.RPO_ZONE_ID"
 			+ " WHERE ROP.RPO_ROUTE_ID = ? GROUP BY ZON.ZON_LGORT";
+	
+	private static final String GET_LGORT_MATNR_POS_DOC_INV = "SELECT IE.EX_LGORT FROM INV_DOC_INVENTORY_HEADER IDIH WITH (NOLOCK) "
+			+ "INNER JOIN INV_DOC_INVENTORY_POSITIONS IDIP WITH (NOLOCK) ON IDIP.DIP_DOC_INV_ID = IDIH.DOC_INV_ID  "
+			+ "INNER JOIN INV_EXPLOSION IE WITH (NOLOCK) ON IE.EX_MATNR = IDIP.DIP_MATNR "
+			+ "WHERE IDIH.DOC_INV_ID = ? GROUP BY IE.EX_LGORT";
 
 	private static final String GET_LGNUM_AND_LGTYP_DOC_INV = "SELECT ZPO.ZPO_LGNUM, ZPO.ZPO_LGTYP FROM INV_ROUTE_POSITION ROP WITH(NOLOCK)"
 			+ " INNER JOIN INV_ZONE ZON WITH(NOLOCK) ON ZON.ZONE_ID = ROP.RPO_ZONE_ID "
@@ -257,6 +262,24 @@ public class SapOperationDao {
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				lgortList.add(rs.getString("ZON_LGORT"));
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return lgortList;
+	}
+	
+	public List<String> getDocInvMatRelevLgort(DocInvBean docInvBean, Connection con) throws SQLException {
+		List<String> lgortList = new ArrayList<>();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_LGORT_MATNR_POS_DOC_INV);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				lgortList.add(rs.getString("EX_LGORT"));
 			}
 		} catch (SQLException e) {
 			throw e;

@@ -184,7 +184,7 @@ public class SapConciliationWorkService {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
 				con = connectionManager.createConnection();
 			}
-			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot(docInvBean, con, destination);
+			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot_F(docInvBean, con, destination);
 			if (getSnapshot.geteError_SapEntities().getType().equals("S") && getSnapshot.geteLqua_SapEntities() != null
 					&& getSnapshot.geteMard_SapEntities() != null && getSnapshot.geteMsku_SapEntities() != null) {
 				operationDao.setZIACMF_I360_INV_MOV2_F(docInvBean, getSnapshot, con);

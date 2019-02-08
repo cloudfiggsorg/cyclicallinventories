@@ -263,6 +263,113 @@ public class SapConciliationDao {
 		}
 		return ziacmf_I360_INV_MOV_2;
 	}
+	
+	public ZIACMF_I360_INV_MOV_2 getSystemSnapshot_F(DocInvBean docInvBean, Connection con, JCoDestination destination)
+			throws JCoException, SQLException, RuntimeException, InvCicException {
+		ZIACMF_I360_INV_MOV_2 ziacmf_I360_INV_MOV_2 = new ZIACMF_I360_INV_MOV_2();
+		try {
+			List<E_Mard_SapEntity> eMard_SapEntities = new ArrayList<>();
+			List<E_Msku_SapEntity> eMsku_SapEntities = new ArrayList<>();
+			List<E_Lqua_SapEntity> eLqua_SapEntities = new ArrayList<>();
+			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
+			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
+			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
+			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
+			 List<String> listDIL = operationDao.getDocInvLgort(requestBean, con);
+			 List<String> listDIMRL = operationDao.getDocInvMatRelevLgort(docInvBean, con);
+			 for(String l : listDIMRL){
+				 if(!listDIL.contains(l)){
+					 listDIL.add(l);
+				 }
+			 }
+			
+			for (String lgort : listDIL) {
+				lgortTable.appendRow();
+				lgortTable.setValue("SIGN", "I");
+				lgortTable.setValue("OPTION", "EQ");
+				lgortTable.setValue("LOW", lgort);
+			}
+			
+			JCoTable lgnumTable = jcoFunction.getImportParameterList().getTable("I_R_LGNUM");
+			HashMap<String, List<String>> lgnumLgtypMap = operationDao.getDocInvLgnumLgtyp(requestBean, con);
+			if (lgnumLgtypMap.get("LGNUM") != null && !lgnumLgtypMap.get("LGNUM").isEmpty()) {
+				for (String lgnum : lgnumLgtypMap.get("LGNUM")) {
+					lgnumTable.appendRow();
+					lgnumTable.setValue("SIGN", "I");
+					lgnumTable.setValue("OPTION", "EQ");
+					lgnumTable.setValue("LOW", lgnum);
+					// lgnumTable.setValue("High", lgnum);
+				}
+			}
+			JCoTable lgtypTable = jcoFunction.getImportParameterList().getTable("I_R_LGTYP");
+			if (lgnumLgtypMap.get("LGTYP") != null && !lgnumLgtypMap.get("LGTYP").isEmpty()) {
+				for (String lgtyp : lgnumLgtypMap.get("LGTYP")) {
+					lgtypTable.appendRow();
+					lgtypTable.setValue("SIGN", "I");
+					lgtypTable.setValue("OPTION", "EQ");
+					lgtypTable.setValue("LOW", lgtyp);
+				}
+			}
+
+			jcoFunction.execute(destination);
+			JCoTable E_MARD = jcoFunction.getExportParameterList().getTable("E_MARD");
+			JCoTable E_MSKU = jcoFunction.getExportParameterList().getTable("E_MSKU");
+			JCoTable E_LQUA = jcoFunction.getExportParameterList().getTable("E_LQUA");
+			JCoTable E_ERROR = jcoFunction.getExportParameterList().getTable("E_ERROR");
+			E_Error_SapEntity eError = new E_Error_SapEntity();
+			try {
+				eError = new E_Error_SapEntity(E_ERROR);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2 -getSystemSnapshot]: " + e1.getMessage());
+			}
+			if (eError.getType().equals("S")) {
+				// Cycle of the E_MARD Export Table
+				do {
+					try {
+						eMard_SapEntities.add(new E_Mard_SapEntity(E_MARD));
+					} catch (JCoException | RuntimeException e) {
+						// Not Readable Row or EOF
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_2 - getSystemSnapshot]: " + e.getMessage());
+					}
+				} while (E_MARD.nextRow());
+
+				// Cycle of the E_MSKU Export Table
+				do {
+					try {
+						eMsku_SapEntities.add(new E_Msku_SapEntity(E_MSKU));
+					} catch (JCoException | RuntimeException e) {
+						// Not Readable Row or EOF
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_2 - getSystemSnapshot]: " + e.getMessage());
+					}
+				} while (E_MSKU.nextRow());
+
+				// Cycle of the E_LQUA Export Table
+				do {
+					try {
+						eLqua_SapEntities.add(new E_Lqua_SapEntity(E_LQUA));
+					} catch (JCoException | RuntimeException e) {
+						// Not Readable Row or EOF
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_2 - getSystemSnapshot]: " + e.getMessage());
+					}
+				} while (E_LQUA.nextRow());
+			}
+			ziacmf_I360_INV_MOV_2.seteMard_SapEntities(eMard_SapEntities);
+			ziacmf_I360_INV_MOV_2.seteMsku_SapEntities(eMsku_SapEntities);
+			ziacmf_I360_INV_MOV_2.seteLqua_SapEntities(eLqua_SapEntities);
+			ziacmf_I360_INV_MOV_2.seteError_SapEntities(eError);
+		} catch (JCoException e) {
+			throw e;
+		} catch (SQLException e) {
+			throw e;
+		} catch (RuntimeException e) {
+			throw e;
+		}
+		return ziacmf_I360_INV_MOV_2;
+	}
 
 	public ZIACMF_I360_INV_MOV_3 getTransitMovements(DocInvBean docInvBean, Connection con, JCoDestination destination)
 			throws JCoException, SQLException, RuntimeException, InvCicException {
