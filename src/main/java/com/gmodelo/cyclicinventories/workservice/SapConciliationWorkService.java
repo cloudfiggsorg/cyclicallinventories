@@ -22,6 +22,7 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
+import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_MOV;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_MBEW;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
@@ -207,6 +208,19 @@ public class SapConciliationWorkService {
 
 	}
 
+	public void inventoryMovements_WM(DocInvBean docInvBean, Connection con, JCoDestination destination)
+			throws SQLException {
+		try {
+			if (con == null || !con.isValid(0) || con.isClosed()) {
+				con = connectionManager.createConnection();
+			}
+			ZIACMF_I360_MOV wm_movements = new ZIACMF_I360_MOV();
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - SQLException: ", e);
+			throw e;
+		}
+	}
+
 	public void getZiacmfMbew(DocInvBean docInvBean, Connection con, JCoDestination destination) {
 		try {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
@@ -276,8 +290,9 @@ public class SapConciliationWorkService {
 						log.log(Level.INFO,
 								"[SapConciliationWorkService-getZiacmfMbew] : toUpdate: " + toUpdateMbew.toString());
 					}
-				}else{
-					log.log(Level.SEVERE,"[SapConciliationWorkService-getZiacmfMbew] :"+ziacmf_MBEW.geteError_SapEntities().toString());
+				} else {
+					log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] :"
+							+ ziacmf_MBEW.geteError_SapEntities().toString());
 				}
 			}
 		} catch (SQLException e) {
@@ -397,4 +412,5 @@ public class SapConciliationWorkService {
 		}
 
 	}
+
 }
