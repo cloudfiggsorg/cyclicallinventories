@@ -527,7 +527,7 @@ public class ReportesDao {
 
 								if(objAux.getQuantity().length() > 0){
 									countedExpl += Double.parseDouble(objAux.getQuantity());
-								}																
+								}
 							}
 						}
 

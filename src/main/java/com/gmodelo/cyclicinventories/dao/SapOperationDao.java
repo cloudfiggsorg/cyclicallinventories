@@ -83,9 +83,10 @@ public class SapOperationDao {
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ?";
 
 	private static final String THEORIC_IM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
-			+ "SUM((CAST(LABST AS decimal(15,3))  + CAST(UMLME AS decimal(15,3)) "
-			+ "CAST(INSME AS decimal(15,3)) + CAST(EINME AS decimal(15,3)) "
-			+ "CAST(SPEME AS decimal(15,3)) + CAST(RETME AS decimal(15,3)))) AS CONS " + "FROM E_MARD "
+			+ "SUM((CAST(LABST AS decimal(15,3)) "
+			+ "+ CAST(UMLME AS decimal(15,3)) + CAST(INSME AS decimal(15,3)) "
+			+ "+ CAST(EINME AS decimal(15,3)) + CAST(SPEME AS decimal(15,3)) "
+			+ "+ CAST(RETME AS decimal(15,3)))) AS CONS " + "FROM E_MARD "
 			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
@@ -500,7 +501,7 @@ public class SapOperationDao {
 			throws SQLException {
 
 		PreparedStatement stm = null;
-		stm = con.prepareStatement(THEORIC_IM_BY_BUKRS);
+		stm = con.prepareStatement(THEORIC_IM_BY_BUKRS);		
 		stm.setString(1, pb.getMatnr());
 		stm.setInt(2, docInvId);
 		ResultSet rs = stm.executeQuery();
