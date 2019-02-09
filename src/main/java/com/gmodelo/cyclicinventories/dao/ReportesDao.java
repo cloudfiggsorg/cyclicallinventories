@@ -667,13 +667,13 @@ public class ReportesDao {
 		String lsMatnr = "";
 
 		log.info(INV_VW_REP_HEADER);
-		log.info("[getReporteDocInvDao] Preparing sentence...");
+		log.info("[getConcSAPByPositionDao] Preparing sentence...");
 
 		try {
 
 			stm = con.prepareStatement(INV_VW_REP_HEADER);
 			stm.setInt(1, docInvBean.getDocInvId());
-			log.info("[getReporteDocInvDao] Executing query...");
+			log.info("[getConcSAPByPositionDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss");
 
@@ -689,13 +689,24 @@ public class ReportesDao {
 				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
 				log.info(INV_VW_REP_POS_SAP);
-				log.info("[getReporteDocInvDao] Preparing sentence...");
+				log.info("[getConcSAPByPositionDao] Preparing sentence...");
 
-				stm = con.prepareStatement(INV_VW_REP_POS_SAP);
-				stm.setString(1, bean.getWerks());
-				stm.setInt(2, docInvBean.getDocInvId());
+				try {
+					stm = con.prepareStatement(INV_VW_REP_POS_SAP);
+					stm.setString(1, bean.getWerks());
+					stm.setInt(2, docInvBean.getDocInvId());
 
-				rs = stm.executeQuery();
+					rs = stm.executeQuery();
+				} catch (Exception e) {
+					log.log(Level.SEVERE,
+							"[getConcSAPByPositionDao] Some error occurred while was trying to execute the query: " + INV_VW_REP_POS_SAP,
+							e);
+					abstractResult.setResultId(ReturnValues.IEXCEPTION);
+					abstractResult.setResultMsgAbs(e.getMessage());
+					res.setAbstractResult(abstractResult);
+					res.setLsObject(bean);
+					return res;
+				}
 
 				while (rs.next()) {
 
@@ -833,12 +844,12 @@ public class ReportesDao {
 			} else {
 				abstractResult.setResultId(ReturnValues.IERROR);
 				abstractResult.setResultMsgAbs(
-						"Ocurrio un Error al recuperar los datos de Documento de Invetnario รณ Documento Inexistente");
+						"Ocurrio un Error al recuperar los datos de Documento de Inventario,  Documento Inexistente");
 			}
-			log.info("[getReporteDocInvDao] Sentence successfully executed.");
+			log.info("[getConcSAPByPositionDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
-					"[getReporteDocInvDao] Some error occurred while was trying to execute the query: " + INV_VW_REP,
+					"[getConcSAPByPositionDao] Some error occurred while was trying to execute the query: " + INV_VW_REP_HEADER,
 					e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
@@ -847,7 +858,7 @@ public class ReportesDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[getReporteDocInvDao] Some error occurred while was trying to close the connection.", e);
+						"[getConcSAPByPositionDao] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 
