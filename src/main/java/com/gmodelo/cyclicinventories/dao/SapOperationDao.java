@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLWarning;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ import com.gmodelo.cyclicinventories.beans.E_Mard_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mbew_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
+import com.gmodelo.cyclicinventories.beans.E_Salida_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Xtab6_SapEntity;
 import com.gmodelo.cyclicinventories.beans.Justification;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
@@ -36,6 +36,7 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
+import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_MOV;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 
@@ -49,6 +50,11 @@ public class SapOperationDao {
 	private static final String GET_LGORT_FROM_DOC_INV = "SELECT ZON.ZON_LGORT FROM INV_ROUTE_POSITION ROP WITH(NOLOCK) "
 			+ " INNER JOIN INV_ZONE ZON WITH(NOLOCK) ON ZON.ZONE_ID = ROP.RPO_ZONE_ID"
 			+ " WHERE ROP.RPO_ROUTE_ID = ? GROUP BY ZON.ZON_LGORT";
+	
+	private static final String GET_LGORT_MATNR_POS_DOC_INV = "SELECT IE.EX_LGORT FROM INV_DOC_INVENTORY_HEADER IDIH WITH (NOLOCK) "
+			+ "INNER JOIN INV_DOC_INVENTORY_POSITIONS IDIP WITH (NOLOCK) ON IDIP.DIP_DOC_INV_ID = IDIH.DOC_INV_ID  "
+			+ "INNER JOIN INV_EXPLOSION IE WITH (NOLOCK) ON IE.EX_MATNR = IDIP.DIP_MATNR "
+			+ "WHERE IDIH.DOC_INV_ID = ? GROUP BY IE.EX_LGORT";
 
 	private static final String GET_LGNUM_AND_LGTYP_DOC_INV = "SELECT ZPO.ZPO_LGNUM, ZPO.ZPO_LGTYP FROM INV_ROUTE_POSITION ROP WITH(NOLOCK)"
 			+ " INNER JOIN INV_ZONE ZON WITH(NOLOCK) ON ZON.ZONE_ID = ROP.RPO_ZONE_ID "
@@ -183,6 +189,8 @@ public class SapOperationDao {
 
 	private static final String SET_E_MBEW = "INSERT INTO E_MBEW (MATNR,BWKEY,ZPRECIO) VALUES (?,?,?)";
 
+	private static final String SET_E_SALIDA = "INSERT INTO E_SALIDA (DOC_INV_ID, LGNUM, LGTYP, NLPLA, MATNR, NISTM, VISTM, MEINS, QDATU, QZEIT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
 	// UPDATE AREA
 
 	private static final String UPDATE_INITIAL_INVENTORY = "UPDATE INV_DOC_INVENTORY_HEADER SET INSAP_SNAPSHOT = '1' WHERE DOC_INV_ID = ?";
@@ -260,6 +268,24 @@ public class SapOperationDao {
 		}
 		return lgortList;
 	}
+	
+	public List<String> getDocInvMatRelevLgort(DocInvBean docInvBean, Connection con) throws SQLException {
+		List<String> lgortList = new ArrayList<>();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_LGORT_MATNR_POS_DOC_INV);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				lgortList.add(rs.getString("EX_LGORT"));
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return lgortList;
+	}
 
 	public HashMap<String, List<String>> getDocInvLgnumLgtyp(DocInvBean docInvBean, Connection con)
 			throws SQLException {
@@ -283,6 +309,30 @@ public class SapOperationDao {
 			}
 			lgnumLgtypMap.put("LGNUM", lgnumList);
 			lgnumLgtypMap.put("LGTYP", lgtypList);
+		} catch (SQLException e) {
+			throw e;
+		}
+		return lgnumLgtypMap;
+	}
+
+	public HashMap<String, List<String>> getMapLgnumLgtyp(DocInvBean docInvBean, Connection con) throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		HashMap<String, List<String>> lgnumLgtypMap = new HashMap<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_LGNUM_AND_LGTYP_DOC_INV);
+			stm.setString(1, docInvBean.getRoute());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				if (lgnumLgtypMap.containsKey(rs.getString("ZPO_LGNUM"))) {
+					lgnumLgtypMap.get(rs.getString("ZPO_LGNUM")).add(rs.getString("ZPO_LGTYP"));
+				} else {
+					List<String> lgtypList = new ArrayList<>();
+					lgtypList.add(rs.getString("ZPO_LGTYP"));
+					lgnumLgtypMap.put(rs.getString("ZPO_LGNUM"), lgtypList);
+				}
+			}
 		} catch (SQLException e) {
 			throw e;
 		}
@@ -661,6 +711,32 @@ public class SapOperationDao {
 	 * THIS IS THE SECTION FOR INSERT METHODS
 	 * 
 	 */
+
+	public AbstractResultsBean setZIACMF_I360_MOV(DocInvBean docInvBean, ZIACMF_I360_MOV ziacmf_I360_MOV,
+			Connection con) throws SQLException {
+		AbstractResultsBean result = new AbstractResultsBean();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(SET_E_SALIDA);
+			for (E_Salida_SapEntity esalidaEntity : ziacmf_I360_MOV.geteSalida_SapEntities()) {
+				stm.setInt(1, docInvBean.getDocInvId());
+				stm.setString(2, esalidaEntity.getNlpla());
+				stm.setString(3, esalidaEntity.getNlpla());
+				stm.setString(4, esalidaEntity.getNlpla());
+				stm.setString(5, esalidaEntity.getMatnr());
+				stm.setString(6, esalidaEntity.getNistm());
+				stm.setString(7, esalidaEntity.getVistm());
+				stm.setString(8, esalidaEntity.getMeins());
+				stm.setString(9, esalidaEntity.getQdatu());
+				stm.setString(10, esalidaEntity.getQzeit());
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return result;
+	}
 
 	public AbstractResultsBean setZIACMF_I360_INV_MOV1(DocInvBean docInvBean, ZIACMF_I360_INV_MOV_1 i360_INV_MOV_1,
 			Connection con) throws SQLException {

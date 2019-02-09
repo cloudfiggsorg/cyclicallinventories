@@ -5,7 +5,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
@@ -41,8 +43,6 @@ public class SapConciliationDao {
 	private Logger log = Logger.getLogger(SapConciliationDao.class.getName());
 	private final SapOperationDao operationDao = new SapOperationDao();
 
-	
-
 	public ZIACMF_I360_INV_MOV_1 inventoryMovementsDao(DocInvBean docInvBean, Connection con,
 			JCoDestination destination) throws JCoException, SQLException, RuntimeException, InvCicException {
 		ZIACMF_I360_INV_MOV_1 ziacmf_I360_INV_MOV_1 = new ZIACMF_I360_INV_MOV_1();
@@ -73,7 +73,7 @@ public class SapConciliationDao {
 				eError = new E_Error_SapEntity(jcoE_Error);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
-				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_1]:" + e1.getMessage());
+				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_1 -inventoryMovementsDao]:" + e1.getMessage());
 			}
 			if (eError.getType().equals("S")) {
 				do {
@@ -81,7 +81,8 @@ public class SapConciliationDao {
 					try {
 						msegList.add(new E_Mseg_SapEntity(jcoE_MsegTable));
 					} catch (JCoException | RuntimeException e) {
-						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_1]:" + e.getMessage());
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_1 -inventoryMovementsDao]:" + e.getMessage());
 						// Not Readable Row or EOF
 					}
 				} while (jcoE_MsegTable.nextRow());
@@ -100,25 +101,67 @@ public class SapConciliationDao {
 		return ziacmf_I360_INV_MOV_1;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ZIACMF_I360_MOV wm_InventoryMovementDao(DocInvBean docInvBean, Connection con, JCoDestination destination)
 			throws JCoException, SQLException, RuntimeException {
 		ZIACMF_I360_MOV ziacmf_I360_MOV = new ZIACMF_I360_MOV();
 		List<E_Salida_SapEntity> salidaList = new ArrayList<>();
 		try {
 			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
-			HashMap<String, List<String>> mapLgnumLgtyp =  operationDao.getDocInvLgnumLgtyp(docInvBean, con);
-			
-			
-			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_MOV);
-			
-			
+			HashMap<String, List<String>> mapLgnumLgtyp = operationDao.getMapLgnumLgtyp(docInvBean, con);
+			if (!mapLgnumLgtyp.isEmpty()) {
+				Iterator it = mapLgnumLgtyp.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					String lgnum = (String) pair.getKey();
+					List<String> lgtyps = (List<String>) pair.getValue();
+					for (String lgtyp : lgtyps) {
+						JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_MOV);
+						jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
+						jcoFunction.getImportParameterList().setValue("I_LGNUM", lgnum);
+						jcoFunction.getImportParameterList().setValue("I_VLTYP", lgtyp);
+						jcoFunction.getImportParameterList().setValue("I_QDATU_L",
+								new Date(requestBean.getCreatedDate()));
+						jcoFunction.getImportParameterList().setValue("I_QDATU_H",
+								new Date(requestBean.getModifiedDate()));
+						jcoFunction.getImportParameterList().setValue("I_QZEIT_L",
+								new Date(requestBean.getCreatedDate()));
+						jcoFunction.getImportParameterList().setValue("I_QZEIT_L",
+								new Date(requestBean.getModifiedDate()));
+						jcoFunction.execute(destination);
+						JCoTable jcoE_Salida = jcoFunction.getExportParameterList().getTable("E_SALIDA");
+						JCoTable jcoE_Error = jcoFunction.getExportParameterList().getTable("E_ERROR");
+						E_Error_SapEntity eError = new E_Error_SapEntity();
+						try {
+							eError = new E_Error_SapEntity(jcoE_Error);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							log.warning("SapConciliationDao: [ZIACMF_I360_MOV - wm_InventoryMovementDao]:"
+									+ e1.getMessage());
+						}
+						if (eError.getType().equals("S")) {
+							do {
 
+								try {
+									salidaList.add(new E_Salida_SapEntity(lgnum, lgtyp, jcoE_Salida));
+								} catch (JCoException | RuntimeException e) {
+									log.warning("SapConciliationDao: [ZIACMF_I360_MOV - wm_InventoryMovementDao]:"
+											+ e.getMessage());
+								}
+							} while (jcoE_Salida.nextRow());
+						} else {
+							log.severe("Regresó con E_ERROR " + eError.toString());
+						}
+					}
+				}
+			}
+			ziacmf_I360_MOV.seteSalida_SapEntities(salidaList);
 		} catch (JCoException e) {
-
+			throw e;
 		} catch (SQLException e) {
-
+			throw e;
 		} catch (RuntimeException e) {
-
+			throw e;
 		}
 		return ziacmf_I360_MOV;
 	}
@@ -171,7 +214,7 @@ public class SapConciliationDao {
 				eError = new E_Error_SapEntity(E_ERROR);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
-				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2]: " + e1.getMessage());
+				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2 -getSystemSnapshot]: " + e1.getMessage());
 			}
 			if (eError.getType().equals("S")) {
 				// Cycle of the E_MARD Export Table
@@ -180,7 +223,8 @@ public class SapConciliationDao {
 						eMard_SapEntities.add(new E_Mard_SapEntity(E_MARD));
 					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
-						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2]: " + e.getMessage());
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_2 - getSystemSnapshot]: " + e.getMessage());
 					}
 				} while (E_MARD.nextRow());
 
@@ -190,7 +234,8 @@ public class SapConciliationDao {
 						eMsku_SapEntities.add(new E_Msku_SapEntity(E_MSKU));
 					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
-						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2]: " + e.getMessage());
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_2 - getSystemSnapshot]: " + e.getMessage());
 					}
 				} while (E_MSKU.nextRow());
 
@@ -200,7 +245,115 @@ public class SapConciliationDao {
 						eLqua_SapEntities.add(new E_Lqua_SapEntity(E_LQUA));
 					} catch (JCoException | RuntimeException e) {
 						// Not Readable Row or EOF
-						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2]: " + e.getMessage());
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_2 - getSystemSnapshot]: " + e.getMessage());
+					}
+				} while (E_LQUA.nextRow());
+			}
+			ziacmf_I360_INV_MOV_2.seteMard_SapEntities(eMard_SapEntities);
+			ziacmf_I360_INV_MOV_2.seteMsku_SapEntities(eMsku_SapEntities);
+			ziacmf_I360_INV_MOV_2.seteLqua_SapEntities(eLqua_SapEntities);
+			ziacmf_I360_INV_MOV_2.seteError_SapEntities(eError);
+		} catch (JCoException e) {
+			throw e;
+		} catch (SQLException e) {
+			throw e;
+		} catch (RuntimeException e) {
+			throw e;
+		}
+		return ziacmf_I360_INV_MOV_2;
+	}
+	
+	public ZIACMF_I360_INV_MOV_2 getSystemSnapshot_F(DocInvBean docInvBean, Connection con, JCoDestination destination)
+			throws JCoException, SQLException, RuntimeException, InvCicException {
+		ZIACMF_I360_INV_MOV_2 ziacmf_I360_INV_MOV_2 = new ZIACMF_I360_INV_MOV_2();
+		try {
+			List<E_Mard_SapEntity> eMard_SapEntities = new ArrayList<>();
+			List<E_Msku_SapEntity> eMsku_SapEntities = new ArrayList<>();
+			List<E_Lqua_SapEntity> eLqua_SapEntities = new ArrayList<>();
+			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
+			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
+			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
+			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
+			 List<String> listDIL = operationDao.getDocInvLgort(requestBean, con);
+			 List<String> listDIMRL = operationDao.getDocInvMatRelevLgort(docInvBean, con);
+			 for(String l : listDIMRL){
+				 if(!listDIL.contains(l)){
+					 listDIL.add(l);
+				 }
+			 }
+			
+			for (String lgort : listDIL) {
+				lgortTable.appendRow();
+				lgortTable.setValue("SIGN", "I");
+				lgortTable.setValue("OPTION", "EQ");
+				lgortTable.setValue("LOW", lgort);
+			}
+			
+			JCoTable lgnumTable = jcoFunction.getImportParameterList().getTable("I_R_LGNUM");
+			HashMap<String, List<String>> lgnumLgtypMap = operationDao.getDocInvLgnumLgtyp(requestBean, con);
+			if (lgnumLgtypMap.get("LGNUM") != null && !lgnumLgtypMap.get("LGNUM").isEmpty()) {
+				for (String lgnum : lgnumLgtypMap.get("LGNUM")) {
+					lgnumTable.appendRow();
+					lgnumTable.setValue("SIGN", "I");
+					lgnumTable.setValue("OPTION", "EQ");
+					lgnumTable.setValue("LOW", lgnum);
+					// lgnumTable.setValue("High", lgnum);
+				}
+			}
+			JCoTable lgtypTable = jcoFunction.getImportParameterList().getTable("I_R_LGTYP");
+			if (lgnumLgtypMap.get("LGTYP") != null && !lgnumLgtypMap.get("LGTYP").isEmpty()) {
+				for (String lgtyp : lgnumLgtypMap.get("LGTYP")) {
+					lgtypTable.appendRow();
+					lgtypTable.setValue("SIGN", "I");
+					lgtypTable.setValue("OPTION", "EQ");
+					lgtypTable.setValue("LOW", lgtyp);
+				}
+			}
+
+			jcoFunction.execute(destination);
+			JCoTable E_MARD = jcoFunction.getExportParameterList().getTable("E_MARD");
+			JCoTable E_MSKU = jcoFunction.getExportParameterList().getTable("E_MSKU");
+			JCoTable E_LQUA = jcoFunction.getExportParameterList().getTable("E_LQUA");
+			JCoTable E_ERROR = jcoFunction.getExportParameterList().getTable("E_ERROR");
+			E_Error_SapEntity eError = new E_Error_SapEntity();
+			try {
+				eError = new E_Error_SapEntity(E_ERROR);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_2 -getSystemSnapshot]: " + e1.getMessage());
+			}
+			if (eError.getType().equals("S")) {
+				// Cycle of the E_MARD Export Table
+				do {
+					try {
+						eMard_SapEntities.add(new E_Mard_SapEntity(E_MARD));
+					} catch (JCoException | RuntimeException e) {
+						// Not Readable Row or EOF
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_2 - getSystemSnapshot]: " + e.getMessage());
+					}
+				} while (E_MARD.nextRow());
+
+				// Cycle of the E_MSKU Export Table
+				do {
+					try {
+						eMsku_SapEntities.add(new E_Msku_SapEntity(E_MSKU));
+					} catch (JCoException | RuntimeException e) {
+						// Not Readable Row or EOF
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_2 - getSystemSnapshot]: " + e.getMessage());
+					}
+				} while (E_MSKU.nextRow());
+
+				// Cycle of the E_LQUA Export Table
+				do {
+					try {
+						eLqua_SapEntities.add(new E_Lqua_SapEntity(E_LQUA));
+					} catch (JCoException | RuntimeException e) {
+						// Not Readable Row or EOF
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_2 - getSystemSnapshot]: " + e.getMessage());
 					}
 				} while (E_LQUA.nextRow());
 			}
@@ -250,14 +403,15 @@ public class SapConciliationDao {
 				eError = new E_Error_SapEntity(E_ERROR);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
-				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_3]: " + e1.getMessage());
+				log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_3 - getTransitMovements]: " + e1.getMessage());
 			}
 			if (eError.getType().equals("S")) {
 				do {
 					try {
 						xtab6_SapEntities.add(new E_Xtab6_SapEntity(E_XTAB6));
 					} catch (JCoException | RuntimeException e) {
-						log.warning("SapConciliationDao: [ZIACMF_I360_INV_MOV_3]: " + e.getMessage());
+						log.warning(
+								"SapConciliationDao: [ZIACMF_I360_INV_MOV_3 - getTransitMovements]: " + e.getMessage());
 						// Not Readable Row or EOF
 					}
 				} while (E_XTAB6.nextRow());

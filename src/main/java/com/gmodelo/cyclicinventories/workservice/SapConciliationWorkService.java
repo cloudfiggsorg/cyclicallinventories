@@ -184,7 +184,7 @@ public class SapConciliationWorkService {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
 				con = connectionManager.createConnection();
 			}
-			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot(docInvBean, con, destination);
+			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot_F(docInvBean, con, destination);
 			if (getSnapshot.geteError_SapEntities().getType().equals("S") && getSnapshot.geteLqua_SapEntities() != null
 					&& getSnapshot.geteMard_SapEntities() != null && getSnapshot.geteMsku_SapEntities() != null) {
 				operationDao.setZIACMF_I360_INV_MOV2_F(docInvBean, getSnapshot, con);
@@ -209,17 +209,28 @@ public class SapConciliationWorkService {
 	}
 
 	public void inventoryMovements_WM(DocInvBean docInvBean, Connection con, JCoDestination destination)
-			throws SQLException {
+			throws SQLException, JCoException, RuntimeException, Exception {
 		try {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
 				con = connectionManager.createConnection();
 			}
-			ZIACMF_I360_MOV wm_movements = new ZIACMF_I360_MOV();
-			
+			ZIACMF_I360_MOV ziacmf_I360_MOV = conciliationDao.wm_InventoryMovementDao(docInvBean, con, destination);
+			if (!ziacmf_I360_MOV.geteSalida_SapEntities().isEmpty()) {
+				operationDao.setZIACMF_I360_MOV(docInvBean, ziacmf_I360_MOV, con);
+			} else {
+				log.warning("Nothing to insert, due to empty result from ZIACMF_I360_MOV");
+			}
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - SQLException: ", e);
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements_WM] - SQLException: ", e);
+			throw e;
+		} catch (JCoException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements_WM] - JCoException: ", e);
+			throw e;
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements_WM] - RuntimeException: ", e);
 			throw e;
 		}
+
 	}
 
 	public void getZiacmfMbew(DocInvBean docInvBean, Connection con, JCoDestination destination) {

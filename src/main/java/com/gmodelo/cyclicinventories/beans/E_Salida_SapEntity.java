@@ -5,6 +5,8 @@ import com.sap.conn.jco.JCoTable;
 
 public class E_Salida_SapEntity {
 
+	private String lgnum;
+	private String lgtyp;
 	private String nlpla;
 	private String matnr;
 	private String nistm;
@@ -12,6 +14,22 @@ public class E_Salida_SapEntity {
 	private String meins;
 	private String qdatu;
 	private String qzeit;
+
+	public String getLgnum() {
+		return lgnum;
+	}
+
+	public void setLgnum(String lgnum) {
+		this.lgnum = lgnum;
+	}
+
+	public String getLgtyp() {
+		return lgtyp;
+	}
+
+	public void setLgtyp(String lgtyp) {
+		this.lgtyp = lgtyp;
+	}
 
 	public String getNlpla() {
 		return nlpla;
@@ -85,9 +103,24 @@ public class E_Salida_SapEntity {
 		this.qzeit = jcoTable.getString("QZEIT");
 	}
 
-	public E_Salida_SapEntity(String nlpla, String matnr, String nistm, String vistm, String meins, String qdatu,
-			String qzeit) {
+	public E_Salida_SapEntity(String lgnum, String lgtyp, JCoTable jcoTable) throws JCoException {
 		super();
+		this.lgnum = lgnum;
+		this.lgtyp = lgtyp;
+		this.nlpla = jcoTable.getString("NLPLA");
+		this.matnr = jcoTable.getString("MATNR");
+		this.nistm = jcoTable.getString("NISTM");
+		this.vistm = jcoTable.getString("VISTM");
+		this.meins = jcoTable.getString("MEINS");
+		this.qdatu = jcoTable.getString("QDATU");
+		this.qzeit = jcoTable.getString("QZEIT");
+	}
+
+	public E_Salida_SapEntity(String lgnum, String lgtyp, String nlpla, String matnr, String nistm, String vistm,
+			String meins, String qdatu, String qzeit) {
+		super();
+		this.lgnum = lgnum;
+		this.lgtyp = lgtyp;
 		this.nlpla = nlpla;
 		this.matnr = matnr;
 		this.nistm = nistm;
@@ -99,14 +132,17 @@ public class E_Salida_SapEntity {
 
 	@Override
 	public String toString() {
-		return "E_Salida_SapEntity [nlpla=" + nlpla + ", matnr=" + matnr + ", nistm=" + nistm + ", vistm=" + vistm
-				+ ", meins=" + meins + ", qdatu=" + qdatu + ", qzeit=" + qzeit + "]";
+		return "E_Salida_SapEntity [lgnum=" + lgnum + ", lgtyp=" + lgtyp + ", nlpla=" + nlpla + ", matnr=" + matnr
+				+ ", nistm=" + nistm + ", vistm=" + vistm + ", meins=" + meins + ", qdatu=" + qdatu + ", qzeit=" + qzeit
+				+ "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((lgnum == null) ? 0 : lgnum.hashCode());
+		result = prime * result + ((lgtyp == null) ? 0 : lgtyp.hashCode());
 		result = prime * result + ((matnr == null) ? 0 : matnr.hashCode());
 		result = prime * result + ((meins == null) ? 0 : meins.hashCode());
 		result = prime * result + ((nistm == null) ? 0 : nistm.hashCode());
@@ -126,6 +162,16 @@ public class E_Salida_SapEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		E_Salida_SapEntity other = (E_Salida_SapEntity) obj;
+		if (lgnum == null) {
+			if (other.lgnum != null)
+				return false;
+		} else if (!lgnum.equals(other.lgnum))
+			return false;
+		if (lgtyp == null) {
+			if (other.lgtyp != null)
+				return false;
+		} else if (!lgtyp.equals(other.lgtyp))
+			return false;
 		if (matnr == null) {
 			if (other.matnr != null)
 				return false;
