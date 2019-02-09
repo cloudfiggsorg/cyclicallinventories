@@ -197,7 +197,7 @@ public class DocInvDao {
 		int aux;
 		String searchFilterNumber = "";
 		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		
+
 		try {
 			aux = Integer.parseInt(searchFilter);
 			searchFilterNumber += aux;
@@ -254,7 +254,8 @@ public class DocInvDao {
 					docInvBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
 							+ ls.get(0).getGenInf().getLastName() + " - " + format.format(rs.getTimestamp("DCREATED")));
 				} else {
-					docInvBean.setCreatedBy(rs.getString("CREATED_BY") + " - " + format.format(rs.getTimestamp("DCREATED")));
+					docInvBean.setCreatedBy(
+							rs.getString("CREATED_BY") + " - " + format.format(rs.getTimestamp("DCREATED")));
 				}
 
 				user.getEntity().setIdentyId(rs.getString("MODIFIED_BY"));
@@ -265,9 +266,11 @@ public class DocInvDao {
 				if (ls.size() > 0) {
 
 					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + ls.get(0).getGenInf().getName() + " "
-							+ ls.get(0).getGenInf().getLastName() + " - " + format.format(rs.getTimestamp("DMODIFIED")));
+							+ ls.get(0).getGenInf().getLastName() + " - "
+							+ format.format(rs.getTimestamp("DMODIFIED")));
 				} else {
-					docInvBean.setModifiedBy(rs.getString("MODIFIED_BY") + " - " + format.format(rs.getTimestamp("DMODIFIED")));
+					docInvBean.setModifiedBy(
+							rs.getString("MODIFIED_BY") + " - " + format.format(rs.getTimestamp("DMODIFIED")));
 				}
 				listDocInv.add(docInvBean);
 			}
@@ -312,13 +315,14 @@ public class DocInvDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<DocInvBean> listDocInv = new ArrayList<>();
-		 
-		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";		
+
+		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";
 		INV_VW_DOC_INV += "AND TYPE != '3' AND (DOC_INV_ID LIKE '%" + searchFilter + "%' OR ROUTE_ID LIKE '%";
 		INV_VW_DOC_INV += searchFilter + "%' OR BDESC LIKE '%" + searchFilter + "%' " + " OR WERKSD LIKE '% ";
 		INV_VW_DOC_INV += searchFilter + "%') ";
-		INV_VW_DOC_INV += docInvBean.getBukrs() != null ? ("AND BUKRS = '" + docInvBean.getBukrs() +"' AND WERKS = '" + docInvBean.getWerks() + "'") : "";
-		
+		INV_VW_DOC_INV += docInvBean.getBukrs() != null
+				? ("AND BUKRS = '" + docInvBean.getBukrs() + "' AND WERKS = '" + docInvBean.getWerks() + "'") : "";
+
 		log.info(INV_VW_DOC_INV);
 		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";
 		log.info("[getOnlyDocInv] Preparing sentence...");
@@ -476,7 +480,7 @@ public class DocInvDao {
 	}
 
 	private static final String INSERT_DOCUMENT_INVENTORY_POSITIONS = "INSERT INTO INV_DOC_INVENTORY_POSITIONS "
-			+ " (DIP_DOC_INV_ID,DIP_LGORT,DIP_LGTYP,DIP_LGPLA,DIP_MATNR,DIP_COUNTED,DIP_COUNT_DATE_INI,DIP_COUNT_DATE) VALUES (?,?,?,?,?,?,?,?)";
+			+ " (DIP_DOC_INV_ID,DIP_LGORT,DIP_LGTYP,DIP_LGPLA,DIP_MATNR,DIP_COUNTED,DIP_COUNT_DATE_INI,DIP_COUNT_DATE,DIP_VHILM_COUNT) VALUES (?,?,?,?,?,?,?,?,?)";
 
 	public AbstractResultsBean addDocumentPosition(List<DocInvPositionBean> positionBean, Connection con)
 			throws SQLException {
@@ -490,28 +494,29 @@ public class DocInvDao {
 			stm.setString(4, singleBean.getLgpla());
 			stm.setString(5, singleBean.getMatnr());
 			stm.setString(6, singleBean.getCounted());
-			if(singleBean.getDateIni() == null){
-				stm.setNull(7,Types.TIMESTAMP);
-			}else{
-				
+			if (singleBean.getDateIni() == null) {
+				stm.setNull(7, Types.TIMESTAMP);
+			} else {
+
 				try {
 					stm.setTimestamp(7, new java.sql.Timestamp(sdf.parse(singleBean.getDateIni()).getTime()));
 				} catch (ParseException e) {
-					stm.setNull(7,Types.TIMESTAMP);
+					stm.setNull(7, Types.TIMESTAMP);
 					e.printStackTrace();
 				}
 			}
-			
-			if(singleBean.getDateEnd() == null){
-				stm.setNull(8,Types.TIMESTAMP);
-			}else{
+
+			if (singleBean.getDateEnd() == null) {
+				stm.setNull(8, Types.TIMESTAMP);
+			} else {
 				try {
 					stm.setTimestamp(8, new java.sql.Timestamp(sdf.parse(singleBean.getDateEnd()).getTime()));
 				} catch (ParseException e) {
-					stm.setNull(8,Types.TIMESTAMP);
+					stm.setNull(8, Types.TIMESTAMP);
 					e.printStackTrace();
 				}
 			}
+			stm.setString(9, singleBean.getVhilmCount());
 			stm.addBatch();
 		}
 		stm.executeBatch();
@@ -526,14 +531,15 @@ public class DocInvDao {
 		Connection con = iConnectionManager.createConnection();
 		PreparedStatement stm = null;
 		List<DocInvBean> listDocInv = new ArrayList<>();
-		 
-		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";		
+
+		String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION FROM INV_VW_DOC_INV WITH(NOLOCK)  WHERE DOC_FATHER_INV_ID IS NULL ";
 		INV_VW_DOC_INV += "AND TYPE != '3' AND DOC_INV_ID NOT IN (SELECT DISTINCT TAS_DOC_INV_ID FROM INV_TASK WITH (NOLOCK))"
 				+ " AND (DOC_INV_ID LIKE '%" + searchFilter + "%' OR ROUTE_ID LIKE '%";
 		INV_VW_DOC_INV += searchFilter + "%' OR BDESC LIKE '%" + searchFilter + "%' " + " OR WERKSD LIKE '% ";
 		INV_VW_DOC_INV += searchFilter + "%') ";
-		INV_VW_DOC_INV += docInvBean.getBukrs() != null ? ("AND BUKRS = '" + docInvBean.getBukrs() +"' AND WERKS = '" + docInvBean.getWerks() + "'") : "";
-		
+		INV_VW_DOC_INV += docInvBean.getBukrs() != null
+				? ("AND BUKRS = '" + docInvBean.getBukrs() + "' AND WERKS = '" + docInvBean.getWerks() + "'") : "";
+
 		log.info(INV_VW_DOC_INV);
 		INV_VW_DOC_INV += " GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, STATUS, JUSTIFICATION";
 		log.info("[getOnlyDocInvNoTaskDao] Preparing sentence...");
@@ -572,8 +578,8 @@ public class DocInvDao {
 			log.info("[getOnlyDocInvNoTaskDao] Sentence successfully executed.");
 
 		} catch (SQLException e) {
-			log.log(Level.SEVERE,
-					"[getOnlyDocInvNoTaskDao] Some error occurred while was trying to execute the query: " + INV_VW_DOC_INV, e);
+			log.log(Level.SEVERE, "[getOnlyDocInvNoTaskDao] Some error occurred while was trying to execute the query: "
+					+ INV_VW_DOC_INV, e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -582,14 +588,14 @@ public class DocInvDao {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE, "[getOnlyDocInvNoTaskDao] Some error occurred while was trying to close the connection.",
-						e);
+				log.log(Level.SEVERE,
+						"[getOnlyDocInvNoTaskDao] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(listDocInv);
 		return res;
-	
+
 	}
 
 }
