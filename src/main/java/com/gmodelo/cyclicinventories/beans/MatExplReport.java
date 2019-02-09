@@ -3,6 +3,9 @@ package com.gmodelo.cyclicinventories.beans;
 public class MatExplReport {
 	
 	private int item;
+	private String lgort;
+	private String lgtyp;
+	private String lgpla;
 	private String matnr;
 	private String description;
 	private String category;
@@ -10,6 +13,7 @@ public class MatExplReport {
 	private String counted;
 	private String matnrExpl;
 	private String descMantrExpl;
+	private String lgortExpl;
 	private String catExpl;
 	private String umbExpl;
 	private String quantity;
@@ -18,10 +22,14 @@ public class MatExplReport {
 		super();
 	}
 
-	public MatExplReport(int item, String matnr, String description, String category, String umb, String counted,
-			String matnrExpl, String descMantrExpl, String catExpl, String umbExpl, String quantity) {
+	public MatExplReport(int item, String lgort, String lgtyp, String lgpla, String matnr, String description,
+			String category, String umb, String counted, String matnrExpl, String descMantrExpl, String lgortExpl,
+			String catExpl, String umbExpl, String quantity) {
 		super();
 		this.item = item;
+		this.lgort = lgort;
+		this.lgtyp = lgtyp;
+		this.lgpla = lgpla;
 		this.matnr = matnr;
 		this.description = description;
 		this.category = category;
@@ -29,6 +37,7 @@ public class MatExplReport {
 		this.counted = counted;
 		this.matnrExpl = matnrExpl;
 		this.descMantrExpl = descMantrExpl;
+		this.lgortExpl = lgortExpl;
 		this.catExpl = catExpl;
 		this.umbExpl = umbExpl;
 		this.quantity = quantity;
@@ -40,6 +49,30 @@ public class MatExplReport {
 
 	public void setItem(int item) {
 		this.item = item;
+	}
+
+	public String getLgort() {
+		return lgort;
+	}
+
+	public void setLgort(String lgort) {
+		this.lgort = lgort;
+	}
+
+	public String getLgtyp() {
+		return lgtyp;
+	}
+
+	public void setLgtyp(String lgtyp) {
+		this.lgtyp = lgtyp;
+	}
+
+	public String getLgpla() {
+		return lgpla;
+	}
+
+	public void setLgpla(String lgpla) {
+		this.lgpla = lgpla;
 	}
 
 	public String getMatnr() {
@@ -98,6 +131,14 @@ public class MatExplReport {
 		this.descMantrExpl = descMantrExpl;
 	}
 
+	public String getLgortExpl() {
+		return lgortExpl;
+	}
+
+	public void setLgortExpl(String lgortExpl) {
+		this.lgortExpl = lgortExpl;
+	}
+
 	public String getCatExpl() {
 		return catExpl;
 	}
@@ -124,9 +165,10 @@ public class MatExplReport {
 
 	@Override
 	public String toString() {
-		return "MatExplReport [item=" + item + ", matnr=" + matnr + ", description=" + description + ", category="
-				+ category + ", umb=" + umb + ", counted=" + counted + ", matnrExpl=" + matnrExpl + ", descMantrExpl="
-				+ descMantrExpl + ", catExpl=" + catExpl + ", umbExpl=" + umbExpl + ", quantity=" + quantity + "]";
+		return "MatExplReport [item=" + item + ", lgort=" + lgort + ", lgtyp=" + lgtyp + ", lgpla=" + lgpla + ", matnr="
+				+ matnr + ", description=" + description + ", category=" + category + ", umb=" + umb + ", counted="
+				+ counted + ", matnrExpl=" + matnrExpl + ", descMantrExpl=" + descMantrExpl + ", lgortExpl=" + lgortExpl
+				+ ", catExpl=" + catExpl + ", umbExpl=" + umbExpl + ", quantity=" + quantity + "]";
 	}
 		
 }

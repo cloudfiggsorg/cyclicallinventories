@@ -66,7 +66,7 @@ public class ExplosionWorkService {
 		Response<ArrayList<MatExplReport>> res = new Response<>();
 		try {
 			docInvId = Integer.parseInt(request.getLsObject().toString());
-			res = new ExplosionDetailDao().getExplosionReportByDocInv(docInvId);
+			res = new ExplosionDetailDao().getExplosionReportByBukrs(docInvId);
 		} catch (Exception e) {
 			log.info("[saveExplosionDetail] Error al convertir json a objeto");
 			e.printStackTrace();

@@ -479,7 +479,7 @@ public class ReportesDao {
 
 				// Get the explosion detail
 				ArrayList<MatExplReport> lsExpDet = null;
-				lsExpDet = new ExplosionDetailDao().getExplosionReportByDocInv(docInvBean.getDocInvId()).getLsObject();
+				lsExpDet = new ExplosionDetailDao().getExplosionReportByBukrs(docInvBean.getDocInvId()).getLsObject();
 
 				listBean.clear();
 
@@ -517,7 +517,7 @@ public class ReportesDao {
 						}
 					}
 
-					if (!found) {
+					if (!found && obj.getMatnrExpl().length() > 0) {
 
 						countedExpl = 0;
 
@@ -525,7 +525,9 @@ public class ReportesDao {
 
 							if (obj.getMatnrExpl().equalsIgnoreCase(objAux.getMatnrExpl())) {
 
-								countedExpl += Double.parseDouble(objAux.getQuantity());
+								if(objAux.getQuantity().length() > 0){
+									countedExpl += Double.parseDouble(objAux.getQuantity());
+								}																
 							}
 						}
 
