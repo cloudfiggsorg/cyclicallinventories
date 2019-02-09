@@ -400,13 +400,13 @@ public class ReportesDao {
 		String lsMatnr = "";
 
 		log.info(INV_VW_REP_HEADER);
-		log.info("[getReporteDocInvDao] Preparing sentence...");
+		log.info("[getNoClosedConsSapReportDao] Preparing sentence...");
 
 		try {
 
 			stm = con.prepareStatement(INV_VW_REP_HEADER);
 			stm.setInt(1, docInvBean.getDocInvId());
-			log.info("[getReporteDocInvDao] Executing query...");
+			log.info("[getNoClosedConsSapReportDao] Executing query...");
 			ResultSet rs = stm.executeQuery();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss");
 
@@ -422,7 +422,7 @@ public class ReportesDao {
 				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
 				log.info(INV_VW_REP_POS_SAP);
-				log.info("[getReporteDocInvDao] Preparing sentence...");
+				log.info("[getNoClosedConsSapReportDao] Preparing sentence...");
 
 				stm = con.prepareStatement(INV_VW_REP_POS_SAP);
 				stm.setString(1, bean.getWerks());
@@ -625,11 +625,11 @@ public class ReportesDao {
 				abstractResult.setResultMsgAbs(
 						"Ocurrio un Error al recuperar los datos de Documento de Invetnario ó Documento Inexistente");
 			}
-			this.log.info("[getReporteDocInvDao] Sentence successfully executed.");
+			this.log.info("[getNoClosedConsSapReportDao] Sentence successfully executed.");
 		} catch (SQLException e) {
 
 			log.log(Level.SEVERE,
-					"[getReporteDocInvDao] Some error occurred while was trying to execute the query: SELECT DOC_INV_ID, DIH_ROUTE_ID,RDESC, DIH_BUKRS, BDESC, WERKS, WDESC,DIH_STATUS, DIH_TYPE, DIH_CREATED_BY, DIH_CREATED_DATE, DIP_LGORT, LGOBE, DIP_LGTYP, LTYPT, DIP_LGPLA, DIP_MATNR, MAKTX, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, DIP_DIFF_FLAG FROM INV_VW_REPORTE_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?",
+					"[getNoClosedConsSapReportDao] Some error occurred while was trying to execute the query: SELECT DOC_INV_ID, DIH_ROUTE_ID,RDESC, DIH_BUKRS, BDESC, WERKS, WDESC,DIH_STATUS, DIH_TYPE, DIH_CREATED_BY, DIH_CREATED_DATE, DIP_LGORT, LGOBE, DIP_LGTYP, LTYPT, DIP_LGPLA, DIP_MATNR, MAKTX, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, DIP_DIFF_FLAG FROM INV_VW_REPORTE_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?",
 					e);
 			abstractResult.setResultId(-105);
 			abstractResult.setResultMsgAbs(e.getMessage());
@@ -638,7 +638,7 @@ public class ReportesDao {
 				con.close();
 			} catch (SQLException ex) {
 				log.log(Level.SEVERE,
-						"[getReporteDocInvDao] Some error occurred while was trying to close the connection.", ex);
+						"[getNoClosedConsSapReportDao] Some error occurred while was trying to close the connection.", ex);
 			}
 		} finally {
 
@@ -646,7 +646,7 @@ public class ReportesDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[getReporteDocInvDao] Some error occurred while was trying to close the connection.", e);
+						"[getNoClosedConsSapReportDao] Some error occurred while was trying to close the connection.", e);
 			}
 		}
 

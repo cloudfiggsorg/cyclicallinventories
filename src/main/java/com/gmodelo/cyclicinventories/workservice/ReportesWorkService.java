@@ -83,15 +83,15 @@ public class ReportesWorkService {
 	}
 	
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAP(Request request) {
-		log.info("[ReporteWorkService getReporteDocInv] " + request.toString());
+		log.info("[getReporteDocInvSAPWS] " + request.toString());
 		Response<DocInvBeanHeaderSAP> response = new Response<>();		
 		DocInvBean bean = null;
 		try {
-			log.info("[ReporteWorkService getReporteDocInv] try");
+			log.info("[getReporteDocInvSAPWS] try");
 			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 			response = new ReportesDao().getConsDocInv(bean);
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInv] catch", e);
+			log.log(Level.SEVERE, "[getReporteDocInvSAPWS] catch", e);
 			AbstractResultsBean result = new AbstractResultsBean();
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
