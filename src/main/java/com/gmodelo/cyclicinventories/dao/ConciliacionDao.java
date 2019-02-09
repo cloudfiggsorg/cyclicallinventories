@@ -308,7 +308,7 @@ public class ConciliacionDao {
 		List<ConciliationPositionBean> listPositions = new ArrayList<>();
 		try {
 			HashMap<String, ConciliationPositionBean> notesPositions = new HashMap<>();
-			HashMap<String, ConciliationPositionBean> timesMapPositisoin = new HashMap<>();
+			HashMap<String, ConciliationPositionBean> timesMapPositions = new HashMap<>();
 
 			stm = con.prepareStatement(GET_NOTE_AND_PROD);
 
@@ -413,16 +413,18 @@ public class ConciliacionDao {
 				if (taskID == null) {
 					taskID = rs.getString("TASK_ID");
 					if (docInvBean.getType() != null) {
-						timesMapPositisoin = new HashMap<>();
+						timesMapPositions = new HashMap<>();
 						stm = con.prepareStatement(GET_MIN_MAX_LGPLA_DATE_MONTHLY);
 						errorQuery = GET_MIN_MAX_LGPLA_DATE_MONTHLY;
 						stm.setInt(1, docInvBean.getDocInvId());
 						stm.setString(2, taskID);
 						log.info(
 								"[getPositionsConciliationDao - getConciliationPositions] GET_MIN_MAX_LGPLA_DATE_MONTHLY, Executing query...");
+						log.info("DocInv "+docInvBean.getDocInvId());
+						log.info("TASKID "+taskID);
 						ResultSet rs2 = stm.executeQuery();
 						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
-						while (rs.next()) {
+						while (rs2.next()) {
 							ConciliationPositionBean beanMonth = new ConciliationPositionBean();
 							try {
 								beanMonth.setDateIni(rs2.getTimestamp("MIN_DATE") == null ? ""
@@ -436,7 +438,7 @@ public class ConciliacionDao {
 							} catch (Exception e) {
 								beanMonth.setDateEnd("");
 							}
-							timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE"), beanMonth);
+							timesMapPositions.put(rs2.getString("COU_POSITION_ID_ZONE"), beanMonth);
 						}
 					}
 
@@ -445,7 +447,7 @@ public class ConciliacionDao {
 					count++;
 
 					if (docInvBean.getType() != null) {
-						timesMapPositisoin = new HashMap<>();
+						timesMapPositions = new HashMap<>();
 						stm = con.prepareStatement(GET_MIN_MAX_LGPLA_DATE_MONTHLY);
 						errorQuery = GET_MIN_MAX_LGPLA_DATE_MONTHLY;
 						stm.setInt(1, docInvBean.getDocInvId());
@@ -454,7 +456,7 @@ public class ConciliacionDao {
 								"[getPositionsConciliationDao - getConciliationPositions] GET_MIN_MAX_LGPLA_DATE_MONTHLY, Executing query...");
 						ResultSet rs2 = stm.executeQuery();
 						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
-						while (rs.next()) {
+						while (rs2.next()) {
 							ConciliationPositionBean beanMonth = new ConciliationPositionBean();
 							try {
 								beanMonth.setDateIni(rs2.getTimestamp("MIN_DATE") == null ? ""
@@ -468,7 +470,7 @@ public class ConciliacionDao {
 							} catch (Exception e) {
 								beanMonth.setDateEnd("");
 							}
-							timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE"), beanMonth);
+							timesMapPositions.put(rs2.getString("COU_POSITION_ID_ZONE"), beanMonth);
 						}
 					}
 
@@ -510,6 +512,7 @@ public class ConciliacionDao {
 					bean.setLgort(rs.getString("ZON_LGORT"));
 					bean.setLgobe(rs.getString("LGOBE"));
 					bean.setPkAsgId(rs.getString("ZPO_PK_ASG_ID"));
+					bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
 					bean.setFlagColor(false);
 					if (materialToColor.containsKey(bean.getPkAsgId())) {
 						if (materialToColor.get(bean.getPkAsgId()) != null
@@ -537,9 +540,9 @@ public class ConciliacionDao {
 						docInvBean.setCountA(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount1A(total);
-						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
-							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
-							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
 						}
 
 					} else if (count == 1) {
@@ -550,17 +553,17 @@ public class ConciliacionDao {
 						docInvBean.setCount2(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount2(total);
-						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
-							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
-							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
 						}
 					} else if (count == 3) {
 						docInvBean.setCount3(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount3(total);
-						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
-							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
-							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
 						}
 					}
 
@@ -599,7 +602,7 @@ public class ConciliacionDao {
 
 				// Get times per doc inv row - ini
 
-				timesMapPositisoin = new HashMap<>();
+				timesMapPositions = new HashMap<>();
 				stm = con.prepareStatement(GET_MIN_MAX_LGPLA_DATE);
 				errorQuery = GET_MIN_MAX_LGPLA_DATE;
 				stm.setInt(1, rsChl.getInt("DOC_INV_ID"));
@@ -607,7 +610,7 @@ public class ConciliacionDao {
 						"[getPositionsConciliationDao - getConciliationPositions] GET_MIN_MAX_LGPLA_DATE, Executing query...");
 				ResultSet rs2 = stm.executeQuery();
 				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
-				while (rs.next()) {
+				while (rs2.next()) {
 					ConciliationPositionBean beanMonth = new ConciliationPositionBean();
 					try {
 						beanMonth.setDateIni(
@@ -621,7 +624,7 @@ public class ConciliacionDao {
 					} catch (Exception e) {
 						beanMonth.setDateEnd("");
 					}
-					timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE"), beanMonth);
+					timesMapPositions.put(rs2.getString("COU_POSITION_ID_ZONE"), beanMonth);
 				}
 
 				// Get times per doc inv row - end
@@ -632,9 +635,9 @@ public class ConciliacionDao {
 						docInvBean.setCountE(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCountX(total);
-						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
-							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
-							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
 						}
 						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
 					} else {
@@ -651,9 +654,9 @@ public class ConciliacionDao {
 						docInvBean.setCountE(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCountX(total);
-						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
-							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
-							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
 						}
 					}
 				}
