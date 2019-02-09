@@ -479,7 +479,7 @@ public class ReportesDao {
 
 				// Get the explosion detail
 				ArrayList<MatExplReport> lsExpDet = null;
-				lsExpDet = new ExplosionDetailDao().getExplosionReportByBukrs(docInvBean.getDocInvId()).getLsObject();
+				lsExpDet = new ExplosionDetailDao().getExplosionReportByWerks(docInvBean.getDocInvId()).getLsObject();
 
 				listBean.clear();
 

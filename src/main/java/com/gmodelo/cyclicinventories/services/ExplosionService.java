@@ -43,9 +43,17 @@ public class ExplosionService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getExplosionReportByDocInv")
-	public Response<ArrayList<MatExplReport>> getExplosionReportByDocInv(Request request){
-		return new ExplosionWorkService().getExplosionReportByDocInv(request);
+	@Path("/getExplosionReportByWerks")
+	public Response<ArrayList<MatExplReport>> getExplosionReportByWerks(Request request){
+		return new ExplosionWorkService().getExplosionReportByWerks(request);
+	}
+		
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getExplosionReportByLgpla")
+	public Response<ArrayList<MatExplReport>> getExplosionReportByLgpla(Request request){
+		return new ExplosionWorkService().getExplosionReportByLgpla(request);
 	}
 
 }

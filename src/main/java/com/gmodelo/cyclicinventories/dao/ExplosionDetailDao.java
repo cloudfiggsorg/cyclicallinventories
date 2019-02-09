@@ -290,7 +290,7 @@ public class ExplosionDetailDao {
 		return res;
 	}
 	
-	public Response<ArrayList<MatExplReport>> getExplosionReportByBukrs(int docInvId) {
+	public Response<ArrayList<MatExplReport>> getExplosionReportByWerks(int docInvId) {
 		
 		Response<ArrayList<MatExplReport>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -454,7 +454,7 @@ public class ExplosionDetailDao {
 						+ "INNER JOIN INV_REL_CAT_MAT AS IRCM ON (ICC.CAT_ID = IRCM.REL_CAT_ID) " 
 						+ "WHERE REL_MATNR = SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK))), '') AS CAT_EXPL, H.EX_LGORT "		 
 						+ "FROM (SELECT DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR MATNR, DIP_DOC_INV_ID, CAST(DIP_COUNTED AS decimal(15, 2)) COUNTED, " 
-				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS"
+				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS "
 				+ "FROM INV_DOC_INVENTORY_POSITIONS " 
 				+ "WHERE DIP_DOC_INV_ID = ?) AS A " 
 				+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
@@ -477,7 +477,7 @@ public class ExplosionDetailDao {
 			+ "UNION "
 
 			+ "SELECT DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, B.MAKTX, ISNULL(D.CATEGORY, '') CATEGORY, " 
-				+ "E.MEINS, DIP_COUNTED, '' IDNRK, '' MEINS_EXPL, '' DESC_MATNR_EXPL, '' QUANTITY, '' CAT_EXPL, '' LGORT_EXPL "
+				+ "E.MEINS, DIP_COUNTED, '' IDNRK, '' MEINS_EXPL, '' DESC_MATNR_EXPL, '' QUANTITY, '' CAT_EXPL, '' EX_LGORT "
 			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
 			+ "INNER JOIN MAKT AS B ON (SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR)) = A.DIP_MATNR) "
 			+ "LEFT JOIN INV_REL_CAT_MAT AS C ON (C.REL_MATNR = A.DIP_MATNR) " 
@@ -515,7 +515,7 @@ public class ExplosionDetailDao {
 				expl.setCounted(rs.getString("COUNTED"));
 				expl.setMatnrExpl(rs.getString("IDNRK"));
 				expl.setDescMantrExpl(rs.getString("MATNR_EXPL_DESC"));
-				expl.setLgortExpl(rs.getString("LGORT_EXPL"));
+				expl.setLgortExpl(rs.getString("EX_LGORT"));
 				expl.setCatExpl(rs.getString("CAT_EXPL"));
 				expl.setUmbExpl(rs.getString("MEINS_EXLP"));
 				expl.setQuantity(rs.getString("QUANTITY"));
@@ -532,6 +532,10 @@ public class ExplosionDetailDao {
 			for(MatExplReport matnr: lsVHILM){
 				
 				if(map.containsKey(matnr.getMatnr())){
+					
+					matnr.setLgort(map.get(matnr.getMatnr()).get(0).getLgort());
+					matnr.setLgtyp(map.get(matnr.getMatnr()).get(0).getLgtyp());
+					matnr.setLgpla(map.get(matnr.getMatnr()).get(0).getLgpla());
 					map.get(matnr.getMatnr()).add(matnr);
 					
 				}else{
