@@ -290,7 +290,7 @@ public class ExplosionDetailDao {
 		return res;
 	}
 	
-	public Response<ArrayList<MatExplReport>> getExplosionReportByDocInv(int docInvId) {
+	public Response<ArrayList<MatExplReport>> getExplosionReportByWerks(int docInvId) {
 		
 		Response<ArrayList<MatExplReport>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -301,32 +301,44 @@ public class ExplosionDetailDao {
 		ArrayList<MatExplReport> lsDetail = new ArrayList<>();
 		HashMap<String, ArrayList<MatExplReport>> map = new HashMap<>(); 
 		
-		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MEINS, A.COUNTED, "
+		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MEINS, A.COUNTED, " 
 				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, D.MEINS MEINS_EXLP, " 
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
-				+ "(CAST(D.MENGE AS decimal(15, 2)) / CAST(C.BMENG AS decimal(15, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(15, 2)) AS QUANTITY, "
-				+ "ISNULL((SELECT CATEGORY FROM INV_CAT_CATEGORY AS ICC "
+				+ "CAST((CAST(D.MENGE AS decimal(15, 2)) / CAST(C.BMENG AS decimal(15, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(15, 2)) AS varchar(50)) AS QUANTITY, " 
+				+ "ISNULL((SELECT CATEGORY FROM INV_CAT_CATEGORY AS ICC " 
 						+ "INNER JOIN INV_REL_CAT_MAT AS IRCM ON (ICC.CAT_ID = IRCM.REL_CAT_ID) " 
-						+ "WHERE REL_MATNR = SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK))), '') AS CAT_EXPL "
+						+ "WHERE REL_MATNR = SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK))), '') AS CAT_EXPL " 
 			+ "FROM (SELECT DIP_MATNR MATNR, DIP_DOC_INV_ID, SUM(CAST(DIP_COUNTED AS decimal(15, 2))) COUNTED, " 
-				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS "
-				+ "FROM INV_DOC_INVENTORY_POSITIONS "
+				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS " 
+				+ "FROM INV_DOC_INVENTORY_POSITIONS " 
 				+ "WHERE DIP_DOC_INV_ID = ? " 
 			+ "GROUP BY DIP_DOC_INV_ID, DIP_MATNR) AS A " 
 				+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
-				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) " 
+				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) "  
 				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) " 
 				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DIP_DOC_INV_ID) " 
-				+ "INNER JOIN MAKT AS E ON (A.MATNR = SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR))) "
-				+ "LEFT JOIN INV_REL_CAT_MAT AS F ON (F.REL_MATNR = A.MATNR) "
-				+ "LEFT JOIN INV_CAT_CATEGORY AS G ON (F.REL_CAT_ID = G.CAT_ID) "
+				+ "INNER JOIN MAKT AS E ON (A.MATNR = SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR))) " 
+				+ "LEFT JOIN INV_REL_CAT_MAT AS F ON (F.REL_MATNR = A.MATNR) " 
+				+ "LEFT JOIN INV_CAT_CATEGORY AS G ON (F.REL_CAT_ID = G.CAT_ID) " 
 					+ "WHERE DIP_DOC_INV_ID = ? " 
 						+ "AND B.WERKS = IDIH.DIH_WERKS " 
 						+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " 
 							+ "IN (SELECT EX_COMPONENT " 
 								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
 								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
-			+ "GROUP BY A.MATNR, E.MAKTX, G.CATEGORY, A.MEINS, COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG ";
+			+ "GROUP BY A.MATNR, E.MAKTX, G.CATEGORY, A.MEINS, COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG "
+
+			+ "UNION "
+
+			+ "SELECT DIP_MATNR, B.MAKTX, ISNULL(D.CATEGORY, '') CATEGORY, " 
+				+ "E.MEINS, DIP_COUNTED, '' IDNRK, '' MEINS_EXPL, '' DESC_MATNR_EXPL, '' QUANTITY, '' CAT_EXPL "
+			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
+			+ "INNER JOIN MAKT AS B ON (SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR)) = A.DIP_MATNR) "
+			+ "LEFT JOIN INV_REL_CAT_MAT AS C ON (C.REL_MATNR = A.DIP_MATNR) " 
+			+ "LEFT JOIN INV_CAT_CATEGORY AS D ON (C.REL_CAT_ID = D.CAT_ID) " 
+			+ "INNER JOIN MARA AS E ON (SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR)) = A.DIP_MATNR) "
+			+ "WHERE DIP_DOC_INV_ID = ? "
+			+ "ORDER BY A.MATNR, IDNRK ASC ";
 
 		log.info(GET_MST_EXPL_REP);
 		log.info("[getExplosionReportByDocInv] Preparing sentence...");
@@ -339,6 +351,7 @@ public class ExplosionDetailDao {
 			stm = con.prepareStatement(GET_MST_EXPL_REP);
 			stm.setInt(1, docInvId);
 			stm.setInt(2, docInvId);
+			stm.setInt(3, docInvId);
 			log.info("[getExplosionReportByDocInv] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
@@ -369,6 +382,160 @@ public class ExplosionDetailDao {
 			for(MatExplReport matnr: lsVHILM){
 				
 				if(map.containsKey(matnr.getMatnr())){
+					map.get(matnr.getMatnr()).add(matnr);
+					
+				}else{
+					
+					ArrayList<MatExplReport> lsMatnr = new ArrayList<>();
+					lsMatnr.add(matnr);
+					map.put(matnr.getMatnr(), lsMatnr);
+				}
+			}
+									
+			//Iterate the map and create the final list
+			for (ArrayList<MatExplReport> lsMatnr : map.values()) {
+			    			
+				lsDetail.addAll(lsMatnr);
+			}
+			
+			// Retrive the warnings if there're
+			SQLWarning warning = stm.getWarnings();
+			while (warning != null) {
+				log.log(Level.WARNING, warning.getMessage());
+				warning = warning.getNextWarning();
+			}
+
+			// Free resources
+			rs.close();
+			stm.close();
+
+			log.info("[getExplosionReportByDocInv] Sentence successfully executed.");
+						
+			res.setAbstractResult(abstractResult);
+			res.setLsObject(lsDetail);			
+		} catch (SQLException e) {
+			log.log(Level.SEVERE,
+					"[getExplosionReportByDocInv] Some error occurred while was trying to execute the query: " + GET_MST_EXPL_REP,
+					e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			res.setAbstractResult(abstractResult);
+			
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				
+				log.log(Level.SEVERE, "[getExplosionReportByDocInv] Some error occurred while was trying to close the connection.", e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				res.setAbstractResult(abstractResult);
+			}
+		}
+		
+		return res;
+	}
+	
+	public Response<ArrayList<MatExplReport>> getExplosionReportByLgpla(int docInvId) {
+		
+		Response<ArrayList<MatExplReport>> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();		
+		PreparedStatement stm = null;		
+		MatExplReport expl = new MatExplReport();
+		ArrayList<MatExplReport> lsDetail = new ArrayList<>();
+		HashMap<String, ArrayList<MatExplReport>> map = new HashMap<>(); 
+		
+		final String GET_MST_EXPL_REP = "SELECT DIP_LGORT, DIP_LGTYP, DIP_LGPLA, A.MATNR, E.MAKTX, "
+				+ "ISNULL(G.CATEGORY, ' ') CATEGORY, A.MEINS, A.COUNTED, " 
+				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, D.MEINS MEINS_EXLP, " 
+				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
+				+ "CAST((CAST(D.MENGE AS decimal(15, 2)) / CAST(C.BMENG AS decimal(15, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(15, 2)) AS varchar(30)) AS QUANTITY, "
+				+ "ISNULL((SELECT CATEGORY FROM INV_CAT_CATEGORY AS ICC " 
+						+ "INNER JOIN INV_REL_CAT_MAT AS IRCM ON (ICC.CAT_ID = IRCM.REL_CAT_ID) " 
+						+ "WHERE REL_MATNR = SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK))), '') AS CAT_EXPL, H.EX_LGORT "		 
+						+ "FROM (SELECT DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR MATNR, DIP_DOC_INV_ID, CAST(DIP_COUNTED AS decimal(15, 2)) COUNTED, " 
+				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS "
+				+ "FROM INV_DOC_INVENTORY_POSITIONS " 
+				+ "WHERE DIP_DOC_INV_ID = ?) AS A " 
+				+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
+				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) "  
+				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) " 
+				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DIP_DOC_INV_ID) " 
+				+ "INNER JOIN MAKT AS E ON (A.MATNR = SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR))) " 
+				+ "LEFT JOIN INV_REL_CAT_MAT AS F ON (F.REL_MATNR = A.MATNR) " 
+				+ "LEFT JOIN INV_CAT_CATEGORY AS G ON (F.REL_CAT_ID = G.CAT_ID) "
+				+ "INNER JOIN INV_EXPLOSION AS H ON (H.EX_MATNR = A.MATNR AND H.EX_WERKS = IDIH.DIH_WERKS) " 
+					+ "WHERE DIP_DOC_INV_ID = ? " 
+						+ "AND B.WERKS = IDIH.DIH_WERKS " 
+						+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " 
+							+ "IN (SELECT EX_COMPONENT " 
+								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
+								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
+			+ "GROUP BY DIP_LGORT, DIP_LGTYP, DIP_LGPLA, A.MATNR, E.MAKTX, G.CATEGORY, A.MEINS, "
+			+ "COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG, H.EX_LGORT "	 
+
+			+ "UNION "
+
+			+ "SELECT DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, B.MAKTX, ISNULL(D.CATEGORY, '') CATEGORY, " 
+				+ "E.MEINS, DIP_COUNTED, '' IDNRK, '' MEINS_EXPL, '' DESC_MATNR_EXPL, '' QUANTITY, '' CAT_EXPL, '' EX_LGORT "
+			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
+			+ "INNER JOIN MAKT AS B ON (SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR)) = A.DIP_MATNR) "
+			+ "LEFT JOIN INV_REL_CAT_MAT AS C ON (C.REL_MATNR = A.DIP_MATNR) " 
+			+ "LEFT JOIN INV_CAT_CATEGORY AS D ON (C.REL_CAT_ID = D.CAT_ID) " 
+			+ "INNER JOIN MARA AS E ON (SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR)) = A.DIP_MATNR) "
+			+ "WHERE DIP_DOC_INV_ID = ? "
+			+ "ORDER BY A.MATNR, IDNRK ASC ";
+
+		log.info(GET_MST_EXPL_REP);
+		log.info("[getExplosionReportByDocInv] Preparing sentence...");
+
+		try {
+			
+			//Get the VHILM by doc inventory
+			ArrayList<MatExplReport> lsVHILM = getVHILM(docInvId, con);
+			
+			stm = con.prepareStatement(GET_MST_EXPL_REP);
+			stm.setInt(1, docInvId);
+			stm.setInt(2, docInvId);
+			stm.setInt(3, docInvId);
+			log.info("[getExplosionReportByDocInv] Executing query...");
+
+			ResultSet rs = stm.executeQuery();
+
+			while (rs.next()) {
+				
+				expl = new MatExplReport();
+				expl.setLgort(rs.getString("DIP_LGORT"));
+				expl.setLgtyp(rs.getString("DIP_LGTYP"));
+				expl.setLgpla(rs.getString("DIP_LGPLA"));
+				expl.setMatnr(rs.getString("MATNR"));
+				expl.setDescription(rs.getString("MAKTX"));
+				expl.setCategory(rs.getString("CATEGORY"));
+				expl.setUmb(rs.getString("MEINS"));
+				expl.setCounted(rs.getString("COUNTED"));
+				expl.setMatnrExpl(rs.getString("IDNRK"));
+				expl.setDescMantrExpl(rs.getString("MATNR_EXPL_DESC"));
+				expl.setLgortExpl(rs.getString("EX_LGORT"));
+				expl.setCatExpl(rs.getString("CAT_EXPL"));
+				expl.setUmbExpl(rs.getString("MEINS_EXLP"));
+				expl.setQuantity(rs.getString("QUANTITY"));
+				
+				if(map.containsKey(expl.getMatnr())){
+					map.get(expl.getMatnr()).add(expl);					
+				}else{
+					ArrayList<MatExplReport> lsMatnr = new ArrayList<>();					
+					lsMatnr.add(expl);					
+					map.put(expl.getMatnr(), lsMatnr);					
+				}				
+			}
+			
+			for(MatExplReport matnr: lsVHILM){
+				
+				if(map.containsKey(matnr.getMatnr())){
+					
+					matnr.setLgort(map.get(matnr.getMatnr()).get(0).getLgort());
+					matnr.setLgtyp(map.get(matnr.getMatnr()).get(0).getLgtyp());
+					matnr.setLgpla(map.get(matnr.getMatnr()).get(0).getLgpla());
 					map.get(matnr.getMatnr()).add(matnr);
 					
 				}else{

@@ -21,6 +21,7 @@ public class ConciliationPositionBean {
 	private String dateIni;
 	private String dateEnd;
 	private boolean flagColor;
+	private String vhilmCount;
 
 	public String getZoneId() {
 		return zoneId;
@@ -174,15 +175,33 @@ public class ConciliationPositionBean {
 		this.flagColor = flagColor;
 	}
 
+	public String getVhilmCount() {
+		return vhilmCount;
+	}
+
+	public void setVhilmCount(String vhilmCount) {
+		this.vhilmCount = vhilmCount;
+	}
+
 	public ConciliationPositionBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public String toString() {
+		return "ConciliationPositionBean [zoneId=" + zoneId + ", zoneD=" + zoneD + ", lgort=" + lgort + ", lgobe="
+				+ lgobe + ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", measureUnit="
+				+ measureUnit + ", count1A=" + count1A + ", count1B=" + count1B + ", count2=" + count2 + ", count3="
+				+ count3 + ", countX=" + countX + ", pkAsgId=" + pkAsgId + ", note=" + note + ", prodDate=" + prodDate
+				+ ", dateIni=" + dateIni + ", dateEnd=" + dateEnd + ", flagColor=" + flagColor + ", vhilmCount="
+				+ vhilmCount + "]";
+	}
+
 	public ConciliationPositionBean(String zoneId, String zoneD, String lgort, String lgobe, String lgpla, String matnr,
 			String matnrD, String measureUnit, String count1a, String count1b, String count2, String count3,
 			String countX, String pkAsgId, String note, String prodDate, String dateIni, String dateEnd,
-			boolean flagColor) {
+			boolean flagColor, String vhilmCount) {
 		super();
 		this.zoneId = zoneId;
 		this.zoneD = zoneD;
@@ -203,15 +222,7 @@ public class ConciliationPositionBean {
 		this.dateIni = dateIni;
 		this.dateEnd = dateEnd;
 		this.flagColor = flagColor;
-	}
-
-	@Override
-	public String toString() {
-		return "ConciliationPositionBean [zoneId=" + zoneId + ", zoneD=" + zoneD + ", lgort=" + lgort + ", lgobe="
-				+ lgobe + ", lgpla=" + lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", measureUnit="
-				+ measureUnit + ", count1A=" + count1A + ", count1B=" + count1B + ", count2=" + count2 + ", count3="
-				+ count3 + ", countX=" + countX + ", pkAsgId=" + pkAsgId + ", note=" + note + ", prodDate=" + prodDate
-				+ ", dateIni=" + dateIni + ", dateEnd=" + dateEnd + ", flagColor=" + flagColor + "]";
+		this.vhilmCount = vhilmCount;
 	}
 
 	@Override
@@ -235,6 +246,7 @@ public class ConciliationPositionBean {
 		result = prime * result + ((note == null) ? 0 : note.hashCode());
 		result = prime * result + ((pkAsgId == null) ? 0 : pkAsgId.hashCode());
 		result = prime * result + ((prodDate == null) ? 0 : prodDate.hashCode());
+		result = prime * result + ((vhilmCount == null) ? 0 : vhilmCount.hashCode());
 		result = prime * result + ((zoneD == null) ? 0 : zoneD.hashCode());
 		result = prime * result + ((zoneId == null) ? 0 : zoneId.hashCode());
 		return result;
@@ -330,6 +342,11 @@ public class ConciliationPositionBean {
 			if (other.prodDate != null)
 				return false;
 		} else if (!prodDate.equals(other.prodDate))
+			return false;
+		if (vhilmCount == null) {
+			if (other.vhilmCount != null)
+				return false;
+		} else if (!vhilmCount.equals(other.vhilmCount))
 			return false;
 		if (zoneD == null) {
 			if (other.zoneD != null)

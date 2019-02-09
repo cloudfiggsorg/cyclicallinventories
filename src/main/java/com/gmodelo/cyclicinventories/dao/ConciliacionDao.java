@@ -134,14 +134,13 @@ public class ConciliacionDao {
 			+ " INNER JOIN INV_ROUTE INR WITH(NOLOCK) ON (IDIH.DIH_ROUTE_ID = INR.ROUTE_ID) "
 			+ "	WHERE IDIH.DIH_STATUS = '0' " + " AND IDIH.DOC_FATHER_INV_ID IS NULL " + " AND IDIH.DIH_BUKRS LIKE ? "
 			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? "
-			+ " AND DOC_INV_ID NOT IN (SELECT CS_DOC_INV_ID FROM INV_CONS_SAP GROUP BY CS_DOC_INV_ID)  AND IDIH.DIH_TYPE = '2' " 
-			+ " UNION "
-			+ " SELECT ICS.CS_DOC_INV_ID, IR.ROU_DESC AS DESCRIPCION, 1 AS STS, FNSAP_SNAPSHOT  " 
+			+ " AND DOC_INV_ID NOT IN (SELECT CS_DOC_INV_ID FROM INV_CONS_SAP GROUP BY CS_DOC_INV_ID)  AND IDIH.DIH_TYPE = '2' "
+			+ " UNION " + " SELECT ICS.CS_DOC_INV_ID, IR.ROU_DESC AS DESCRIPCION, 1 AS STS, FNSAP_SNAPSHOT  "
 			+ " FROM INV_CONS_SAP AS ICS "
 			+ " INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (ICS.CS_DOC_INV_ID = IDIH.DOC_INV_ID) "
 			+ " INNER JOIN INV_ROUTE AS IR ON (IR.ROUTE_ID = IDIH.DIH_ROUTE_ID) " + " WHERE IDIH.DIH_BUKRS LIKE ? "
-			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? " + " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC, FNSAP_SNAPSHOT "
-			+ " ORDER BY DOC_INV_ID";
+			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? "
+			+ " GROUP BY ICS.CS_DOC_INV_ID, ROU_DESC, FNSAP_SNAPSHOT " + " ORDER BY DOC_INV_ID";
 
 	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(DocInvBean dib) {
 		Response<List<ConciliationsIDsBean>> res = new Response<>();
@@ -155,7 +154,7 @@ public class ConciliacionDao {
 		try {
 
 			log.log(Level.INFO, dib.toString());
-			
+
 			stm = con.prepareStatement(CLOSED_DOC_INV);
 			stm.setString(1, (dib.getBukrs() == null ? "%" : dib.getBukrs()));
 			stm.setString(2, (dib.getWerks() == null ? "%" : dib.getWerks()));
@@ -276,7 +275,7 @@ public class ConciliacionDao {
 	}
 
 	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZON_LGORT, LGOBE, ZPO_PK_ASG_ID, "
-			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
+			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS, VHILM_COUNT FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
 
 	private static final String INV_DOC_CHILDREN = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_FATHER_INV_ID = ? ";
 
@@ -288,6 +287,10 @@ public class ConciliacionDao {
 
 	private static final String GET_MIN_MAX_LGPLA_DATE = "SELECT COU_POSITION_ID_ZONE, MIN(COU_START_DATE)  MIN_DATE, MAX(COU_END_DATE) MAX_DATE FROM INV_COUNT WITH(NOLOCK) "
 			+ " WHERE COU_TASK_ID IN (SELECT TASK_ID FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?) "
+			+ " AND ((COU_START_DATE IS NOT NULL) OR (COU_END_DATE IS NOT NULL)) GROUP BY COU_POSITION_ID_ZONE";
+
+	private static final String GET_MIN_MAX_LGPLA_DATE_MONTHLY = "SELECT COU_POSITION_ID_ZONE, MIN(COU_START_DATE)  MIN_DATE, MAX(COU_END_DATE) MAX_DATE FROM INV_COUNT WITH(NOLOCK) "
+			+ " WHERE COU_TASK_ID IN (SELECT TASK_ID FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ? AND TASK_ID = ?) "
 			+ " AND ((COU_START_DATE IS NOT NULL) OR (COU_END_DATE IS NOT NULL)) GROUP BY COU_POSITION_ID_ZONE";
 
 	private static final String GET_MATERIAL_TO_COLOUR = "SELECT ZOPM.PK_ZONPOS_MAT, ZOPM.ZPM_MATNR FROM INV_DOC_INVENTORY_HEADER DOC WITH(NOLOCK) "
@@ -330,8 +333,7 @@ public class ConciliacionDao {
 						notesPositions.get(key).setProdDate(
 								notesPositions.get(key).getProdDate() + rs.getString("COU_PROD_DATE") == null ? ""
 										: !rs.getString("COU_PROD_DATE").isEmpty()
-												? "|," + rs.getString("COU_PROD_DATE")
-												: "");
+												? "|," + rs.getString("COU_PROD_DATE") : "");
 					} else {
 						notesPositions.get(key).setProdDate(
 								notesPositions.get(key).getProdDate() + rs.getString("COU_PROD_DATE") == null ? ""
@@ -346,32 +348,37 @@ public class ConciliacionDao {
 				}
 			}
 
-			if (docInvBean.getType() != null && docInvBean.getType().equals("1")) {
-				stm = con.prepareStatement(GET_MIN_MAX_LGPLA_DATE);
-				errorQuery = GET_MIN_MAX_LGPLA_DATE;
-				stm.setInt(1, docInvBean.getDocInvId());
-				log.info(
-						"[getPositionsConciliationDao - getConciliationPositions] GET_NOTE_AND_PROD, Executing query...");
-				rs = stm.executeQuery();
-				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
-				while (rs.next()) {
-					ConciliationPositionBean bean = new ConciliationPositionBean();
-					try {
-						bean.setDateIni(
-								rs.getTimestamp("MIN_DATE") == null ? "" : sdf.format(rs.getTimestamp("MIN_DATE")));
-					} catch (Exception e) {
-						bean.setDateIni("");
-					}
-					try {
-						bean.setDateEnd(
-								rs.getTimestamp("MAX_DATE") == null ? "" : sdf.format(rs.getTimestamp("MAX_DATE")));
-					} catch (Exception e) {
-						bean.setDateEnd("");
-					}
-					timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE"), bean);
-				}
-			}
-
+			// if (docInvBean.getType() != null &&
+			// docInvBean.getType().equals("1")) {
+			// stm = con.prepareStatement(GET_MIN_MAX_LGPLA_DATE);
+			// errorQuery = GET_MIN_MAX_LGPLA_DATE;
+			// stm.setInt(1, docInvBean.getDocInvId());
+			// log.info(
+			// "[getPositionsConciliationDao - getConciliationPositions]
+			// GET_NOTE_AND_PROD, Executing query...");
+			// rs = stm.executeQuery();
+			// SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy -
+			// HH:mm:ss");
+			// while (rs.next()) {
+			// ConciliationPositionBean bean = new ConciliationPositionBean();
+			// try {
+			// bean.setDateIni(
+			// rs.getTimestamp("MIN_DATE") == null ? "" :
+			// sdf.format(rs.getTimestamp("MIN_DATE")));
+			// } catch (Exception e) {
+			// bean.setDateIni("");
+			// }
+			// try {
+			// bean.setDateEnd(
+			// rs.getTimestamp("MAX_DATE") == null ? "" :
+			// sdf.format(rs.getTimestamp("MAX_DATE")));
+			// } catch (Exception e) {
+			// bean.setDateEnd("");
+			// }
+			// timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE"),
+			// bean);
+			// }
+			// }
 			HashMap<String, List<String>> materialToColor = new HashMap<>();
 
 			errorQuery = GET_MATERIAL_TO_COLOUR;
@@ -405,9 +412,66 @@ public class ConciliacionDao {
 				String total = "0";
 				if (taskID == null) {
 					taskID = rs.getString("TASK_ID");
+					if (docInvBean.getType() != null) {
+						timesMapPositisoin = new HashMap<>();
+						stm = con.prepareStatement(GET_MIN_MAX_LGPLA_DATE_MONTHLY);
+						errorQuery = GET_MIN_MAX_LGPLA_DATE_MONTHLY;
+						stm.setInt(1, docInvBean.getDocInvId());
+						stm.setString(2, taskID);
+						log.info(
+								"[getPositionsConciliationDao - getConciliationPositions] GET_MIN_MAX_LGPLA_DATE_MONTHLY, Executing query...");
+						ResultSet rs2 = stm.executeQuery();
+						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
+						while (rs.next()) {
+							ConciliationPositionBean beanMonth = new ConciliationPositionBean();
+							try {
+								beanMonth.setDateIni(rs2.getTimestamp("MIN_DATE") == null ? ""
+										: sdf.format(rs2.getTimestamp("MIN_DATE")));
+							} catch (Exception e) {
+								beanMonth.setDateIni("");
+							}
+							try {
+								beanMonth.setDateEnd(rs2.getTimestamp("MAX_DATE") == null ? ""
+										: sdf.format(rs2.getTimestamp("MAX_DATE")));
+							} catch (Exception e) {
+								beanMonth.setDateEnd("");
+							}
+							timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE"), beanMonth);
+						}
+					}
+
 				} else if (!taskID.equals(rs.getString("TASK_ID"))) {
 					taskID = rs.getString("TASK_ID");
 					count++;
+
+					if (docInvBean.getType() != null) {
+						timesMapPositisoin = new HashMap<>();
+						stm = con.prepareStatement(GET_MIN_MAX_LGPLA_DATE_MONTHLY);
+						errorQuery = GET_MIN_MAX_LGPLA_DATE_MONTHLY;
+						stm.setInt(1, docInvBean.getDocInvId());
+						stm.setString(2, taskID);
+						log.info(
+								"[getPositionsConciliationDao - getConciliationPositions] GET_MIN_MAX_LGPLA_DATE_MONTHLY, Executing query...");
+						ResultSet rs2 = stm.executeQuery();
+						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
+						while (rs.next()) {
+							ConciliationPositionBean beanMonth = new ConciliationPositionBean();
+							try {
+								beanMonth.setDateIni(rs2.getTimestamp("MIN_DATE") == null ? ""
+										: sdf.format(rs2.getTimestamp("MIN_DATE")));
+							} catch (Exception e) {
+								beanMonth.setDateIni("");
+							}
+							try {
+								beanMonth.setDateEnd(rs2.getTimestamp("MAX_DATE") == null ? ""
+										: sdf.format(rs2.getTimestamp("MAX_DATE")));
+							} catch (Exception e) {
+								beanMonth.setDateEnd("");
+							}
+							timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE"), beanMonth);
+						}
+					}
+
 				}
 				if (hashMap.containsKey(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))) {
 					bean = hashMap.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"));
@@ -415,6 +479,7 @@ public class ConciliacionDao {
 						docInvBean.setCountA(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount1A(total);
+						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
 					} else if (count == 1) {
 						docInvBean.setCountB(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
@@ -423,10 +488,12 @@ public class ConciliacionDao {
 						docInvBean.setCount2(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount2(total);
+						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
 					} else if (count == 3) {
 						docInvBean.setCount3(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount3(total);
+						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
 					}
 				} else {
 					bean = new ConciliationPositionBean();
@@ -458,16 +525,23 @@ public class ConciliacionDao {
 						bean.setProdDate(notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))
 								.getProdDate());
 					}
-					if (docInvBean.getType() != null && docInvBean.getType().equals("1")) {
-						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
-							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
-							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
-						}
-					}
+					// if (docInvBean.getType() != null &&
+					// docInvBean.getType().equals("1")) {
+					// if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID"))
+					// != null) {
+					// bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+					// bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+					// }
+					// }
 					if (count == 0) {
 						docInvBean.setCountA(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount1A(total);
+						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						}
+
 					} else if (count == 1) {
 						docInvBean.setCountB(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
@@ -476,10 +550,18 @@ public class ConciliacionDao {
 						docInvBean.setCount2(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount2(total);
+						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						}
 					} else if (count == 3) {
 						docInvBean.setCount3(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount3(total);
+						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						}
 					}
 
 				}
@@ -512,14 +594,49 @@ public class ConciliacionDao {
 				errorQuery = INV_FULL_COUNT;
 				PreparedStatement stm2 = con.prepareStatement(INV_FULL_COUNT);
 				stm2.setString(1, rsChl.getString("DOC_INV_ID"));
-				rs = stm2.executeQuery();
+				ResultSet rsTime = stm2.executeQuery();
 				String total = "";
+
+				// Get times per doc inv row - ini
+
+				timesMapPositisoin = new HashMap<>();
+				stm = con.prepareStatement(GET_MIN_MAX_LGPLA_DATE);
+				errorQuery = GET_MIN_MAX_LGPLA_DATE;
+				stm.setInt(1, rsChl.getInt("DOC_INV_ID"));
+				log.info(
+						"[getPositionsConciliationDao - getConciliationPositions] GET_MIN_MAX_LGPLA_DATE, Executing query...");
+				ResultSet rs2 = stm.executeQuery();
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
+				while (rs.next()) {
+					ConciliationPositionBean beanMonth = new ConciliationPositionBean();
+					try {
+						beanMonth.setDateIni(
+								rs2.getTimestamp("MIN_DATE") == null ? "" : sdf.format(rs2.getTimestamp("MIN_DATE")));
+					} catch (Exception e) {
+						beanMonth.setDateIni("");
+					}
+					try {
+						beanMonth.setDateEnd(
+								rs2.getTimestamp("MAX_DATE") == null ? "" : sdf.format(rs2.getTimestamp("MAX_DATE")));
+					} catch (Exception e) {
+						beanMonth.setDateEnd("");
+					}
+					timesMapPositisoin.put(rs.getString("COU_POSITION_ID_ZONE"), beanMonth);
+				}
+
+				// Get times per doc inv row - end
+
 				while (rs.next()) {
 					if (hashMap.containsKey(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))) {
 						bean = hashMap.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"));
 						docInvBean.setCountE(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCountX(total);
+						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						}
+						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
 					} else {
 						bean = new ConciliationPositionBean();
 						bean.setMeasureUnit(rs.getString("MEINS"));
@@ -530,9 +647,14 @@ public class ConciliacionDao {
 						bean.setLgpla(rs.getString("LGPLA"));
 						bean.setCount1A("0");
 						bean.setCount1B("0");
+						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
 						docInvBean.setCountE(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCountX(total);
+						if (timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositisoin.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						}
 					}
 				}
 			}
