@@ -1,5 +1,6 @@
 package com.gmodelo.cyclicinventories.workservice;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +20,9 @@ import com.gmodelo.cyclicinventories.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.dao.ReportesDao;
+import com.gmodelo.cyclicinventories.dao.SapOperationDao;
 import com.gmodelo.cyclicinventories.dao.UMEDaoE;
+import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
 
@@ -27,6 +30,7 @@ public class ReportesWorkService {
 
 	private Logger log = Logger.getLogger(ReportesWorkService.class.getName());
 	private Gson gson = new Gson();
+	private ConnectionManager iConnectionManager = new ConnectionManager();
 
 	public Response<List<ApegosBean>> getReporteApegos(Request request) {
 		log.info("[getReporteApegosWorkService] " + request.toString());
@@ -81,10 +85,10 @@ public class ReportesWorkService {
 		response.setAbstractResult(result);
 		return response;
 	}
-	
+
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAP(Request request) {
 		log.info("[getReporteDocInvSAPWS] " + request.toString());
-		Response<DocInvBeanHeaderSAP> response = new Response<>();		
+		Response<DocInvBeanHeaderSAP> response = new Response<>();
 		DocInvBean bean = null;
 		try {
 			log.info("[getReporteDocInvSAPWS] try");
@@ -110,12 +114,12 @@ public class ReportesWorkService {
 			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), ProductivityBean.class);
 			response = new ReportesDao().getCountedProductivityDao(tareasBean);
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "getCountedProductivityTareasWorkService] catch", e );
+			log.log(Level.SEVERE, "getCountedProductivityTareasWorkService] catch", e);
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
 			Response<List<ProductivityBean>> badResponse = new Response<>();
 			badResponse.setAbstractResult(result);
-			return badResponse ;
+			return badResponse;
 		}
 		return response;
 	}
@@ -128,42 +132,41 @@ public class ReportesWorkService {
 		try {
 			log.info("[getUserProductivityWorkService] try");
 			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), ProductivityBean.class);
-			response = new ReportesDao().getUserProductivityDao(tareasBean); 
-			if(response.getAbstractResult().getResultId() != 1){
+			response = new ReportesDao().getUserProductivityDao(tareasBean);
+			if (response.getAbstractResult().getResultId() != 1) {
 				return response;
 			}
 			List<ProductivityBean> listBean = response.getLsObject();
 			ArrayList<User> listUser = new ArrayList<>();
 			User user;
 			UMEDaoE umeDao = new UMEDaoE();
-			for(ProductivityBean b : listBean){
+			for (ProductivityBean b : listBean) {
 				user = new User();
 				user.getEntity().setIdentyId(b.getUser());
 				user.getGenInf().setName(b.getUser());
-				
+
 				listUser.add(user);
 			}
-			
+
 			listUser = umeDao.getUsersLDAPByCredentials(listUser);
-			
-			for(ProductivityBean pb : listBean){
-				for(User u : listUser){
-					if(pb.getUser().trim().equalsIgnoreCase(u.getEntity().getIdentyId().trim())){
-						pb.setUser(u.getGenInf().getName()+" "+u.getGenInf().getLastName());
+
+			for (ProductivityBean pb : listBean) {
+				for (User u : listUser) {
+					if (pb.getUser().trim().equalsIgnoreCase(u.getEntity().getIdentyId().trim())) {
+						pb.setUser(u.getGenInf().getName() + " " + u.getGenInf().getLastName());
 					}
 				}
 			}
-			
+
 			response.setLsObject(listBean);
-			
-			
+
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "[getUserProductivityWorkService] catch", e );
+			log.log(Level.SEVERE, "[getUserProductivityWorkService] catch", e);
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
 			Response<List<ProductivityBean>> badResponse = new Response<>();
 			badResponse.setAbstractResult(result);
-			return badResponse ;
+			return badResponse;
 		}
 		return response;
 	}
@@ -179,30 +182,31 @@ public class ReportesWorkService {
 		log.info("[getReporteConciAccntReportWorkService] " + request.toString());
 		Response<List<ConciAccntReportBean>> response = new Response<>();
 		List<ConciAccntReportBean> list = new ArrayList<>();
-		ConciAccntReportBean conciAccntReportBean = gson.fromJson(gson.toJson(request.getLsObject()), ConciAccntReportBean.class);
+		ConciAccntReportBean conciAccntReportBean = gson.fromJson(gson.toJson(request.getLsObject()),
+				ConciAccntReportBean.class);
 		response = new ReportesDao().getReporteConciAccntReport(conciAccntReportBean);
-		if(response.getAbstractResult().getResultId() != 1){
-			return response; 
-		}else{
+		if (response.getAbstractResult().getResultId() != 1) {
+			return response;
+		} else {
 			list = response.getLsObject();
-			
+
 			List<String> listDocInv = new ArrayList<>();
-			HashMap<String, List<ConciAccntReportBean>> map = new HashMap<>(); 
-			
-			
-			for(ConciAccntReportBean item : list){
+			HashMap<String, List<ConciAccntReportBean>> map = new HashMap<>();
+
+			for (ConciAccntReportBean item : list) {
 				item.setType(item.getType().equalsIgnoreCase("1") ? "Diario" : "Mensual");
-//				Obteniendo los DocId unicos y generando listas para cada doc inv existente
-				if(listDocInv.size() == 0){
+				// Obteniendo los DocId unicos y generando listas para cada doc
+				// inv existente
+				if (listDocInv.size() == 0) {
 					listDocInv.add(item.getDocInvId());
 					List<ConciAccntReportBean> listBean = new ArrayList<>();
 					map.put(item.getDocInvId(), listBean);
-				}else{
+				} else {
 					boolean existDocId = false;
-					if(listDocInv.contains(item.getDocInvId())){
+					if (listDocInv.contains(item.getDocInvId())) {
 						existDocId = true;
 					}
-					if(!existDocId){
+					if (!existDocId) {
 						listDocInv.add(item.getDocInvId());
 						List<ConciAccntReportBean> listBean = new ArrayList<>();
 						map.put(item.getDocInvId(), listBean);
@@ -210,23 +214,24 @@ public class ReportesWorkService {
 				}
 
 			}
-			
-//			Agregando cada item en su lista por doc inv correspondiente
-			for(String id : listDocInv){
-				for(ConciAccntReportBean item : list){
-					if(id.equalsIgnoreCase(item.getDocInvId())){
+
+			// Agregando cada item en su lista por doc inv correspondiente
+			for (String id : listDocInv) {
+				for (ConciAccntReportBean item : list) {
+					if (id.equalsIgnoreCase(item.getDocInvId())) {
 						map.get(id).add(item);
 					}
 				}
 			}
-			
+
 			List<ConciAccntReportBean> finalList = new ArrayList<>();
-			
-			for(String id : listDocInv){
+
+			for (String id : listDocInv) {
 				List<Integer> catIdList = new ArrayList<>();
-//				obteniendo todas las categorias de un docInv y creando los beans final
-				for(ConciAccntReportBean carb :map.get(id)){
-					if(catIdList.size() == 0){
+				// obteniendo todas las categorias de un docInv y creando los
+				// beans final
+				for (ConciAccntReportBean carb : map.get(id)) {
+					if (catIdList.size() == 0) {
 						catIdList.add(carb.getCatId());
 						ConciAccntReportBean finalCArb = new ConciAccntReportBean();
 						finalCArb.setCatId(carb.getCatId());
@@ -239,14 +244,14 @@ public class ReportesWorkService {
 						finalCArb.setAccountant(0D);
 						finalCArb.setJustification(0D);
 						finalCArb.setAccDiff(0D);
-						
+
 						finalList.add(finalCArb);
-					}else{
+					} else {
 						boolean existCatId = false;
-						if(catIdList.contains(carb.getCatId())){
+						if (catIdList.contains(carb.getCatId())) {
 							existCatId = true;
 						}
-						if(!existCatId){
+						if (!existCatId) {
 							catIdList.add(carb.getCatId());
 							ConciAccntReportBean finalCArb = new ConciAccntReportBean();
 							finalCArb.setCatId(carb.getCatId());
@@ -259,52 +264,53 @@ public class ReportesWorkService {
 							finalCArb.setAccountant(0D);
 							finalCArb.setJustification(0D);
 							finalCArb.setAccDiff(0D);
-							
+
 							finalList.add(finalCArb);
 						}
 					}
 				}
-				
-//				usando listaFinal para sumar accountant, justification y difference en los beans finales
-				for(ConciAccntReportBean finalBean : finalList){
-					for(ConciAccntReportBean carb :map.get(id)){
-						
-						if(finalBean.getDocInvId().equalsIgnoreCase(id) && finalBean.getCatId() == carb.getCatId()){
-							finalBean.setAccountant(finalBean.getAccountant()+carb.getAccountant());
-							finalBean.setJustification(finalBean.getJustification()+carb.getJustification());
-							finalBean.setAccDiff(finalBean.getAccDiff()+carb.getAccDiff());
+
+				// usando listaFinal para sumar accountant, justification y
+				// difference en los beans finales
+				for (ConciAccntReportBean finalBean : finalList) {
+					for (ConciAccntReportBean carb : map.get(id)) {
+
+						if (finalBean.getDocInvId().equalsIgnoreCase(id) && finalBean.getCatId() == carb.getCatId()) {
+							finalBean.setAccountant(finalBean.getAccountant() + carb.getAccountant());
+							finalBean.setJustification(finalBean.getJustification() + carb.getJustification());
+							finalBean.setAccDiff(finalBean.getAccDiff() + carb.getAccDiff());
 						}
 					}
 				}
-				
+
 			}
-			
-			for(ConciAccntReportBean item : finalList){
-				if(item.getAccountant() != 0D && item.getAccDiff() != 0D){
-					item.setPercAccDiff(String.valueOf((item.getAccDiff()*100)/item.getAccountant()));
-				}else if(item.getAccountant() == 0D && item.getAccDiff() != 0D){
+
+			for (ConciAccntReportBean item : finalList) {
+				if (item.getAccountant() != 0D && item.getAccDiff() != 0D) {
+					item.setPercAccDiff(String.valueOf((item.getAccDiff() * 100) / item.getAccountant()));
+				} else if (item.getAccountant() == 0D && item.getAccDiff() != 0D) {
 					item.setPercAccDiff("100");
-				}else if(item.getAccountant() == 0D && item.getAccDiff() == 0D){
+				} else if (item.getAccountant() == 0D && item.getAccDiff() == 0D) {
 					item.setPercAccDiff("");
 				}
-				
-				if(item.getAccountant() != 0D && item.getJustification() != 0D){
-					item.setPercJustification(String.valueOf((item.getJustification()*100)/item.getAccountant()));
-				}else if(item.getAccountant() == 0D && item.getJustification() != 0D){
+
+				if (item.getAccountant() != 0D && item.getJustification() != 0D) {
+					item.setPercJustification(String.valueOf((item.getJustification() * 100) / item.getAccountant()));
+				} else if (item.getAccountant() == 0D && item.getJustification() != 0D) {
 					item.setPercJustification("100");
-				}else if(item.getAccountant() == 0D && item.getJustification() == 0D){
+				} else if (item.getAccountant() == 0D && item.getJustification() == 0D) {
 					item.setPercJustification("");
 				}
-				
+
 			}
 			response.setLsObject(finalList);
 		}
 		return response;
 	}
 
-	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
+	public Response<DocInvBeanHeaderSAP> Legacy_getReporteDocInvSAPByLgpla(Request request) {
 		log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] " + request.toString());
-		Response<DocInvBeanHeaderSAP> response = new Response<>();		
+		Response<DocInvBeanHeaderSAP> response = new Response<>();
 		DocInvBean bean = null;
 		try {
 			log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] try");
@@ -319,4 +325,33 @@ public class ReportesWorkService {
 		}
 		return response;
 	}
+
+	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
+		log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] " + request.toString());
+		Response<DocInvBeanHeaderSAP> response = new Response<>();
+		DocInvBean bean = new DocInvBean();
+		Connection con = iConnectionManager.createConnection();
+		try {
+			log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] try");
+			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+			// response = new ReportesDao().getConcSAPByPosition(bean);
+			bean = new SapOperationDao().getDocInvBeanDataHeaders(bean, con);
+			
+
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInvSAPByLgpla] catch", e);
+			AbstractResultsBean result = new AbstractResultsBean();
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+			response.setAbstractResult(result);
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInvSAPByLgpla] catch", e);
+			}
+		}
+		return response;
+	}
+
 }

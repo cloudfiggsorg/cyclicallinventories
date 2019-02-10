@@ -39,6 +39,7 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_MOV;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
+import com.sun.research.ws.wadl.Doc;
 
 public class SapOperationDao {
 
@@ -164,13 +165,15 @@ public class SapOperationDao {
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
-			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)"
+			+ " OR MATNR IN (SELECT DIP_VHILM from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM ) ) ";
 
 	private static final String GET_MBEW_COUNT_PIVOT = "SELECT COUNT(MATNR) AS MAT_UPD from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
 			+ " WHERE IS_UPDATING = 0 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
-			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?) "
+			+ " OR MATNR IN (SELECT DIP_VHILM from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM ) ) ";
 
 	private static final String COST_BY_MATNR = "SELECT MATNR, ZPRECIO "
 			+ "FROM INV_VW_GET_COSTS_FOR_DOC_INV WHERE DOC_INV_ID = ?";
@@ -189,17 +192,11 @@ public class SapOperationDao {
 			+ "GROUP BY CS_CON_SAP, CS_MATNR, CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
 			+ "CS_COUNTED, CS_COUNTED_EXPL, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_IS_EXPL";
 
+	// CONCILIATION FOR WM - LGORT_LGPLA
+
 	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
 			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE "
 			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE DOC_INV_ID = ?";
-
-	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
-			+ " DIP_MATNR, MAKTX, MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
-			+ " DIP_VHILM_COUNT, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ?";
-
-	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU,FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
-
-	private static final String COST_BY_MATNR_DOC_INV = "SELECT MATNR, ZPRECIO from INV_VW_GET_DOC_INV_MATNR_COSTS WHERE DOC_INV_ID = ?";
 
 	// INSERT AREA
 
@@ -243,13 +240,15 @@ public class SapOperationDao {
 			+ " AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
-			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)"
+			+ " OR MATNR IN (SELECT DIP_VHILM from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM ) ) ";
 
 	private static final String UPDATE_INV_CIC_MBEW_PIVOT_END = " UPDATE INV_CIC_E_PIV_MBEW SET IS_UPDATING = 0, LAST_UPDATED = CONVERT(DATE,GETDATE()) "
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
-			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)"
+			+ " OR MATNR IN (SELECT DIP_VHILM from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM ) ) ";
 
 	private static final String UPDATE_E_MBEW = "UPDATE E_MBEW SET ZPRECIO = ? WHERE MATNR = ? and BWKEY = ?";
 
@@ -293,6 +292,56 @@ public class SapOperationDao {
 			throw e;
 		}
 		return outputDoc;
+	}
+
+	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
+			+ " DIP_MATNR, MAKTX, MEINS, DIP_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
+			+ " DIP_VHILM_COUNT, DIP_VHILM, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+
+	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU,FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
+
+	private static final String GET_COST_BY_MATNR_DOC_INV = "SELECT DOC_INV_ID, MATNR, ZPRECIO FROM INV_VW_GET_COSTS_FOR_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+
+	private static final String GET_E_LQUA_FOR_WM_LANES = "SELECT LGNUM, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LGTYP, LGPLA, "
+			+ " SUM(CONVERT(NUMERIC(23,3),VERME)) VERME " + " FROM E_LQUA WITH(NOLOCK) WHERE DOC_INV_ID = ? "
+			+ " GROUP BY LGNUM, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)), LGORT, LGTYP, LGPLA ";
+
+	private static final String GET_E_MARD_FOR_IM_DATA = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LABST "
+			+ " FROM E_MARD WHERE DOC_INV_ID = ? "
+			+ " GROUP BY SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)), LGORT, LABST";
+
+	public List<PosDocInvBean> getDocInvPositions(DocInvBean docInvBean, Connection con) throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		List<PosDocInvBean> docInvBeans = new ArrayList<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(INV_VW_DOC_INV_REP_LGORT_LGPLA);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				PosDocInvBean bean = new PosDocInvBean();
+				bean.setDoncInvId(rs.getInt("DOC_INV_ID"));
+				bean.setMatnr(rs.getString("DIP_MATNR"));
+				bean.setMatnrD(rs.getString("MAKTX"));
+				bean.setMeins(rs.getString("MEINS"));
+				bean.setLgort(rs.getString("DIP_LGORT"));
+				bean.setLgortD(rs.getString("LGOBE"));
+				bean.setLgtyp(rs.getString("LGTYP"));
+				bean.setLtypt(rs.getString("LTYPT"));
+				bean.setLgpla(rs.getString("DIP_LGPLA"));
+				bean.setCounted(rs.getString("DIP_COUNTED"));
+				bean.setDateIniCounted(rs.getTimestamp("DIP_COUNT_DATE_INI").getTime());
+				bean.setDateEndCounted(rs.getTimestamp("DIP_COUNT_DATE").getTime());
+				bean.setVhilm(rs.getString("DIP_VHILM"));
+				bean.setVhilmCounted(rs.getString("DIP_VHILM_COUNT"));
+				bean.setImwmMarker(rs.getString(rs.getString("IMWM")));
+				docInvBeans.add(bean);
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return docInvBeans;
 	}
 
 	public DocInvBean getDocInvBeanDataHeaders(DocInvBean docInvBean, Connection con) throws SQLException {
@@ -439,6 +488,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(GET_MBEW_PIVOT);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.setInt(2, docInvBean.getDocInvId());
+			stm.setInt(3, docInvBean.getDocInvId());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				if (!materialList.contains(rs.getString("MATNR"))) {
@@ -460,6 +510,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(GET_MBEW_COUNT_PIVOT);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.setInt(2, docInvBean.getDocInvId());
+			stm.setInt(3, docInvBean.getDocInvId());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				materialCount = rs.getInt("MAT_UPD");
@@ -637,7 +688,7 @@ public class SapOperationDao {
 	}
 
 	public ArrayList<CostByMatnr> getCostByMatnr(int docInvId, Connection con) throws SQLException {
-		
+
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COST_BY_MATNR);
 		stm.setInt(1, docInvId);
@@ -1081,6 +1132,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_BEG);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.setInt(2, docInvBean.getDocInvId());
+			stm.setInt(3, docInvBean.getDocInvId());
 			stm.executeUpdate();
 		} catch (SQLException e) {
 			throw e;
@@ -1095,6 +1147,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_END);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.setInt(2, docInvBean.getDocInvId());
+			stm.setInt(3, docInvBean.getDocInvId());
 			stm.executeUpdate();
 		} catch (SQLException e) {
 			throw e;
