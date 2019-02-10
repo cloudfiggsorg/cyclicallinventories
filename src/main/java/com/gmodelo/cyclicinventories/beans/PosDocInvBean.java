@@ -33,6 +33,10 @@ public class PosDocInvBean {
 	private String countedCost;
 	private String theoricCost;
 	private String diffCost;
+	private Long dateIniCounted;
+	private Long dateEndCounted;
+	private String vhilm;
+	private String vhilmCounted;
 
 	public PosDocInvBean() {
 		super();
@@ -263,23 +267,44 @@ public class PosDocInvBean {
 		this.diffCost = diffCost;
 	}
 
-	@Override
-	public String toString() {
-		return "PosDocInvBean [posId=" + posId + ", doncInvId=" + doncInvId + ", item=" + item + ", lgort=" + lgort
-				+ ", lgortD=" + lgortD + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla="
-				+ lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", category=" + category + ", costByUnit="
-				+ costByUnit + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted + ", countedExpl="
-				+ countedExpl + ", countedTot=" + countedTot + ", diff=" + diff + ", imwmMarker=" + imwmMarker
-				+ ", consignation=" + consignation + ", transit=" + transit + ", dCounted=" + dCounted + ", explosion="
-				+ explosion + ", lsJustification=" + lsJustification + ", countedCost=" + countedCost + ", theoricCost="
-				+ theoricCost + ", diffCost=" + diffCost + "]";
+	public Long getDateIniCounted() {
+		return dateIniCounted;
+	}
+
+	public void setDateIniCounted(Long dateIniCounted) {
+		this.dateIniCounted = dateIniCounted;
+	}
+
+	public Long getDateEndCounted() {
+		return dateEndCounted;
+	}
+
+	public void setDateEndCounted(Long dateEndCounted) {
+		this.dateEndCounted = dateEndCounted;
+	}
+
+	public String getVhilm() {
+		return vhilm;
+	}
+
+	public void setVhilm(String vhilm) {
+		this.vhilm = vhilm;
+	}
+
+	public String getVhilmCounted() {
+		return vhilmCounted;
+	}
+
+	public void setVhilmCounted(String vhilmCounted) {
+		this.vhilmCounted = vhilmCounted;
 	}
 
 	public PosDocInvBean(int posId, int doncInvId, int item, String lgort, String lgortD, String lgtyp, String ltypt,
 			String lgNum, String lgpla, String matnr, String matnrD, String category, String costByUnit, String meins,
 			String theoric, String counted, String countedExpl, String countedTot, String diff, String imwmMarker,
 			String consignation, String transit, Date dCounted, boolean explosion,
-			ArrayList<Justification> lsJustification, String countedCost, String theoricCost, String diffCost) {
+			ArrayList<Justification> lsJustification, String countedCost, String theoricCost, String diffCost,
+			Long dateIniCounted, Long dateEndCounted, String vhilm, String vhilmCounted) {
 		super();
 		this.posId = posId;
 		this.doncInvId = doncInvId;
@@ -309,6 +334,23 @@ public class PosDocInvBean {
 		this.countedCost = countedCost;
 		this.theoricCost = theoricCost;
 		this.diffCost = diffCost;
+		this.dateIniCounted = dateIniCounted;
+		this.dateEndCounted = dateEndCounted;
+		this.vhilm = vhilm;
+		this.vhilmCounted = vhilmCounted;
+	}
+
+	@Override
+	public String toString() {
+		return "PosDocInvBean [posId=" + posId + ", doncInvId=" + doncInvId + ", item=" + item + ", lgort=" + lgort
+				+ ", lgortD=" + lgortD + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla="
+				+ lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", category=" + category + ", costByUnit="
+				+ costByUnit + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted + ", countedExpl="
+				+ countedExpl + ", countedTot=" + countedTot + ", diff=" + diff + ", imwmMarker=" + imwmMarker
+				+ ", consignation=" + consignation + ", transit=" + transit + ", dCounted=" + dCounted + ", explosion="
+				+ explosion + ", lsJustification=" + lsJustification + ", countedCost=" + countedCost + ", theoricCost="
+				+ theoricCost + ", diffCost=" + diffCost + ", dateIniCounted=" + dateIniCounted + ", dateEndCounted="
+				+ dateEndCounted + ", vhilm=" + vhilm + ", vhilmCounted=" + vhilmCounted + "]";
 	}
 
 	@Override
@@ -323,6 +365,8 @@ public class PosDocInvBean {
 		result = prime * result + ((countedExpl == null) ? 0 : countedExpl.hashCode());
 		result = prime * result + ((countedTot == null) ? 0 : countedTot.hashCode());
 		result = prime * result + ((dCounted == null) ? 0 : dCounted.hashCode());
+		result = prime * result + ((dateEndCounted == null) ? 0 : dateEndCounted.hashCode());
+		result = prime * result + ((dateIniCounted == null) ? 0 : dateIniCounted.hashCode());
 		result = prime * result + ((diff == null) ? 0 : diff.hashCode());
 		result = prime * result + ((diffCost == null) ? 0 : diffCost.hashCode());
 		result = prime * result + doncInvId;
@@ -343,6 +387,8 @@ public class PosDocInvBean {
 		result = prime * result + ((theoric == null) ? 0 : theoric.hashCode());
 		result = prime * result + ((theoricCost == null) ? 0 : theoricCost.hashCode());
 		result = prime * result + ((transit == null) ? 0 : transit.hashCode());
+		result = prime * result + ((vhilm == null) ? 0 : vhilm.hashCode());
+		result = prime * result + ((vhilmCounted == null) ? 0 : vhilmCounted.hashCode());
 		return result;
 	}
 
@@ -394,6 +440,16 @@ public class PosDocInvBean {
 			if (other.dCounted != null)
 				return false;
 		} else if (!dCounted.equals(other.dCounted))
+			return false;
+		if (dateEndCounted == null) {
+			if (other.dateEndCounted != null)
+				return false;
+		} else if (!dateEndCounted.equals(other.dateEndCounted))
+			return false;
+		if (dateIniCounted == null) {
+			if (other.dateIniCounted != null)
+				return false;
+		} else if (!dateIniCounted.equals(other.dateIniCounted))
 			return false;
 		if (diff == null) {
 			if (other.diff != null)
@@ -482,6 +538,16 @@ public class PosDocInvBean {
 			if (other.transit != null)
 				return false;
 		} else if (!transit.equals(other.transit))
+			return false;
+		if (vhilm == null) {
+			if (other.vhilm != null)
+				return false;
+		} else if (!vhilm.equals(other.vhilm))
+			return false;
+		if (vhilmCounted == null) {
+			if (other.vhilmCounted != null)
+				return false;
+		} else if (!vhilmCounted.equals(other.vhilmCounted))
 			return false;
 		return true;
 	}
