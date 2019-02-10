@@ -137,7 +137,8 @@ public class SapOperationDao {
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
-			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)"
+			+ " OR MATNR IN (SELECT DIP_VHILM from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM ) ) ";
 
 	private static final String GET_MBEW_COUNT_PIVOT = "SELECT COUNT(MATNR) AS MAT_UPD from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
 			+ " WHERE IS_UPDATING = 0 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
@@ -211,13 +212,15 @@ public class SapOperationDao {
 			+ " AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
-			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)"
+			+ " OR MATNR IN (SELECT DIP_VHILM from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM ) ) ";
 
 	private static final String UPDATE_INV_CIC_MBEW_PIVOT_END = " UPDATE INV_CIC_E_PIV_MBEW SET IS_UPDATING = 0, LAST_UPDATED = CONVERT(DATE,GETDATE()) "
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
-			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)"
+			+ " OR MATNR IN (SELECT DIP_VHILM from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM ) ) ";
 
 	private static final String UPDATE_E_MBEW = "UPDATE E_MBEW SET ZPRECIO = ? WHERE MATNR = ? and BWKEY = ?";
 
@@ -457,6 +460,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(GET_MBEW_PIVOT);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.setInt(2, docInvBean.getDocInvId());
+			stm.setInt(3, docInvBean.getDocInvId());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				if (!materialList.contains(rs.getString("MATNR"))) {
@@ -478,6 +482,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(GET_MBEW_COUNT_PIVOT);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.setInt(2, docInvBean.getDocInvId());
+			stm.setInt(3, docInvBean.getDocInvId());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				materialCount = rs.getInt("MAT_UPD");
@@ -1096,6 +1101,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_BEG);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.setInt(2, docInvBean.getDocInvId());
+			stm.setInt(3, docInvBean.getDocInvId());
 			stm.executeUpdate();
 		} catch (SQLException e) {
 			throw e;
@@ -1110,6 +1116,7 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_END);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.setInt(2, docInvBean.getDocInvId());
+			stm.setInt(3, docInvBean.getDocInvId());
 			stm.executeUpdate();
 		} catch (SQLException e) {
 			throw e;
