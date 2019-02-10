@@ -551,9 +551,10 @@ public class ReportesDao {
 				ArrayList<PosDocInvBean> lsMatnrDates = sod.getMatnrDatesByBukrs(docInvBean.getDocInvId().intValue(),
 						con);
 				
+				Date dateCounted = null;
+				double movements = 0.0D;
+								
 				for (PosDocInvBean pb : listBean) {
-
-					Date dateCounted = null;
 
 					for (PosDocInvBean pdib : lsMatnrDates) {
 
@@ -564,13 +565,8 @@ public class ReportesDao {
 						}
 					}
 					
-					double movements = 0.0D;
-
-					if (dateCounted != null) {//This matnr was counted from the app
-
-						movements = this.sod.getMatnrMovementsByBukrs(pb, docInvBean.getDocInvId().intValue(),
-								dateCounted, con);							
-					}
+					movements = this.sod.getMatnrMovementsByBukrs(pb, docInvBean.getDocInvId().intValue(),
+							dateCounted, con);	
 										
 					if (pb.getImwmMarker()!= null &&
 							pb.getImwmMarker().equals("IM")) {//Set the theoric + movements for a counted matnr IM
@@ -589,7 +585,15 @@ public class ReportesDao {
 						movements += Double.parseDouble(els.getVerme());
 						pb.setTheoric(Double.toString(movements));
 					}
+					
+					if (pb.getImwmMarker() == null) {//Set the theoric + movements for an explosioned matnr
 
+						E_Mard_SapEntity ems = sod.getMatnrTheoricImByBukrs(docInvBean.getDocInvId().intValue(), pb,
+								con);
+						movements += Double.parseDouble(ems.getRetme());
+						pb.setTheoric(Double.toString(movements));
+					}
+					
 					for (CostByMatnr matnrCost : lsMatnrCost) {
 
 						if (matnrCost.getMatnr().contentEquals(pb.getMatnr())) {
