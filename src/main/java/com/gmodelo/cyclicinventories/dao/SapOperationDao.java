@@ -143,7 +143,8 @@ public class SapOperationDao {
 			+ " WHERE IS_UPDATING = 0 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
-			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?) "
+			+ " OR MATNR IN (SELECT DIP_VHILM from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM ) ) ";
 
 	private static final String COST_BY_MATNR = "SELECT MATNR, ZPRECIO "
 			+ "FROM INV_VW_GET_COSTS_FOR_DOC_INV WHERE DOC_INV_ID = ?";
@@ -264,7 +265,7 @@ public class SapOperationDao {
 
 	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
 			+ " DIP_MATNR, MAKTX, MEINS, DIP_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
-			+ " DIP_VHILM_COUNT, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+			+ " DIP_VHILM_COUNT, DIP_VHILM, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU,FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
 
@@ -279,7 +280,6 @@ public class SapOperationDao {
 			+ " GROUP BY SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)), LGORT, LABST";
 
 	public List<PosDocInvBean> getDocInvPositions(DocInvBean docInvBean, Connection con) throws SQLException {
-
 		if (!con.isValid(0)) {
 			con = new ConnectionManager().createConnection();
 		}
@@ -302,14 +302,14 @@ public class SapOperationDao {
 				bean.setCounted(rs.getString("DIP_COUNTED"));
 				bean.setDateIniCounted(rs.getTimestamp("DIP_COUNT_DATE_INI").getTime());
 				bean.setDateEndCounted(rs.getTimestamp("DIP_COUNT_DATE").getTime());
-				
-
+				bean.setVhilm(rs.getString("DIP_VHILM"));
+				bean.setVhilmCounted(rs.getString("DIP_VHILM_COUNT"));
+				bean.setImwmMarker(rs.getString(rs.getString("IMWM")));
 				docInvBeans.add(bean);
 			}
 		} catch (SQLException e) {
 			throw e;
 		}
-
 		return docInvBeans;
 	}
 
@@ -655,7 +655,7 @@ public class SapOperationDao {
 	}
 
 	public ArrayList<CostByMatnr> getCostByMatnr(int docInvId, Connection con) throws SQLException {
-		
+
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COST_BY_MATNR);
 		stm.setInt(1, docInvId);
