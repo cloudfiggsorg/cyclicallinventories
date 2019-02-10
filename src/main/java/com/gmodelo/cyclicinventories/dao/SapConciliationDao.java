@@ -108,7 +108,7 @@ public class SapConciliationDao {
 		List<E_Salida_SapEntity> salidaList = new ArrayList<>();
 		try {
 			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
-			HashMap<String, List<String>> mapLgnumLgtyp = operationDao.getMapLgnumLgtyp(docInvBean, con);
+			HashMap<String, List<String>> mapLgnumLgtyp = operationDao.getMapLgnumLgtyp(requestBean, con);
 			if (!mapLgnumLgtyp.isEmpty()) {
 				Iterator it = mapLgnumLgtyp.entrySet().iterator();
 				while (it.hasNext()) {
@@ -126,7 +126,7 @@ public class SapConciliationDao {
 								new Date(requestBean.getModifiedDate()));
 						jcoFunction.getImportParameterList().setValue("I_QZEIT_L",
 								new Date(requestBean.getCreatedDate()));
-						jcoFunction.getImportParameterList().setValue("I_QZEIT_L",
+						jcoFunction.getImportParameterList().setValue("I_QZEIT_H",
 								new Date(requestBean.getModifiedDate()));
 						jcoFunction.execute(destination);
 						JCoTable jcoE_Salida = jcoFunction.getExportParameterList().getTable("E_SALIDA");

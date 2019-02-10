@@ -760,8 +760,8 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(SET_E_SALIDA);
 			for (E_Salida_SapEntity esalidaEntity : ziacmf_I360_MOV.geteSalida_SapEntities()) {
 				stm.setInt(1, docInvBean.getDocInvId());
-				stm.setString(2, esalidaEntity.getNlpla());
-				stm.setString(3, esalidaEntity.getNlpla());
+				stm.setString(2, esalidaEntity.getLgnum());
+				stm.setString(3, esalidaEntity.getLgtyp());
 				stm.setString(4, esalidaEntity.getNlpla());
 				stm.setString(5, esalidaEntity.getMatnr());
 				stm.setString(6, esalidaEntity.getNistm());
@@ -769,7 +769,9 @@ public class SapOperationDao {
 				stm.setString(8, esalidaEntity.getMeins());
 				stm.setString(9, esalidaEntity.getQdatu());
 				stm.setString(10, esalidaEntity.getQzeit());
+				stm.addBatch();
 			}
+			stm.executeBatch();
 		} catch (SQLException e) {
 			throw e;
 		}
