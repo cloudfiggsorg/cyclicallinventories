@@ -17,6 +17,7 @@ public class DocInvPositionBean {
 	private String dateIni;
 	private String dateEnd;
 	private String vhilmCount;
+	private String vhilm;
 
 	public int getDocInvId() {
 		return docInvId;
@@ -138,14 +139,31 @@ public class DocInvPositionBean {
 		this.vhilmCount = vhilmCount;
 	}
 
+	public String getVhilm() {
+		return vhilm;
+	}
+
+	public void setVhilm(String vhilm) {
+		this.vhilm = vhilm;
+	}
+
 	public DocInvPositionBean() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public String toString() {
+		return "DocInvPositionBean [docInvId=" + docInvId + ", lgort=" + lgort + ", lgtyp=" + lgtyp + ", lgpla=" + lgpla
+				+ ", matnr=" + matnr + ", theoric=" + theoric + ", counted=" + counted + ", diffCounted=" + diffCounted
+				+ ", flag=" + flag + ", meins=" + meins + ", explosion=" + explosion + ", zoneId=" + zoneId
+				+ ", dateIni=" + dateIni + ", dateEnd=" + dateEnd + ", vhilmCount=" + vhilmCount + ", vhilm=" + vhilm
+				+ "]";
+	}
+
 	public DocInvPositionBean(int docInvId, String lgort, String lgtyp, String lgpla, String matnr, String theoric,
 			String counted, String diffCounted, String flag, String meins, String explosion, Integer zoneId,
-			String dateIni, String dateEnd, String vhilmCount) {
+			String dateIni, String dateEnd, String vhilmCount, String vhilm) {
 		super();
 		this.docInvId = docInvId;
 		this.lgort = lgort;
@@ -162,14 +180,7 @@ public class DocInvPositionBean {
 		this.dateIni = dateIni;
 		this.dateEnd = dateEnd;
 		this.vhilmCount = vhilmCount;
-	}
-
-	@Override
-	public String toString() {
-		return "DocInvPositionBean [docInvId=" + docInvId + ", lgort=" + lgort + ", lgtyp=" + lgtyp + ", lgpla=" + lgpla
-				+ ", matnr=" + matnr + ", theoric=" + theoric + ", counted=" + counted + ", diffCounted=" + diffCounted
-				+ ", flag=" + flag + ", meins=" + meins + ", explosion=" + explosion + ", zoneId=" + zoneId
-				+ ", dateIni=" + dateIni + ", dateEnd=" + dateEnd + ", vhilmCount=" + vhilmCount + "]";
+		this.vhilm = vhilm;
 	}
 
 	@Override
@@ -189,6 +200,7 @@ public class DocInvPositionBean {
 		result = prime * result + ((matnr == null) ? 0 : matnr.hashCode());
 		result = prime * result + ((meins == null) ? 0 : meins.hashCode());
 		result = prime * result + ((theoric == null) ? 0 : theoric.hashCode());
+		result = prime * result + ((vhilm == null) ? 0 : vhilm.hashCode());
 		result = prime * result + ((vhilmCount == null) ? 0 : vhilmCount.hashCode());
 		result = prime * result + ((zoneId == null) ? 0 : zoneId.hashCode());
 		return result;
@@ -264,6 +276,11 @@ public class DocInvPositionBean {
 			if (other.theoric != null)
 				return false;
 		} else if (!theoric.equals(other.theoric))
+			return false;
+		if (vhilm == null) {
+			if (other.vhilm != null)
+				return false;
+		} else if (!vhilm.equals(other.vhilm))
 			return false;
 		if (vhilmCount == null) {
 			if (other.vhilmCount != null)

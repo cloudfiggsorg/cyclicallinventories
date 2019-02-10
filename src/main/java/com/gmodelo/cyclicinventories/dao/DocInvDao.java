@@ -480,7 +480,7 @@ public class DocInvDao {
 	}
 
 	private static final String INSERT_DOCUMENT_INVENTORY_POSITIONS = "INSERT INTO INV_DOC_INVENTORY_POSITIONS "
-			+ " (DIP_DOC_INV_ID,DIP_LGORT,DIP_LGTYP,DIP_LGPLA,DIP_MATNR,DIP_COUNTED,DIP_COUNT_DATE_INI,DIP_COUNT_DATE,DIP_VHILM_COUNT) VALUES (?,?,?,?,?,?,?,?,?)";
+			+ " (DIP_DOC_INV_ID,DIP_LGORT,DIP_LGTYP,DIP_LGPLA,DIP_MATNR,DIP_COUNTED,DIP_COUNT_DATE_INI,DIP_COUNT_DATE,DIP_VHILM_COUNT,DIP_VHILM) VALUES (?,?,?,?,?,?,?,?,?,?)";
 
 	public AbstractResultsBean addDocumentPosition(List<DocInvPositionBean> positionBean, Connection con)
 			throws SQLException {
@@ -517,6 +517,7 @@ public class DocInvDao {
 				}
 			}
 			stm.setString(9, singleBean.getVhilmCount());
+			stm.setString(10, singleBean.getVhilm());
 			stm.addBatch();
 		}
 		stm.executeBatch();

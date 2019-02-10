@@ -134,8 +134,8 @@ public class ConciliacionDao {
 			+ " INNER JOIN INV_ROUTE INR WITH(NOLOCK) ON (IDIH.DIH_ROUTE_ID = INR.ROUTE_ID) "
 			+ "	WHERE IDIH.DIH_STATUS = '0' " + " AND IDIH.DOC_FATHER_INV_ID IS NULL " + " AND IDIH.DIH_BUKRS LIKE ? "
 			+ " AND IDIH.DIH_WERKS LIKE ? " + " AND DOC_INV_ID LIKE ? "
-			+ " AND DOC_INV_ID NOT IN (SELECT CS_DOC_INV_ID FROM INV_CONS_SAP GROUP BY CS_DOC_INV_ID) "
-			+ " UNION " + " SELECT ICS.CS_DOC_INV_ID, IR.ROU_DESC AS DESCRIPCION, 1 AS STS, FNSAP_SNAPSHOT  "
+			+ " AND DOC_INV_ID NOT IN (SELECT CS_DOC_INV_ID FROM INV_CONS_SAP GROUP BY CS_DOC_INV_ID) " + " UNION "
+			+ " SELECT ICS.CS_DOC_INV_ID, IR.ROU_DESC AS DESCRIPCION, 1 AS STS, FNSAP_SNAPSHOT  "
 			+ " FROM INV_CONS_SAP AS ICS "
 			+ " INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (ICS.CS_DOC_INV_ID = IDIH.DOC_INV_ID) "
 			+ " INNER JOIN INV_ROUTE AS IR ON (IR.ROUTE_ID = IDIH.DIH_ROUTE_ID) " + " WHERE IDIH.DIH_BUKRS LIKE ? "
@@ -275,7 +275,8 @@ public class ConciliacionDao {
 	}
 
 	private static final String INV_FULL_COUNT = "SELECT TASK_ID, TAS_DOC_INV_ID, ZONE_ID, ZON_DESC, ZON_LGORT, LGOBE, ZPO_PK_ASG_ID, "
-			+ "LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS, VHILM_COUNT FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
+			+ " LGPLA, COU_TOTAL, COU_MATNR, MAKTX, MEINS, COU_VHILM, VHILM_COUNT FROM INV_VW_TASK_DOCINV_FULL WHERE TAS_DOC_INV_ID = ? "
+			+ " ORDER BY TASK_ID, ZPO_PK_ASG_ID ASC";
 
 	private static final String INV_DOC_CHILDREN = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_FATHER_INV_ID = ? ";
 
@@ -420,8 +421,8 @@ public class ConciliacionDao {
 						stm.setString(2, taskID);
 						log.info(
 								"[getPositionsConciliationDao - getConciliationPositions] GET_MIN_MAX_LGPLA_DATE_MONTHLY, Executing query...");
-						log.info("DocInv "+docInvBean.getDocInvId());
-						log.info("TASKID "+taskID);
+						log.info("DocInv " + docInvBean.getDocInvId());
+						log.info("TASKID " + taskID);
 						ResultSet rs2 = stm.executeQuery();
 						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
 						while (rs2.next()) {
