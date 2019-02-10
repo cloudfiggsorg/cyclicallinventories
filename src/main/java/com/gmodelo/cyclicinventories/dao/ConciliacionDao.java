@@ -483,6 +483,12 @@ public class ConciliacionDao {
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount1A(total);
 						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
+						bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
+						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						}
+
 					} else if (count == 1) {
 						docInvBean.setCountB(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
@@ -492,11 +498,23 @@ public class ConciliacionDao {
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount2(total);
 						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
+						bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
+						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						}
+
 					} else if (count == 3) {
 						docInvBean.setCount3(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount3(total);
 						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
+						bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
+						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
+							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
+							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
+						}
+
 					}
 				} else {
 					bean = new ConciliationPositionBean();
@@ -514,6 +532,7 @@ public class ConciliacionDao {
 					bean.setLgobe(rs.getString("LGOBE"));
 					bean.setPkAsgId(rs.getString("ZPO_PK_ASG_ID"));
 					bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
+					bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
 					bean.setFlagColor(false);
 					if (materialToColor.containsKey(bean.getPkAsgId())) {
 						if (materialToColor.get(bean.getPkAsgId()) != null
@@ -541,6 +560,8 @@ public class ConciliacionDao {
 						docInvBean.setCountA(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount1A(total);
+						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
+						bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
 						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
 							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
 							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
@@ -554,6 +575,8 @@ public class ConciliacionDao {
 						docInvBean.setCount2(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount2(total);
+						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
+						bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
 						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
 							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
 							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
@@ -562,6 +585,9 @@ public class ConciliacionDao {
 						docInvBean.setCount3(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount3(total);
+						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
+						bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
+
 						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
 							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
 							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
@@ -636,6 +662,8 @@ public class ConciliacionDao {
 						docInvBean.setCountE(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCountX(total);
+						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
+						bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
 						if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
 							bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
 							bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
@@ -652,6 +680,7 @@ public class ConciliacionDao {
 						bean.setCount1A("0");
 						bean.setCount1B("0");
 						bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
+						bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
 						docInvBean.setCountE(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCountX(total);
