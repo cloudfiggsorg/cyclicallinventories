@@ -74,13 +74,4 @@ public class ConciliacionService {
 		return new ConciliacionWorkService().getSpecialCount(request, user);
 	}
 	
-	@POST 
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getSpecialSAPCount")
-	public Response<TaskBean> getSpecialSAPCount(Request request){
-		User user = (User) httpRequest.getSession().getAttribute("user");
-		return new ConciliacionWorkService().getSpecialSAPCount(request, user);
-	}
-	
 }

@@ -15,6 +15,7 @@ public class RouteUserBean {
 	private Boolean reconteo;
 	private long dateIni;
 	private long dateEnd;
+	private Boolean sapSpecial;
 	private List<RouteUserPositionBean> positions;
 
 	public String getTaskId() {
@@ -114,15 +115,23 @@ public class RouteUserBean {
 	}
 
 
+	public Boolean getSapSpecial() {
+		return sapSpecial;
+	}
+
+	public void setSapSpecial(Boolean sapSpecial) {
+		this.sapSpecial = sapSpecial;
+	}
+
 	public RouteUserBean() {
 		super();
 		this.reconteo = false;
+		this.sapSpecial = false;
 		// TODO Auto-generated constructor stub
 	}
 
-	
 	public RouteUserBean(String routeId, String bukrs, String werks, String taskId, String rdesc, String type,
-			String bdesc, String wdesc, Boolean reconteo, long dateIni, long dateEnd,
+			String bdesc, String wdesc, Boolean reconteo, long dateIni, long dateEnd, Boolean sapSpecial,
 			List<RouteUserPositionBean> positions) {
 		super();
 		this.routeId = routeId;
@@ -136,6 +145,7 @@ public class RouteUserBean {
 		this.reconteo = reconteo;
 		this.dateIni = dateIni;
 		this.dateEnd = dateEnd;
+		this.sapSpecial = sapSpecial;
 		this.positions = positions;
 	}
 
@@ -143,9 +153,8 @@ public class RouteUserBean {
 	public String toString() {
 		return "RouteUserBean [routeId=" + routeId + ", bukrs=" + bukrs + ", werks=" + werks + ", taskId=" + taskId
 				+ ", rdesc=" + rdesc + ", type=" + type + ", bdesc=" + bdesc + ", wdesc=" + wdesc + ", reconteo="
-				+ reconteo + ", dateIni=" + dateIni + ", dateEnd=" + dateEnd + ", positions=" + positions + "]";
+				+ reconteo + ", dateIni=" + dateIni + ", dateEnd=" + dateEnd + ", sapSpecial=" + sapSpecial
+				+ ", positions=" + positions + "]";
 	}
-
-	
 
 }
