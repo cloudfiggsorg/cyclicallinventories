@@ -47,10 +47,15 @@ public class SapOperationDao {
 	private static final String GET_SINGLE_DOC_INV = "SELECT DOC_INV_ID, DIH_ROUTE_ID, DIH_BUKRS, DIH_CREATED_DATE,"
 			+ " DIH_MODIFIED_DATE, DIH_WERKS FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
+	private static final String GET_SINGLE_DOC_INV_WITH_HEADERS = "SELECT DOC_INV_ID, DIH_ROUTE_ID, DIH_BUKRS, T1.BUTXT DIH_BUTXT, "
+			+ "DIH_CREATED_DATE, DIH_MODIFIED_DATE, DIH_WERKS, T1W.NAME1 DIH_WERKD FROM INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) "
+			+ "INNER JOIN T001 T1 WITH(NOLOCK) on  IDIH.DIH_BUKRS = T1.BUKRS "
+			+ "INNER JOIN T001W T1W WITH(NOLOCK) on IDIH.DIH_WERKS = T1W.WERKS WHERE DOC_INV_ID = ?";
+
 	private static final String GET_LGORT_FROM_DOC_INV = "SELECT ZON.ZON_LGORT FROM INV_ROUTE_POSITION ROP WITH(NOLOCK) "
 			+ " INNER JOIN INV_ZONE ZON WITH(NOLOCK) ON ZON.ZONE_ID = ROP.RPO_ZONE_ID"
 			+ " WHERE ROP.RPO_ROUTE_ID = ? GROUP BY ZON.ZON_LGORT";
-	
+
 	private static final String GET_LGORT_MATNR_POS_DOC_INV = "SELECT IE.EX_LGORT FROM INV_DOC_INVENTORY_HEADER IDIH WITH (NOLOCK) "
 			+ "INNER JOIN INV_DOC_INVENTORY_POSITIONS IDIP WITH (NOLOCK) ON IDIP.DIP_DOC_INV_ID = IDIH.DOC_INV_ID  "
 			+ "INNER JOIN INV_EXPLOSION IE WITH (NOLOCK) ON IE.EX_MATNR = IDIP.DIP_MATNR "
@@ -83,8 +88,7 @@ public class SapOperationDao {
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ?";
 
 	private static final String THEORIC_IM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
-			+ "SUM((CAST(LABST AS decimal(15,3)) "
-			+ "+ CAST(UMLME AS decimal(15,3)) + CAST(INSME AS decimal(15,3)) "
+			+ "SUM((CAST(LABST AS decimal(15,3)) " + "+ CAST(UMLME AS decimal(15,3)) + CAST(INSME AS decimal(15,3)) "
 			+ "+ CAST(EINME AS decimal(15,3)) + CAST(SPEME AS decimal(15,3)) "
 			+ "+ CAST(RETME AS decimal(15,3)))) AS CONS " + "FROM E_MARD "
 			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ? "
@@ -159,6 +163,10 @@ public class SapOperationDao {
 	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
 			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE "
 			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE DOC_INV_ID = ?";
+
+	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
+			+ " DIP_MATNR, MAKTX, MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
+			+ " DIP_VHILM_COUNT, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	// INSERT AREA
 
@@ -252,6 +260,33 @@ public class SapOperationDao {
 		return outputDoc;
 	}
 
+	public DocInvBean getDocInvBeanDataHeaders(DocInvBean docInvBean, Connection con) throws SQLException {
+		DocInvBean outputDoc = new DocInvBean();
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_SINGLE_DOC_INV_WITH_HEADERS);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) {
+				outputDoc.setDocInvId(docInvBean.getDocInvId());
+				outputDoc.setBukrs(rs.getString("DIH_BUKRS"));
+				outputDoc.setWerks(rs.getString("DIH_WERKS"));
+				outputDoc.setBukrsD(rs.getString("DIH_BUTXT"));
+				outputDoc.setWerksD(rs.getString("DIH_WERKD"));
+				outputDoc.setCreatedDate(rs.getTimestamp("DIH_CREATED_DATE").getTime());
+				outputDoc.setModifiedDate(rs.getTimestamp("DIH_MODIFIED_DATE").getTime());
+				outputDoc.setRoute(rs.getString("DIH_ROUTE_ID"));
+			} else {
+				outputDoc = null;
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return outputDoc;
+	}
+
 	public List<String> getDocInvLgort(DocInvBean docInvBean, Connection con) throws SQLException {
 		List<String> lgortList = new ArrayList<>();
 		if (!con.isValid(0)) {
@@ -269,7 +304,7 @@ public class SapOperationDao {
 		}
 		return lgortList;
 	}
-	
+
 	public List<String> getDocInvMatRelevLgort(DocInvBean docInvBean, Connection con) throws SQLException {
 		List<String> lgortList = new ArrayList<>();
 		if (!con.isValid(0)) {
@@ -501,7 +536,7 @@ public class SapOperationDao {
 			throws SQLException {
 
 		PreparedStatement stm = null;
-		stm = con.prepareStatement(THEORIC_IM_BY_BUKRS);		
+		stm = con.prepareStatement(THEORIC_IM_BY_BUKRS);
 		stm.setString(1, pb.getMatnr());
 		stm.setInt(2, docInvId);
 		ResultSet rs = stm.executeQuery();
@@ -707,6 +742,8 @@ public class SapOperationDao {
 
 		return lsMatnr;
 	}
+	
+
 
 	/*
 	 * THIS IS THE SECTION FOR INSERT METHODS

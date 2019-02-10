@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class PosDocInvBean {
-		
+
 	private int posId;
 	private int doncInvId;
 	private int item;
@@ -22,6 +22,7 @@ public class PosDocInvBean {
 	private String theoric;
 	private String counted;
 	private String countedExpl;
+	private String countedTot;
 	private String diff;
 	private String imwmMarker;
 	private String consignation;
@@ -29,41 +30,13 @@ public class PosDocInvBean {
 	private Date dCounted;
 	private boolean explosion;
 	private ArrayList<Justification> lsJustification;
-	
-	public PosDocInvBean(){
+	private String countedCost;
+	private String theoricCost;
+	private String diffCost;
+
+	public PosDocInvBean() {
 		super();
 		this.lsJustification = new ArrayList<>();
-	}
-
-	public PosDocInvBean(int posId, int doncInvId, int item, String lgort, String lgortD, String lgtyp, String ltypt,
-			String lgNum, String lgpla, String matnr, String matnrD, String category, String costByUnit, String meins,
-			String theoric, String counted, String countedExpl, String diff, String imwmMarker, String consignation,
-			String transit, Date dCounted, boolean explosion, ArrayList<Justification> lsJustification) {
-		super();
-		this.posId = posId;
-		this.doncInvId = doncInvId;
-		this.item = item;
-		this.lgort = lgort;
-		this.lgortD = lgortD;
-		this.lgtyp = lgtyp;
-		this.ltypt = ltypt;
-		this.lgNum = lgNum;
-		this.lgpla = lgpla;
-		this.matnr = matnr;
-		this.matnrD = matnrD;
-		this.category = category;
-		this.costByUnit = costByUnit;
-		this.meins = meins;
-		this.theoric = theoric;
-		this.counted = counted;
-		this.countedExpl = countedExpl;
-		this.diff = diff;
-		this.imwmMarker = imwmMarker;
-		this.consignation = consignation;
-		this.transit = transit;
-		this.dCounted = dCounted;
-		this.explosion = explosion;
-		this.lsJustification = lsJustification;
 	}
 
 	public int getPosId() {
@@ -202,6 +175,14 @@ public class PosDocInvBean {
 		this.countedExpl = countedExpl;
 	}
 
+	public String getCountedTot() {
+		return countedTot;
+	}
+
+	public void setCountedTot(String countedTot) {
+		this.countedTot = countedTot;
+	}
+
 	public String getDiff() {
 		return diff;
 	}
@@ -258,15 +239,251 @@ public class PosDocInvBean {
 		this.lsJustification = lsJustification;
 	}
 
+	public String getCountedCost() {
+		return countedCost;
+	}
+
+	public void setCountedCost(String countedCost) {
+		this.countedCost = countedCost;
+	}
+
+	public String getTheoricCost() {
+		return theoricCost;
+	}
+
+	public void setTheoricCost(String theoricCost) {
+		this.theoricCost = theoricCost;
+	}
+
+	public String getDiffCost() {
+		return diffCost;
+	}
+
+	public void setDiffCost(String diffCost) {
+		this.diffCost = diffCost;
+	}
+
 	@Override
 	public String toString() {
 		return "PosDocInvBean [posId=" + posId + ", doncInvId=" + doncInvId + ", item=" + item + ", lgort=" + lgort
 				+ ", lgortD=" + lgortD + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla="
 				+ lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", category=" + category + ", costByUnit="
 				+ costByUnit + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted + ", countedExpl="
-				+ countedExpl + ", diff=" + diff + ", imwmMarker=" + imwmMarker + ", consignation=" + consignation
-				+ ", transit=" + transit + ", dCounted=" + dCounted + ", explosion=" + explosion
-				+ ", lsJustification=" + lsJustification + "]";
+				+ countedExpl + ", countedTot=" + countedTot + ", diff=" + diff + ", imwmMarker=" + imwmMarker
+				+ ", consignation=" + consignation + ", transit=" + transit + ", dCounted=" + dCounted + ", explosion="
+				+ explosion + ", lsJustification=" + lsJustification + ", countedCost=" + countedCost + ", theoricCost="
+				+ theoricCost + ", diffCost=" + diffCost + "]";
+	}
+
+	public PosDocInvBean(int posId, int doncInvId, int item, String lgort, String lgortD, String lgtyp, String ltypt,
+			String lgNum, String lgpla, String matnr, String matnrD, String category, String costByUnit, String meins,
+			String theoric, String counted, String countedExpl, String countedTot, String diff, String imwmMarker,
+			String consignation, String transit, Date dCounted, boolean explosion,
+			ArrayList<Justification> lsJustification, String countedCost, String theoricCost, String diffCost) {
+		super();
+		this.posId = posId;
+		this.doncInvId = doncInvId;
+		this.item = item;
+		this.lgort = lgort;
+		this.lgortD = lgortD;
+		this.lgtyp = lgtyp;
+		this.ltypt = ltypt;
+		this.lgNum = lgNum;
+		this.lgpla = lgpla;
+		this.matnr = matnr;
+		this.matnrD = matnrD;
+		this.category = category;
+		this.costByUnit = costByUnit;
+		this.meins = meins;
+		this.theoric = theoric;
+		this.counted = counted;
+		this.countedExpl = countedExpl;
+		this.countedTot = countedTot;
+		this.diff = diff;
+		this.imwmMarker = imwmMarker;
+		this.consignation = consignation;
+		this.transit = transit;
+		this.dCounted = dCounted;
+		this.explosion = explosion;
+		this.lsJustification = lsJustification;
+		this.countedCost = countedCost;
+		this.theoricCost = theoricCost;
+		this.diffCost = diffCost;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((category == null) ? 0 : category.hashCode());
+		result = prime * result + ((consignation == null) ? 0 : consignation.hashCode());
+		result = prime * result + ((costByUnit == null) ? 0 : costByUnit.hashCode());
+		result = prime * result + ((counted == null) ? 0 : counted.hashCode());
+		result = prime * result + ((countedCost == null) ? 0 : countedCost.hashCode());
+		result = prime * result + ((countedExpl == null) ? 0 : countedExpl.hashCode());
+		result = prime * result + ((countedTot == null) ? 0 : countedTot.hashCode());
+		result = prime * result + ((dCounted == null) ? 0 : dCounted.hashCode());
+		result = prime * result + ((diff == null) ? 0 : diff.hashCode());
+		result = prime * result + ((diffCost == null) ? 0 : diffCost.hashCode());
+		result = prime * result + doncInvId;
+		result = prime * result + (explosion ? 1231 : 1237);
+		result = prime * result + ((imwmMarker == null) ? 0 : imwmMarker.hashCode());
+		result = prime * result + item;
+		result = prime * result + ((lgNum == null) ? 0 : lgNum.hashCode());
+		result = prime * result + ((lgort == null) ? 0 : lgort.hashCode());
+		result = prime * result + ((lgortD == null) ? 0 : lgortD.hashCode());
+		result = prime * result + ((lgpla == null) ? 0 : lgpla.hashCode());
+		result = prime * result + ((lgtyp == null) ? 0 : lgtyp.hashCode());
+		result = prime * result + ((lsJustification == null) ? 0 : lsJustification.hashCode());
+		result = prime * result + ((ltypt == null) ? 0 : ltypt.hashCode());
+		result = prime * result + ((matnr == null) ? 0 : matnr.hashCode());
+		result = prime * result + ((matnrD == null) ? 0 : matnrD.hashCode());
+		result = prime * result + ((meins == null) ? 0 : meins.hashCode());
+		result = prime * result + posId;
+		result = prime * result + ((theoric == null) ? 0 : theoric.hashCode());
+		result = prime * result + ((theoricCost == null) ? 0 : theoricCost.hashCode());
+		result = prime * result + ((transit == null) ? 0 : transit.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PosDocInvBean other = (PosDocInvBean) obj;
+		if (category == null) {
+			if (other.category != null)
+				return false;
+		} else if (!category.equals(other.category))
+			return false;
+		if (consignation == null) {
+			if (other.consignation != null)
+				return false;
+		} else if (!consignation.equals(other.consignation))
+			return false;
+		if (costByUnit == null) {
+			if (other.costByUnit != null)
+				return false;
+		} else if (!costByUnit.equals(other.costByUnit))
+			return false;
+		if (counted == null) {
+			if (other.counted != null)
+				return false;
+		} else if (!counted.equals(other.counted))
+			return false;
+		if (countedCost == null) {
+			if (other.countedCost != null)
+				return false;
+		} else if (!countedCost.equals(other.countedCost))
+			return false;
+		if (countedExpl == null) {
+			if (other.countedExpl != null)
+				return false;
+		} else if (!countedExpl.equals(other.countedExpl))
+			return false;
+		if (countedTot == null) {
+			if (other.countedTot != null)
+				return false;
+		} else if (!countedTot.equals(other.countedTot))
+			return false;
+		if (dCounted == null) {
+			if (other.dCounted != null)
+				return false;
+		} else if (!dCounted.equals(other.dCounted))
+			return false;
+		if (diff == null) {
+			if (other.diff != null)
+				return false;
+		} else if (!diff.equals(other.diff))
+			return false;
+		if (diffCost == null) {
+			if (other.diffCost != null)
+				return false;
+		} else if (!diffCost.equals(other.diffCost))
+			return false;
+		if (doncInvId != other.doncInvId)
+			return false;
+		if (explosion != other.explosion)
+			return false;
+		if (imwmMarker == null) {
+			if (other.imwmMarker != null)
+				return false;
+		} else if (!imwmMarker.equals(other.imwmMarker))
+			return false;
+		if (item != other.item)
+			return false;
+		if (lgNum == null) {
+			if (other.lgNum != null)
+				return false;
+		} else if (!lgNum.equals(other.lgNum))
+			return false;
+		if (lgort == null) {
+			if (other.lgort != null)
+				return false;
+		} else if (!lgort.equals(other.lgort))
+			return false;
+		if (lgortD == null) {
+			if (other.lgortD != null)
+				return false;
+		} else if (!lgortD.equals(other.lgortD))
+			return false;
+		if (lgpla == null) {
+			if (other.lgpla != null)
+				return false;
+		} else if (!lgpla.equals(other.lgpla))
+			return false;
+		if (lgtyp == null) {
+			if (other.lgtyp != null)
+				return false;
+		} else if (!lgtyp.equals(other.lgtyp))
+			return false;
+		if (lsJustification == null) {
+			if (other.lsJustification != null)
+				return false;
+		} else if (!lsJustification.equals(other.lsJustification))
+			return false;
+		if (ltypt == null) {
+			if (other.ltypt != null)
+				return false;
+		} else if (!ltypt.equals(other.ltypt))
+			return false;
+		if (matnr == null) {
+			if (other.matnr != null)
+				return false;
+		} else if (!matnr.equals(other.matnr))
+			return false;
+		if (matnrD == null) {
+			if (other.matnrD != null)
+				return false;
+		} else if (!matnrD.equals(other.matnrD))
+			return false;
+		if (meins == null) {
+			if (other.meins != null)
+				return false;
+		} else if (!meins.equals(other.meins))
+			return false;
+		if (posId != other.posId)
+			return false;
+		if (theoric == null) {
+			if (other.theoric != null)
+				return false;
+		} else if (!theoric.equals(other.theoric))
+			return false;
+		if (theoricCost == null) {
+			if (other.theoricCost != null)
+				return false;
+		} else if (!theoricCost.equals(other.theoricCost))
+			return false;
+		if (transit == null) {
+			if (other.transit != null)
+				return false;
+		} else if (!transit.equals(other.transit))
+			return false;
+		return true;
 	}
 
 }
