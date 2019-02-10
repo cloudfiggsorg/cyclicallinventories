@@ -620,6 +620,7 @@ public class ExplosionDetailDao {
 					matnr.setLgort(map.get(key).get(0).getLgort());
 					matnr.setLgtyp(map.get(key).get(0).getLgtyp());
 					matnr.setLgpla(map.get(key).get(0).getLgpla());
+					matnr.setLgortExpl(map.get(key).get(0).getLgort());
 					map.get(key).add(matnr);
 					
 				}else{
