@@ -587,7 +587,7 @@ public class ReportesDao {
 					}
 					
 					if (pb.getImwmMarker() == null) {//Set the theoric + movements for an explosioned matnr
-
+						
 						E_Mard_SapEntity ems = sod.getMatnrTheoricImByBukrs(docInvBean.getDocInvId().intValue(), pb,
 								con);
 						movements += Double.parseDouble(ems.getRetme());
