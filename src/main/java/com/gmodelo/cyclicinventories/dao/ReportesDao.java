@@ -397,7 +397,6 @@ public class ReportesDao {
 		Response<DocInvBeanHeaderSAP> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<PosDocInvBean> listBean = new ArrayList<>();
-		String lsMatnr = "";
 
 		log.info(INV_VW_REP_HEADER);
 		log.info("[getNoClosedConsSapReportDao] Preparing sentence...");
@@ -452,13 +451,11 @@ public class ReportesDao {
 					positionBean.setConsignation("0");
 
 					listBean.add(positionBean);
-					lsMatnr += positionBean.getMatnr() + ",";
 				}
 
 				HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();
 				PosDocInvBean pbAux = null;
 				double sumCounted = 0.0D;
-				int count = 0;
 
 				// Create a map by matnr
 				for (PosDocInvBean pb : listBean) {
@@ -501,7 +498,6 @@ public class ReportesDao {
 					}
 
 					pdibAux.setCountedExpl(Double.toString(countedExpl));
-
 					listBean.add(pdibAux);
 				}
 
@@ -551,11 +547,10 @@ public class ReportesDao {
 				ArrayList<E_Mseg_SapEntity> lsTransit = this.sod.getMatnrOnTransit(docInvBean.getDocInvId().intValue(),
 						con);
 				ArrayList<E_Msku_SapEntity> lsCons = this.sod.getMatnrOnCons(docInvBean.getDocInvId().intValue(), con);
-				ArrayList<CostByMatnr> lsMatnrCost = this.sod.getCostByMatnr(lsMatnr, bean.getWerks(), con);
+				ArrayList<CostByMatnr> lsMatnrCost = this.sod.getCostByMatnr(docInvBean.getDocInvId().intValue(), con);
 				ArrayList<PosDocInvBean> lsMatnrDates = sod.getMatnrDatesByBukrs(docInvBean.getDocInvId().intValue(),
 						con);
-
-				count = 0;
+				
 				for (PosDocInvBean pb : listBean) {
 
 					Date dateCounted = null;
@@ -563,38 +558,42 @@ public class ReportesDao {
 					for (PosDocInvBean pdib : lsMatnrDates) {
 
 						if (pdib.getMatnr().contentEquals(pb.getMatnr())) {
-							count++;
 
 							dateCounted = pdib.getdCounted();
 							break;
 						}
 					}
+					
+					double movements = 0.0D;
 
-					if (dateCounted != null) {
+					if (dateCounted != null) {//This matnr was counted from the app
 
-						double movements = this.sod.getMatnrMovementsByBukrs(pb, docInvBean.getDocInvId().intValue(),
-								dateCounted, con);
+						movements = this.sod.getMatnrMovementsByBukrs(pb, docInvBean.getDocInvId().intValue(),
+								dateCounted, con);							
+					}
+										
+					if (pb.getImwmMarker()!= null &&
+							pb.getImwmMarker().equals("IM")) {//Set the theoric + movements for a counted matnr IM
 
-						if (pb.getImwmMarker().equals("IM")) {
+						E_Mard_SapEntity ems = sod.getMatnrTheoricImByBukrs(docInvBean.getDocInvId().intValue(), pb,
+								con);
+						movements += Double.parseDouble(ems.getRetme());
+						pb.setTheoric(Double.toString(movements));
+					}
+					
+					if (pb.getImwmMarker()!= null &&
+							pb.getImwmMarker().equals("WM")) {//Set the theoric + movements for a counted matnr WM
 
-							E_Mard_SapEntity ems = sod.getMatnrTheoricImByBukrs(docInvBean.getDocInvId().intValue(), pb,
-									con);
-							movements += Double.parseDouble(ems.getRetme());
-							pb.setTheoric(Double.toString(movements));
-						} else {
-
-							E_Lqua_SapEntity els = sod.getMatnrTheoricWmByBukrs(docInvBean.getDocInvId().intValue(), pb,
-									con);
-							movements += Double.parseDouble(els.getVerme());
-							pb.setTheoric(Double.toString(movements));
-						}
+						E_Lqua_SapEntity els = sod.getMatnrTheoricWmByBukrs(docInvBean.getDocInvId().intValue(), pb,
+								con);
+						movements += Double.parseDouble(els.getVerme());
+						pb.setTheoric(Double.toString(movements));
 					}
 
 					for (CostByMatnr matnrCost : lsMatnrCost) {
 
 						if (matnrCost.getMatnr().contentEquals(pb.getMatnr())) {
-
-							pb.setCostByUnit(matnrCost.getCost());
+							pb.setCostByUnit(matnrCost.getCost());														
 							break;
 						}
 					}
@@ -744,7 +743,7 @@ public class ReportesDao {
 				// Get the transit, consignation and cost by matnr
 				ArrayList<E_Mseg_SapEntity> lsTransit = sod.getMatnrOnTransit(docInvBean.getDocInvId(), con);
 				ArrayList<E_Msku_SapEntity> lsCons = sod.getMatnrOnCons(docInvBean.getDocInvId(), con);
-				ArrayList<CostByMatnr> lsMatnrCost = sod.getCostByMatnr(lsMatnr, bean.getWerks(), con);
+				ArrayList<CostByMatnr> lsMatnrCost = sod.getCostByMatnr(docInvBean.getDocInvId().intValue(), con);
 
 				// Get the dates were the matnr was counted
 				ArrayList<PosDocInvBean> lsMatnrDates = sod.getMatnrDates(docInvBean.getDocInvId(), con);

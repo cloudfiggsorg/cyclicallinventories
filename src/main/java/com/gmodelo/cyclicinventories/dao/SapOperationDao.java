@@ -145,9 +145,8 @@ public class SapOperationDao {
 			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
 			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
 
-	private static final String COST_BY_MATNR = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, ZPRECIO "
-			+ "FROM E_MBEW "
-			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) IN (SELECT * FROM STRING_SPLIT(?, ',')) AND BWKEY = ?";
+	private static final String COST_BY_MATNR = "SELECT MATNR, ZPRECIO "
+			+ "FROM INV_VW_GET_COSTS_FOR_DOC_INV WHERE DOC_INV_ID = ?";
 
 	private static final String GET_E_MBEW = "SELECT MATNR, BWKEY, ZPRECIO FROM E_MBEW WITH(NOLOCK)";
 
@@ -655,11 +654,11 @@ public class SapOperationDao {
 		return els;
 	}
 
-	public ArrayList<CostByMatnr> getCostByMatnr(String matnrIds, String werks, Connection con) throws SQLException {
+	public ArrayList<CostByMatnr> getCostByMatnr(int docInvId, Connection con) throws SQLException {
+		
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COST_BY_MATNR);
-		stm.setString(1, matnrIds);
-		stm.setString(2, werks);
+		stm.setInt(1, docInvId);
 		ResultSet rs = stm.executeQuery();
 		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
 		CostByMatnr els;

@@ -5,6 +5,7 @@ public class MatExplReport {
 	private int item;
 	private String lgort;
 	private String lgtyp;
+	private String ltypt;
 	private String lgpla;
 	private String matnr;
 	private String description;
@@ -22,13 +23,14 @@ public class MatExplReport {
 		super();
 	}
 
-	public MatExplReport(int item, String lgort, String lgtyp, String lgpla, String matnr, String description,
-			String category, String umb, String counted, String matnrExpl, String descMantrExpl, String lgortExpl,
-			String catExpl, String umbExpl, String quantity) {
+	public MatExplReport(int item, String lgort, String lgtyp, String ltypt, String lgpla, String matnr,
+			String description, String category, String umb, String counted, String matnrExpl, String descMantrExpl,
+			String lgortExpl, String catExpl, String umbExpl, String quantity) {
 		super();
 		this.item = item;
 		this.lgort = lgort;
 		this.lgtyp = lgtyp;
+		this.ltypt = ltypt;
 		this.lgpla = lgpla;
 		this.matnr = matnr;
 		this.description = description;
@@ -65,6 +67,14 @@ public class MatExplReport {
 
 	public void setLgtyp(String lgtyp) {
 		this.lgtyp = lgtyp;
+	}
+
+	public String getLtypt() {
+		return ltypt;
+	}
+
+	public void setLtypt(String ltypt) {
+		this.ltypt = ltypt;
 	}
 
 	public String getLgpla() {
@@ -165,10 +175,11 @@ public class MatExplReport {
 
 	@Override
 	public String toString() {
-		return "MatExplReport [item=" + item + ", lgort=" + lgort + ", lgtyp=" + lgtyp + ", lgpla=" + lgpla + ", matnr="
-				+ matnr + ", description=" + description + ", category=" + category + ", umb=" + umb + ", counted="
-				+ counted + ", matnrExpl=" + matnrExpl + ", descMantrExpl=" + descMantrExpl + ", lgortExpl=" + lgortExpl
-				+ ", catExpl=" + catExpl + ", umbExpl=" + umbExpl + ", quantity=" + quantity + "]";
+		return "MatExplReport [item=" + item + ", lgort=" + lgort + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgpla="
+				+ lgpla + ", matnr=" + matnr + ", description=" + description + ", category=" + category + ", umb="
+				+ umb + ", counted=" + counted + ", matnrExpl=" + matnrExpl + ", descMantrExpl=" + descMantrExpl
+				+ ", lgortExpl=" + lgortExpl + ", catExpl=" + catExpl + ", umbExpl=" + umbExpl + ", quantity="
+				+ quantity + "]";
 	}
-		
+			
 }
