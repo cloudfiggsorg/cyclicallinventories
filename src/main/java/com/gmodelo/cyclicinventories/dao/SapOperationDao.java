@@ -39,7 +39,6 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_MOV;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
-import com.sun.research.ws.wadl.Doc;
 
 public class SapOperationDao {
 
@@ -268,9 +267,9 @@ public class SapOperationDao {
 
 	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
 			+ " DIP_MATNR, MAKTX, MEINS, DIP_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
-			+ " DIP_VHILM_COUNT, DIP_VHILM, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+			+ " DIP_VHILM_COUNT, DIP_VHILM, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ? ORDER BY DIP_COUNT_DATE ASC ";
 
-	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU,FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
+	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU, QZEIT FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
 
 	private static final String GET_COST_BY_MATNR_DOC_INV = "SELECT DOC_INV_ID, MATNR, ZPRECIO FROM INV_VW_GET_COSTS_FOR_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
@@ -281,6 +280,8 @@ public class SapOperationDao {
 	private static final String GET_E_MARD_FOR_IM_DATA = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LABST "
 			+ " FROM E_MARD WHERE DOC_INV_ID = ? "
 			+ " GROUP BY SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)), LGORT, LABST";
+
+	private static final String GET_QUA_EXP_BY_DOC_INV = "SELECT DIP_MATNR, BMEIN, BMENG, MENGE, BMCAL, IDNRK, MEINS, EX_LGORT FROM INV_VW_GET_QUA_EXP_BY_DOC_INV WHERE DOC_INV_ID = ?";
 
 	public List<PosDocInvBean> getDocInvPositions(DocInvBean docInvBean, Connection con) throws SQLException {
 		if (!con.isValid(0)) {
@@ -316,6 +317,7 @@ public class SapOperationDao {
 		return docInvBeans;
 	}
 
+	
 	public DocInvBean getDocInvBeanDataHeaders(DocInvBean docInvBean, Connection con) throws SQLException {
 		DocInvBean outputDoc = new DocInvBean();
 		if (!con.isValid(0)) {
