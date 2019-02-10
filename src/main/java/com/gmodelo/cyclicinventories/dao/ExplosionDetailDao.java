@@ -536,17 +536,7 @@ public class ExplosionDetailDao {
 			+ "LEFT JOIN INV_REL_CAT_MAT AS C ON (C.REL_MATNR = A.DIP_MATNR) " 
 			+ "LEFT JOIN INV_CAT_CATEGORY AS D ON (C.REL_CAT_ID = D.CAT_ID) " 
 			+ "INNER JOIN MARA AS E ON (SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR)) = A.DIP_MATNR) "
-			+ "WHERE DOC_INV_ID = ? AND A.DIP_MATNR NOT IN( "
-				+ "(SELECT DISTINCT DIP_MATNR MATNR "
-				+ "FROM INV_DOC_INVENTORY_POSITIONS AS AA "
-				+ "LEFT JOIN MAST AS B ON (AA.DIP_MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
-				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) "  
-				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) "
-				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (AA.DIP_DOC_INV_ID = IDIH.DOC_INV_ID) "
-				+ "WHERE DIP_DOC_INV_ID = ? AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " 
-							+ "IN (SELECT EX_COMPONENT " 
-								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
-								+ "AND AA.DIP_MATNR = EX_MATNR AND EX_RELEVANT = 1))) ";
+			+ "WHERE DOC_INV_ID = ? ";
 
 		log.info(GET_MST_EXPL_REP);
 		log.info("[getExplosionReportByDocInv] Preparing sentence...");
@@ -560,7 +550,6 @@ public class ExplosionDetailDao {
 			stm.setInt(1, docInvId);
 			stm.setInt(2, docInvId);
 			stm.setInt(3, docInvId);
-			stm.setInt(4, docInvId);
 			log.info("[getExplosionReportByDocInv] Executing query...");
 
 			ResultSet rs = stm.executeQuery();
