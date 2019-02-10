@@ -129,8 +129,36 @@ public class SapOperationDao {
 			+ "GROUP BY LGNUM, LNUMT, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR) AS TAB "
 			+ "GROUP BY LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE";
 
-	private static final String COUNTED_MATNRS_BY_BUKRS = "SELECT DIP_MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE "
-			+ "FROM INV_DOC_INVENTORY_POSITIONS WHERE DIP_DOC_INV_ID = ? " + "GROUP BY DIP_MATNR";
+	private static final String COUNTED_MATNRS_BY_BUKRS = "SELECT MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE FROM (SELECT SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) MATNR, DIP_COUNT_DATE "
+			+ "FROM (SELECT DIP_DOC_INV_ID, DIP_MATNR MATNR, DIP_COUNT_DATE "
+				+ "FROM INV_DOC_INVENTORY_POSITIONS " 
+				+ "WHERE DIP_DOC_INV_ID = ? " 
+			+ "GROUP BY DIP_DOC_INV_ID, DIP_MATNR, DIP_COUNT_DATE) AS A " 
+				+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
+				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR)  "
+				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) " 
+				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DIP_DOC_INV_ID) " 
+					+ "WHERE DIP_DOC_INV_ID = ? " 
+						+ "AND B.WERKS = IDIH.DIH_WERKS " 
+						+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " 
+							+ "IN (SELECT EX_COMPONENT " 
+								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
+								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
+			+ "GROUP BY IDNRK, DIP_COUNT_DATE "
+
+			+ "UNION "
+
+			+ "SELECT DIP_MATNR MATNR, DIP_COUNT_DATE "
+			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
+			+ "WHERE DIP_DOC_INV_ID = ? "
+
+			+ "UNION "
+
+			+ "SELECT DISTINCT(DIP_VHILM) MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE "
+			+ "FROM INV_DOC_INVENTORY_POSITIONS "
+			+ "WHERE DIP_DOC_INV_ID = ? "
+			+ "GROUP BY DIP_VHILM) AS TBL "
+			+ "GROUP BY MATNR, DIP_COUNT_DATE "; 
 
 	private static final String GET_MBEW_PIVOT = "SELECT MATNR from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
@@ -786,13 +814,16 @@ public class SapOperationDao {
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COUNTED_MATNRS_BY_BUKRS);
 		stm.setInt(1, docInvId);
+		stm.setInt(2, docInvId);
+		stm.setInt(3, docInvId);
+		stm.setInt(4, docInvId);
 		ResultSet rs = stm.executeQuery();
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
 		PosDocInvBean matnr;
 
 		while (rs.next()) {
 			matnr = new PosDocInvBean();
-			matnr.setMatnr(rs.getString("DIP_MATNR"));
+			matnr.setMatnr(rs.getString("MATNR"));
 			matnr.setdCounted(rs.getTimestamp("DIP_COUNT_DATE"));
 			lsMatnr.add(matnr);
 		}

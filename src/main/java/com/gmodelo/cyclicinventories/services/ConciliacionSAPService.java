@@ -14,6 +14,8 @@ import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
+import com.gmodelo.cyclicinventories.beans.TaskBean;
+import com.gmodelo.cyclicinventories.workservice.ConciliacionWorkService;
 import com.gmodelo.cyclicinventories.workservice.ConciliationSAPWorkService;
 
 @Path("/services/ConciliationSAPService")
@@ -39,6 +41,15 @@ public class ConciliacionSAPService {
 		
 		User user = (User) httpRequest.getSession().getAttribute("user");
 		return new ConciliationSAPWorkService().saveConciliation(request, user.getEntity().getIdentyId());
+	}
+	
+	@POST 
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getSpecialSAPCount")
+	public Response<TaskBean> getSpecialSAPCount(Request request){
+		User user = (User) httpRequest.getSession().getAttribute("user");
+		return new ConciliationSAPWorkService().getSpecialSAPCount(request, user);
 	}
 		
 }
