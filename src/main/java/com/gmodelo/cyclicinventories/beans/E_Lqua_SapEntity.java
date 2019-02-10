@@ -92,6 +92,10 @@ public class E_Lqua_SapEntity {
 		// TODO Auto-generated constructor stub
 	}
 
+	public String E_Lqua_SapEntity_Key() {
+		return this.lgnum + "" + this.lgtyp + "" + this.lgpla + "" + this.matnr;
+	}
+
 	public E_Lqua_SapEntity(JCoTable jcoTable) throws JCoException {
 		super();
 		this.lgnum = jcoTable.getString("LGNUM");

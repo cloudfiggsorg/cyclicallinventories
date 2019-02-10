@@ -29,6 +29,7 @@ import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Salida_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Xtab6_SapEntity;
 import com.gmodelo.cyclicinventories.beans.Justification;
+import com.gmodelo.cyclicinventories.beans.MaterialExplosionBean;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.ZIACST_I360_OBJECTDATA_SapEntity;
@@ -130,35 +131,26 @@ public class SapOperationDao {
 			+ "GROUP BY LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE";
 
 	private static final String COUNTED_MATNRS_BY_BUKRS = "SELECT MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE FROM (SELECT SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) MATNR, DIP_COUNT_DATE "
-			+ "FROM (SELECT DIP_DOC_INV_ID, DIP_MATNR MATNR, DIP_COUNT_DATE "
-				+ "FROM INV_DOC_INVENTORY_POSITIONS " 
-				+ "WHERE DIP_DOC_INV_ID = ? " 
-			+ "GROUP BY DIP_DOC_INV_ID, DIP_MATNR, DIP_COUNT_DATE) AS A " 
-				+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
-				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR)  "
-				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) " 
-				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DIP_DOC_INV_ID) " 
-					+ "WHERE DIP_DOC_INV_ID = ? " 
-						+ "AND B.WERKS = IDIH.DIH_WERKS " 
-						+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " 
-							+ "IN (SELECT EX_COMPONENT " 
-								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
-								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
+			+ "FROM (SELECT DIP_DOC_INV_ID, DIP_MATNR MATNR, DIP_COUNT_DATE " + "FROM INV_DOC_INVENTORY_POSITIONS "
+			+ "WHERE DIP_DOC_INV_ID = ? " + "GROUP BY DIP_DOC_INV_ID, DIP_MATNR, DIP_COUNT_DATE) AS A "
+			+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) "
+			+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR)  " + "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) "
+			+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DIP_DOC_INV_ID) "
+			+ "WHERE DIP_DOC_INV_ID = ? " + "AND B.WERKS = IDIH.DIH_WERKS "
+			+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " + "IN (SELECT EX_COMPONENT "
+			+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " + "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) "
 			+ "GROUP BY IDNRK, DIP_COUNT_DATE "
 
 			+ "UNION "
 
-			+ "SELECT DIP_MATNR MATNR, DIP_COUNT_DATE "
-			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
+			+ "SELECT DIP_MATNR MATNR, DIP_COUNT_DATE " + "FROM INV_DOC_INVENTORY_POSITIONS AS A "
 			+ "WHERE DIP_DOC_INV_ID = ? "
 
 			+ "UNION "
 
 			+ "SELECT DISTINCT(DIP_VHILM) MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE "
-			+ "FROM INV_DOC_INVENTORY_POSITIONS "
-			+ "WHERE DIP_DOC_INV_ID = ? "
-			+ "GROUP BY DIP_VHILM) AS TBL "
-			+ "GROUP BY MATNR, DIP_COUNT_DATE "; 
+			+ "FROM INV_DOC_INVENTORY_POSITIONS " + "WHERE DIP_DOC_INV_ID = ? " + "GROUP BY DIP_VHILM) AS TBL "
+			+ "GROUP BY MATNR, DIP_COUNT_DATE ";
 
 	private static final String GET_MBEW_PIVOT = "SELECT MATNR from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
@@ -293,16 +285,18 @@ public class SapOperationDao {
 		return outputDoc;
 	}
 
+	// End Conci LGPLA
+
 	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
 			+ " DIP_MATNR, MAKTX, MEINS, DIP_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
 			+ " DIP_VHILM_COUNT, DIP_VHILM, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ? ORDER BY DIP_COUNT_DATE ASC ";
 
 	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU, QZEIT FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
 
-	private static final String GET_COST_BY_MATNR_DOC_INV = "SELECT DOC_INV_ID, MATNR, ZPRECIO FROM INV_VW_GET_COSTS_FOR_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+	private static final String GET_COST_BY_MATNR_DOC_INV = "SELECT MATNR, ZPRECIO FROM INV_VW_GET_COSTS_FOR_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	private static final String GET_E_LQUA_FOR_WM_LANES = "SELECT LGNUM, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LGTYP, LGPLA, "
-			+ " SUM(CONVERT(NUMERIC(23,3),VERME)) VERME " + " FROM E_LQUA WITH(NOLOCK) WHERE DOC_INV_ID = ? "
+			+ " SUM(CONVERT(NUMERIC(23,3),VERME)) VERME FROM E_LQUA WITH(NOLOCK) WHERE DOC_INV_ID = ? "
 			+ " GROUP BY LGNUM, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)), LGORT, LGTYP, LGPLA ";
 
 	private static final String GET_E_MARD_FOR_IM_DATA = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LABST "
@@ -345,7 +339,119 @@ public class SapOperationDao {
 		return docInvBeans;
 	}
 
-	
+	public HashMap<String, List<MaterialExplosionBean>> getExplotionDetailDocInv(DocInvBean docInvBean, Connection con)
+			throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		HashMap<String, List<MaterialExplosionBean>> mapExplotion = new HashMap<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_QUA_EXP_BY_DOC_INV);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				if (mapExplotion.containsKey(rs.getString("DIP_MATNR"))) {
+					mapExplotion.get(rs.getString("DIP_MATNR")).add(new MaterialExplosionBean(rs));
+				} else {
+					List<MaterialExplosionBean> listExplosion = new ArrayList<>();
+					listExplosion.add(new MaterialExplosionBean(rs));
+					mapExplotion.put(rs.getString("DIP_MATNR"), listExplosion);
+				}
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+
+		return mapExplotion;
+	}
+
+	public HashMap<String, E_Mard_SapEntity> getEmardforDocInv(DocInvBean docInvBean, Connection con)
+			throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		HashMap<String, E_Mard_SapEntity> mapMard = new HashMap<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_E_MARD_FOR_IM_DATA);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				E_Mard_SapEntity entity = new E_Mard_SapEntity();
+				entity.setMatnr(rs.getString("MATNR"));
+				entity.setLgort(rs.getString("LGORT"));
+				entity.setLabst(rs.getString("LABST"));
+				mapMard.put(rs.getString("MATNR"), entity);
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return mapMard;
+	}
+
+	public HashMap<String, E_Lqua_SapEntity> getElquaforDocInv(DocInvBean docInvBean, Connection con)
+			throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		HashMap<String, E_Lqua_SapEntity> e_Lqua_SapEntities = new HashMap<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_E_LQUA_FOR_WM_LANES);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				E_Lqua_SapEntity entity = new E_Lqua_SapEntity();
+				entity.setLgnum(rs.getString("LGNUM"));
+				entity.setLgpla(rs.getString("LGPLA"));
+				entity.setMatnr(rs.getString("MATNR"));
+				entity.setLgort(rs.getString("LGORT"));
+				entity.setLgtyp(rs.getString("LGTYP"));
+				entity.setLgtyp(rs.getString("VERME"));
+				e_Lqua_SapEntities.put(entity.E_Lqua_SapEntity_Key(), entity);
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return e_Lqua_SapEntities;
+	}
+
+	public List<E_Salida_SapEntity> getEsalidaDataDocInv(DocInvBean docInvBean, Connection con) throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		List<E_Salida_SapEntity> e_Salida_SapEntities = new ArrayList<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_E_SALIDA_BY_DOC);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				e_Salida_SapEntities.add(new E_Salida_SapEntity(rs));
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return e_Salida_SapEntities;
+	}
+
+	public HashMap<String, String> getCostByMaterial(DocInvBean docInvBean, Connection con) throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		HashMap<String, String> mapMaterialCost = new HashMap<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(GET_COST_BY_MATNR_DOC_INV);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				mapMaterialCost.put(rs.getString("MATNR"), rs.getString("ZPRECIO"));
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return mapMaterialCost;
+	}
+
+	// End Conci LGPLA
+
 	public DocInvBean getDocInvBeanDataHeaders(DocInvBean docInvBean, Connection con) throws SQLException {
 		DocInvBean outputDoc = new DocInvBean();
 		if (!con.isValid(0)) {

@@ -1,7 +1,11 @@
 package com.gmodelo.cyclicinventories.beans;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoTable;
+import com.sun.corba.se.spi.orbutil.fsm.Guard.Result;
 
 public class E_Salida_SapEntity {
 
@@ -101,6 +105,19 @@ public class E_Salida_SapEntity {
 		this.meins = jcoTable.getString("MEINS");
 		this.qdatu = jcoTable.getString("QDATU");
 		this.qzeit = jcoTable.getString("QZEIT");
+	}
+
+	public E_Salida_SapEntity(ResultSet rs) throws SQLException {
+		super();
+		this.lgnum = rs.getString("LGNUM");
+		this.lgtyp = rs.getString("LGTYP");
+		this.nlpla = rs.getString("NLPLA");
+		this.matnr = rs.getString("MATNR");
+		this.nistm = rs.getString("NISTM");
+		this.vistm = rs.getString("VISTM");
+		this.meins = rs.getString("MEINS");
+		this.qdatu = rs.getString("QDATU");
+		this.qzeit = rs.getString("QZEIT");
 	}
 
 	public E_Salida_SapEntity(String lgnum, String lgtyp, JCoTable jcoTable) throws JCoException {

@@ -14,6 +14,7 @@ import com.gmodelo.cyclicinventories.beans.ConciAccntReportBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
+import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
 import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBeanHeader;
@@ -326,24 +327,47 @@ public class ReportesWorkService {
 		return response;
 	}
 
+	private final SapOperationDao operationDao = new SapOperationDao();
+
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
 		log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] " + request.toString());
 		Response<DocInvBeanHeaderSAP> response = new Response<>();
+		AbstractResultsBean result = new AbstractResultsBean();
+		response.setAbstractResult(result);
 		DocInvBean bean = new DocInvBean();
 		Connection con = iConnectionManager.createConnection();
 		try {
 			log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] try");
 			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 			// response = new ReportesDao().getConcSAPByPosition(bean);
-			bean = new SapOperationDao().getDocInvBeanDataHeaders(bean, con);
-			
+			bean = operationDao.getDocInvBeanDataHeaders(bean, con);
+			List<PosDocInvBean> docPosition = operationDao.getDocInvPositions(bean, con);
+			if (!docPosition.isEmpty()) {
+				List<PosDocInvBean> imPositions = new ArrayList<>();
+				List<PosDocInvBean> wmPositions = new ArrayList<>();
+				for (PosDocInvBean docPos : docPosition) {
+					if (docPos.getImwmMarker().equalsIgnoreCase("WM")) {
+						wmPositions.add(docPos);
+					} else {
+						imPositions.add(docPos);
+					}
+				}
+				//WM PROC
+				
+				
+				
+				
+				//IM PROC
+				
+			} else {
+				result.setResultId(ReturnValues.IEXCEPTION);
+				result.setResultMsgAbs("¡No se encontro información!");
+			}
 
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInvSAPByLgpla] catch", e);
-			AbstractResultsBean result = new AbstractResultsBean();
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
-			response.setAbstractResult(result);
 		} finally {
 			try {
 				con.close();
