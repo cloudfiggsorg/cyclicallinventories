@@ -135,12 +135,14 @@ public class SapOperationDao {
 	private static final String GET_MBEW_PIVOT = "SELECT MATNR from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
-			+ " AND MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR)";
+			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
 
 	private static final String GET_MBEW_COUNT_PIVOT = "SELECT COUNT(MATNR) AS MAT_UPD from INV_CIC_E_PIV_MBEW WITH(NOLOCK) "
 			+ " WHERE IS_UPDATING = 0 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
-			+ " AND MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR)";
+			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
 
 	private static final String COST_BY_MATNR = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, ZPRECIO "
 			+ "FROM E_MBEW "
@@ -167,6 +169,10 @@ public class SapOperationDao {
 	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
 			+ " DIP_MATNR, MAKTX, MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
 			+ " DIP_VHILM_COUNT, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+
+	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU,FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
+
+	private static final String COST_BY_MATNR_DOC_INV = "SELECT MATNR, ZPRECIO from INV_VW_GET_DOC_INV_MATNR_COSTS WHERE DOC_INV_ID = ?";
 
 	// INSERT AREA
 
@@ -209,12 +215,14 @@ public class SapOperationDao {
 	private static final String UPDATE_INV_CIC_MBEW_PIVOT_BEG = " UPDATE INV_CIC_E_PIV_MBEW SET IS_UPDATING = 1 WHERE IS_UPDATING = 0 "
 			+ " AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
-			+ " AND MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR)";
+			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
 
 	private static final String UPDATE_INV_CIC_MBEW_PIVOT_END = " UPDATE INV_CIC_E_PIV_MBEW SET IS_UPDATING = 0, LAST_UPDATED = CONVERT(DATE,GETDATE()) "
 			+ " WHERE IS_UPDATING = 1 AND DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > "
 			+ " CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
-			+ " AND MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR)";
+			+ " AND (MATNR IN (SELECT DIP_MATNR from INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR ) "
+			+ " OR MATNR IN (SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ?)) ";
 
 	private static final String UPDATE_E_MBEW = "UPDATE E_MBEW SET ZPRECIO = ? WHERE MATNR = ? and BWKEY = ?";
 
@@ -403,6 +411,7 @@ public class SapOperationDao {
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_MBEW_PIVOT);
 			stm.setInt(1, docInvBean.getDocInvId());
+			stm.setInt(2, docInvBean.getDocInvId());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				if (!materialList.contains(rs.getString("MATNR"))) {
@@ -423,6 +432,7 @@ public class SapOperationDao {
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_MBEW_COUNT_PIVOT);
 			stm.setInt(1, docInvBean.getDocInvId());
+			stm.setInt(2, docInvBean.getDocInvId());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				materialCount = rs.getInt("MAT_UPD");
@@ -600,24 +610,19 @@ public class SapOperationDao {
 	}
 
 	public ArrayList<CostByMatnr> getCostByMatnr(String matnrIds, String werks, Connection con) throws SQLException {
-
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COST_BY_MATNR);
 		stm.setString(1, matnrIds);
 		stm.setString(2, werks);
-
 		ResultSet rs = stm.executeQuery();
-
 		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
 		CostByMatnr els;
-
 		while (rs.next()) {
 			els = new CostByMatnr();
 			els.setMatnr(rs.getString("MATNR"));
 			els.setCost(rs.getString("ZPRECIO"));
 			lsMatnr.add(els);
 		}
-
 		return lsMatnr;
 	}
 
@@ -742,8 +747,6 @@ public class SapOperationDao {
 
 		return lsMatnr;
 	}
-	
-
 
 	/*
 	 * THIS IS THE SECTION FOR INSERT METHODS
@@ -760,8 +763,8 @@ public class SapOperationDao {
 			PreparedStatement stm = con.prepareStatement(SET_E_SALIDA);
 			for (E_Salida_SapEntity esalidaEntity : ziacmf_I360_MOV.geteSalida_SapEntities()) {
 				stm.setInt(1, docInvBean.getDocInvId());
-				stm.setString(2, esalidaEntity.getNlpla());
-				stm.setString(3, esalidaEntity.getNlpla());
+				stm.setString(2, esalidaEntity.getLgnum());
+				stm.setString(3, esalidaEntity.getLgtyp());
 				stm.setString(4, esalidaEntity.getNlpla());
 				stm.setString(5, esalidaEntity.getMatnr());
 				stm.setString(6, esalidaEntity.getNistm());
@@ -769,7 +772,9 @@ public class SapOperationDao {
 				stm.setString(8, esalidaEntity.getMeins());
 				stm.setString(9, esalidaEntity.getQdatu());
 				stm.setString(10, esalidaEntity.getQzeit());
+				stm.addBatch();
 			}
+			stm.executeBatch();
 		} catch (SQLException e) {
 			throw e;
 		}
@@ -1045,6 +1050,7 @@ public class SapOperationDao {
 		try {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_BEG);
 			stm.setInt(1, docInvBean.getDocInvId());
+			stm.setInt(2, docInvBean.getDocInvId());
 			stm.executeUpdate();
 		} catch (SQLException e) {
 			throw e;
@@ -1058,6 +1064,7 @@ public class SapOperationDao {
 		try {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_END);
 			stm.setInt(1, docInvBean.getDocInvId());
+			stm.setInt(2, docInvBean.getDocInvId());
 			stm.executeUpdate();
 		} catch (SQLException e) {
 			throw e;
