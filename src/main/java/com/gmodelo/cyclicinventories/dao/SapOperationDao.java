@@ -39,6 +39,7 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_MOV;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
+import com.sun.research.ws.wadl.Doc;
 
 public class SapOperationDao {
 
@@ -162,17 +163,11 @@ public class SapOperationDao {
 			+ "GROUP BY CS_CON_SAP, CS_MATNR, CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
 			+ "CS_COUNTED, CS_COUNTED_EXPL, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_IS_EXPL";
 
+	// CONCILIATION FOR WM - LGORT_LGPLA
+
 	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
 			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE "
 			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE DOC_INV_ID = ?";
-
-	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
-			+ " DIP_MATNR, MAKTX, MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
-			+ " DIP_VHILM_COUNT, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ?";
-
-	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU,FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
-
-	private static final String COST_BY_MATNR_DOC_INV = "SELECT MATNR, ZPRECIO from INV_VW_GET_DOC_INV_MATNR_COSTS WHERE DOC_INV_ID = ?";
 
 	// INSERT AREA
 
@@ -266,6 +261,57 @@ public class SapOperationDao {
 			throw e;
 		}
 		return outputDoc;
+	}
+
+	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
+			+ " DIP_MATNR, MAKTX, MEINS, DIP_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
+			+ " DIP_VHILM_COUNT, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+
+	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU,FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
+
+	private static final String GET_COST_BY_MATNR_DOC_INV = "SELECT DOC_INV_ID, MATNR, ZPRECIO FROM INV_VW_GET_COSTS_FOR_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+
+	private static final String GET_E_LQUA_FOR_WM_LANES = "SELECT LGNUM, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LGTYP, LGPLA, "
+			+ " SUM(CONVERT(NUMERIC(23,3),VERME)) VERME " + " FROM E_LQUA WITH(NOLOCK) WHERE DOC_INV_ID = ? "
+			+ " GROUP BY LGNUM, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)), LGORT, LGTYP, LGPLA ";
+
+	private static final String GET_E_MARD_FOR_IM_DATA = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LABST "
+			+ " FROM E_MARD WHERE DOC_INV_ID = ? "
+			+ " GROUP BY SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)), LGORT, LABST";
+
+	public List<PosDocInvBean> getDocInvPositions(DocInvBean docInvBean, Connection con) throws SQLException {
+
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		List<PosDocInvBean> docInvBeans = new ArrayList<>();
+		try {
+			PreparedStatement stm = con.prepareStatement(INV_VW_DOC_INV_REP_LGORT_LGPLA);
+			stm.setInt(1, docInvBean.getDocInvId());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				PosDocInvBean bean = new PosDocInvBean();
+				bean.setDoncInvId(rs.getInt("DOC_INV_ID"));
+				bean.setMatnr(rs.getString("DIP_MATNR"));
+				bean.setMatnrD(rs.getString("MAKTX"));
+				bean.setMeins(rs.getString("MEINS"));
+				bean.setLgort(rs.getString("DIP_LGORT"));
+				bean.setLgortD(rs.getString("LGOBE"));
+				bean.setLgtyp(rs.getString("LGTYP"));
+				bean.setLtypt(rs.getString("LTYPT"));
+				bean.setLgpla(rs.getString("DIP_LGPLA"));
+				bean.setCounted(rs.getString("DIP_COUNTED"));
+				bean.setDateIniCounted(rs.getTimestamp("DIP_COUNT_DATE_INI").getTime());
+				bean.setDateEndCounted(rs.getTimestamp("DIP_COUNT_DATE").getTime());
+				
+
+				docInvBeans.add(bean);
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+
+		return docInvBeans;
 	}
 
 	public DocInvBean getDocInvBeanDataHeaders(DocInvBean docInvBean, Connection con) throws SQLException {
