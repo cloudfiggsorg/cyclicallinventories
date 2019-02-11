@@ -375,10 +375,11 @@ public class ReportesWorkService {
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get WM LQUA AND MOVEMENTS");
 				for (PosDocInvBean wmPos : wmPositions) {
 					String lquaKey = wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla();
+					wmPos.setCountedExpl("0.00");
 					if (eLqua.get(lquaKey) != null) {
 						if (eLqua.get(lquaKey).get(wmPos.getMatnr()) != null) {
 							wmPos.setTheoric(eLqua.get(lquaKey).get(wmPos.getMatnr()).getVerme());
-							wmPos.setCountedExpl("0.00");
+						
 							eLqua.get(lquaKey).get(wmPos.getMatnr()).setMarked(true);
 							if (eSalida.containsKey(lquaKey)) {
 								if (eSalida.get(lquaKey).containsKey(wmPos.getMatnr())) {
@@ -437,6 +438,38 @@ public class ReportesWorkService {
 							}
 						}
 					}
+
+					// Tarimas
+
+					if (wmPos.getVhilm() != null && !wmPos.getVhilm().isEmpty()) {
+						PosDocInvBean pBean = new PosDocInvBean();
+						String toCount = "0.00";
+						if (expPosition.containsKey(wmPos.getLgort() + "" + wmPos.getVhilm())) {
+							toCount = new BigDecimal(wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00")
+									.toString();
+							pBean = expPosition.get(wmPos.getLgort() + "" + wmPos.getVhilm());
+							pBean.setDateIniCounted(wmPos.getDateIniCounted());
+							pBean.setDateEndCounted(wmPos.getDateEndCounted());
+							pBean.setCountedExpl(
+									new BigDecimal(pBean.getCountedExpl()).add(new BigDecimal(toCount)).toString());
+						} else {
+							pBean.setLgort(wmPos.getLgort());
+							pBean.setLgortD(wmPos.getLgortD());
+							pBean.setMatnr(wmPos.getVhilm());
+							pBean.setMatnrD(operationDao.getNameFromTarima(wmPos.getVhilm(), con));
+							pBean.setMeins(wmPos.getMeins());
+							pBean.setTheoric("0.00");
+							pBean.setCountedExpl(
+									new BigDecimal(wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00")
+											.toString());
+							pBean.setCounted("0.00");
+							pBean.setDateIniCounted(wmPos.getDateIniCounted());
+							pBean.setDateEndCounted(wmPos.getDateEndCounted());
+							pBean.setImwmMarker("IM");
+							expPosition.put(wmPos.getLgort() + "" + wmPos.getVhilm(), pBean);
+						}
+					}
+
 				}
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get WM LQUA AND MOVEMENTS END");
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get IM MARD");

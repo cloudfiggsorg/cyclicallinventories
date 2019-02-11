@@ -189,6 +189,8 @@ public class SapOperationDao {
 			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE "
 			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE DOC_INV_ID = ?";
 
+	private static final String INV_GET_TARIMA_BY_ID = "SELECT MAKTX FROM MAKT WITH(NOLOCK) WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ?";
+
 	// INSERT AREA
 
 	private static final String SET_E_MSEG = "INSERT INTO E_MSEG (DOC_INV_ID, MBLNR, ZEILE, BWART, MATNR, WERKS, LGORT, INSMK, SHKZG, "
@@ -283,6 +285,24 @@ public class SapOperationDao {
 			throw e;
 		}
 		return outputDoc;
+	}
+
+	public String getNameFromTarima(String vhilm, Connection con) throws SQLException {
+		String tarimaName = "";
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(INV_GET_TARIMA_BY_ID);
+			stm.setString(1, vhilm);
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) {
+				tarimaName = rs.getString("MAKTX");
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
+		return tarimaName;
 	}
 
 	// End Conci LGPLA
