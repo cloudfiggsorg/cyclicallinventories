@@ -296,12 +296,12 @@ public class SapConciliationWorkService {
 					if (toInsertMbew.size() > 0) {
 						operationDao.setZIACMF_E_MBEW(con, toInsertMbew);
 						log.log(Level.INFO,
-								"[SapConciliationWorkService-getZiacmfMbew] : toInsert: " + toInsertMbew.toString());
+								"[SapConciliationWorkService-getZiacmfMbew] : toInsert: " + toInsertMbew.size());
 					}
 					if (toUpdateMbew.size() > 0) {
 						operationDao.setZIACMF_E_MBEW_UPD(con, toUpdateMbew);
 						log.log(Level.INFO,
-								"[SapConciliationWorkService-getZiacmfMbew] : toUpdate: " + toUpdateMbew.toString());
+								"[SapConciliationWorkService-getZiacmfMbew] : toUpdate: " + toUpdateMbew.size());
 					}
 				} else {
 					log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] :"
