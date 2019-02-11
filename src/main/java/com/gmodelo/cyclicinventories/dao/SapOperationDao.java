@@ -332,7 +332,7 @@ public class SapOperationDao {
 				bean.setDateEndCounted(rs.getTimestamp("DIP_COUNT_DATE").getTime());
 				bean.setVhilm(rs.getString("DIP_VHILM"));
 				bean.setVhilmCounted(rs.getString("DIP_VHILM_COUNT"));
-				bean.setImwmMarker(rs.getString(rs.getString("IMWM")));
+				bean.setImwmMarker(rs.getString("IMWM"));
 				docInvBeans.add(bean);
 			}
 		} catch (SQLException e) {
