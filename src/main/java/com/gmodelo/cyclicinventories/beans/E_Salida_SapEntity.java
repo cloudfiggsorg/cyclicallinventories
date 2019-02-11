@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoTable;
-import com.sun.corba.se.spi.orbutil.fsm.Guard.Result;
 
 public class E_Salida_SapEntity {
 
