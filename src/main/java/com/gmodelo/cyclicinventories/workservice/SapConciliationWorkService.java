@@ -258,6 +258,7 @@ public class SapConciliationWorkService {
 								ziacmf_MBEW.geteMbewSapEntities().addAll(ziacmf_MBEW_pvt.geteMbewSapEntities());
 								ziacmf_MBEW.seteError_SapEntities(ziacmf_MBEW_pvt.geteError_SapEntities());
 								ziacmf_MBEW_pvt = new ZIACMF_MBEW();
+								pivotList = new ArrayList<>();
 							}
 						}
 					}
