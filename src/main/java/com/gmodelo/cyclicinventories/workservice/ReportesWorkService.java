@@ -36,6 +36,7 @@ import com.gmodelo.cyclicinventories.dao.UMEDaoE;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
+import com.sun.xml.internal.fastinfoset.dom.DOMDocumentParser;
 
 public class ReportesWorkService {
 
@@ -374,9 +375,10 @@ public class ReportesWorkService {
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get WM LQUA AND MOVEMENTS");
 				for (PosDocInvBean wmPos : wmPositions) {
 					String lquaKey = wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla();
-					if (eLqua.get(eLqua.get(lquaKey)) != null) {
+					if (eLqua.get(lquaKey) != null) {
 						if (eLqua.get(lquaKey).get(wmPos.getMatnr()) != null) {
 							wmPos.setTheoric(eLqua.get(lquaKey).get(wmPos.getMatnr()).getVerme());
+							wmPos.setCountedExpl("0.00");
 							eLqua.get(lquaKey).get(wmPos.getMatnr()).setMarked(true);
 							if (eSalida.containsKey(lquaKey)) {
 								if (eSalida.get(lquaKey).containsKey(wmPos.getMatnr())) {
@@ -422,6 +424,7 @@ public class ReportesWorkService {
 								pBean.setMatnr(posEx.getIdnrk());
 								pBean.setMatnrD(posEx.getMaktx());
 								pBean.setMeins(posEx.getMeins());
+								pBean.setTheoric("0.00");
 								pBean.setCountedExpl(new BigDecimal(posEx.getBmcal())
 										.multiply(new BigDecimal(
 												wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00"))
@@ -457,7 +460,8 @@ public class ReportesWorkService {
 							posExLq.setMeins(lquaExEn.getMeins());
 							posExLq.setMatnr(lquaExEn.getMatnr());
 							posExLq.setMatnrD(lquaExEn.getMaktx());
-							posExLq.setCounted("");
+							posExLq.setCountedExpl("0.00");
+							posExLq.setCounted("0.00");
 							posExLq.setImwmMarker("WM");
 							wmExtraPos.add(posExLq);
 						}
@@ -555,6 +559,8 @@ public class ReportesWorkService {
 						}
 					} else if (docPos.getCountedExpl() != null && !docPos.getCountedExpl().equals("")) {
 						docPos.setCountedTot(docPos.getCountedExpl());
+					} else {
+						docPos.setCountedTot("0.00");
 					}
 
 					if (docPos.getCountedTot() != null && !docPos.getCountedTot().isEmpty()) {
@@ -563,6 +569,12 @@ public class ReportesWorkService {
 									.subtract(new BigDecimal(docPos.getTheoric())).toString());
 						} else {
 							docPos.setDiff(docPos.getCountedTot());
+						}
+					} else {
+						if (docPos.getTheoric() != null && !docPos.getTheoric().isEmpty()) {
+							docPos.setDiff(docPos.getTheoric());
+						} else {
+							docPos.setDiff("0.00");
 						}
 					}
 
@@ -582,7 +594,7 @@ public class ReportesWorkService {
 					} else {
 						docPos.setTheoricCost("0.00");
 					}
-					if (docPos.getDiff() != null && new BigDecimal(docPos.getDiff()).compareTo(BigDecimal.ZERO) > 0) {
+					if (docPos.getDiff() != null) {
 						docPos.setDiffCost(new BigDecimal(docPos.getDiff())
 								.multiply(new BigDecimal(docPos.getCostByUnit())).toString());
 					} else {

@@ -289,17 +289,17 @@ public class SapOperationDao {
 
 	private static final String INV_VW_DOC_INV_REP_LGORT_LGPLA = "SELECT  DOC_INV_ID, DIP_LGORT, LGOBE, LGTYP, LTYPT, DIP_LGPLA, "
 			+ " DIP_MATNR, MAKTX, MEINS, DIP_COUNTED, DIP_COUNT_DATE, DIP_COUNT_DATE_INI, "
-			+ " DIP_VHILM_COUNT, DIP_VHILM, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ? ORDER BY DIP_COUNT_DATE ASC ";
+			+ " DIP_VHILM_COUNT, DIP_VHILM,LGNUM, IMWM FROM INV_VW_DOC_INV_REP_LGORT_LGPLA WITH(NOLOCK) WHERE DOC_INV_ID = ? ORDER BY DIP_COUNT_DATE ASC ";
 
 	private static final String GET_E_SALIDA_BY_DOC = "SELECT LGNUM, LGTYP, NLPLA, MATNR, NISTM ,VISTM, QDATU, QZEIT, MEINS FROM E_SALIDA WITH(NOLOCK) WHERE DOC_INV_ID = ? ";
 
 	private static final String GET_COST_BY_MATNR_DOC_INV = "SELECT MATNR, ZPRECIO FROM INV_VW_GET_COSTS_FOR_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	private static final String GET_E_LQUA_FOR_WM_LANES = "SELECT EL.LGNUM, SUBSTRING(EL.MATNR, PATINDEX('%[^0 ]%', EL.MATNR + ' '), LEN(EL.MATNR)) MATNR, "
-			+ " EL.LGORT, EL.LGTYP, EL.LGPLA, TL.LGOBE, MK.MAKTX, SUM(CONVERT(NUMERIC(23,3),EL.VERME)) VERME FROM E_LQUA EL WITH(NOLOCK) "
+			+ " EL.MEINS, EL.LGORT, EL.LGTYP, EL.LGPLA, TL.LGOBE, MK.MAKTX, SUM(CONVERT(NUMERIC(23,3),EL.VERME)) VERME FROM E_LQUA EL WITH(NOLOCK) "
 			+ " INNER JOIN T001L TL ON EL.WERKS = TL.WERKS AND EL.LGORT = TL.LGORT "
 			+ " INNER JOIN MAKT MK ON EL.MATNR = MK.MATNR WHERE DOC_INV_ID = ? "
-			+ " GROUP BY EL.LGNUM, EL.MATNR, EL.LGORT, EL.LGTYP, EL.LGPLA,TL.LGOBE, MK.MAKTX";
+			+ " GROUP BY EL.LGNUM, EL.MATNR, EL.MEINS, EL.LGORT, EL.LGTYP, EL.LGPLA,TL.LGOBE, MK.MAKTX";
 
 	private static final String GET_E_MARD_FOR_IM_DATA = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LABST "
 			+ " FROM E_MARD WITH(NOLOCK) WHERE DOC_INV_ID = ? "
@@ -324,6 +324,7 @@ public class SapOperationDao {
 				bean.setMeins(rs.getString("MEINS"));
 				bean.setLgort(rs.getString("DIP_LGORT"));
 				bean.setLgortD(rs.getString("LGOBE"));
+				bean.setLgNum(rs.getString("LGNUM"));
 				bean.setLgtyp(rs.getString("LGTYP"));
 				bean.setLtypt(rs.getString("LTYPT"));
 				bean.setLgpla(rs.getString("DIP_LGPLA"));
@@ -410,6 +411,7 @@ public class SapOperationDao {
 				entity.setVerme(rs.getString("VERME"));
 				entity.setLgortD(rs.getString("LGOBE"));
 				entity.setMaktx(rs.getString("MAKTX"));
+				entity.setMeins(rs.getString("MEINS"));
 				if (e_Lqua_SapEntities.containsKey(entity.E_Lqua_SapEntity_Key())) {
 					e_Lqua_SapEntities.get(entity.E_Lqua_SapEntity_Key()).put(rs.getString("MATNR"), entity);
 				} else {
