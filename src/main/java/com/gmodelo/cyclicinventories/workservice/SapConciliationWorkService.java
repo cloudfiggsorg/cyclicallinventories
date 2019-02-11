@@ -277,7 +277,7 @@ public class SapConciliationWorkService {
 						&& ziacmf_MBEW.geteMbewSapEntities() != null) {
 
 					log.log(Level.INFO,
-							"[SapConciliationWorkService-getZiacmfMbew] : ziacmf_MBEW " + ziacmf_MBEW.toString());
+							"[SapConciliationWorkService-getZiacmfMbew] : ziacmf_MBEW " + ziacmf_MBEW.geteMbewSapEntities().size());
 
 					HashMap<String, List<String>> matWerkMap = operationDao.getMbewValues(con);
 					List<E_Mbew_SapEntity> toInsertMbew = new ArrayList<>();
