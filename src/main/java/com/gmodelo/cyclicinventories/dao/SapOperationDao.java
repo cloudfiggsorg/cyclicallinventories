@@ -49,7 +49,7 @@ public class SapOperationDao {
 			+ " DIH_MODIFIED_DATE, DIH_WERKS FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	private static final String GET_SINGLE_DOC_INV_WITH_HEADERS = "SELECT DOC_INV_ID, DIH_ROUTE_ID, DIH_BUKRS, T1.BUTXT DIH_BUTXT, "
-			+ "DIH_CREATED_DATE, DIH_MODIFIED_DATE, DIH_WERKS, T1W.NAME1 DIH_WERKD FROM INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) "
+			+ "DIH_CREATED_DATE, DIH_MODIFIED_DATE, DIH_WERKS, T1W.NAME1, DIH_TYPE DIH_WERKD FROM INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) "
 			+ "INNER JOIN T001 T1 WITH(NOLOCK) on  IDIH.DIH_BUKRS = T1.BUKRS "
 			+ "INNER JOIN T001W T1W WITH(NOLOCK) on IDIH.DIH_WERKS = T1W.WERKS WHERE DOC_INV_ID = ?";
 
@@ -295,15 +295,18 @@ public class SapOperationDao {
 
 	private static final String GET_COST_BY_MATNR_DOC_INV = "SELECT MATNR, ZPRECIO FROM INV_VW_GET_COSTS_FOR_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
-	private static final String GET_E_LQUA_FOR_WM_LANES = "SELECT LGNUM, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LGTYP, LGPLA, "
-			+ " SUM(CONVERT(NUMERIC(23,3),VERME)) VERME FROM E_LQUA WITH(NOLOCK) WHERE DOC_INV_ID = ? "
-			+ " GROUP BY LGNUM, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)), LGORT, LGTYP, LGPLA ";
+	private static final String GET_E_LQUA_FOR_WM_LANES = "SELECT EL.LGNUM, SUBSTRING(EL.MATNR, PATINDEX('%[^0 ]%', EL.MATNR + ' '), LEN(EL.MATNR)) MATNR, "
+			+ " EL.LGORT, EL.LGTYP, EL.LGPLA, TL.LGOBE, MK.MAKTX, SUM(CONVERT(NUMERIC(23,3),EL.VERME)) VERME FROM E_LQUA EL WITH(NOLOCK) "
+			+ " INNER JOIN T001L TL ON EL.WERKS = TL.WERKS AND EL.LGORT = TL.LGORT "
+			+ " INNER JOIN MAKT MK ON EL.MATNR = MK.MATNR WHERE DOC_INV_ID = ? "
+			+ " GROUP BY EL.LGNUM, EL.MATNR, EL.LGORT, EL.LGTYP, EL.LGPLA,TL.LGOBE, MK.MAKTX";
 
 	private static final String GET_E_MARD_FOR_IM_DATA = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, LABST "
-			+ " FROM E_MARD WHERE DOC_INV_ID = ? "
+			+ " FROM E_MARD WITH(NOLOCK) WHERE DOC_INV_ID = ? "
 			+ " GROUP BY SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)), LGORT, LABST";
 
-	private static final String GET_QUA_EXP_BY_DOC_INV = "SELECT DIP_MATNR, BMEIN, BMENG, MENGE, BMCAL, IDNRK, MEINS, EX_LGORT FROM INV_VW_GET_QUA_EXP_BY_DOC_INV WHERE DOC_INV_ID = ?";
+	private static final String GET_QUA_EXP_BY_DOC_INV = "SELECT DIP_MATNR, BMEIN, BMENG, MENGE, BMCAL, IDNRK, MEINS, EX_LGORT, MAKTX, LGOBE "
+			+ " FROM INV_VW_GET_QUA_EXP_BY_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	public List<PosDocInvBean> getDocInvPositions(DocInvBean docInvBean, Connection con) throws SQLException {
 		if (!con.isValid(0)) {
@@ -387,12 +390,12 @@ public class SapOperationDao {
 		return mapMard;
 	}
 
-	public HashMap<String, E_Lqua_SapEntity> getElquaforDocInv(DocInvBean docInvBean, Connection con)
+	public HashMap<String, HashMap<String, E_Lqua_SapEntity>> getElquaforDocInv(DocInvBean docInvBean, Connection con)
 			throws SQLException {
 		if (!con.isValid(0)) {
 			con = new ConnectionManager().createConnection();
 		}
-		HashMap<String, E_Lqua_SapEntity> e_Lqua_SapEntities = new HashMap<>();
+		HashMap<String, HashMap<String, E_Lqua_SapEntity>> e_Lqua_SapEntities = new HashMap<>();
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_E_LQUA_FOR_WM_LANES);
 			stm.setInt(1, docInvBean.getDocInvId());
@@ -404,8 +407,16 @@ public class SapOperationDao {
 				entity.setMatnr(rs.getString("MATNR"));
 				entity.setLgort(rs.getString("LGORT"));
 				entity.setLgtyp(rs.getString("LGTYP"));
-				entity.setLgtyp(rs.getString("VERME"));
-				e_Lqua_SapEntities.put(entity.E_Lqua_SapEntity_Key(), entity);
+				entity.setVerme(rs.getString("VERME"));
+				entity.setLgortD(rs.getString("LGOBE"));
+				entity.setMaktx(rs.getString("MAKTX"));
+				if (e_Lqua_SapEntities.containsKey(entity.E_Lqua_SapEntity_Key())) {
+					e_Lqua_SapEntities.get(entity.E_Lqua_SapEntity_Key()).put(rs.getString("MATNR"), entity);
+				} else {
+					HashMap<String, E_Lqua_SapEntity> inMap = new HashMap<>();
+					inMap.put(rs.getString("MATNR"), entity);
+					e_Lqua_SapEntities.put(entity.E_Lqua_SapEntity_Key(), inMap);
+				}
 			}
 		} catch (SQLException e) {
 			throw e;
@@ -413,17 +424,34 @@ public class SapOperationDao {
 		return e_Lqua_SapEntities;
 	}
 
-	public List<E_Salida_SapEntity> getEsalidaDataDocInv(DocInvBean docInvBean, Connection con) throws SQLException {
+	public HashMap<String, HashMap<String, List<E_Salida_SapEntity>>> getEsalidaDataDocInv(DocInvBean docInvBean,
+			Connection con) throws SQLException {
 		if (!con.isValid(0)) {
 			con = new ConnectionManager().createConnection();
 		}
-		List<E_Salida_SapEntity> e_Salida_SapEntities = new ArrayList<>();
+		HashMap<String, HashMap<String, List<E_Salida_SapEntity>>> e_Salida_SapEntities = new HashMap<>();
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_E_SALIDA_BY_DOC);
 			stm.setInt(1, docInvBean.getDocInvId());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
-				e_Salida_SapEntities.add(new E_Salida_SapEntity(rs));
+				E_Salida_SapEntity entity = new E_Salida_SapEntity(rs);
+				String key = entity.getLgnum() + "" + entity.getLgtyp() + "" + entity.getNlpla();
+				if (e_Salida_SapEntities.containsKey(key)) {
+					if (e_Salida_SapEntities.get(key).containsKey(entity.getMatnr())) {
+						e_Salida_SapEntities.get(key).get(entity.getMatnr()).add(entity);
+					} else {
+						List<E_Salida_SapEntity> inList = new ArrayList<>();
+						inList.add(entity);
+						e_Salida_SapEntities.get(key).put(entity.getMatnr(), inList);
+					}
+				} else {
+					HashMap<String, List<E_Salida_SapEntity>> inMap = new HashMap<>();
+					List<E_Salida_SapEntity> inList = new ArrayList<>();
+					inList.add(entity);
+					inMap.put(entity.getMatnr(), inList);
+					e_Salida_SapEntities.put(key, inMap);
+				}
 			}
 		} catch (SQLException e) {
 			throw e;
@@ -469,6 +497,7 @@ public class SapOperationDao {
 				outputDoc.setCreatedDate(rs.getTimestamp("DIH_CREATED_DATE").getTime());
 				outputDoc.setModifiedDate(rs.getTimestamp("DIH_MODIFIED_DATE").getTime());
 				outputDoc.setRoute(rs.getString("DIH_ROUTE_ID"));
+				outputDoc.setType(rs.getString("DIH_TYPE"));
 			} else {
 				outputDoc = null;
 			}

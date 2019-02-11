@@ -14,6 +14,9 @@ public class E_Lqua_SapEntity {
 	private String verme;
 	private String meins;
 	private String lenum;
+	private Boolean marked;
+	private String lgortD;
+	private String maktx;
 
 	public String getLgnum() {
 		return lgnum;
@@ -87,13 +90,38 @@ public class E_Lqua_SapEntity {
 		this.lenum = lenum;
 	}
 
+	public Boolean getMarked() {
+		return marked;
+	}
+
+	public void setMarked(Boolean marked) {
+		this.marked = marked;
+	}
+
+	public String getLgortD() {
+		return lgortD;
+	}
+
+	public void setLgortD(String lgortD) {
+		this.lgortD = lgortD;
+	}
+
+	public String getMaktx() {
+		return maktx;
+	}
+
+	public void setMaktx(String maktx) {
+		this.maktx = maktx;
+	}
+
 	public E_Lqua_SapEntity() {
 		super();
+		this.marked = false;
 		// TODO Auto-generated constructor stub
 	}
 
 	public String E_Lqua_SapEntity_Key() {
-		return this.lgnum + "" + this.lgtyp + "" + this.lgpla + "" + this.matnr;
+		return this.lgnum + "" + this.lgtyp + "" + this.lgpla;
 	}
 
 	public E_Lqua_SapEntity(JCoTable jcoTable) throws JCoException {
@@ -127,7 +155,7 @@ public class E_Lqua_SapEntity {
 	public String toString() {
 		return "E_Lqua_SapEntity [lgnum=" + lgnum + ", matnr=" + matnr + ", werks=" + werks + ", lgort=" + lgort
 				+ ", lgtyp=" + lgtyp + ", lgpla=" + lgpla + ", verme=" + verme + ", meins=" + meins + ", lenum=" + lenum
-				+ "]";
+				+ ", marked=" + marked + ", lgortD=" + lgortD + ", maktx=" + maktx + "]";
 	}
 
 	@Override
@@ -137,8 +165,11 @@ public class E_Lqua_SapEntity {
 		result = prime * result + ((lenum == null) ? 0 : lenum.hashCode());
 		result = prime * result + ((lgnum == null) ? 0 : lgnum.hashCode());
 		result = prime * result + ((lgort == null) ? 0 : lgort.hashCode());
+		result = prime * result + ((lgortD == null) ? 0 : lgortD.hashCode());
 		result = prime * result + ((lgpla == null) ? 0 : lgpla.hashCode());
 		result = prime * result + ((lgtyp == null) ? 0 : lgtyp.hashCode());
+		result = prime * result + ((maktx == null) ? 0 : maktx.hashCode());
+		result = prime * result + ((marked == null) ? 0 : marked.hashCode());
 		result = prime * result + ((matnr == null) ? 0 : matnr.hashCode());
 		result = prime * result + ((meins == null) ? 0 : meins.hashCode());
 		result = prime * result + ((verme == null) ? 0 : verme.hashCode());
@@ -170,6 +201,11 @@ public class E_Lqua_SapEntity {
 				return false;
 		} else if (!lgort.equals(other.lgort))
 			return false;
+		if (lgortD == null) {
+			if (other.lgortD != null)
+				return false;
+		} else if (!lgortD.equals(other.lgortD))
+			return false;
 		if (lgpla == null) {
 			if (other.lgpla != null)
 				return false;
@@ -179,6 +215,16 @@ public class E_Lqua_SapEntity {
 			if (other.lgtyp != null)
 				return false;
 		} else if (!lgtyp.equals(other.lgtyp))
+			return false;
+		if (maktx == null) {
+			if (other.maktx != null)
+				return false;
+		} else if (!maktx.equals(other.maktx))
+			return false;
+		if (marked == null) {
+			if (other.marked != null)
+				return false;
+		} else if (!marked.equals(other.marked))
 			return false;
 		if (matnr == null) {
 			if (other.matnr != null)
