@@ -6,7 +6,6 @@ import java.util.Date;
 public class PosDocInvBean {
 
 	private int posId;
-	private int doncInvId;
 	private int item;
 	private String lgort;
 	private String lgortD;
@@ -49,14 +48,6 @@ public class PosDocInvBean {
 
 	public void setPosId(int posId) {
 		this.posId = posId;
-	}
-
-	public int getDoncInvId() {
-		return doncInvId;
-	}
-
-	public void setDoncInvId(int doncInvId) {
-		this.doncInvId = doncInvId;
 	}
 
 	public int getItem() {
@@ -307,7 +298,6 @@ public class PosDocInvBean {
 			Long dateIniCounted, Long dateEndCounted, String vhilm, String vhilmCounted) {
 		super();
 		this.posId = posId;
-		this.doncInvId = doncInvId;
 		this.item = item;
 		this.lgort = lgort;
 		this.lgortD = lgortD;
@@ -342,7 +332,7 @@ public class PosDocInvBean {
 
 	@Override
 	public String toString() {
-		return "PosDocInvBean [posId=" + posId + ", doncInvId=" + doncInvId + ", item=" + item + ", lgort=" + lgort
+		return "PosDocInvBean [posId=" + posId + ", item=" + item + ", lgort=" + lgort
 				+ ", lgortD=" + lgortD + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla="
 				+ lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", category=" + category + ", costByUnit="
 				+ costByUnit + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted + ", countedExpl="
@@ -369,7 +359,6 @@ public class PosDocInvBean {
 		result = prime * result + ((dateIniCounted == null) ? 0 : dateIniCounted.hashCode());
 		result = prime * result + ((diff == null) ? 0 : diff.hashCode());
 		result = prime * result + ((diffCost == null) ? 0 : diffCost.hashCode());
-		result = prime * result + doncInvId;
 		result = prime * result + (explosion ? 1231 : 1237);
 		result = prime * result + ((imwmMarker == null) ? 0 : imwmMarker.hashCode());
 		result = prime * result + item;
@@ -460,8 +449,6 @@ public class PosDocInvBean {
 			if (other.diffCost != null)
 				return false;
 		} else if (!diffCost.equals(other.diffCost))
-			return false;
-		if (doncInvId != other.doncInvId)
 			return false;
 		if (explosion != other.explosion)
 			return false;

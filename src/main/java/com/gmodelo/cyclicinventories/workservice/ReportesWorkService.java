@@ -309,24 +309,6 @@ public class ReportesWorkService {
 		return response;
 	}
 
-	public Response<DocInvBeanHeaderSAP> Legacy_getReporteDocInvSAPByLgpla(Request request) {
-		log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] " + request.toString());
-		Response<DocInvBeanHeaderSAP> response = new Response<>();
-		DocInvBean bean = null;
-		try {
-			log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] try");
-			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
-			response = new ReportesDao().getConcSAPByPosition(bean);
-		} catch (Exception e) {
-			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInvSAPByLgpla] catch", e);
-			AbstractResultsBean result = new AbstractResultsBean();
-			result.setResultId(ReturnValues.IEXCEPTION);
-			result.setResultMsgAbs(e.getMessage());
-			response.setAbstractResult(result);
-		}
-		return response;
-	}
-
 	private final SapOperationDao operationDao = new SapOperationDao();
 
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
