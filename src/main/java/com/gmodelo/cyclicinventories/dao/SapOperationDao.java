@@ -1340,7 +1340,7 @@ public class SapOperationDao {
 					cs = null;
 					cs = con.prepareCall(INV_SP_ADD_CON_POS_SAP);
 
-					cs.setInt(1, dipb.getDoncInvId());
+					cs.setInt(1, dibhSAP.getDocInvId());
 					cs.setString(2, dipb.getLgort());
 					cs.setString(3, dipb.getImwmMarker());
 					cs.setString(4, dipb.getLgtyp());
@@ -1386,7 +1386,7 @@ public class SapOperationDao {
 
 				} else {
 
-					csBatch.setInt(1, dipb.getDoncInvId());
+					csBatch.setInt(1, dibhSAP.getDocInvId());
 					csBatch.setString(2, dipb.getLgort());
 					csBatch.setString(3, dipb.getImwmMarker());
 					csBatch.setString(4, dipb.getLgtyp());
