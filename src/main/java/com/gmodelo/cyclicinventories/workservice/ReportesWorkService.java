@@ -536,14 +536,14 @@ public class ReportesWorkService {
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Operations Begin");
 
 				for (PosDocInvBean docPos : docInvBeanList) {
-					if (!docPos.getCounted().equals("")) {
-						if (!docPos.getCountedExpl().equals("")) {
+					if (docPos.getCounted() != null && !docPos.getCounted().equals("")) {
+						if (docPos.getCountedExpl() != null && !docPos.getCountedExpl().equals("")) {
 							docPos.setCountedTot(new BigDecimal(docPos.getCounted())
 									.add(new BigDecimal(docPos.getCountedExpl())).toString());
 						} else {
 							docPos.setCountedTot(docPos.getCounted());
 						}
-					} else if (!docPos.getCountedExpl().equals("")) {
+					} else if (docPos.getCountedExpl() != null && !docPos.getCountedExpl().equals("")) {
 						docPos.setCountedTot(docPos.getCountedExpl());
 					}
 
