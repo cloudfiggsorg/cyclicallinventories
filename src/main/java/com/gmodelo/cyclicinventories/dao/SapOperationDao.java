@@ -130,7 +130,7 @@ public class SapOperationDao {
 			+ "GROUP BY LGNUM, LNUMT, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR) AS TAB "
 			+ "GROUP BY LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE";
 
-	private static final String COUNTED_MATNRS_BY_BUKRS = "SELECT MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE FROM (SELECT SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) MATNR, DIP_COUNT_DATE "
+	private static final String COUNTED_MATNRS_BY_WERKS = "SELECT MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE FROM (SELECT SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) MATNR, DIP_COUNT_DATE "
 			+ "FROM (SELECT DIP_DOC_INV_ID, DIP_MATNR MATNR, DIP_COUNT_DATE " + "FROM INV_DOC_INVENTORY_POSITIONS "
 			+ "WHERE DIP_DOC_INV_ID = ? " + "GROUP BY DIP_DOC_INV_ID, DIP_MATNR, DIP_COUNT_DATE) AS A "
 			+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) "
@@ -1008,13 +1008,13 @@ public class SapOperationDao {
 	public ArrayList<PosDocInvBean> getMatnrDatesByBukrs(int docInvId, Connection con) throws SQLException {
 
 		PreparedStatement stm = null;		
-		stm = con.prepareStatement(COUNTED_MATNRS_BY_BUKRS);
+		stm = con.prepareStatement(COUNTED_MATNRS_BY_WERKS);
 		stm.setInt(1, docInvId);
 		stm.setInt(2, docInvId);
 		stm.setInt(3, docInvId);
 		stm.setInt(4, docInvId);
 		
-		log.info("[getMatnrDatesByBukrs] Executing... " + COUNTED_MATNRS_BY_BUKRS);
+		log.info("[getMatnrDatesByBukrs] Executing... " + COUNTED_MATNRS_BY_WERKS);
 		
 		ResultSet rs = stm.executeQuery();
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
