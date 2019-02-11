@@ -482,10 +482,10 @@ public class ReportesDao {
 				// Set the counted explosioned
 				double countedExpl;
 				PosDocInvBean pdibAux = null;
+				
 				for (Map.Entry<String, PosDocInvBean> mapEntry : mapByMatNr.entrySet()) {
 
 					pdibAux = mapEntry.getValue();
-
 					countedExpl = 0;
 
 					for (MatExplReport obj : lsExpDet) {

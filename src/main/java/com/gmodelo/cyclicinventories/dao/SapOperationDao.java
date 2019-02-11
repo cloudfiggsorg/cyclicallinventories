@@ -671,8 +671,10 @@ public class SapOperationDao {
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(TRANSIT);
 		stm.setInt(1, docInvId);
-		ResultSet rs = stm.executeQuery();
-
+		
+		log.info("[getMatnrOnTransit] Executing... " + TRANSIT);
+		
+		ResultSet rs = stm.executeQuery();		
 		ArrayList<E_Mseg_SapEntity> lsMatnr = new ArrayList<>();
 		E_Mseg_SapEntity emse;
 
@@ -691,6 +693,9 @@ public class SapOperationDao {
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(CONSIGNATION);
 		stm.setInt(1, docInvId);
+		
+		log.info("[getMatnrOnCons] Executing... " + CONSIGNATION);
+		
 		ResultSet rs = stm.executeQuery();
 
 		ArrayList<E_Msku_SapEntity> lsMatnr = new ArrayList<>();
@@ -710,9 +715,13 @@ public class SapOperationDao {
 
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(THEORIC_IM);
+		
 		stm.setString(1, pb.getLgort());
 		stm.setString(2, pb.getMatnr());
 		stm.setInt(3, docInvId);
+		
+		log.info("[getMatnrTheoricIM] Executing... " + THEORIC_IM);
+		
 		ResultSet rs = stm.executeQuery();
 
 		E_Mard_SapEntity ems = new E_Mard_SapEntity();
@@ -734,6 +743,9 @@ public class SapOperationDao {
 		stm = con.prepareStatement(THEORIC_IM_BY_BUKRS);
 		stm.setString(1, pb.getMatnr());
 		stm.setInt(2, docInvId);
+		
+		log.info("[getMatnrTheoricImByBukrs] Executing... " + THEORIC_IM_BY_BUKRS);
+		
 		ResultSet rs = stm.executeQuery();
 
 		E_Mard_SapEntity ems = new E_Mard_SapEntity();
@@ -756,6 +768,8 @@ public class SapOperationDao {
 		stm.setString(3, pb.getLgtyp());
 		stm.setString(4, pb.getLgpla());
 		stm.setInt(5, docInvId);
+		
+		log.info("[getMatnrTheoricWM] Executing... " + THEORIC_WM);
 
 		ResultSet rs = stm.executeQuery();
 
@@ -781,6 +795,8 @@ public class SapOperationDao {
 		stm = con.prepareStatement(THEORIC_WM_BY_BUKRS);
 		stm.setInt(1, docInvId);
 
+		log.info("[getMatnrTheoricWmByBukrs] Executing... " + THEORIC_WM_BY_BUKRS);
+		
 		ResultSet rs = stm.executeQuery();
 
 		E_Lqua_SapEntity els = new E_Lqua_SapEntity();
@@ -799,6 +815,9 @@ public class SapOperationDao {
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COST_BY_MATNR);
 		stm.setInt(1, docInvId);
+		
+		log.info("[getCostByMatnr] Executing... " + COST_BY_MATNR);
+		
 		ResultSet rs = stm.executeQuery();
 		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
 		CostByMatnr els;
@@ -826,6 +845,8 @@ public class SapOperationDao {
 		stm.setInt(7, docInvId);
 		stm.setTimestamp(8, new java.sql.Timestamp(dcounted.getTime()));
 
+		log.info("[getMatnrMovementsIM] Executing... " + MOVEMENTS_IM);
+		
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
 
@@ -849,6 +870,8 @@ public class SapOperationDao {
 		stm.setInt(5, docInvId);
 		stm.setTimestamp(6, new java.sql.Timestamp(dcounted.getTime()));
 
+		log.info("[getMatnrMovementsByBukrs] Executing... " + MOVEMENTS_BY_BUKRS);
+		
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
 
@@ -880,6 +903,8 @@ public class SapOperationDao {
 		stm.setTimestamp(12, new java.sql.Timestamp(dcounted.getTime()));
 		stm.setString(13, pdib.getMatnr());
 		stm.setInt(14, docInvId);
+		
+		log.info("[getMatnrMovementsWM] Executing... " + MOVEMENTS_WM);
 
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
@@ -896,6 +921,9 @@ public class SapOperationDao {
 		PreparedStatement stm = null;
 		stm = con.prepareStatement(COUNTED_MATNRS);
 		stm.setInt(1, docInvId);
+		
+		log.info("[getMatnrDates] Executing... " + COUNTED_MATNRS);
+		
 		ResultSet rs = stm.executeQuery();
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
 		PosDocInvBean matnr;
@@ -916,12 +944,15 @@ public class SapOperationDao {
 
 	public ArrayList<PosDocInvBean> getMatnrDatesByBukrs(int docInvId, Connection con) throws SQLException {
 
-		PreparedStatement stm = null;
+		PreparedStatement stm = null;		
 		stm = con.prepareStatement(COUNTED_MATNRS_BY_BUKRS);
 		stm.setInt(1, docInvId);
 		stm.setInt(2, docInvId);
 		stm.setInt(3, docInvId);
 		stm.setInt(4, docInvId);
+		
+		log.info("[getMatnrDatesByBukrs] Executing... " + COUNTED_MATNRS_BY_BUKRS);
+		
 		ResultSet rs = stm.executeQuery();
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
 		PosDocInvBean matnr;
