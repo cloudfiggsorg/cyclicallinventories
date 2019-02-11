@@ -1,9 +1,15 @@
 package com.gmodelo.cyclicinventories.workservice;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,6 +20,10 @@ import com.gmodelo.cyclicinventories.beans.ConciAccntReportBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
+import com.gmodelo.cyclicinventories.beans.E_Lqua_SapEntity;
+import com.gmodelo.cyclicinventories.beans.E_Mard_SapEntity;
+import com.gmodelo.cyclicinventories.beans.E_Salida_SapEntity;
+import com.gmodelo.cyclicinventories.beans.MaterialExplosionBean;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
 import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
@@ -311,22 +321,47 @@ public class ReportesWorkService {
 
 	private final SapOperationDao operationDao = new SapOperationDao();
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
 		log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] " + request.toString());
 		Response<DocInvBeanHeaderSAP> response = new Response<>();
+		DocInvBeanHeaderSAP headerSap = new DocInvBeanHeaderSAP();
 		AbstractResultsBean result = new AbstractResultsBean();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		response.setAbstractResult(result);
 		DocInvBean bean = new DocInvBean();
+		List<PosDocInvBean> docInvBeanList = new ArrayList<>();
 		Connection con = iConnectionManager.createConnection();
 		try {
 			log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] try");
 			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 			// response = new ReportesDao().getConcSAPByPosition(bean);
 			bean = operationDao.getDocInvBeanDataHeaders(bean, con);
+			headerSap.setDocInvId(bean.getDocInvId());
+			headerSap.setBukrs(bean.getBukrs());
+			headerSap.setBukrsD(bean.getBukrsD());
+			headerSap.setWerks(bean.getWerks());
+			headerSap.setWerksD(bean.getWerksD());
+			headerSap.setRoute(bean.getRoute());
+			headerSap.setType(bean.getType());
+			headerSap.setConciliationDate(sdf.format(new Date(bean.getModifiedDate())));
+			headerSap.setCreationDate(sdf.format(new Date(bean.getCreatedDate())));
+
 			List<PosDocInvBean> docPosition = operationDao.getDocInvPositions(bean, con);
 			if (!docPosition.isEmpty()) {
+				HashMap<String, String> costByMaterial = operationDao.getCostByMaterial(bean, con);
+				HashMap<String, List<PosDocInvBean>> orderWm = new HashMap<>();
+				HashMap<String, HashMap<String, List<E_Salida_SapEntity>>> eSalida = operationDao
+						.getEsalidaDataDocInv(bean, con);
+				HashMap<String, E_Mard_SapEntity> eMard = operationDao.getEmardforDocInv(bean, con);
+				HashMap<String, HashMap<String, E_Lqua_SapEntity>> eLqua = operationDao.getElquaforDocInv(bean, con);
+				HashMap<String, List<MaterialExplosionBean>> explosionMap = operationDao.getExplotionDetailDocInv(bean,
+						con);
 				List<PosDocInvBean> imPositions = new ArrayList<>();
+				HashMap<String, PosDocInvBean> expPosition = new HashMap<>();
 				List<PosDocInvBean> wmPositions = new ArrayList<>();
+				List<PosDocInvBean> wmExtraPos = new ArrayList<>();
+				List<PosDocInvBean> wmExtraPosPiv = new ArrayList<>();
 				for (PosDocInvBean docPos : docPosition) {
 					if (docPos.getImwmMarker().equalsIgnoreCase("WM")) {
 						wmPositions.add(docPos);
@@ -334,19 +369,238 @@ public class ReportesWorkService {
 						imPositions.add(docPos);
 					}
 				}
-				//WM PROC
-				
-				
-				
-				
-				//IM PROC
-				
+				// WM PROC BEGIN
+				// Get Data LQUA AND MOVEMENTS
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get WM LQUA AND MOVEMENTS");
+				for (PosDocInvBean wmPos : wmPositions) {
+					String lquaKey = wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla();
+					if (eLqua.get(eLqua.get(lquaKey)) != null) {
+						if (eLqua.get(lquaKey).get(wmPos.getMatnr()) != null) {
+							wmPos.setTheoric(eLqua.get(lquaKey).get(wmPos.getMatnr()).getVerme());
+							eLqua.get(lquaKey).get(wmPos.getMatnr()).setMarked(true);
+							if (eSalida.containsKey(lquaKey)) {
+								if (eSalida.get(lquaKey).containsKey(wmPos.getMatnr())) {
+									Date lastCounted = new Date(wmPos.getDateEndCounted());
+
+									BigDecimal theoMovs = new BigDecimal(wmPos.getTheoric());
+									for (E_Salida_SapEntity eSalidaBean : eSalida.get(lquaKey).get(wmPos.getMatnr())) {
+										if (lastCounted.compareTo(sdf
+												.parse(eSalidaBean.getQdatu() + " " + eSalidaBean.getQzeit())) <= 0) {
+											theoMovs.add(new BigDecimal(eSalidaBean.getNistm()));
+											theoMovs.subtract(new BigDecimal(eSalidaBean.getVistm()));
+										}
+									}
+									if (theoMovs.compareTo(BigDecimal.ZERO) == 1) {
+										wmPos.setTheoric(theoMovs.toString());
+									} else {
+										wmPos.setTheoric("0.00");
+									}
+								}
+							}
+						} else {
+							wmPos.setTheoric("0.00");
+						}
+					}
+					// GET EXPLOSION DATA
+					if (explosionMap.containsKey(wmPos.getMatnr())) {
+						for (MaterialExplosionBean posEx : explosionMap.get(wmPos.getMatnr())) {
+							PosDocInvBean pBean = new PosDocInvBean();
+							String toCount = "0.00";
+							if (expPosition.containsKey(posEx.getLgort() + "" + posEx.getIdnrk())) {
+								toCount = new BigDecimal(posEx.getBmcal())
+										.multiply(new BigDecimal(
+												wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00"))
+										.toString();
+								pBean = expPosition.get(posEx.getLgort() + "" + posEx.getIdnrk());
+								pBean.setDateIniCounted(wmPos.getDateIniCounted());
+								pBean.setDateEndCounted(wmPos.getDateEndCounted());
+								pBean.setCountedExpl(
+										new BigDecimal(pBean.getCountedExpl()).add(new BigDecimal(toCount)).toString());
+							} else {
+								pBean.setLgort(posEx.getLgort());
+								pBean.setLgortD(posEx.getLgortD());
+								pBean.setMatnr(posEx.getIdnrk());
+								pBean.setMatnrD(posEx.getMaktx());
+								pBean.setMeins(posEx.getMeins());
+								pBean.setCountedExpl(new BigDecimal(posEx.getBmcal())
+										.multiply(new BigDecimal(
+												wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00"))
+										.toString());
+								pBean.setCounted("0.00");
+								pBean.setDateIniCounted(wmPos.getDateIniCounted());
+								pBean.setDateEndCounted(wmPos.getDateEndCounted());
+								pBean.setImwmMarker("IM");
+								expPosition.put(posEx.getLgort() + "" + posEx.getIdnrk(), pBean);
+							}
+						}
+					}
+				}
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get WM LQUA AND MOVEMENTS END");
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get IM MARD");
+
+				Iterator it = eLqua.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					HashMap<String, E_Lqua_SapEntity> single_lqua = (HashMap<String, E_Lqua_SapEntity>) pair.getValue();
+					Iterator it2 = single_lqua.entrySet().iterator();
+					while (it2.hasNext()) {
+						Map.Entry pair2 = (Map.Entry) it2.next();
+						E_Lqua_SapEntity lquaExEn = (E_Lqua_SapEntity) pair2.getValue();
+						if (!lquaExEn.getMarked()) {
+							PosDocInvBean posExLq = new PosDocInvBean();
+							posExLq.setLgort(lquaExEn.getLgort());
+							posExLq.setLgortD(lquaExEn.getLgortD());
+							posExLq.setLgNum(lquaExEn.getLgnum());
+							posExLq.setLgtyp(lquaExEn.getLgtyp());
+							posExLq.setLgpla(lquaExEn.getLgpla());
+							posExLq.setTheoric(lquaExEn.getVerme());
+							posExLq.setMeins(lquaExEn.getMeins());
+							posExLq.setMatnr(lquaExEn.getMatnr());
+							posExLq.setMatnrD(lquaExEn.getMaktx());
+							posExLq.setCounted("");
+							posExLq.setImwmMarker("WM");
+							wmExtraPos.add(posExLq);
+						}
+					}
+				}
+
+				for (PosDocInvBean wmPos : wmPositions) {
+					for (PosDocInvBean wmPosEx : wmExtraPos) {
+						if ((wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla())
+								.equals(wmPosEx.getLgNum() + "" + wmPosEx.getLgtyp() + "" + wmPosEx.getLgpla())) {
+							wmExtraPosPiv.add(wmPosEx);
+						}
+					}
+				}
+
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get IM MARD");
+
+				// WM PROC BEGIN
+
+				// Begin Fill IM
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] IM MERGES");
+
+				for (PosDocInvBean imPos : imPositions) {
+					if (expPosition.containsKey(imPos.getLgort() + "" + imPos.getMatnr())) {
+						imPos.setCountedExpl(
+								expPosition.get(imPos.getLgort() + "" + imPos.getMatnr()).getCountedExpl());
+						expPosition.remove(imPos.getLgort() + "" + imPos.getMatnr());
+					} else {
+						imPos.setCountedExpl("");
+					}
+				}
+				it = expPosition.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					imPositions.add((PosDocInvBean) pair.getValue());
+				}
+
+				for (PosDocInvBean imPos : imPositions) {
+					if (eMard.get(imPos.getMatnr()) != null) {
+						imPos.setTheoric(eMard.get(imPos.getMatnr()).getLabst());
+					}
+				}
+
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] IM MERGES END");
+				// End fill IM
+
+				// Reorganize WM
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Sort Begin");
+
+				for (PosDocInvBean wmPos : wmPositions) {
+					String lquaKey = wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla();
+					if (orderWm.containsKey(lquaKey)) {
+						orderWm.get(lquaKey).add(wmPos);
+					} else {
+						List<PosDocInvBean> listPos = new ArrayList<>();
+						listPos.add(wmPos);
+						orderWm.put(lquaKey, listPos);
+					}
+				}
+				for (PosDocInvBean wmPos : wmExtraPosPiv) {
+					String lquaKey = wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla();
+					if (orderWm.containsKey(lquaKey)) {
+						orderWm.get(lquaKey).add(wmPos);
+					} else {
+						List<PosDocInvBean> listPos = new ArrayList<>();
+						listPos.add(wmPos);
+						orderWm.put(lquaKey, listPos);
+					}
+				}
+
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Sort END");
+
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Merg WM AND IM");
+				// Merge the two Lists
+				it = orderWm.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					List<PosDocInvBean> colList = (List<PosDocInvBean>) pair.getValue();
+					docInvBeanList.addAll(colList);
+				}
+				docInvBeanList.addAll(imPositions);
+
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Merg WM AND IM END");
+				// Finalize with counts
+
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Operations Begin");
+
+				for (PosDocInvBean docPos : docInvBeanList) {
+					if (docPos.getCounted() != null && !docPos.getCounted().equals("")) {
+						if (docPos.getCountedExpl() != null && !docPos.getCountedExpl().equals("")) {
+							docPos.setCountedTot(new BigDecimal(docPos.getCounted())
+									.add(new BigDecimal(docPos.getCountedExpl())).toString());
+						} else {
+							docPos.setCountedTot(docPos.getCounted());
+						}
+					} else if (docPos.getCountedExpl() != null && !docPos.getCountedExpl().equals("")) {
+						docPos.setCountedTot(docPos.getCountedExpl());
+					}
+
+					if (docPos.getCountedTot() != null && !docPos.getCountedTot().isEmpty()) {
+						if (docPos.getTheoric() != null && !docPos.getTheoric().isEmpty()) {
+							docPos.setDiff(new BigDecimal(docPos.getCountedTot())
+									.subtract(new BigDecimal(docPos.getTheoric())).toString());
+						} else {
+							docPos.setDiff(docPos.getCountedTot());
+						}
+					}
+
+					docPos.setCostByUnit(costByMaterial.get(docPos.getMatnr()) != null
+							? costByMaterial.get(docPos.getMatnr()) : "0.00");
+					if (docPos.getCountedTot() != null
+							&& new BigDecimal(docPos.getCountedTot()).compareTo(BigDecimal.ZERO) > 0) {
+						docPos.setCountedCost(new BigDecimal(docPos.getCountedTot())
+								.multiply(new BigDecimal(docPos.getCostByUnit())).toString());
+					} else {
+						docPos.setCountedCost("0.00");
+					}
+					if (docPos.getTheoric() != null
+							&& new BigDecimal(docPos.getTheoric()).compareTo(BigDecimal.ZERO) > 0) {
+						docPos.setTheoricCost(new BigDecimal(docPos.getTheoric())
+								.multiply(new BigDecimal(docPos.getCostByUnit())).toString());
+					} else {
+						docPos.setTheoricCost("0.00");
+					}
+					if (docPos.getDiff() != null && new BigDecimal(docPos.getDiff()).compareTo(BigDecimal.ZERO) > 0) {
+						docPos.setDiffCost(new BigDecimal(docPos.getDiff())
+								.multiply(new BigDecimal(docPos.getCostByUnit())).toString());
+					} else {
+						docPos.setDiffCost("0.00");
+					}
+				}
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Operations End");
+
+				headerSap.setDocInvPosition(docInvBeanList);
+				response.setLsObject(headerSap);
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Return:" + response.toString());
 			} else {
-				result.setResultId(ReturnValues.IEXCEPTION);
+				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("¡No se encontro información!");
 			}
+		} catch (
 
-		} catch (Exception e) {
+		Exception e) {
 			log.log(Level.SEVERE, "[ReporteWorkService getReporteDocInvSAPByLgpla] catch", e);
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());

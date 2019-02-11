@@ -13,6 +13,8 @@ public class MaterialExplosionBean {
 	String idnrk;
 	String meins;
 	String lgort;
+	String lgortD;
+	String maktx;
 
 	public String getMatnr() {
 		return matnr;
@@ -78,8 +80,24 @@ public class MaterialExplosionBean {
 		this.lgort = lgort;
 	}
 
+	public String getLgortD() {
+		return lgortD;
+	}
+
+	public void setLgortD(String lgortD) {
+		this.lgortD = lgortD;
+	}
+
+	public String getMaktx() {
+		return maktx;
+	}
+
+	public void setMaktx(String maktx) {
+		this.maktx = maktx;
+	}
+
 	public MaterialExplosionBean(String matnr, String bmein, String bmeng, String menge, String bmcal, String idnrk,
-			String meins, String lgort) {
+			String meins, String lgort, String lgortD, String maktx) {
 		super();
 		this.matnr = matnr;
 		this.bmein = bmein;
@@ -89,6 +107,8 @@ public class MaterialExplosionBean {
 		this.idnrk = idnrk;
 		this.meins = meins;
 		this.lgort = lgort;
+		this.lgortD = lgortD;
+		this.maktx = maktx;
 	}
 
 	public MaterialExplosionBean(ResultSet rs) throws SQLException {
@@ -101,7 +121,8 @@ public class MaterialExplosionBean {
 		this.idnrk = rs.getString("IDNRK");
 		this.meins = rs.getString("MEINS");
 		this.lgort = rs.getString("EX_LGORT");
-
+		this.lgortD = rs.getString("LGOBE");
+		this.maktx = rs.getString("MAKTX");
 	}
 
 	public MaterialExplosionBean() {
@@ -112,7 +133,8 @@ public class MaterialExplosionBean {
 	@Override
 	public String toString() {
 		return "MaterialExplosionBean [matnr=" + matnr + ", bmein=" + bmein + ", bmeng=" + bmeng + ", menge=" + menge
-				+ ", bmcal=" + bmcal + ", idnrk=" + idnrk + ", meins=" + meins + ", lgort=" + lgort + "]";
+				+ ", bmcal=" + bmcal + ", idnrk=" + idnrk + ", meins=" + meins + ", lgort=" + lgort + ", lgortD="
+				+ lgortD + ", maktx=" + maktx + "]";
 	}
 
 	@Override
@@ -124,6 +146,8 @@ public class MaterialExplosionBean {
 		result = prime * result + ((bmeng == null) ? 0 : bmeng.hashCode());
 		result = prime * result + ((idnrk == null) ? 0 : idnrk.hashCode());
 		result = prime * result + ((lgort == null) ? 0 : lgort.hashCode());
+		result = prime * result + ((lgortD == null) ? 0 : lgortD.hashCode());
+		result = prime * result + ((maktx == null) ? 0 : maktx.hashCode());
 		result = prime * result + ((matnr == null) ? 0 : matnr.hashCode());
 		result = prime * result + ((meins == null) ? 0 : meins.hashCode());
 		result = prime * result + ((menge == null) ? 0 : menge.hashCode());
@@ -163,6 +187,16 @@ public class MaterialExplosionBean {
 			if (other.lgort != null)
 				return false;
 		} else if (!lgort.equals(other.lgort))
+			return false;
+		if (lgortD == null) {
+			if (other.lgortD != null)
+				return false;
+		} else if (!lgortD.equals(other.lgortD))
+			return false;
+		if (maktx == null) {
+			if (other.maktx != null)
+				return false;
+		} else if (!maktx.equals(other.maktx))
 			return false;
 		if (matnr == null) {
 			if (other.matnr != null)
