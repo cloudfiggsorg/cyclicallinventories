@@ -361,6 +361,7 @@ public class ReportesWorkService {
 				HashMap<String, PosDocInvBean> expPosition = new HashMap<>();
 				List<PosDocInvBean> wmPositions = new ArrayList<>();
 				List<PosDocInvBean> wmExtraPos = new ArrayList<>();
+				List<PosDocInvBean> wmExtraPosPiv = new ArrayList<>();
 				for (PosDocInvBean docPos : docPosition) {
 					if (docPos.getImwmMarker().equalsIgnoreCase("WM")) {
 						wmPositions.add(docPos);
@@ -463,6 +464,15 @@ public class ReportesWorkService {
 					}
 				}
 
+				for (PosDocInvBean wmPos : wmPositions) {
+					for (PosDocInvBean wmPosEx : wmExtraPos) {
+						if ((wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla())
+								.equals(wmPosEx.getLgNum() + "" + wmPosEx.getLgtyp() + "" + wmPosEx.getLgpla())) {
+							wmExtraPosPiv.add(wmPosEx);
+						}
+					}
+				}
+
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get IM MARD");
 
 				// WM PROC BEGIN
@@ -507,7 +517,7 @@ public class ReportesWorkService {
 						orderWm.put(lquaKey, listPos);
 					}
 				}
-				for (PosDocInvBean wmPos : wmExtraPos) {
+				for (PosDocInvBean wmPos : wmExtraPosPiv) {
 					String lquaKey = wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla();
 					if (orderWm.containsKey(lquaKey)) {
 						orderWm.get(lquaKey).add(wmPos);
