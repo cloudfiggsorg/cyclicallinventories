@@ -71,33 +71,29 @@ public class CountsDao {
 							cs.setString(7,
 									entrada.getValue().getCamas() != null ? entrada.getValue().getCamas() : "0");
 							cs.setString(8, entrada.getValue().getUm() != null ? entrada.getValue().getUm() : "0");
-							cs.setString(9,
-									entrada.getValue().getTotalConverted() != null
-											? entrada.getValue().getTotalConverted()
-											: "0");
+							cs.setString(9, entrada.getValue().getTotalConverted() != null
+									? entrada.getValue().getTotalConverted() : "0");
 							cs.setString(10, user);
-							
-							if(entrada.getValue().getDateStart()==0){
+
+							if (entrada.getValue().getDateStart() == 0) {
 								cs.setNull(11, Types.TIMESTAMP);
-							}else{
-								cs.setTimestamp(11,new java.sql.Timestamp(entrada.getValue().getDateStart()));
+							} else {
+								cs.setTimestamp(11, new java.sql.Timestamp(entrada.getValue().getDateStart()));
 							}
-							if(entrada.getValue().getDateEnd()==0){
+							if (entrada.getValue().getDateEnd() == 0) {
 								cs.setNull(12, Types.TIMESTAMP);
-							}else{
+							} else {
 								cs.setTimestamp(12, new java.sql.Timestamp(entrada.getValue().getDateEnd()));
 							}
-							
+
 							cs.setString(13,
 									entrada.getValue().getProdDate() != null ? entrada.getValue().getProdDate() : "");
-							cs.setString(14,
-									entrada.getValue().getMaterialNotes() != null
-											? entrada.getValue().getMaterialNotes()
-											: "");
-							cs.setString(15, entrada.getValue().getCpc() != null ? entrada.getValue().getCpc() : "");
-							cs.setString(16, entrada.getValue().getCpp() != null ? entrada.getValue().getCpp() : "");
-							cs.setString(17,
-									entrada.getValue().getVhilmQuan() != null ? entrada.getValue().getVhilmQuan() : "0");
+							cs.setString(14, entrada.getValue().getMaterialNotes() != null
+									? entrada.getValue().getMaterialNotes() : "");
+							cs.setString(15, entrada.getValue().getCpc() != null ? entrada.getValue().getCpc() : "0");
+							cs.setString(16, entrada.getValue().getCpp() != null ? entrada.getValue().getCpp() : "0");
+							cs.setString(17, entrada.getValue().getVhilmQuan() != null
+									? entrada.getValue().getVhilmQuan() : "0");
 							cs.registerOutParameter(18, Types.INTEGER);
 							cs.execute();
 
