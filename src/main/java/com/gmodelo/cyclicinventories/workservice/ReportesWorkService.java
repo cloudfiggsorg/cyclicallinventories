@@ -428,7 +428,7 @@ public class ReportesWorkService {
 								pBean.setTheoric("0.00");
 								pBean.setCountedExpl(new BigDecimal(posEx.getBmcal())
 										.multiply(new BigDecimal(
-												wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00"))
+												wmPos.getCounted() != null ? wmPos.getCounted() : "0.00"))
 										.toString());
 								pBean.setCounted("0.00");
 								pBean.setDateIniCounted(wmPos.getDateIniCounted());
