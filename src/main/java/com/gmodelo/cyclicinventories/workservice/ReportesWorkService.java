@@ -520,15 +520,20 @@ public class ReportesWorkService {
 
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Sort END");
 
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Merg WM AND IM");
 				// Merge the two Lists
 				it = orderWm.entrySet().iterator();
 				while (it.hasNext()) {
 					Map.Entry pair = (Map.Entry) it.next();
-					docInvBeanList.add((PosDocInvBean) pair.getValue());
+					List<PosDocInvBean> colList = (List<PosDocInvBean>) pair.getValue();
+					docInvBeanList.addAll(colList);
 				}
 				docInvBeanList.addAll(imPositions);
 
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Merg WM AND IM END");
 				// Finalize with counts
+
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Operations Begin");
 
 				for (PosDocInvBean docPos : docInvBeanList) {
 					if (!docPos.getCounted().equals("")) {
@@ -574,8 +579,11 @@ public class ReportesWorkService {
 						docPos.setDiffCost("0.00");
 					}
 				}
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Operations End");
+
 				headerSap.setDocInvPosition(docInvBeanList);
 				response.setLsObject(headerSap);
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Return:" + response.toString());
 			} else {
 				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("¡No se encontro información!");
