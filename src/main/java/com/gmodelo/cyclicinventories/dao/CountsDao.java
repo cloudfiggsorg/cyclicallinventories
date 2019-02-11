@@ -97,7 +97,7 @@ public class CountsDao {
 							cs.setString(15, entrada.getValue().getCpc() != null ? entrada.getValue().getCpc() : "");
 							cs.setString(16, entrada.getValue().getCpp() != null ? entrada.getValue().getCpp() : "");
 							cs.setString(17,
-									entrada.getValue().getVhilmQuan() != null ? entrada.getValue().getVhilmQuan() : "");
+									entrada.getValue().getVhilmQuan() != null ? entrada.getValue().getVhilmQuan() : "0");
 							cs.registerOutParameter(18, Types.INTEGER);
 							cs.execute();
 
