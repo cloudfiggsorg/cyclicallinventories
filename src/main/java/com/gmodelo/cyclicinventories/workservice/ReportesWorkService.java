@@ -486,7 +486,9 @@ public class ReportesWorkService {
 				}
 
 				for (PosDocInvBean imPos : imPositions) {
-					imPos.setTheoric(eMard.get(imPos.getMatnr()).getLabst());
+					if (eMard.get(imPos.getMatnr()) != null) {
+						imPos.setTheoric(eMard.get(imPos.getMatnr()).getLabst());
+					}
 				}
 
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] IM MERGES END");
