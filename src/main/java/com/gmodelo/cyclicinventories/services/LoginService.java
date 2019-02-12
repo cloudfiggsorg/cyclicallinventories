@@ -25,13 +25,6 @@ public class LoginService {
 	private Logger log = Logger.getLogger(LoginService.class.getName());
 
 	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/RequestNewSession")
-	public String RequestNewLogin(@FormParam(CommunicationObjects.LOGINOBJECT) String login) {
-		return null;
-	}
-
-	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/login")
