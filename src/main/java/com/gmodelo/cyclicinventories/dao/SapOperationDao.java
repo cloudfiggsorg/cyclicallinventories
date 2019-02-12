@@ -758,7 +758,7 @@ public class SapOperationDao {
 		stm = con.prepareStatement(TRANSIT);
 		stm.setInt(1, docInvId);
 		
-		log.info("[getMatnrOnTransit] Executing... " + TRANSIT);
+		//log.info("[getMatnrOnTransit] Executing... " + TRANSIT);
 		
 		ResultSet rs = stm.executeQuery();		
 		ArrayList<E_Mseg_SapEntity> lsMatnr = new ArrayList<>();
@@ -780,7 +780,7 @@ public class SapOperationDao {
 		stm = con.prepareStatement(CONSIGNATION);
 		stm.setInt(1, docInvId);
 		
-		log.info("[getMatnrOnCons] Executing... " + CONSIGNATION);
+		//log.info("[getMatnrOnCons] Executing... " + CONSIGNATION);
 		
 		ResultSet rs = stm.executeQuery();
 
@@ -806,7 +806,7 @@ public class SapOperationDao {
 		stm.setString(2, pb.getMatnr());
 		stm.setInt(3, docInvId);
 		
-		log.info("[getMatnrTheoricIM] Executing... " + THEORIC_IM);
+		//log.info("[getMatnrTheoricIM] Executing... " + THEORIC_IM);
 		
 		ResultSet rs = stm.executeQuery();
 
@@ -830,7 +830,7 @@ public class SapOperationDao {
 		stm.setString(1, pb.getMatnr());
 		stm.setInt(2, docInvId);
 		
-		log.info("[getMatnrTheoricImByBukrs] Executing... " + THEORIC_IM_BY_BUKRS);
+		//log.info("[getMatnrTheoricImByBukrs] Executing... " + THEORIC_IM_BY_BUKRS);
 		
 		ResultSet rs = stm.executeQuery();
 
@@ -855,7 +855,7 @@ public class SapOperationDao {
 		stm.setString(4, pb.getLgpla());
 		stm.setInt(5, docInvId);
 		
-		log.info("[getMatnrTheoricWM] Executing... " + THEORIC_WM);
+		//log.info("[getMatnrTheoricWM] Executing... " + THEORIC_WM);
 
 		ResultSet rs = stm.executeQuery();
 
@@ -881,7 +881,7 @@ public class SapOperationDao {
 		stm = con.prepareStatement(THEORIC_WM_BY_BUKRS);
 		stm.setInt(1, docInvId);
 
-		log.info("[getMatnrTheoricWmByBukrs] Executing... " + THEORIC_WM_BY_BUKRS);
+		//log.info("[getMatnrTheoricWmByBukrs] Executing... " + THEORIC_WM_BY_BUKRS);
 		
 		ResultSet rs = stm.executeQuery();
 
@@ -902,7 +902,7 @@ public class SapOperationDao {
 		stm = con.prepareStatement(COST_BY_MATNR);
 		stm.setInt(1, docInvId);
 		
-		log.info("[getCostByMatnr] Executing... " + COST_BY_MATNR);
+		//log.info("[getCostByMatnr] Executing... " + COST_BY_MATNR);
 		
 		ResultSet rs = stm.executeQuery();
 		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
@@ -931,7 +931,7 @@ public class SapOperationDao {
 		stm.setInt(7, docInvId);
 		stm.setTimestamp(8, new java.sql.Timestamp(dcounted.getTime()));
 
-		log.info("[getMatnrMovementsIM] Executing... " + MOVEMENTS_IM);
+		//log.info("[getMatnrMovementsIM] Executing... " + MOVEMENTS_IM);
 		
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
@@ -956,7 +956,7 @@ public class SapOperationDao {
 		stm.setInt(5, docInvId);
 		stm.setTimestamp(6, new java.sql.Timestamp(dcounted.getTime()));
 
-		log.info("[getMatnrMovementsByBukrs] Executing... " + MOVEMENTS_BY_BUKRS);
+		//log.info("[getMatnrMovementsByBukrs] Executing... " + MOVEMENTS_BY_BUKRS);
 		
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
@@ -990,7 +990,7 @@ public class SapOperationDao {
 		stm.setString(13, pdib.getMatnr());
 		stm.setInt(14, docInvId);
 		
-		log.info("[getMatnrMovementsWM] Executing... " + MOVEMENTS_WM);
+		//log.info("[getMatnrMovementsWM] Executing... " + MOVEMENTS_WM);
 
 		ResultSet rs = stm.executeQuery();
 		long menge = 0;
@@ -1008,7 +1008,7 @@ public class SapOperationDao {
 		stm = con.prepareStatement(COUNTED_MATNRS);
 		stm.setInt(1, docInvId);
 		
-		log.info("[getMatnrDates] Executing... " + COUNTED_MATNRS);
+		//log.info("[getMatnrDates] Executing... " + COUNTED_MATNRS);
 		
 		ResultSet rs = stm.executeQuery();
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
@@ -1037,7 +1037,7 @@ public class SapOperationDao {
 		stm.setInt(3, docInvId);
 		stm.setInt(4, docInvId);
 		
-		log.info("[getMatnrDatesByBukrs] Executing... " + COUNTED_MATNRS_BY_WERKS);
+		//log.info("[getMatnrDatesByBukrs] Executing... " + COUNTED_MATNRS_BY_WERKS);
 		
 		ResultSet rs = stm.executeQuery();
 		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
