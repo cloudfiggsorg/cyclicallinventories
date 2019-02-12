@@ -75,50 +75,50 @@ public class SapOperationDao {
 			+ " SUBSTRING(MKT.MATNR, PATINDEX('%[^0 ]%', MKT.MATNR + ' '), LEN(MKT.MATNR)) "
 			+ " GROUP BY EC.MATNR, MKT.MAKTX, SMBEZ, ATFLV, ATNAM";
 
-	private static final String TRANSIT = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM(CAST(MENGE AS decimal(15,3))) MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? "
+	private static final String TRANSIT = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM(CAST(MENGE AS decimal(20,3))) MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
-	private static final String CONSIGNATION = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(15,3)) "
-			+ "+ CAST(KUINS AS decimal(15,3)) + CAST(KUEIN AS decimal(15,3)))) AS CONS FROM E_MSKU_F WHERE DOC_INV_ID = ? "
+	private static final String CONSIGNATION = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(20,3)) "
+			+ "+ CAST(KUINS AS decimal(20,3)) + CAST(KUEIN AS decimal(20,3)))) AS CONS FROM E_MSKU_F WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
 	private static final String THEORIC_IM = "SELECT LGORT, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
-			+ "(CAST(LABST AS decimal(15,3)) "
-			+ "+ CAST(UMLME AS decimal(15,3)) + CAST(INSME AS decimal(15,3)) + CAST(EINME AS decimal(15,3)) "
-			+ "+ CAST(SPEME AS decimal(15,3)) + CAST(RETME AS decimal(15,3))) AS CONS FROM E_MARD WHERE LGORT = ? "
+			+ "(CAST(LABST AS decimal(20,3)) "
+			+ "+ CAST(UMLME AS decimal(20,3)) + CAST(INSME AS decimal(20,3)) + CAST(EINME AS decimal(20,3)) "
+			+ "+ CAST(SPEME AS decimal(20,3)) + CAST(RETME AS decimal(20,3))) AS CONS FROM E_MARD WHERE LGORT = ? "
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ?";
 
 	private static final String THEORIC_IM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
-			+ "SUM((CAST(LABST AS decimal(15,3)) " + "+ CAST(UMLME AS decimal(15,3)) + CAST(INSME AS decimal(15,3)) "
-			+ "+ CAST(EINME AS decimal(15,3)) + CAST(SPEME AS decimal(15,3)) "
-			+ "+ CAST(RETME AS decimal(15,3)))) AS CONS " + "FROM E_MARD "
+			+ "SUM((CAST(LABST AS decimal(20,3)) " + "+ CAST(UMLME AS decimal(20,3)) + CAST(INSME AS decimal(20,3)) "
+			+ "+ CAST(EINME AS decimal(20,3)) + CAST(SPEME AS decimal(20,3)) "
+			+ "+ CAST(RETME AS decimal(20,3)))) AS CONS " + "FROM E_MARD "
 			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
 	private static final String THEORIC_WM = "SELECT LGNUM, LGORT, LGTYP, LGPLA, SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
-			+ "SUM(CAST(VERME AS decimal(15,3))) AS CONS FROM E_LQUA WHERE "
+			+ "SUM(CAST(VERME AS decimal(20,3))) AS CONS FROM E_LQUA WHERE "
 			+ "LGNUM = ? AND LGORT = ? AND LGTYP = ? AND LGPLA = ? AND DOC_INV_ID = ? GROUP BY LGNUM, LGORT, LGTYP, LGPLA, MATNR ";
 
 	private static final String THEORIC_WM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
-			+ "SUM(CAST(VERME AS decimal(15,3))) AS CONS FROM E_LQUA WHERE " + "DOC_INV_ID = ? GROUP BY MATNR ";
+			+ "SUM(CAST(VERME AS decimal(20,3))) AS CONS FROM E_LQUA WHERE " + "DOC_INV_ID = ? GROUP BY MATNR ";
 
 	private static final String MOVEMENTS_WM = "SELECT (SELECT SUM(CAST(MENGE AS decimal(15,3))) FROM E_MSEG "
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ? "
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ?) - "
-			+ "(SELECT SUM(CAST(MENGE AS decimal(15,3))) FROM E_MSEG "
+			+ "(SELECT SUM(CAST(MENGE AS decimal(20,3))) FROM E_MSEG "
 			+ "WHERE LGORT = ? AND LGNUM = ? AND LGTYP = ? AND LGPLA = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ? "
 			+ "AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ?) AS MENGE";
 
-	private static final String MOVEMENTS_IM = "SELECT (SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+	private static final String MOVEMENTS_IM = "SELECT (SELECT ISNULL(SUM(CAST(MENGE AS decimal(20,3))), 0) "
 			+ "FROM E_MSEG "
 			+ "WHERE LGORT = ? AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - "
-			+ "(SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+			+ "(SELECT ISNULL(SUM(CAST(MENGE AS decimal(20,3))), 0) "
 			+ "FROM E_MSEG WHERE LGORT = ? AND SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) AS MENGE";
 
-	private static final String MOVEMENTS_BY_BUKRS = "SELECT (SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+	private static final String MOVEMENTS_BY_BUKRS = "SELECT (SELECT ISNULL(SUM(CAST(MENGE AS decimal(20,3))), 0) "
 			+ "FROM E_MSEG "
 			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) - "
-			+ "(SELECT ISNULL(SUM(CAST(MENGE AS decimal(15,3))), 0) "
+			+ "(SELECT ISNULL(SUM(CAST(MENGE AS decimal(20,3))), 0) "
 			+ "FROM E_MSEG WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) < ?) AS MENGE";
 
 	private static final String COUNTED_MATNRS = "SELECT LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE FROM (SELECT LGNUM, LNUMT, "
