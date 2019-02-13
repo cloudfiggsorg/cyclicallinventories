@@ -379,7 +379,7 @@ public class ReportesWorkService {
 					if (eLqua.get(lquaKey) != null) {
 						if (eLqua.get(lquaKey).get(wmPos.getMatnr()) != null) {
 							wmPos.setTheoric(eLqua.get(lquaKey).get(wmPos.getMatnr()).getVerme());
-						
+
 							eLqua.get(lquaKey).get(wmPos.getMatnr()).setMarked(true);
 							if (eSalida.containsKey(lquaKey)) {
 								if (eSalida.get(lquaKey).containsKey(wmPos.getMatnr())) {
@@ -426,10 +426,11 @@ public class ReportesWorkService {
 								pBean.setMatnrD(posEx.getMaktx());
 								pBean.setMeins(posEx.getMeins());
 								pBean.setTheoric("0.00");
-								pBean.setCountedExpl(new BigDecimal(posEx.getBmcal())
-										.multiply(new BigDecimal(
-												wmPos.getCounted() != null ? wmPos.getCounted() : "0.00"))
-										.toString());
+								pBean.setCountedExpl(
+										new BigDecimal(posEx.getBmcal())
+												.multiply(new BigDecimal(
+														wmPos.getCounted() != null ? wmPos.getCounted() : "0.00"))
+												.toString());
 								pBean.setCounted("0.00");
 								pBean.setDateIniCounted(wmPos.getDateIniCounted());
 								pBean.setDateEndCounted(wmPos.getDateEndCounted());
@@ -516,6 +517,32 @@ public class ReportesWorkService {
 
 				// Begin Fill IM
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] IM MERGES");
+				HashMap<String, PosDocInvBean> mapPosPiv = new HashMap<>();
+
+				// Merge by Lgort IMS
+				for (PosDocInvBean imPos : imPositions) {
+					String lgKey = imPos.getLgort() + imPos.getMatnr();
+					if (mapPosPiv.containsKey(lgKey)) {
+						mapPosPiv.get(lgKey).setCounted(new BigDecimal(mapPosPiv.get(lgKey).getCounted())
+								.add(new BigDecimal(imPos.getCounted())).toString());
+					} else {
+						imPos.setLgpla("");
+						imPos.setLgNum("");
+						imPos.setLgtyp("");
+						imPos.setLtypt("");
+						mapPosPiv.put(lgKey, imPos);
+					}
+				}
+
+				// Redoo list Merge
+				imPositions = new ArrayList<>();
+				it = mapPosPiv.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					imPositions.add((PosDocInvBean) pair.getValue());
+				}
+				
+				// Merge Explosioned Counted with same material and Lgort
 
 				for (PosDocInvBean imPos : imPositions) {
 					if (expPosition.containsKey(imPos.getLgort() + "" + imPos.getMatnr())) {
@@ -523,9 +550,11 @@ public class ReportesWorkService {
 								expPosition.get(imPos.getLgort() + "" + imPos.getMatnr()).getCountedExpl());
 						expPosition.remove(imPos.getLgort() + "" + imPos.getMatnr());
 					} else {
-						imPos.setCountedExpl("");
+						imPos.setCountedExpl("0.00");
 					}
 				}
+				//Values not removed will be add the the im list
+				
 				it = expPosition.entrySet().iterator();
 				while (it.hasNext()) {
 					Map.Entry pair = (Map.Entry) it.next();
@@ -533,8 +562,10 @@ public class ReportesWorkService {
 				}
 
 				for (PosDocInvBean imPos : imPositions) {
-					if (eMard.get(imPos.getMatnr()) != null) {
-						imPos.setTheoric(eMard.get(imPos.getMatnr()).getLabst());
+					if (eMard.get(imPos.getLgort() + imPos.getMatnr()) != null) {
+						imPos.setTheoric(eMard.get(imPos.getLgort() + imPos.getMatnr()).getLabst());
+					} else {
+						imPos.setTheoric("0.00");
 					}
 				}
 
@@ -611,8 +642,9 @@ public class ReportesWorkService {
 						}
 					}
 
-					docPos.setCostByUnit(costByMaterial.get(docPos.getMatnr()) != null
-							? costByMaterial.get(docPos.getMatnr()) : "0.00");
+					docPos.setCostByUnit(
+							costByMaterial.get(docPos.getMatnr()) != null ? costByMaterial.get(docPos.getMatnr())
+									: "0.00");
 					if (docPos.getCountedTot() != null
 							&& new BigDecimal(docPos.getCountedTot()).compareTo(BigDecimal.ZERO) > 0) {
 						docPos.setCountedCost(new BigDecimal(docPos.getCountedTot())

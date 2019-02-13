@@ -434,7 +434,7 @@ public class SapOperationDao {
 				entity.setMatnr(rs.getString("MATNR"));
 				entity.setLgort(rs.getString("LGORT"));
 				entity.setLabst(rs.getString("LABST"));
-				mapMard.put(rs.getString("MATNR"), entity);
+				mapMard.put(rs.getString("LGORT")+rs.getString("MATNR"), entity);
 			}
 		} catch (SQLException e) {
 			throw e;
