@@ -55,7 +55,7 @@ public class JustficationFileWorkService {
 	
 	public Response<JustificationFile> uploadFile(Request request) {
 		
-		log.info("[uploadFile] " + request.toString());
+		//log.info("[uploadFile] " + request.toString());
 		JustificationFile jsFile = null;
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		Response<JustificationFile> res = new Response<>();
