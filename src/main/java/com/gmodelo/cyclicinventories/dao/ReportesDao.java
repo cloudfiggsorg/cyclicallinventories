@@ -563,35 +563,23 @@ public class ReportesDao {
 						}
 					}
 					
+					//Get the movements for this matnr
 					movements = this.sod.getMatnrMovementsByBukrs(pb, docInvBean.getDocInvId().intValue(),
-							dateCounted, con);	
+							dateCounted, con);
+					
+					//Get the teoric if exists on WM
+					E_Mard_SapEntity ems = sod.getMatnrTheoricImByBukrs(docInvBean.getDocInvId().intValue(), pb,
+							con);
+					
+					//Get the teoric if exists on IM
+					E_Lqua_SapEntity els = sod.getMatnrTheoricWmByBukrs(docInvBean.getDocInvId().intValue(), pb,
+							con);
+					
+					movements += Double.parseDouble(ems.getRetme()) + Double.parseDouble(els.getVerme());
+					
+					//Set the teoric for this matnr + movements
+					pb.setTheoric(Double.toString(movements));
 										
-					if (pb.getImwmMarker()!= null &&
-							pb.getImwmMarker().equals("IM")) {//Set the theoric + movements for a counted matnr IM
-
-						E_Mard_SapEntity ems = sod.getMatnrTheoricImByBukrs(docInvBean.getDocInvId().intValue(), pb,
-								con);
-						movements += Double.parseDouble(ems.getRetme());
-						pb.setTheoric(Double.toString(movements));
-					}
-					
-					if (pb.getImwmMarker()!= null &&
-							pb.getImwmMarker().equals("WM")) {//Set the theoric + movements for a counted matnr WM
-
-						E_Lqua_SapEntity els = sod.getMatnrTheoricWmByBukrs(docInvBean.getDocInvId().intValue(), pb,
-								con);
-						movements += Double.parseDouble(els.getVerme());
-						pb.setTheoric(Double.toString(movements));
-					}
-					
-					if (pb.getImwmMarker() == null) {//Set the theoric + movements for an explosioned matnr
-						
-						E_Mard_SapEntity ems = sod.getMatnrTheoricImByBukrs(docInvBean.getDocInvId().intValue(), pb,
-								con);
-						movements += Double.parseDouble(ems.getRetme());
-						pb.setTheoric(Double.toString(movements));
-					}
-					
 					for (CostByMatnr matnrCost : lsMatnrCost) {
 
 						if (matnrCost.getMatnr().contentEquals(pb.getMatnr())) {
