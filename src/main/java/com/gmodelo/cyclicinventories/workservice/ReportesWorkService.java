@@ -378,8 +378,9 @@ public class ReportesWorkService {
 					wmPos.setCountedExpl("0.00");
 					if (eLqua.get(lquaKey) != null) {
 						if (eLqua.get(lquaKey).get(wmPos.getMatnr()) != null) {
-							wmPos.setTheoric(eLqua.get(lquaKey).get(wmPos.getMatnr()).getVerme());
-
+							wmPos.setTheoric(eLqua.get(lquaKey).get(wmPos.getMatnr()).getVerme() != null
+									? eLqua.get(lquaKey).get(wmPos.getMatnr()).getVerme()
+									: "0.00");
 							eLqua.get(lquaKey).get(wmPos.getMatnr()).setMarked(true);
 							if (eSalida.containsKey(lquaKey)) {
 								if (eSalida.get(lquaKey).containsKey(wmPos.getMatnr())) {
@@ -541,7 +542,7 @@ public class ReportesWorkService {
 					Map.Entry pair = (Map.Entry) it.next();
 					imPositions.add((PosDocInvBean) pair.getValue());
 				}
-				
+
 				// Merge Explosioned Counted with same material and Lgort
 
 				for (PosDocInvBean imPos : imPositions) {
@@ -553,8 +554,8 @@ public class ReportesWorkService {
 						imPos.setCountedExpl("0.00");
 					}
 				}
-				//Values not removed will be add the the im list
-				
+				// Values not removed will be add the the im list
+
 				it = expPosition.entrySet().iterator();
 				while (it.hasNext()) {
 					Map.Entry pair = (Map.Entry) it.next();
