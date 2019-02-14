@@ -167,7 +167,8 @@ public class SapOperationDao {
 	private static final String GET_E_MBEW = "SELECT MATNR, BWKEY, ZPRECIO FROM E_MBEW WITH(NOLOCK)";
 
 	private static final String GET_JUSTIFICATION = "SELECT A.JS_ID, JS_CON_SAP, JS_QUANTITY, "
-			+ "(CAST(A.JS_JUSTIFY AS varchar(200)) + ' - ' + B.JUSTIFICATION) JUSTIFICATION, JS_FILE_NAME "
+			+ "(CAST(A.JS_JUSTIFY AS varchar(200)) + ' - ' + B.JUSTIFICATION) JUSTIFICATION, "
+			+ "ISNULL(JS_DESCRIPTION, '') JS_DESCRIPTION, ISNULL(JS_FILE_NAME, '') JS_FILE_NAME "
 			+ "FROM INV_JUSTIFY AS A " + "INNER JOIN INV_CAT_JUSTIFY AS B ON (A.JS_JUSTIFY = B.JS_ID) "
 			+ "WHERE JS_CON_SAP IN (SELECT * FROM STRING_SPLIT(?, ',')) ";
 
@@ -1332,8 +1333,9 @@ public class SapOperationDao {
 						cs.setLong(1, dipb.getPosId());
 						cs.setString(2, js.getQuantity());
 						cs.setInt(3, js.getJsId());
-						cs.setString(4, js.getFileName());
-						cs.registerOutParameter(5, Types.BIGINT);
+						cs.setString(4, js.getJsDescription().trim());
+						cs.setString(5, js.getFileName());
+						cs.registerOutParameter(6, Types.BIGINT);
 						cs.execute();
 
 						js.setJsId(cs.getInt(5));
@@ -1602,6 +1604,7 @@ public class SapOperationDao {
 				js.setConsPosSAPId(rs.getInt("JS_CON_SAP"));
 				js.setQuantity(rs.getString("JS_QUANTITY"));
 				js.setJustify(rs.getString("JUSTIFICATION"));
+				js.setJsDescription(rs.getString("JS_DESCRIPTION"));
 				js.setFileName(rs.getString("JS_FILE_NAME"));
 				lsJustification.add(js);
 			}
