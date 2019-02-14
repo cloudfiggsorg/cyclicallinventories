@@ -264,7 +264,7 @@ public class SapOperationDao {
 	// SP CALLS
 
 	private static final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
-	private static final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?";
+	private static final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?, ?";
 	private static final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 	private static final String INV_SP_DEL_CONS_SAP = "INV_SP_DEL_CONS_SAP ?";
 	/*
@@ -1332,13 +1332,13 @@ public class SapOperationDao {
 						cs = con.prepareCall(INV_SP_ADD_JUSTIFY);
 						cs.setLong(1, dipb.getPosId());
 						cs.setString(2, js.getQuantity());
-						cs.setInt(3, js.getJsId());
-						cs.setString(4, js.getJsDescription().trim());
+						cs.setInt(3, js.getJsId());						
+						cs.setString(4, js.getJsDescription());
 						cs.setString(5, js.getFileName());
 						cs.registerOutParameter(6, Types.BIGINT);
 						cs.execute();
 
-						js.setJsId(cs.getInt(5));
+						js.setJsId(cs.getInt(6));
 
 						log.info("[saveConciliationSAP] Sentence successfully executed. " + CURRENTSP);
 					}
@@ -1604,7 +1604,7 @@ public class SapOperationDao {
 				js.setConsPosSAPId(rs.getInt("JS_CON_SAP"));
 				js.setQuantity(rs.getString("JS_QUANTITY"));
 				js.setJustify(rs.getString("JUSTIFICATION"));
-				js.setJsDescription(rs.getString("JS_DESCRIPTION"));
+				js.setJsDescription(rs.getString("JS_DESCRIPTION").trim());
 				js.setFileName(rs.getString("JS_FILE_NAME"));
 				lsJustification.add(js);
 			}
