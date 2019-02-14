@@ -266,19 +266,22 @@ public class RouteWorkService {
 		try {
 			routeResponse = new Gson().fromJson(getRoutesByUser(request), Response.class);
 			if (routeResponse.getAbstractResult().getResultId() != ReturnValues.ISUCCESS) {
-				TaskUserDao taskUserDao = new TaskUserDao();
-				int resTask = taskUserDao.createAutoTask(request.getTokenObject().getLoginId());
-				if (resTask == ReturnValues.ISUCCESS) {
-					routeResponse = new Gson().fromJson(getRoutesByUser(request), Response.class);
-					if (routeResponse.getAbstractResult().getResultId() != ReturnValues.ISUCCESS) {
+				if (routeResponse.getAbstractResult().getResultId() != ReturnValues.IUSERNOTTASK) {
+					TaskUserDao taskUserDao = new TaskUserDao();
+					int resTask = taskUserDao.createAutoTask(request.getTokenObject().getLoginId());
+					if (resTask == ReturnValues.ISUCCESS) {						
+						routeResponse = new Gson().fromJson(getRoutesByUser(request), Response.class);
+						if (routeResponse.getAbstractResult().getResultId() != ReturnValues.ISUCCESS) {
+							result.setResultId(ReturnValues.IUSERNOTTASK);
+							result.setResultMsgAbs(
+									"Tarea no encontrada para el usuario: " + request.getTokenObject().getLoginId());
+						}
+					} else {
 						result.setResultId(ReturnValues.IUSERNOTTASK);
 						result.setResultMsgAbs(
-								"Tarea no encontrada para el usuario: " + request.getTokenObject().getLoginId());
+								"Tarea no generada para el usuario: " + request.getTokenObject().getLoginId()
+										+ " \n Ya que no cuenta con conteos diarios definidos");
 					}
-				} else {
-					result.setResultId(ReturnValues.IUSERNOTTASK);
-					result.setResultMsgAbs("Tarea no generada para el usuario: " + request.getTokenObject().getLoginId()
-							+ " \n Ya que no cuenta con conteos diarios definidos");
 				}
 			}
 		} catch (Exception e) {

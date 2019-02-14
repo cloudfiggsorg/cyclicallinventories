@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bmore.ume001.beans.Entity;
 import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
@@ -20,7 +21,9 @@ import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.TaskBean;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
+import com.gmodelo.cyclicinventories.workservice.RouteWorkService;
 import com.gmodelo.cyclicinventories.workservice.SapConciliationWorkService;
+import com.gmodelo.cyclicinventories.workservice.TaskWorkService;
 
 public class TaskUserDao {
 
@@ -62,6 +65,10 @@ public class TaskUserDao {
 					Response<TaskBean> resDaoTask = daoTask.addTask(taskBean, user);
 					if (resDaoTask.getAbstractResult().getResultId() == ReturnValues.ISUCCESS) {
 						response = ReturnValues.ISUCCESS;
+						User nUser = new User();
+						nUser.setEntity(new Entity());
+						nUser.getEntity().setIdentyId(user);
+						new TaskWorkService().WS_RuntimeTaskGson(resDaoTask.getLsObject(), nUser);
 					}
 				}
 			}
@@ -144,12 +151,12 @@ public class TaskUserDao {
 		}
 		return response;
 	}
-	
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	private static final String GET_USERS_FROM_TASK = "SELECT DISTINCT IT.TAS_DOWLOAD_DATE, IGU.GRU_USER_ID FROM INV_TASK IT WITH (NOLOCK) "
 			+ "INNER JOIN INV_GROUPS_USER IGU WITH (NOLOCK) ON IT.TAS_GROUP_ID = IGU.GRU_GROUP_ID "
 			+ "WHERE IT.TASK_ID = ?";
-	
+
 	public Response<List<String>> validateTaskFromContingency(String task) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -161,10 +168,9 @@ public class TaskUserDao {
 		List<String> listUsers = new ArrayList<>();
 		Date dateDownload = null;
 
-
-		log.info("[validateTaskFromContingencyDao] "+GET_USERS_FROM_TASK);
+		log.info("[validateTaskFromContingencyDao] " + GET_USERS_FROM_TASK);
 		try {
-			
+
 			stm = con.prepareStatement(GET_USERS_FROM_TASK);
 			stm.setString(1, task);
 
@@ -173,12 +179,12 @@ public class TaskUserDao {
 			ResultSet rs = stm.executeQuery();
 
 			while (rs.next()) {
-				
+
 				listUsers.add(rs.getString("GRU_USER_ID"));
 				dateDownload = rs.getDate("TAS_DOWLOAD_DATE");
 			}
-			
-			if(listUsers.size() == 0){
+
+			if (listUsers.size() == 0) {
 				listUsers = null;
 			}
 
@@ -194,8 +200,10 @@ public class TaskUserDao {
 			stm.close();
 			log.info("[validateTaskFromContingencyDao] Sentence successfully executed.");
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[validateTaskFromContingencyDao] Some error occurred while was trying to execute the query: "
-					+ GET_USERS_FROM_TASK, e);
+			log.log(Level.SEVERE,
+					"[validateTaskFromContingencyDao] Some error occurred while was trying to execute the query: "
+							+ GET_USERS_FROM_TASK,
+					e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			res.setAbstractResult(abstractResult);
@@ -205,13 +213,14 @@ public class TaskUserDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[validateTaskFromContingencyDao] Some error occurred while was trying to close the connection.", e);
+						"[validateTaskFromContingencyDao] Some error occurred while was trying to close the connection.",
+						e);
 			}
 		}
 
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(listUsers);
-		//guardando fecha de descarga de tarea en resultMsgGen
+		// guardando fecha de descarga de tarea en resultMsgGen
 		res.getAbstractResult().setResultMsgGen(String.valueOf(dateDownload.getTime()));
 		return res;
 	}
