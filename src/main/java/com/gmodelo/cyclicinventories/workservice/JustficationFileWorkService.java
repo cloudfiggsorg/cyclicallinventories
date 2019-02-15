@@ -31,7 +31,7 @@ public class JustficationFileWorkService {
 	
 	private static Logger log = Logger.getLogger(JustficationFileWorkService.class.getName());
 	private Gson gson = new Gson();
-	private static String PATH_TO_SAVE_FILES = "I:\\Files";
+	private static String PATH_TO_SAVE_FILES = "";
 
 	static {
 
@@ -40,7 +40,7 @@ public class JustficationFileWorkService {
 
 		try {
 
-			//PATH_TO_SAVE_FILES = iUtils.getValueRepByKey(con, ReturnValues.PATH_TO_SAVE_FILES).getStrCom1();
+			PATH_TO_SAVE_FILES = iUtils.getValueRepByKey(con, ReturnValues.PATH_TO_SAVE_FILES).getStrCom1();
 		} catch (Exception e) {
 
 			log.info("Some error occurred whiles was trying to get the path...");
