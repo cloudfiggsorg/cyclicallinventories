@@ -36,6 +36,7 @@ public class PosDocInvBean {
 	private Long dateEndCounted;
 	private String vhilm;
 	private String vhilmCounted;
+	private boolean grouped;
 
 	public PosDocInvBean() {
 		super();
@@ -290,6 +291,14 @@ public class PosDocInvBean {
 		this.vhilmCounted = vhilmCounted;
 	}
 
+	public boolean isGrouped() {
+		return grouped;
+	}
+
+	public void setGrouped(boolean grouped) {
+		this.grouped = grouped;
+	}
+
 	public PosDocInvBean(int posId, int doncInvId, int item, String lgort, String lgortD, String lgtyp, String ltypt,
 			String lgNum, String lgpla, String matnr, String matnrD, String category, String costByUnit, String meins,
 			String theoric, String counted, String countedExpl, String countedTot, String diff, String imwmMarker,
@@ -332,15 +341,15 @@ public class PosDocInvBean {
 
 	@Override
 	public String toString() {
-		return "PosDocInvBean [posId=" + posId + ", item=" + item + ", lgort=" + lgort
-				+ ", lgortD=" + lgortD + ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla="
-				+ lgpla + ", matnr=" + matnr + ", matnrD=" + matnrD + ", category=" + category + ", costByUnit="
-				+ costByUnit + ", meins=" + meins + ", theoric=" + theoric + ", counted=" + counted + ", countedExpl="
-				+ countedExpl + ", countedTot=" + countedTot + ", diff=" + diff + ", imwmMarker=" + imwmMarker
-				+ ", consignation=" + consignation + ", transit=" + transit + ", dCounted=" + dCounted + ", explosion="
-				+ explosion + ", lsJustification=" + lsJustification + ", countedCost=" + countedCost + ", theoricCost="
-				+ theoricCost + ", diffCost=" + diffCost + ", dateIniCounted=" + dateIniCounted + ", dateEndCounted="
-				+ dateEndCounted + ", vhilm=" + vhilm + ", vhilmCounted=" + vhilmCounted + "]";
+		return "PosDocInvBean [posId=" + posId + ", item=" + item + ", lgort=" + lgort + ", lgortD=" + lgortD
+				+ ", lgtyp=" + lgtyp + ", ltypt=" + ltypt + ", lgNum=" + lgNum + ", lgpla=" + lgpla + ", matnr=" + matnr
+				+ ", matnrD=" + matnrD + ", category=" + category + ", costByUnit=" + costByUnit + ", meins=" + meins
+				+ ", theoric=" + theoric + ", counted=" + counted + ", countedExpl=" + countedExpl + ", countedTot="
+				+ countedTot + ", diff=" + diff + ", imwmMarker=" + imwmMarker + ", consignation=" + consignation
+				+ ", transit=" + transit + ", dCounted=" + dCounted + ", explosion=" + explosion + ", lsJustification="
+				+ lsJustification + ", countedCost=" + countedCost + ", theoricCost=" + theoricCost + ", diffCost="
+				+ diffCost + ", dateIniCounted=" + dateIniCounted + ", dateEndCounted=" + dateEndCounted + ", vhilm="
+				+ vhilm + ", vhilmCounted=" + vhilmCounted + "]";
 	}
 
 	@Override

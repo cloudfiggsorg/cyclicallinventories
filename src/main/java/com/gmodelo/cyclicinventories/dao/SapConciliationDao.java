@@ -178,10 +178,17 @@ public class SapConciliationDao {
 			JCoFunction jcoFunction2 = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
 			jcoFunction2.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
-			
+
 			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
 
 			List<String> lgortLst = operationDao.getDocInvLgort(requestBean, con);
+			List<String> lgortLstEx = operationDao.getDocInvMatExpLgort(requestBean, con);
+			for (String l : lgortLstEx) {
+				if (!lgortLst.contains(l)) {
+					lgortLst.add(l);
+				}
+			}
+
 			for (String lgort : lgortLst) {
 				lgortTable.appendRow();
 				lgortTable.setValue("SIGN", "I");
@@ -204,7 +211,6 @@ public class SapConciliationDao {
 					lgnumTable.setValue("SIGN", "I");
 					lgnumTable.setValue("OPTION", "EQ");
 					lgnumTable.setValue("LOW", lgnum);
-					// lgnumTable.setValue("High", lgnum);
 				}
 			}
 			JCoTable lgtypTable = jcoFunction.getImportParameterList().getTable("I_R_LGTYP");
@@ -291,7 +297,7 @@ public class SapConciliationDao {
 
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
 			jcoFunction2.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
-			
+
 			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
 			List<String> listDIL = operationDao.getDocInvLgort(requestBean, con);
 			List<String> listDIMRL = operationDao.getDocInvMatRelevLgort(docInvBean, con);

@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +21,7 @@ import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.cyclicinventories.beans.E_Lqua_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mard_SapEntity;
+import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Salida_SapEntity;
 import com.gmodelo.cyclicinventories.beans.MaterialExplosionBean;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
@@ -36,7 +36,6 @@ import com.gmodelo.cyclicinventories.dao.UMEDaoE;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
-import com.sun.xml.internal.fastinfoset.dom.DOMDocumentParser;
 
 public class ReportesWorkService {
 
@@ -358,6 +357,8 @@ public class ReportesWorkService {
 				HashMap<String, HashMap<String, E_Lqua_SapEntity>> eLqua = operationDao.getElquaforDocInv(bean, con);
 				HashMap<String, List<MaterialExplosionBean>> explosionMap = operationDao.getExplotionDetailDocInv(bean,
 						con);
+				HashMap<String, HashMap<String, List<E_Mseg_SapEntity>>> eMseg = operationDao.getEmsegDataDocInv(bean,
+						con);
 				List<PosDocInvBean> imPositions = new ArrayList<>();
 				HashMap<String, PosDocInvBean> expPosition = new HashMap<>();
 				List<PosDocInvBean> wmPositions = new ArrayList<>();
@@ -379,7 +380,7 @@ public class ReportesWorkService {
 					if (eLqua.get(lquaKey) != null) {
 						if (eLqua.get(lquaKey).get(wmPos.getMatnr()) != null) {
 							wmPos.setTheoric(eLqua.get(lquaKey).get(wmPos.getMatnr()).getVerme());
-						
+
 							eLqua.get(lquaKey).get(wmPos.getMatnr()).setMarked(true);
 							if (eSalida.containsKey(lquaKey)) {
 								if (eSalida.get(lquaKey).containsKey(wmPos.getMatnr())) {
@@ -387,13 +388,25 @@ public class ReportesWorkService {
 
 									BigDecimal theoMovs = new BigDecimal(wmPos.getTheoric());
 									for (E_Salida_SapEntity eSalidaBean : eSalida.get(lquaKey).get(wmPos.getMatnr())) {
-										if (lastCounted.compareTo(sdf
-												.parse(eSalidaBean.getQdatu() + " " + eSalidaBean.getQzeit())) <= 0) {
+										if (lastCounted.getTime() >= sdf
+												.parse(eSalidaBean.getQdatu() + " " + eSalidaBean.getQzeit())
+												.getTime()) {
 											theoMovs.add(new BigDecimal(eSalidaBean.getNistm()));
 											theoMovs.subtract(new BigDecimal(eSalidaBean.getVistm()));
 										}
 									}
-									if (theoMovs.compareTo(BigDecimal.ZERO) == 1) {
+									for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(wmPos.getMatnr())) {
+										if (lastCounted.getTime() >= sdf
+												.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf())
+												.getTime()) {
+											if (eMsegBean.getShkzg().equals("S")) {
+												theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+											} else {
+												theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+											}
+										}
+									}
+									if (theoMovs.compareTo(BigDecimal.ZERO) >= 0) {
 										wmPos.setTheoric(theoMovs.toString());
 									} else {
 										wmPos.setTheoric("0.00");
@@ -426,14 +439,16 @@ public class ReportesWorkService {
 								pBean.setMatnrD(posEx.getMaktx());
 								pBean.setMeins(posEx.getMeins());
 								pBean.setTheoric("0.00");
-								pBean.setCountedExpl(new BigDecimal(posEx.getBmcal())
-										.multiply(new BigDecimal(
-												wmPos.getCounted() != null ? wmPos.getCounted() : "0.00"))
-										.toString());
+								pBean.setCountedExpl(
+										new BigDecimal(posEx.getBmcal())
+												.multiply(new BigDecimal(
+														wmPos.getCounted() != null ? wmPos.getCounted() : "0.00"))
+												.toString());
 								pBean.setCounted("0.00");
 								pBean.setDateIniCounted(wmPos.getDateIniCounted());
 								pBean.setDateEndCounted(wmPos.getDateEndCounted());
 								pBean.setImwmMarker("IM");
+								pBean.setGrouped(true);
 								expPosition.put(posEx.getLgort() + "" + posEx.getIdnrk(), pBean);
 							}
 						}
@@ -466,6 +481,7 @@ public class ReportesWorkService {
 							pBean.setDateIniCounted(wmPos.getDateIniCounted());
 							pBean.setDateEndCounted(wmPos.getDateEndCounted());
 							pBean.setImwmMarker("IM");
+							pBean.setGrouped(true);
 							expPosition.put(wmPos.getLgort() + "" + wmPos.getVhilm(), pBean);
 						}
 					}
@@ -496,6 +512,7 @@ public class ReportesWorkService {
 							posExLq.setCountedExpl("0.00");
 							posExLq.setCounted("0.00");
 							posExLq.setImwmMarker("WM");
+							posExLq.setGrouped(false);
 							wmExtraPos.add(posExLq);
 						}
 					}
@@ -523,7 +540,7 @@ public class ReportesWorkService {
 								expPosition.get(imPos.getLgort() + "" + imPos.getMatnr()).getCountedExpl());
 						expPosition.remove(imPos.getLgort() + "" + imPos.getMatnr());
 					} else {
-						imPos.setCountedExpl("");
+						imPos.setCountedExpl("0.00");
 					}
 				}
 				it = expPosition.entrySet().iterator();
@@ -535,6 +552,25 @@ public class ReportesWorkService {
 				for (PosDocInvBean imPos : imPositions) {
 					if (eMard.get(imPos.getMatnr()) != null) {
 						imPos.setTheoric(eMard.get(imPos.getMatnr()).getLabst());
+						String lquaKey = imPos.getLgort();
+						Date lastCounted = new Date(imPos.getDateEndCounted());
+						BigDecimal theoMovs = new BigDecimal(imPos.getTheoric());
+						for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(imPos.getMatnr())) {
+							if (lastCounted.getTime() >= sdf
+									.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf()).getTime()) {
+								if (eMsegBean.getShkzg().equals("S")) {
+									theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+								} else {
+									theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+								}
+							}
+						}
+						if (theoMovs.compareTo(BigDecimal.ZERO) >= 0) {
+							imPos.setTheoric(theoMovs.toString());
+						} else {
+							imPos.setTheoric("0.00");
+						}
+
 					}
 				}
 
