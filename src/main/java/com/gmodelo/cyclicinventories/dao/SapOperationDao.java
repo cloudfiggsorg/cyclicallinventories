@@ -1561,7 +1561,7 @@ public class SapOperationDao {
 				pdib.setExplosion(rs.getBoolean("CS_IS_EXPL"));
 				lsPosIds += pdib.getPosId() + ",";
 				lsPdib.add(pdib);
-			}
+			}			
 
 			// Get the justifications
 			ArrayList<Justification> lsJustify = getJustification(lsPosIds, con);
