@@ -333,6 +333,7 @@ public class SapConciliationWorkService {
 			ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = operationDao.getClassSystem();
 			if (i360_EXT_SIS_CLAS.getObjectData() != null && !i360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
 				response.setLsObject(i360_EXT_SIS_CLAS);
+				response.getAbstractResult().setResultMsgCom(new SapConciliationDao().getLastUpdate().getLsObject());
 			} else {
 				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("Sistema de Clasificacion no cargado anteriormente, favor de generar carga");
@@ -359,6 +360,7 @@ public class SapConciliationWorkService {
 					new Utilities().getValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
 			if (ReturnValues.REP_CLASS_UPDATED == 0) {
 				new ClassificationRuntime(destination, con, null, null, "X").start();
+				
 			} else {
 				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("Ejecución en progreso");

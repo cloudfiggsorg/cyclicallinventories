@@ -1,15 +1,19 @@
 package com.gmodelo.cyclicinventories.dao;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.E_Error_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Lqua_SapEntity;
@@ -19,6 +23,8 @@ import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Salida_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Xtab6_SapEntity;
+import com.gmodelo.cyclicinventories.beans.JustifyCat;
+import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.ZIACST_I360_OBJECTDATA_SapEntity;
 import com.gmodelo.cyclicinventories.exception.InvCicException;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
@@ -27,6 +33,8 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_2;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_MOV;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_MBEW;
+import com.gmodelo.cyclicinventories.utils.ConnectionManager;
+import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoFunction;
@@ -510,5 +518,45 @@ public class SapConciliationDao {
 		}
 		return ziacmf_I360_EXT_SIS_CLAS;
 	}
+
+	
+		public Response<String> getLastUpdate() {
+			
+			Response<String> res = new Response<>();
+			AbstractResultsBean abstractResult = new AbstractResultsBean();
+			ConnectionManager iConnectionManager = new ConnectionManager();
+			Connection con = iConnectionManager.createConnection();
+			Statement stm = null;		
+			String date = "";
+			
+			String QUERY = "SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WHERE STORED_KEY = 'E_CLASS_LAST_UPDATED' ";		
+			log.info(QUERY);
+			
+			try {
+				stm = con.createStatement();
+				ResultSet rs = stm.executeQuery(QUERY);
+				
+				while (rs.next()) {
+					
+					date = rs.getString("STORED_VALUE");	
+				}
+				log.info("[getLastUpdate] Sentence successfully executed.");
+			} catch (SQLException e) {
+				log.log(Level.SEVERE, "[getLastUpdate] Some error occurred while was trying to execute the query: "
+						+ QUERY, e);
+				abstractResult.setResultId(ReturnValues.IEXCEPTION);
+				abstractResult.setResultMsgAbs(e.getMessage());
+			} finally {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					log.log(Level.SEVERE,
+							"[getJustifies] Some error occurred while was trying to close the connection.", e);
+				}
+			}
+			res.setAbstractResult(abstractResult);
+			res.setLsObject(date);
+			return res;
+		}
 
 }

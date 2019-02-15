@@ -1155,6 +1155,8 @@ public class SapOperationDao {
 			}
 			stmDel.executeUpdate();
 			stm.executeBatch();
+			 PreparedStatement pstm = con.prepareStatement("UPDATE INV_CIC_REPOSITORY SET STORED_VALUE = GETDATE() WHERE STORED_KEY =  'E_CLASS_LAST_UPDATED'");
+			 pstm.executeUpdate();
 		} catch (SQLException e) {
 			throw e;
 		}
