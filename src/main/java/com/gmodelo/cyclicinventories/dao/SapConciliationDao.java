@@ -177,6 +177,8 @@ public class SapConciliationDao {
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
 			JCoFunction jcoFunction2 = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
+			jcoFunction2.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
+			
 			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
 
 			List<String> lgortLst = operationDao.getDocInvLgort(requestBean, con);
@@ -289,7 +291,7 @@ public class SapConciliationDao {
 
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
 			jcoFunction2.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
-
+			
 			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
 			List<String> listDIL = operationDao.getDocInvLgort(requestBean, con);
 			List<String> listDIMRL = operationDao.getDocInvMatRelevLgort(docInvBean, con);
