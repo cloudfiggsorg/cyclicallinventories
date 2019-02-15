@@ -345,7 +345,7 @@ public class ConciliacionDao {
 					ConciliationPositionBean bean = new ConciliationPositionBean();
 					bean.setNote(rs.getString("COU_NOTE") == null ? "" : rs.getString("COU_NOTE"));
 					bean.setProdDate(rs.getString("COU_PROD_DATE") == null ? "" : rs.getString("COU_PROD_DATE"));
-					notesPositions.put(rs.getString("COU_MATNR") + rs.getString("COU_POSITION_ID_ZONE"), bean);
+					notesPositions.put(key, bean);
 				}
 			}
 
@@ -542,10 +542,10 @@ public class ConciliacionDao {
 							}
 						}
 					}
-					if (notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID")) != null) {
-						bean.setNote(notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))
+					if (notesPositions.get(rs.getString("ZPO_PK_ASG_ID") + rs.getString("COU_MATNR")) != null) {
+						bean.setNote(notesPositions.get(rs.getString("ZPO_PK_ASG_ID") + rs.getString("COU_MATNR"))
 								.getNote());
-						bean.setProdDate(notesPositions.get(rs.getString("COU_MATNR") + rs.getString("ZPO_PK_ASG_ID"))
+						bean.setProdDate(notesPositions.get(rs.getString("ZPO_PK_ASG_ID") + rs.getString("COU_MATNR"))
 								.getProdDate());
 					}
 					// if (docInvBean.getType() != null &&
