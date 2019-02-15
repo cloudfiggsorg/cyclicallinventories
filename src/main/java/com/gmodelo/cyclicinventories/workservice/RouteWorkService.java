@@ -201,7 +201,7 @@ public class RouteWorkService {
 				} else {
 					// route.setPositions(routeDao.getPositions(route.getRouteId(), reconteo));
 //					if (!route.getPositions().isEmpty()) {
-					result.setResultId(ReturnValues.IUSERNOTTASK);
+					result.setResultId(ReturnValues.IUSERNOTTASKNOTREADY);
 					result.setResultMsgAbs("Preparando tarea intente mas tarde");
 //						routeResponse.setLsObject(route);
 //					} else {
@@ -268,7 +268,7 @@ public class RouteWorkService {
 		try {
 			routeResponse = new Gson().fromJson(getRoutesByUser(request), Response.class);
 			if (routeResponse.getAbstractResult().getResultId() != ReturnValues.ISUCCESS) {
-				if (routeResponse.getAbstractResult().getResultId() != ReturnValues.IUSERNOTTASK) {
+				if (routeResponse.getAbstractResult().getResultId() != ReturnValues.IUSERNOTTASKNOTREADY) {
 					TaskUserDao taskUserDao = new TaskUserDao();
 					int resTask = taskUserDao.createAutoTask(request.getTokenObject().getLoginId());
 					if (resTask == ReturnValues.ISUCCESS) {
