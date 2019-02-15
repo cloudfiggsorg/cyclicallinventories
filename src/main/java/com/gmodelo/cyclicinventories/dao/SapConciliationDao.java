@@ -175,14 +175,25 @@ public class SapConciliationDao {
 			List<E_Lqua_SapEntity> eLqua_SapEntities = new ArrayList<>();
 			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
+			JCoFunction jcoFunction2 = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
 			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
-			for (String lgort : operationDao.getDocInvLgort(requestBean, con)) {
+
+			List<String> lgortLst = operationDao.getDocInvLgort(requestBean, con);
+			for (String lgort : lgortLst) {
 				lgortTable.appendRow();
 				lgortTable.setValue("SIGN", "I");
 				lgortTable.setValue("OPTION", "EQ");
 				lgortTable.setValue("LOW", lgort);
 			}
+			JCoTable lgortTable2 = jcoFunction2.getImportParameterList().getTable("I_R_LGORT");
+			for (String lgort : lgortLst) {
+				lgortTable2.appendRow();
+				lgortTable2.setValue("SIGN", "I");
+				lgortTable2.setValue("OPTION", "EQ");
+				lgortTable2.setValue("LOW", lgort);
+			}
+
 			JCoTable lgnumTable = jcoFunction.getImportParameterList().getTable("I_R_LGNUM");
 			HashMap<String, List<String>> lgnumLgtypMap = operationDao.getDocInvLgnumLgtyp(requestBean, con);
 			if (lgnumLgtypMap.get("LGNUM") != null && !lgnumLgtypMap.get("LGNUM").isEmpty()) {
@@ -205,7 +216,8 @@ public class SapConciliationDao {
 			}
 
 			jcoFunction.execute(destination);
-			JCoTable E_MARD = jcoFunction.getExportParameterList().getTable("E_MARD");
+			jcoFunction2.execute(destination);
+			JCoTable E_MARD = jcoFunction2.getExportParameterList().getTable("E_MARD");
 			JCoTable E_MSKU = jcoFunction.getExportParameterList().getTable("E_MSKU");
 			JCoTable E_LQUA = jcoFunction.getExportParameterList().getTable("E_LQUA");
 			JCoTable E_ERROR = jcoFunction.getExportParameterList().getTable("E_ERROR");
@@ -263,7 +275,7 @@ public class SapConciliationDao {
 		}
 		return ziacmf_I360_INV_MOV_2;
 	}
-	
+
 	public ZIACMF_I360_INV_MOV_2 getSystemSnapshot_F(DocInvBean docInvBean, Connection con, JCoDestination destination)
 			throws JCoException, SQLException, RuntimeException, InvCicException {
 		ZIACMF_I360_INV_MOV_2 ziacmf_I360_INV_MOV_2 = new ZIACMF_I360_INV_MOV_2();
@@ -273,23 +285,35 @@ public class SapConciliationDao {
 			List<E_Lqua_SapEntity> eLqua_SapEntities = new ArrayList<>();
 			DocInvBean requestBean = operationDao.getDocInvBeanData(docInvBean, con);
 			JCoFunction jcoFunction = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
+			JCoFunction jcoFunction2 = destination.getRepository().getFunction(ZIACMF_I360_INV_MOV_2);
+
 			jcoFunction.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
+			jcoFunction2.getImportParameterList().setValue("I_WERKS", requestBean.getWerks());
+
 			JCoTable lgortTable = jcoFunction.getImportParameterList().getTable("I_R_LGORT");
-			 List<String> listDIL = operationDao.getDocInvLgort(requestBean, con);
-			 List<String> listDIMRL = operationDao.getDocInvMatRelevLgort(docInvBean, con);
-			 for(String l : listDIMRL){
-				 if(!listDIL.contains(l)){
-					 listDIL.add(l);
-				 }
-			 }
-			
+			List<String> listDIL = operationDao.getDocInvLgort(requestBean, con);
+			List<String> listDIMRL = operationDao.getDocInvMatRelevLgort(docInvBean, con);
+			for (String l : listDIMRL) {
+				if (!listDIL.contains(l)) {
+					listDIL.add(l);
+				}
+			}
 			for (String lgort : listDIL) {
 				lgortTable.appendRow();
 				lgortTable.setValue("SIGN", "I");
 				lgortTable.setValue("OPTION", "EQ");
 				lgortTable.setValue("LOW", lgort);
 			}
-			
+
+			JCoTable lgortTable2 = jcoFunction2.getImportParameterList().getTable("I_R_LGORT");
+
+			for (String lgort : listDIL) {
+				lgortTable2.appendRow();
+				lgortTable2.setValue("SIGN", "I");
+				lgortTable2.setValue("OPTION", "EQ");
+				lgortTable2.setValue("LOW", lgort);
+			}
+
 			JCoTable lgnumTable = jcoFunction.getImportParameterList().getTable("I_R_LGNUM");
 			HashMap<String, List<String>> lgnumLgtypMap = operationDao.getDocInvLgnumLgtyp(requestBean, con);
 			if (lgnumLgtypMap.get("LGNUM") != null && !lgnumLgtypMap.get("LGNUM").isEmpty()) {
@@ -312,7 +336,8 @@ public class SapConciliationDao {
 			}
 
 			jcoFunction.execute(destination);
-			JCoTable E_MARD = jcoFunction.getExportParameterList().getTable("E_MARD");
+			jcoFunction2.execute(destination);
+			JCoTable E_MARD = jcoFunction2.getExportParameterList().getTable("E_MARD");
 			JCoTable E_MSKU = jcoFunction.getExportParameterList().getTable("E_MSKU");
 			JCoTable E_LQUA = jcoFunction.getExportParameterList().getTable("E_LQUA");
 			JCoTable E_ERROR = jcoFunction.getExportParameterList().getTable("E_ERROR");
