@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,10 +21,13 @@ import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
 import com.gmodelo.cyclicinventories.beans.E_Lqua_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Mard_SapEntity;
+import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
+import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Salida_SapEntity;
 import com.gmodelo.cyclicinventories.beans.MaterialExplosionBean;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
+import com.gmodelo.cyclicinventories.beans.RelMatnrCategory;
 import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.cyclicinventories.beans.Request;
@@ -36,7 +38,6 @@ import com.gmodelo.cyclicinventories.dao.UMEDaoE;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
-import com.sun.xml.internal.fastinfoset.dom.DOMDocumentParser;
 
 public class ReportesWorkService {
 
@@ -95,24 +96,6 @@ public class ReportesWorkService {
 			result.setResultMsgAbs(e.getMessage());
 		}
 		response.setAbstractResult(result);
-		return response;
-	}
-
-	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAP(Request request) {
-		log.info("[getReporteDocInvSAPWS] " + request.toString());
-		Response<DocInvBeanHeaderSAP> response = new Response<>();
-		DocInvBean bean = null;
-		try {
-			log.info("[getReporteDocInvSAPWS] try");
-			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
-			response = new ReportesDao().getConsDocInv(bean);
-		} catch (Exception e) {
-			log.log(Level.SEVERE, "[getReporteDocInvSAPWS] catch", e);
-			AbstractResultsBean result = new AbstractResultsBean();
-			result.setResultId(ReturnValues.IEXCEPTION);
-			result.setResultMsgAbs(e.getMessage());
-			response.setAbstractResult(result);
-		}
 		return response;
 	}
 
@@ -318,6 +301,132 @@ public class ReportesWorkService {
 			response.setLsObject(finalList);
 		}
 		return response;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByWerks(Request request) {
+		
+		log.info("[getReporteDocInvSAPByWerks] " + request.toString());
+		Response<DocInvBeanHeaderSAP> resp = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		DocInvBeanHeaderSAP reportBylgPla, reportByWerks;
+		DocInvBean docInvBean = null;
+		
+		try {
+			log.info("[getReporteDocInvSAPByWerks] try");
+			docInvBean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);			
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "[getReporteDocInvSAPByWerks] catch", e);
+			AbstractResultsBean result = new AbstractResultsBean();
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+			resp.setAbstractResult(result);			
+			return resp;
+		}
+		
+		if (docInvBean.getStatus().equalsIgnoreCase("TRUE")) {
+			
+			log.info("[getReporteDocInvSAPByWerks] Getting closed object...");
+			return new SapOperationDao().getClosedConsSapReport(docInvBean);
+			
+		} else {
+			
+			log.info("[getReporteDocInvSAPByWerks] Getting the report...");
+			resp = getReporteDocInvSAPByLgpla(request);
+			reportBylgPla = resp.getLsObject(); 
+			reportByWerks = resp.getLsObject(); 
+		}
+		
+		ArrayList<E_Mseg_SapEntity> lsTransit = new SapOperationDao().getMatnrOnTransitByWerks(docInvBean.getDocInvId().intValue());
+		ArrayList<E_Msku_SapEntity> lsCons = new SapOperationDao().getMatnrOnConsByWerks(docInvBean.getDocInvId().intValue());
+		
+		HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();
+		PosDocInvBean pbAux = null;
+		double sumCounted = 0.0D;
+		double sumCountedExpl = 0.0D;
+		double sumTeoric = 0.0D;
+		List<PosDocInvBean> listBean = reportBylgPla.getDocInvPosition();
+		
+		// Create a map by matnr
+		for (PosDocInvBean pb : listBean) {
+
+			if (mapByMatNr.containsKey(pb.getMatnr())) {
+
+				pbAux = (PosDocInvBean) mapByMatNr.get(pb.getMatnr());
+				sumCounted = Double.parseDouble(pbAux.getCounted());
+				sumCounted += Double.parseDouble(pb.getCounted());
+				pbAux.setCounted(Double.toString(sumCounted));
+				
+				sumCountedExpl = Double.parseDouble(pbAux.getCountedExpl());
+				sumCountedExpl += Double.parseDouble(pb.getCountedExpl());
+				pbAux.setCountedExpl(Double.toString(sumCountedExpl));
+				
+				sumTeoric = Double.parseDouble(pbAux.getTheoric());
+				sumTeoric += Double.parseDouble(pb.getTheoric());
+				pbAux.setTheoric(Double.toString(sumTeoric));
+				
+				mapByMatNr.replace(pb.getMatnr(), pbAux);
+
+			} else {
+
+				pb.setCategory("");
+				pb.setConsignation("0");
+				pb.setTransit("0");
+				mapByMatNr.put(pb.getMatnr(), pb);
+			}
+		}
+		
+		listBean.clear();		
+		PosDocInvBean pdibAux = null;
+		String ldIds = "";
+		
+		for (Map.Entry<String, PosDocInvBean> mapEntry : mapByMatNr.entrySet()) {
+
+			pdibAux = mapEntry.getValue();
+			listBean.add(pdibAux);
+			ldIds += pdibAux.getMatnr() + ",";			
+		}
+		
+		ldIds = ldIds.substring(0, ldIds.length() - 1);
+		
+		//Get the categories
+		ArrayList<RelMatnrCategory> relCatByMatnr = new SapOperationDao().getCatByMatnr(ldIds);
+		
+		for (PosDocInvBean pb : listBean) {
+			
+			for (RelMatnrCategory relCat : relCatByMatnr) {
+				
+				if (relCat.getCatByMatnr().getMatnr().contentEquals(pb.getMatnr())) {
+
+					pb.setCategory(relCat.getCategory().getCategory());
+					break;
+				}
+			}
+						
+			for (E_Mseg_SapEntity ojb : lsTransit) {
+
+				if (ojb.getMatnr().contentEquals(pb.getMatnr())) {
+
+					pb.setTransit(ojb.getMeins());
+					break;
+				}
+			}
+			
+			for (E_Msku_SapEntity ojb : lsCons) {
+
+				if (ojb.getMatnr().contentEquals(pb.getMatnr())) {
+
+					pb.setConsignation(ojb.getKulab());
+					break;
+				}
+			}			
+		}
+		
+		reportByWerks.setDocInvPosition(listBean);		
+		resp.setAbstractResult(abstractResult);
+		resp.setLsObject(reportByWerks);
+		
+		return resp;		
 	}
 
 	private final SapOperationDao operationDao = new SapOperationDao();

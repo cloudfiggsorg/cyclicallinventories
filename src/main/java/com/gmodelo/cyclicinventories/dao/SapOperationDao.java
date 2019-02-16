@@ -31,6 +31,7 @@ import com.gmodelo.cyclicinventories.beans.E_Xtab6_SapEntity;
 import com.gmodelo.cyclicinventories.beans.Justification;
 import com.gmodelo.cyclicinventories.beans.MaterialExplosionBean;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
+import com.gmodelo.cyclicinventories.beans.RelMatnrCategory;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.ZIACST_I360_OBJECTDATA_SapEntity;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
@@ -74,33 +75,18 @@ public class SapOperationDao {
 			+ " INNER JOIN MAKT MKT WITH(NOLOCK) ON SUBSTRING(EC.MATNR, PATINDEX('%[^0 ]%', EC.MATNR + ' '), LEN(EC.MATNR)) = "
 			+ " SUBSTRING(MKT.MATNR, PATINDEX('%[^0 ]%', MKT.MATNR + ' '), LEN(MKT.MATNR)) "
 			+ " GROUP BY EC.MATNR, MKT.MAKTX, SMBEZ, ATFLV, ATNAM";
+	
+	private static final String CATEGORY_BY_MATNR = "SELECT B.REL_MATNR MATNR, CATEGORY FROM INV_CAT_CATEGORY AS A "
+			+ "INNER JOIN INV_REL_CAT_MAT AS B ON (A.CAT_ID = B.REL_CAT_ID) "
+			+ "WHERE B.REL_MATNR IN (SELECT * FROM STRING_SPLIT(?, ','))";
 
 	private static final String TRANSIT_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM(CAST(MENGE AS decimal(20,3))) MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
-
+	
 	private static final String CONSIGNATION_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(20,3)) "
 			+ "+ CAST(KUINS AS decimal(20,3)) + CAST(KUEIN AS decimal(20,3)))) AS CONS FROM E_MSKU_F WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
-
-	private static final String THEORIC_IM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
-			+ "SUM((CAST(LABST AS decimal(20,3)) " + "+ CAST(UMLME AS decimal(20,3)) + CAST(INSME AS decimal(20,3)) "
-			+ "+ CAST(EINME AS decimal(20,3)) + CAST(SPEME AS decimal(20,3)) "
-			+ "+ CAST(RETME AS decimal(20,3)))) AS CONS " + "FROM E_MARD "
-			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND DOC_INV_ID = ? "
-			+ "GROUP BY MATNR";
-
-	private static final String THEORIC_WM_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, "
-			+ "SUM(CAST(VERME AS decimal(20,3))) AS CONS FROM E_LQUA WHERE " + "DOC_INV_ID = ? GROUP BY MATNR ";
-
-	private static final String MOVEMENTS_BY_BUKRS = "SELECT ISNULL(SUM(MENGE), '0') MENGE FROM( "
-			+ "SELECT SUM(CAST(MENGE AS decimal(20, 3))) AS MENGE " 
-			+ "FROM E_MSEG " 
-			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'S' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) <= ? "
-			+ "UNION " 
-			+ "SELECT (SUM(CAST(MENGE AS decimal(20, 3))) * -1) AS MENGE " 
-			+ "FROM E_MSEG " 
-			+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ? AND SHKZG = 'H' AND DOC_INV_ID = ? AND CAST(BUDAT_MKPF + ' ' + CPUTM_MKPF as datetime) <= ?) AS TBL ";
-
+	
 	private static final String COUNTED_MATNRS = "SELECT LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE FROM (SELECT LGNUM, LNUMT, "
 			+ "DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE "
 			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
@@ -109,28 +95,6 @@ public class SapOperationDao {
 			+ "WHERE DIP_DOC_INV_ID = ? AND LEN(LGNUM) > 0 AND DIP_COUNT_DATE IS NOT NULL "
 			+ "GROUP BY LGNUM, LNUMT, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR) AS TAB "
 			+ "GROUP BY LGNUM, DIP_LGORT, DIP_LGTYP, DIP_LGPLA, DIP_MATNR, DIP_COUNT_DATE";
-
-	private static final String COUNTED_MATNRS_BY_WERKS = "SELECT MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE FROM (SELECT SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) MATNR, DIP_COUNT_DATE "
-			+ "FROM (SELECT DIP_DOC_INV_ID, DIP_MATNR MATNR, DIP_COUNT_DATE " + "FROM INV_DOC_INVENTORY_POSITIONS "
-			+ "WHERE DIP_DOC_INV_ID = ? " + "GROUP BY DIP_DOC_INV_ID, DIP_MATNR, DIP_COUNT_DATE) AS A "
-			+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) "
-			+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR)  " + "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) "
-			+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DIP_DOC_INV_ID) "
-			+ "WHERE DIP_DOC_INV_ID = ? " + "AND B.WERKS = IDIH.DIH_WERKS "
-			+ "AND SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) " + "IN (SELECT EX_COMPONENT "
-			+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " + "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) "
-			+ "GROUP BY IDNRK, DIP_COUNT_DATE "
-
-			+ "UNION "
-
-			+ "SELECT DIP_MATNR MATNR, DIP_COUNT_DATE " + "FROM INV_DOC_INVENTORY_POSITIONS AS A "
-			+ "WHERE DIP_DOC_INV_ID = ? "
-
-			+ "UNION "
-
-			+ "SELECT DISTINCT(DIP_VHILM) MATNR, MAX(DIP_COUNT_DATE) DIP_COUNT_DATE "
-			+ "FROM INV_DOC_INVENTORY_POSITIONS " + "WHERE DIP_DOC_INV_ID = ? " + "GROUP BY DIP_VHILM) AS TBL "
-			+ "GROUP BY MATNR ";
 
 	private static final String GET_MBEW_PIVOT = "SELECT DIP_MATNR MATNR FROM (SELECT DIP_MATNR FROM INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR "  
 			+ " UNION SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ? "
@@ -160,9 +124,6 @@ public class SapOperationDao {
 			+ "DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > " 
 			+ "CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) "
 			+ "AND IS_UPDATING = 0) AS A"; 
-
-	private static final String COST_BY_MATNR = "SELECT MATNR, ZPRECIO "
-			+ "FROM INV_VW_GET_COSTS_FOR_DOC_INV WHERE DOC_INV_ID = ?";
 
 	private static final String GET_E_MBEW = "SELECT MATNR, BWKEY, ZPRECIO FROM E_MBEW WITH(NOLOCK)";
 
@@ -733,139 +694,130 @@ public class SapOperationDao {
 		return ziacmf_I360_EXT_SIS_CLAS;
 	}
 
-	public ArrayList<E_Mseg_SapEntity> getMatnrOnTransit(int docInvId, Connection con) throws SQLException {
+	public ArrayList<E_Mseg_SapEntity> getMatnrOnTransitByWerks(int docInvId) {
 
 		PreparedStatement stm = null;
-		stm = con.prepareStatement(TRANSIT_BY_BUKRS);
-		stm.setInt(1, docInvId);
-		
-		//log.info("[getMatnrOnTransit] Executing... " + TRANSIT);
-		
-		ResultSet rs = stm.executeQuery();		
+		Connection con = new ConnectionManager().createConnection();
 		ArrayList<E_Mseg_SapEntity> lsMatnr = new ArrayList<>();
 		E_Mseg_SapEntity emse;
+		
+		try {
+			
+			log.info("[getMatnrOnTransit] Executing... " + TRANSIT_BY_BUKRS);			
+			stm = con.prepareStatement(TRANSIT_BY_BUKRS);
+			stm.setInt(1, docInvId);			
+			ResultSet rs = stm.executeQuery();		
 
-		while (rs.next()) {
-			emse = new E_Mseg_SapEntity();
-			emse.setMatnr(rs.getString("MATNR"));
-			emse.setMenge(rs.getString("MENGE"));
-			lsMatnr.add(emse);
+			while (rs.next()) {
+				
+				emse = new E_Mseg_SapEntity();
+				emse.setMatnr(rs.getString("MATNR"));
+				emse.setMenge(rs.getString("MENGE"));
+				lsMatnr.add(emse);
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			log.log(Level.SEVERE,
+					"[getMatnrOnTransit] Some error occurred while was trying to excute." + TRANSIT_BY_BUKRS, e);
+			e.printStackTrace();
+		}finally{
+			
+			try {
+				con.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				log.log(Level.SEVERE,
+						"[getMatnrOnTransit] Some error occurred while was trying to close the connection.", e);
+				e.printStackTrace();
+			}
 		}
-
+		
 		return lsMatnr;
 	}
 
-	public ArrayList<E_Msku_SapEntity> getMatnrOnCons(int docInvId, Connection con) throws SQLException {
+	public ArrayList<E_Msku_SapEntity> getMatnrOnConsByWerks(int docInvId) {
 
 		PreparedStatement stm = null;
-		stm = con.prepareStatement(CONSIGNATION_BY_BUKRS);
-		stm.setInt(1, docInvId);
-		
-		//log.info("[getMatnrOnCons] Executing... " + CONSIGNATION);
-		
-		ResultSet rs = stm.executeQuery();
-
 		ArrayList<E_Msku_SapEntity> lsMatnr = new ArrayList<>();
-		E_Msku_SapEntity emskuEntity;
+		Connection con = new ConnectionManager().createConnection();
+		
+		try {
+			
+			log.info("[getMatnrOnCons] Executing... " + CONSIGNATION_BY_BUKRS);
+			
+			stm = con.prepareStatement(CONSIGNATION_BY_BUKRS);
+			stm.setInt(1, docInvId);
+			
+			ResultSet rs = stm.executeQuery();			
+			E_Msku_SapEntity emskuEntity;
 
-		while (rs.next()) {
-			emskuEntity = new E_Msku_SapEntity();
-			emskuEntity.setMatnr(rs.getString("MATNR"));
-			emskuEntity.setKulab(rs.getString("CONS"));// The total here
-			lsMatnr.add(emskuEntity);
+			while (rs.next()) {
+				emskuEntity = new E_Msku_SapEntity();
+				emskuEntity.setMatnr(rs.getString("MATNR"));
+				emskuEntity.setKulab(rs.getString("CONS"));// The total here
+				lsMatnr.add(emskuEntity);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			log.log(Level.SEVERE,
+					"[saveConciliationSAP] Some error occurred while was trying to excute." + CONSIGNATION_BY_BUKRS, e);
+			e.printStackTrace();
+		}finally{
+			
+			try {
+				con.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				log.log(Level.SEVERE,
+						"[saveConciliationSAP] Some error occurred while was trying to close the connection.", e);
+				e.printStackTrace();
+			}
 		}
-
+		
 		return lsMatnr;
 	}
-
-	public E_Mard_SapEntity getMatnrTheoricImByBukrs(int docInvId, PosDocInvBean pb, Connection con)
-			throws SQLException {
-
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(THEORIC_IM_BY_BUKRS);
-		stm.setString(1, pb.getMatnr());
-		stm.setInt(2, docInvId);
-		
-		//log.info("[getMatnrTheoricImByBukrs] Executing... " + THEORIC_IM_BY_BUKRS);
-		
-		ResultSet rs = stm.executeQuery();
-
-		E_Mard_SapEntity ems = new E_Mard_SapEntity();
-		ems.setRetme("0");
-
-		while (rs.next()) {
-			ems.setMatnr(rs.getString("MATNR"));
-			ems.setRetme(rs.getString("CONS"));// The total here
-		}
-
-		return ems;
-	}
-
-	public E_Lqua_SapEntity getMatnrTheoricWmByBukrs(int docInvId, PosDocInvBean pb, Connection con)
-			throws SQLException {
+	
+	public ArrayList<RelMatnrCategory> getCatByMatnr(String lsIds) {
 
 		PreparedStatement stm = null;
-		stm = con.prepareStatement(THEORIC_WM_BY_BUKRS);
-		stm.setInt(1, docInvId);
-
-		//log.info("[getMatnrTheoricWmByBukrs] Executing... " + THEORIC_WM_BY_BUKRS);
+		ArrayList<RelMatnrCategory> lsRel = new ArrayList<>();
+		Connection con = new ConnectionManager().createConnection();
 		
-		ResultSet rs = stm.executeQuery();
+		try {
+			
+			log.info("[getCatByMatnr] Executing... " + CATEGORY_BY_MATNR);
+			
+			stm = con.prepareStatement(CATEGORY_BY_MATNR);
+			stm.setString(1, lsIds);
+			
+			ResultSet rs = stm.executeQuery();			
+			RelMatnrCategory rel;
 
-		E_Lqua_SapEntity els = new E_Lqua_SapEntity();
-		els.setVerme("0");
-
-		while (rs.next()) {
-			els.setMatnr(rs.getString("MATNR"));
-			els.setVerme(rs.getString("CONS"));// The total here
+			while (rs.next()) {
+				rel = new RelMatnrCategory();
+				rel.getCatByMatnr().setMatnr(rs.getString("MATNR"));
+				rel.getCategory().setCategory(rs.getString("CATEGORY"));
+				lsRel.add(rel);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			log.log(Level.SEVERE,
+					"[getCatByMatnr] Some error occurred while was trying to excute." + CATEGORY_BY_MATNR, e);
+			e.printStackTrace();
+		}finally{
+			
+			try {
+				con.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				log.log(Level.SEVERE,
+						"[getCatByMatnr] Some error occurred while was trying to close the connection.", e);
+				e.printStackTrace();
+			}
 		}
-
-		return els;
-	}
-
-	public ArrayList<CostByMatnr> getCostByMatnr(int docInvId, Connection con) throws SQLException {
-
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(COST_BY_MATNR);
-		stm.setInt(1, docInvId);
 		
-		//log.info("[getCostByMatnr] Executing... " + COST_BY_MATNR);
-		
-		ResultSet rs = stm.executeQuery();
-		ArrayList<CostByMatnr> lsMatnr = new ArrayList<>();
-		CostByMatnr els;
-		while (rs.next()) {
-			els = new CostByMatnr();
-			els.setMatnr(rs.getString("MATNR"));
-			els.setCost(rs.getString("ZPRECIO"));
-			lsMatnr.add(els);
-		}
-		return lsMatnr;
-	}
-
-	public long getMatnrMovementsByBukrs(PosDocInvBean pdib, int docInvId, Date dcounted, Connection con)
-			throws SQLException {
-
-		PreparedStatement stm = null;
-		stm = con.prepareStatement(MOVEMENTS_BY_BUKRS);
-		stm.setString(1, pdib.getMatnr());
-		stm.setInt(2, docInvId);
-		stm.setTimestamp(3, new java.sql.Timestamp(dcounted.getTime()));
-
-		stm.setString(4, pdib.getMatnr());
-		stm.setInt(5, docInvId);
-		stm.setTimestamp(6, new java.sql.Timestamp(dcounted.getTime()));
-
-		//log.info("[getMatnrMovementsByBukrs] Executing... " + MOVEMENTS_BY_BUKRS);
-		
-		ResultSet rs = stm.executeQuery();
-		long menge = 0;
-
-		while (rs.next()) {
-			menge = rs.getLong("MENGE");// The total here
-		}
-
-		return menge;
+		return lsRel;
 	}
 
 	public ArrayList<PosDocInvBean> getMatnrDates(int docInvId, Connection con) throws SQLException {
@@ -887,31 +839,6 @@ public class SapOperationDao {
 			matnr.setLgtyp(rs.getString("DIP_LGTYP"));
 			matnr.setLgpla(rs.getString("DIP_LGPLA"));
 			matnr.setMatnr(rs.getString("DIP_MATNR"));
-			matnr.setdCounted(rs.getTimestamp("DIP_COUNT_DATE"));
-			lsMatnr.add(matnr);
-		}
-
-		return lsMatnr;
-	}
-
-	public ArrayList<PosDocInvBean> getMatnrDatesByBukrs(int docInvId, Connection con) throws SQLException {
-
-		PreparedStatement stm = null;		
-		stm = con.prepareStatement(COUNTED_MATNRS_BY_WERKS);
-		stm.setInt(1, docInvId);
-		stm.setInt(2, docInvId);
-		stm.setInt(3, docInvId);
-		stm.setInt(4, docInvId);
-		
-		//log.info("[getMatnrDatesByBukrs] Executing... " + COUNTED_MATNRS_BY_WERKS);
-		
-		ResultSet rs = stm.executeQuery();
-		ArrayList<PosDocInvBean> lsMatnr = new ArrayList<>();
-		PosDocInvBean matnr;
-
-		while (rs.next()) {
-			matnr = new PosDocInvBean();
-			matnr.setMatnr(rs.getString("MATNR"));
 			matnr.setdCounted(rs.getTimestamp("DIP_COUNT_DATE"));
 			lsMatnr.add(matnr);
 		}
