@@ -33,6 +33,7 @@ import com.gmodelo.cyclicinventories.beans.MaterialExplosionBean;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.ZIACST_I360_OBJECTDATA_SapEntity;
+import com.gmodelo.cyclicinventories.exception.InvCicException;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_EXT_SIS_CLAS;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_1;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_2;
@@ -40,6 +41,7 @@ import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_INV_MOV_3;
 import com.gmodelo.cyclicinventories.structure.ZIACMF_I360_MOV;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
+import com.gmodelo.cyclicinventories.utils.Utilities;
 
 public class SapOperationDao {
 
@@ -795,9 +797,23 @@ public class SapOperationDao {
 		List<ZIACST_I360_OBJECTDATA_SapEntity> i360_OBJECTDATA_SapEntities = new ArrayList<>();
 		Connection con = new ConnectionManager().createConnection();
 		PreparedStatement stm = con.prepareStatement(GET_CLASSSYSTEM);
-		ResultSet rs = stm.executeQuery();
-		while (rs.next()) {
-			i360_OBJECTDATA_SapEntities.add(new ZIACST_I360_OBJECTDATA_SapEntity(rs));
+		try {
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				i360_OBJECTDATA_SapEntities.add(new ZIACST_I360_OBJECTDATA_SapEntity(rs));
+			}
+		} catch (Exception e) {
+			log.log(Level.SEVERE,
+					"[getClassSystem] : ",
+					e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getClassSystem] Some error occurred while was trying to close the connection.",
+						e);
+			}
 		}
 		ziacmf_I360_EXT_SIS_CLAS.setObjectData(i360_OBJECTDATA_SapEntities);
 		return ziacmf_I360_EXT_SIS_CLAS;
@@ -1340,8 +1356,11 @@ public class SapOperationDao {
 			}
 			stmDel.executeUpdate();
 			stm.executeBatch();
+			new Utilities().updateValueRepByKey(con, ReturnValues.E_CLASS_LAST_UPDATED, new Date().toString());
 		} catch (SQLException e) {
 			throw e;
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[setZIACMF_I360_EXT_SIS_CLAS (updateValueRepByKey E_CLASS_LAST_UPDATED)] ", e);
 		}
 		return result;
 	}

@@ -69,5 +69,6 @@ public class ReturnValues {
 
 	public static final String ROLE_MASK = "ROLE_MASK";
 	public static final String PATH_TO_SAVE_FILES = "PATH_TO_SAVE_FILES";
+	public static final String E_CLASS_LAST_UPDATED = "E_CLASS_LAST_UPDATED";
 
 }

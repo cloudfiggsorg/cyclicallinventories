@@ -37,8 +37,10 @@ import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.cyclicinventories.beans.Response;
+import com.gmodelo.cyclicinventories.exception.InvCicException;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
+import com.gmodelo.cyclicinventories.utils.Utilities;
 
 public class ReportesDao {
 
@@ -1196,6 +1198,27 @@ public class ReportesDao {
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
+	}
+	
+	public String getLastUpdateClass(){
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager .createConnection();
+		 String date = "";
+		try {
+			 date = new Utilities().getValueRepByKey(con, ReturnValues.E_CLASS_LAST_UPDATED).getStrCom1();
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[getlastUpdateClassDao] ", e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getlastUpdateClassDao] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+		
+		return date;
 	}
 
 }
