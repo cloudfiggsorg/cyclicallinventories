@@ -129,26 +129,46 @@ public class ReportesWorkService {
 			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), ProductivityBean.class);
 			response = new ReportesDao().getUserProductivityDao(tareasBean);
 			if (response.getAbstractResult().getResultId() != 1) {
+				log.log(Level.SEVERE, "[getUserProductivityWorkService] "+response.getAbstractResult().getResultMsgAbs());
 				return response;
 			}
 			List<ProductivityBean> listBean = response.getLsObject();
-			ArrayList<User> listUser = new ArrayList<>();
+			ArrayList<User> listUniqueUser = new ArrayList<>();
 			User user;
-			UMEDaoE umeDao = new UMEDaoE();
-			for (ProductivityBean b : listBean) {
-				user = new User();
-				user.getEntity().setIdentyId(b.getUser());
-				user.getGenInf().setName(b.getUser());
-
-				listUser.add(user);
+			for(ProductivityBean b : listBean){
+				if(listUniqueUser.isEmpty()){
+					user = new User();
+					user.getEntity().setIdentyId(b.getUser().trim());
+					user.getGenInf().setName(b.getUser().trim());
+					
+					listUniqueUser.add(user);
+					
+				}else{
+					boolean existUser = false;
+					for(User u : listUniqueUser){
+						if(u.getEntity().getIdentyId().equalsIgnoreCase(b.getUser().trim())){
+							existUser = true;
+						}
+					}
+					if(!existUser){
+						user = new User();
+						user.getEntity().setIdentyId(b.getUser().trim());
+						user.getGenInf().setName(b.getUser().trim());
+						
+						listUniqueUser.add(user);
+					}
+				}
 			}
+			
+			UMEDaoE umeDao = new UMEDaoE();
 
-			listUser = umeDao.getUsersLDAPByCredentials(listUser);
+			listUniqueUser = umeDao.getUsersLDAPByCredentials(listUniqueUser);
 
 			for (ProductivityBean pb : listBean) {
-				for (User u : listUser) {
+				for (User u : listUniqueUser) {
 					if (pb.getUser().trim().equalsIgnoreCase(u.getEntity().getIdentyId().trim())) {
 						pb.setUser(u.getGenInf().getName() + " " + u.getGenInf().getLastName());
+						break;
 					}
 				}
 			}

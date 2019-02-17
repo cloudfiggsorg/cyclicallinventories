@@ -682,10 +682,10 @@ public class ReportesDao {
 				: "";
 		condition += routeId;
 		bukrs = (apegosB.getBukrs() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS = '" + apegosB.getBukrs() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS LIKE '" + apegosB.getBukrs() + "%' " : "";
 		condition += bukrs;
 		werks = (apegosB.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + apegosB.getWerks() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS LIKE '" + apegosB.getWerks() + "%' " : "";
 		condition += werks;
 		rdesc = (apegosB.getRdesc() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + apegosB.getRdesc() + "' " : "";
@@ -699,7 +699,7 @@ public class ReportesDao {
 		condition += docInv;
 
 		lgort = (apegosB.getLgort() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT = '" + apegosB.getLgort() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT LIKE '" + apegosB.getLgort() + "%' " : "";
 		condition += lgort;
 
 		lgortD = (apegosB.getLgDesc() != null)
@@ -718,6 +718,14 @@ public class ReportesDao {
 
 			fechas = (condition.contains("WHERE") ? " AND " : " WHERE ") + " DATE_INI BETWEEN '"
 					+ new java.sql.Date(Long.parseLong((apegosB.getDateIni()))) + "' "
+					+ (" AND  '" + new java.sql.Date(c.getTimeInMillis()) + "' ");
+		}else if(apegosB.getDateIni() == null && apegosB.getDateFin() != null){
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(Long.parseLong(apegosB.getDateFin()));
+			c.add(Calendar.DATE, 1);
+
+			fechas = (condition.contains("WHERE") ? " AND " : " WHERE ") + " DATE_FIN BETWEEN '"
+					+ new java.sql.Date(Long.parseLong((apegosB.getDateFin()))) + "' "
 					+ (" AND  '" + new java.sql.Date(c.getTimeInMillis()) + "' ");
 		}
 		condition += fechas;
@@ -776,7 +784,7 @@ public class ReportesDao {
 				: "";
 		condition += bukrs;
 		werks = (tareasB.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS = '" + tareasB.getWerks() + "' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS LIKE '" + tareasB.getWerks() + "%' "
 				: "";
 		condition += werks;
 		lgort = (tareasB.getLgort() != null)
@@ -824,7 +832,7 @@ public class ReportesDao {
 				: "";
 		condition += bukrs;
 		werks = (tareasB.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS = '" + tareasB.getWerks() + "' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS LIKE '" + tareasB.getWerks() + "%' "
 				: "";
 		condition += werks;
 		lgort = (tareasB.getLgort() != null)
@@ -876,7 +884,7 @@ public class ReportesDao {
 		condition += bukrs;
 
 		werks = (carb.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + carb.getWerks() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS LIKE '" + carb.getWerks() + "%' " : "";
 		condition += werks;
 
 		type = (carb.getType() != null)
