@@ -12,6 +12,7 @@ import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.E_Mbew_SapEntity;
 import com.gmodelo.cyclicinventories.beans.Response;
+import com.gmodelo.cyclicinventories.dao.ReportesDao;
 import com.gmodelo.cyclicinventories.dao.SapConciliationDao;
 import com.gmodelo.cyclicinventories.dao.SapOperationDao;
 import com.gmodelo.cyclicinventories.exception.InvCicException;
@@ -333,19 +334,19 @@ public class SapConciliationWorkService {
 			ZIACMF_I360_EXT_SIS_CLAS i360_EXT_SIS_CLAS = operationDao.getClassSystem();
 			if (i360_EXT_SIS_CLAS.getObjectData() != null && !i360_EXT_SIS_CLAS.getObjectData().isEmpty()) {
 				response.setLsObject(i360_EXT_SIS_CLAS);
-				response.getAbstractResult().setResultMsgCom(new SapConciliationDao().getLastUpdate().getLsObject());
+				response.getAbstractResult().setResultMsgCom(new ReportesDao().getLastUpdateClass());
 			} else {
 				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("Sistema de Clasificacion no cargado anteriormente, favor de generar carga");
 				log.log(Level.SEVERE,
-						"[SapConciliationWorkService - WS_getClassSystem] - Sistema de Clasificacion no cargado anteriormente, favor de generar carga ");
+						"[SapConciliationWorkService - WS_getClassSystem] - Sistema de Clasificacion no cargado anteriormente, favor de Resincronizar");
 			}
 		} catch (SQLException e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService- WS_getClassSystem] - SQLException: ", e);
+			log.log(Level.SEVERE, "[WS_getClassSystem] - SQLException: ", e);
 
-		}
+		} 
 		return response;
 	}
 
@@ -368,22 +369,22 @@ public class SapConciliationWorkService {
 		} catch (SQLException e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - SQLException: ", e);
+			log.log(Level.SEVERE, "[WS_SAPClassRuntime] - SQLException: ", e);
 		} catch (JCoException e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - JCoException: ", e);
+			log.log(Level.SEVERE, "[WS_SAPClassRuntime] - JCoException: ", e);
 		} catch (InvCicException e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - InvCicException: ", e);
+			log.log(Level.SEVERE, "[WS_SAPClassRuntime] - InvCicException: ", e);
 		} catch (RuntimeException e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
-			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - RuntimeException: ", e);
+			log.log(Level.SEVERE, "[WS_SAPClassRuntime] - RuntimeException: ", e);
 		} catch (Exception e) {
 			result.setResultId(ReturnValues.IEXCEPTION);
-			log.log(Level.SEVERE, "[SapConciliationWorkService-_WS_SAPClassRuntime] - Exception: ", e);
+			log.log(Level.SEVERE, "[WS_SAPClassRuntime] - Exception: ", e);
 		}
 		return response;
 	}
