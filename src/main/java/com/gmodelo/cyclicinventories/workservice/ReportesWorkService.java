@@ -381,8 +381,8 @@ public class ReportesWorkService {
 				sumCountedExpl += Double.parseDouble(pb.getCountedExpl());
 				pbAux.setCountedExpl(Double.toString(sumCountedExpl));
 				
-				sumTeoric = Double.parseDouble(pbAux.getTheoric());
-				sumTeoric += Double.parseDouble(pb.getTheoric());
+				sumTeoric = Double.parseDouble(pbAux.getTheoric() == null ? "0" : pbAux.getTheoric());
+				sumTeoric += Double.parseDouble(pb.getTheoric() == null ? "0" : pb.getTheoric());
 				pbAux.setTheoric(Double.toString(sumTeoric));
 				
 				mapByMatNr.replace(pb.getMatnr(), pbAux);
