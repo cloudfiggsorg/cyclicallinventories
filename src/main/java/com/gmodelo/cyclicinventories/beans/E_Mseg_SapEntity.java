@@ -1,5 +1,8 @@
 package com.gmodelo.cyclicinventories.beans;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.JCoTable;
 
@@ -195,6 +198,20 @@ public class E_Mseg_SapEntity {
 		this.lgpla = jcoTable.getString("LGPLA");
 		this.budat_mkpf = jcoTable.getString("BUDAT_MKPF");
 		this.cputm_mkpf = jcoTable.getString("CPUTM_MKPF");
+	}
+
+	public E_Mseg_SapEntity(ResultSet rs) throws SQLException {
+		super();
+		this.matnr = rs.getString("MATNR");
+		this.lgort = rs.getString("LGORT");
+		this.shkzg = rs.getString("SHKZG");
+		this.menge = rs.getString("MENGE");
+		this.lgnum = rs.getString("LGNUM") != null ? rs.getString("LGNUM") : "";
+		this.lgtyp = rs.getString("LGTYP") != null ? rs.getString("LGTYP") : "";
+		this.lgpla = rs.getString("LGPLA") != null ? rs.getString("LGPLA") : "";
+		this.budat_mkpf = rs.getString("BUDAT_MKPF");
+		this.cputm_mkpf = rs.getString("CPUTM_MKPF");
+
 	}
 
 	@Override
