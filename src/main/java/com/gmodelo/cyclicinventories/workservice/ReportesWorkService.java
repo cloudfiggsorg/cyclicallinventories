@@ -604,7 +604,7 @@ public class ReportesWorkService {
 
 					// Tarimas
 
-					if (wmPos.getVhilm() != null && !wmPos.getVhilm().isEmpty()) {
+					if (wmPos.getVhilm() != null && !wmPos.getVhilm().isEmpty() && !wmPos.getVhilm().equalsIgnoreCase("-987")) {
 						PosDocInvBean pBean = new PosDocInvBean();
 						String toCount = "0.00";
 						if (expPosition.containsKey(wmPos.getLgort() + "" + wmPos.getVhilm())) {
@@ -670,7 +670,9 @@ public class ReportesWorkService {
 					for (PosDocInvBean wmPosEx : wmExtraPos) {
 						if ((wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla())
 								.equals(wmPosEx.getLgNum() + "" + wmPosEx.getLgtyp() + "" + wmPosEx.getLgpla())) {
-							wmExtraPosPiv.add(wmPosEx);
+							if (!wmExtraPosPiv.contains(wmPosEx)) {
+								wmExtraPosPiv.add(wmPosEx);
+							}
 						}
 					}
 				}
@@ -682,8 +684,7 @@ public class ReportesWorkService {
 				// Begin Fill IM
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] IM MERGES");
 
-				
-				//MErge Im for only use LGORT MATERIAL
+				// MErge Im for only use LGORT MATERIAL
 				HashMap<String, PosDocInvBean> imMapMerge = new HashMap<>();
 				for (PosDocInvBean imPos : imPositions) {
 					String lgortMatkey = imPos.getLgort() + imPos.getMatnr();
@@ -706,7 +707,7 @@ public class ReportesWorkService {
 					Map.Entry pair = (Map.Entry) it.next();
 					imPositions.add((PosDocInvBean) pair.getValue());
 				}
-				//MErge Im for only use LGORT MATERIAL
+				// MErge Im for only use LGORT MATERIAL
 
 				for (PosDocInvBean imPos : imPositions) {
 					imPos.setLgpla("");
