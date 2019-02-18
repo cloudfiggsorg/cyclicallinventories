@@ -15,6 +15,7 @@ public class DocInvBean {
 	private String createdBy;
 	private String modifiedBy;
 	private Integer docFatherInvId;
+	private boolean sapRecount;
 	private Long createdDate;
 	private Long modifiedDate;
 	private List<DocInvPositionBean> docInvPositions;
@@ -131,17 +132,17 @@ public class DocInvBean {
 		this.modifiedDate = modifiedDate;
 	}
 
-	@Override
-	public String toString() {
-		return "DocInvBean [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
-				+ ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy="
-				+ createdBy + ", modifiedBy=" + modifiedBy + ", docFatherInvId=" + docFatherInvId + ", createdDate="
-				+ createdDate + ", modifiedDate=" + modifiedDate + ", docInvPositions=" + docInvPositions + "]";
+	public boolean isSapRecount() {
+		return sapRecount;
+	}
+
+	public void setSapRecount(boolean sapRecount) {
+		this.sapRecount = sapRecount;
 	}
 
 	public DocInvBean(Integer docInvId, String route, String bukrs, String bukrsD, String werks, String werksD,
-			String type, String status, String createdBy, String modifiedBy, Integer docFatherInvId, Long createdDate,
-			Long modifiedDate, List<DocInvPositionBean> docInvPositions) {
+			String type, String status, String createdBy, String modifiedBy, Integer docFatherInvId, boolean sapRecount,
+			Long createdDate, Long modifiedDate, List<DocInvPositionBean> docInvPositions) {
 		super();
 		this.docInvId = docInvId;
 		this.route = route;
@@ -154,6 +155,7 @@ public class DocInvBean {
 		this.createdBy = createdBy;
 		this.modifiedBy = modifiedBy;
 		this.docFatherInvId = docFatherInvId;
+		this.sapRecount = sapRecount;
 		this.createdDate = createdDate;
 		this.modifiedDate = modifiedDate;
 		this.docInvPositions = docInvPositions;
@@ -162,6 +164,15 @@ public class DocInvBean {
 	public DocInvBean() {
 		super();
 		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public String toString() {
+		return "DocInvBean [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
+				+ ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy="
+				+ createdBy + ", modifiedBy=" + modifiedBy + ", docFatherInvId=" + docFatherInvId + ", sapRecount="
+				+ sapRecount + ", createdDate=" + createdDate + ", modifiedDate=" + modifiedDate + ", docInvPositions="
+				+ docInvPositions + "]";
 	}
 
 	@Override
@@ -178,6 +189,7 @@ public class DocInvBean {
 		result = prime * result + ((modifiedBy == null) ? 0 : modifiedBy.hashCode());
 		result = prime * result + ((modifiedDate == null) ? 0 : modifiedDate.hashCode());
 		result = prime * result + ((route == null) ? 0 : route.hashCode());
+		result = prime * result + (sapRecount ? 1231 : 1237);
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + ((werks == null) ? 0 : werks.hashCode());
@@ -243,6 +255,8 @@ public class DocInvBean {
 			if (other.route != null)
 				return false;
 		} else if (!route.equals(other.route))
+			return false;
+		if (sapRecount != other.sapRecount)
 			return false;
 		if (status == null) {
 			if (other.status != null)
