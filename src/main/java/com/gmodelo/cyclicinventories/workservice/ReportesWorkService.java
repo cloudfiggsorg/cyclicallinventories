@@ -129,37 +129,38 @@ public class ReportesWorkService {
 			tareasBean = gson.fromJson(gson.toJson(request.getLsObject()), ProductivityBean.class);
 			response = new ReportesDao().getUserProductivityDao(tareasBean);
 			if (response.getAbstractResult().getResultId() != 1) {
-				log.log(Level.SEVERE, "[getUserProductivityWorkService] "+response.getAbstractResult().getResultMsgAbs());
+				log.log(Level.SEVERE,
+						"[getUserProductivityWorkService] " + response.getAbstractResult().getResultMsgAbs());
 				return response;
 			}
 			List<ProductivityBean> listBean = response.getLsObject();
 			ArrayList<User> listUniqueUser = new ArrayList<>();
 			User user;
-			for(ProductivityBean b : listBean){
-				if(listUniqueUser.isEmpty()){
+			for (ProductivityBean b : listBean) {
+				if (listUniqueUser.isEmpty()) {
 					user = new User();
 					user.getEntity().setIdentyId(b.getUser().trim());
 					user.getGenInf().setName(b.getUser().trim());
-					
+
 					listUniqueUser.add(user);
-					
-				}else{
+
+				} else {
 					boolean existUser = false;
-					for(User u : listUniqueUser){
-						if(u.getEntity().getIdentyId().equalsIgnoreCase(b.getUser().trim())){
+					for (User u : listUniqueUser) {
+						if (u.getEntity().getIdentyId().equalsIgnoreCase(b.getUser().trim())) {
 							existUser = true;
 						}
 					}
-					if(!existUser){
+					if (!existUser) {
 						user = new User();
 						user.getEntity().setIdentyId(b.getUser().trim());
 						user.getGenInf().setName(b.getUser().trim());
-						
+
 						listUniqueUser.add(user);
 					}
 				}
 			}
-			
+
 			UMEDaoE umeDao = new UMEDaoE();
 
 			listUniqueUser = umeDao.getUsersLDAPByCredentials(listUniqueUser);
@@ -322,71 +323,73 @@ public class ReportesWorkService {
 		}
 		return response;
 	}
-	
+
 	@SuppressWarnings({ "rawtypes" })
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByWerks(Request request) {
-		
+
 		log.info("[getReporteDocInvSAPByWerks] " + request.toString());
 		Response<DocInvBeanHeaderSAP> resp = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		DocInvBeanHeaderSAP reportBylgPla, reportByWerks;
 		DocInvBean docInvBean = null;
-		
+
 		try {
 			log.info("[getReporteDocInvSAPByWerks] try");
-			docInvBean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);			
+			docInvBean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "[getReporteDocInvSAPByWerks] catch", e);
 			AbstractResultsBean result = new AbstractResultsBean();
 			result.setResultId(ReturnValues.IEXCEPTION);
 			result.setResultMsgAbs(e.getMessage());
-			resp.setAbstractResult(result);			
+			resp.setAbstractResult(result);
 			return resp;
 		}
-		
+
 		if (docInvBean.getStatus().equalsIgnoreCase("TRUE")) {
-			
+
 			log.info("[getReporteDocInvSAPByWerks] Getting closed object...");
 			return new SapOperationDao().getClosedConsSapReport(docInvBean);
-			
+
 		} else {
-			
+
 			log.info("[getReporteDocInvSAPByWerks] Getting the report...");
 			resp = getReporteDocInvSAPByLgpla(request);
-			reportBylgPla = resp.getLsObject(); 
-			reportByWerks = resp.getLsObject(); 
+			reportBylgPla = resp.getLsObject();
+			reportByWerks = resp.getLsObject();
 		}
-		
-		ArrayList<E_Mseg_SapEntity> lsTransit = new SapOperationDao().getMatnrOnTransitByWerks(docInvBean.getDocInvId().intValue());
-		ArrayList<E_Msku_SapEntity> lsCons = new SapOperationDao().getMatnrOnConsByWerks(docInvBean.getDocInvId().intValue());
-		
+
+		ArrayList<E_Mseg_SapEntity> lsTransit = new SapOperationDao()
+				.getMatnrOnTransitByWerks(docInvBean.getDocInvId().intValue());
+		ArrayList<E_Msku_SapEntity> lsCons = new SapOperationDao()
+				.getMatnrOnConsByWerks(docInvBean.getDocInvId().intValue());
+
 		HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();
 		PosDocInvBean pbAux = null;
 		double sumCounted = 0.0D;
 		double sumCountedExpl = 0.0D;
 		double sumTeoric = 0.0D;
 		List<PosDocInvBean> listBean = reportBylgPla.getDocInvPosition();
-		
+
 		// Create a map by matnr
 		for (PosDocInvBean pb : listBean) {
-			
-			if(pb.isGrouped()){
-				
+
+			if (pb.isGrouped()) {
+
 				if (mapByMatNr.containsKey(pb.getMatnr())) {
 
 					pbAux = (PosDocInvBean) mapByMatNr.get(pb.getMatnr());
 					sumCounted = Double.parseDouble(pbAux.getCounted());
 					sumCounted += Double.parseDouble(pb.getCounted());
 					pbAux.setCounted(Double.toString(sumCounted));
-					
+
 					sumCountedExpl = Double.parseDouble(pbAux.getCountedExpl());
 					sumCountedExpl += Double.parseDouble(pb.getCountedExpl());
 					pbAux.setCountedExpl(Double.toString(sumCountedExpl));
-					
+
 					sumTeoric = Double.parseDouble(pbAux.getTheoric() == null ? "0" : pbAux.getTheoric());
 					sumTeoric += Double.parseDouble(pb.getTheoric() == null ? "0" : pb.getTheoric());
 					pbAux.setTheoric(Double.toString(sumTeoric));
-					
+
 					mapByMatNr.replace(pb.getMatnr(), pbAux);
 
 				} else {
@@ -396,36 +399,36 @@ public class ReportesWorkService {
 					pb.setTransit("0");
 					mapByMatNr.put(pb.getMatnr(), pb);
 				}
-			}			
+			}
 		}
-		
-		listBean.clear();		
+
+		listBean.clear();
 		PosDocInvBean pdibAux = null;
 		String ldIds = "";
-		
+
 		for (Map.Entry<String, PosDocInvBean> mapEntry : mapByMatNr.entrySet()) {
 
 			pdibAux = mapEntry.getValue();
 			listBean.add(pdibAux);
-			ldIds += pdibAux.getMatnr() + ",";			
+			ldIds += pdibAux.getMatnr() + ",";
 		}
-		
+
 		ldIds = ldIds.substring(0, ldIds.length() - 1);
-		
-		//Get the categories
+
+		// Get the categories
 		ArrayList<RelMatnrCategory> relCatByMatnr = new SapOperationDao().getCatByMatnr(ldIds);
-		
+
 		for (PosDocInvBean pb : listBean) {
-			
+
 			for (RelMatnrCategory relCat : relCatByMatnr) {
-				
+
 				if (relCat.getCatByMatnr().getMatnr().contentEquals(pb.getMatnr())) {
 
 					pb.setCategory(relCat.getCategory().getCategory());
 					break;
 				}
 			}
-						
+
 			for (E_Mseg_SapEntity ojb : lsTransit) {
 
 				if (ojb.getMatnr().contentEquals(pb.getMatnr())) {
@@ -434,7 +437,7 @@ public class ReportesWorkService {
 					break;
 				}
 			}
-			
+
 			for (E_Msku_SapEntity ojb : lsCons) {
 
 				if (ojb.getMatnr().contentEquals(pb.getMatnr())) {
@@ -442,14 +445,14 @@ public class ReportesWorkService {
 					pb.setConsignation(ojb.getKulab());
 					break;
 				}
-			}			
+			}
 		}
-		
-		reportByWerks.setDocInvPosition(listBean);		
+
+		reportByWerks.setDocInvPosition(listBean);
 		resp.setAbstractResult(abstractResult);
 		resp.setLsObject(reportByWerks);
-		
-		return resp;		
+
+		return resp;
 	}
 
 	private final SapOperationDao operationDao = new SapOperationDao();
@@ -528,14 +531,16 @@ public class ReportesWorkService {
 											theoMovs.subtract(new BigDecimal(eSalidaBean.getVistm()));
 										}
 									}
-									for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(wmPos.getMatnr())) {
-										if (lastCounted.getTime() >= sdf
-												.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf())
-												.getTime()) {
-											if (eMsegBean.getShkzg().equals("S")) {
-												theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
-											} else {
-												theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+									if (eMseg.containsKey(lquaKey)) {
+										for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(wmPos.getMatnr())) {
+											if (lastCounted.getTime() >= sdf
+													.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf())
+													.getTime()) {
+												if (eMsegBean.getShkzg().equals("S")) {
+													theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+												} else {
+													theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+												}
 											}
 										}
 									}
@@ -683,18 +688,20 @@ public class ReportesWorkService {
 				}
 
 				for (PosDocInvBean imPos : imPositions) {
-					if (eMard.get(imPos.getLgort()+imPos.getMatnr()) != null) {
-						imPos.setTheoric(eMard.get(imPos.getLgort()+imPos.getMatnr()).getLabst());
+					if (eMard.get(imPos.getLgort() + imPos.getMatnr()) != null) {
+						imPos.setTheoric(eMard.get(imPos.getLgort() + imPos.getMatnr()).getLabst());
 						String lquaKey = imPos.getLgort();
 						Date lastCounted = new Date(imPos.getDateEndCounted());
 						BigDecimal theoMovs = new BigDecimal(imPos.getTheoric());
-						for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(imPos.getMatnr())) {
-							if (lastCounted.getTime() >= sdf
-									.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf()).getTime()) {
-								if (eMsegBean.getShkzg().equals("S")) {
-									theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
-								} else {
-									theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+						if (eMseg.containsKey(lquaKey)) {
+							for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(imPos.getMatnr())) {
+								if (lastCounted.getTime() >= sdf
+										.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf()).getTime()) {
+									if (eMsegBean.getShkzg().equals("S")) {
+										theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+									} else {
+										theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+									}
 								}
 							}
 						}
@@ -780,8 +787,9 @@ public class ReportesWorkService {
 						}
 					}
 
-					docPos.setCostByUnit(costByMaterial.get(docPos.getMatnr()) != null
-							? costByMaterial.get(docPos.getMatnr()) : "0.00");
+					docPos.setCostByUnit(
+							costByMaterial.get(docPos.getMatnr()) != null ? costByMaterial.get(docPos.getMatnr())
+									: "0.00");
 					if (docPos.getCountedTot() != null
 							&& new BigDecimal(docPos.getCountedTot()).compareTo(BigDecimal.ZERO) > 0) {
 						docPos.setCountedCost(new BigDecimal(docPos.getCountedTot())
