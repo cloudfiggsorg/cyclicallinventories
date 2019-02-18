@@ -133,7 +133,7 @@ public class SapOperationDao {
 	// CONCILIATION FOR WM - LGORT_LGPLA
 
 	private static final String INV_VW_REP_HEADER = "SELECT DOC_INV_ID, DIH_BUKRS, BUTXT, DIH_WERKS, NAME1, DIH_TYPE, "
-			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE "
+			+ "DIH_CLSD_SAP_BY, DIH_CLSD_SAP_DATE, DIH_ROUTE_ID, ROU_DESC, DIH_CREATED_DATE, DIH_MODIFIED_DATE, DIH_SAP_REC "
 			+ "FROM INV_VW_DOC_INV_REP_HEADER WHERE DOC_INV_ID = ?";
 
 	private static final String INV_GET_TARIMA_BY_ID = "SELECT MAKTX FROM MAKT WITH(NOLOCK) WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = ?";
@@ -1463,6 +1463,7 @@ public class SapOperationDao {
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
 				bean.setDocInvPosition(getConciliationSAPPositions(bean.getDocInvId(), con));
 				bean.setCreatedBy(rs.getString("DIH_CLSD_SAP_BY"));
+				bean.setSapRecount(rs.getBoolean("DIH_SAP_REC"));
 				bean.setConcSAPDate(sdf.format(new Date(rs.getTimestamp("DIH_CLSD_SAP_DATE").getTime())));
 
 				User user = new User();
