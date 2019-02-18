@@ -441,7 +441,7 @@ public class SapOperationDao {
 		} catch (SQLException e) {
 			throw e;
 		}
-		return null;
+		return e_mseg_SapEntities;
 	}
 
 	public HashMap<String, HashMap<String, List<E_Salida_SapEntity>>> getEsalidaDataDocInv(DocInvBean docInvBean,
