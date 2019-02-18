@@ -682,6 +682,32 @@ public class ReportesWorkService {
 				// Begin Fill IM
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] IM MERGES");
 
+				
+				//MErge Im for only use LGORT MATERIAL
+				HashMap<String, PosDocInvBean> imMapMerge = new HashMap<>();
+				for (PosDocInvBean imPos : imPositions) {
+					String lgortMatkey = imPos.getLgort() + imPos.getMatnr();
+					if (imMapMerge.containsKey(lgortMatkey)) {
+						imMapMerge.get(lgortMatkey).setCounted(new BigDecimal(imMapMerge.get(lgortMatkey).getCounted())
+								.add(new BigDecimal(imPos.getCounted())).toString());
+						if (imMapMerge.get(lgortMatkey).getDateEndCounted() < imPos.getDateEndCounted()) {
+							imMapMerge.get(lgortMatkey).setDateIniCounted(imPos.getDateIniCounted());
+							imMapMerge.get(lgortMatkey).setDateEndCounted(imPos.getDateEndCounted());
+						}
+					} else {
+						imPos.setLgpla("");
+						imMapMerge.put(lgortMatkey, imPos);
+					}
+				}
+
+				imPositions = new ArrayList<>();
+				it = imMapMerge.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry pair = (Map.Entry) it.next();
+					imPositions.add((PosDocInvBean) pair.getValue());
+				}
+				//MErge Im for only use LGORT MATERIAL
+
 				for (PosDocInvBean imPos : imPositions) {
 					imPos.setLgpla("");
 					if (expPosition.containsKey(imPos.getLgort() + "" + imPos.getMatnr())) {
@@ -801,9 +827,8 @@ public class ReportesWorkService {
 						}
 					}
 
-					docPos.setCostByUnit(
-							costByMaterial.get(docPos.getMatnr()) != null ? costByMaterial.get(docPos.getMatnr())
-									: "0.00");
+					docPos.setCostByUnit(costByMaterial.get(docPos.getMatnr()) != null
+							? costByMaterial.get(docPos.getMatnr()) : "0.00");
 					if (docPos.getCountedTot() != null
 							&& new BigDecimal(docPos.getCountedTot()).compareTo(BigDecimal.ZERO) > 0) {
 						docPos.setCountedCost(new BigDecimal(docPos.getCountedTot())
