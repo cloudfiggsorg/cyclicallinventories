@@ -680,8 +680,8 @@ public class ReportesWorkService {
 				}
 
 				for (PosDocInvBean imPos : imPositions) {
-					if (eMard.get(imPos.getMatnr()) != null) {
-						imPos.setTheoric(eMard.get(imPos.getMatnr()).getLabst());
+					if (eMard.get(imPos.getLgort()+imPos.getMatnr()) != null) {
+						imPos.setTheoric(eMard.get(imPos.getLgort()+imPos.getMatnr()).getLabst());
 						String lquaKey = imPos.getLgort();
 						Date lastCounted = new Date(imPos.getDateEndCounted());
 						BigDecimal theoMovs = new BigDecimal(imPos.getTheoric());
