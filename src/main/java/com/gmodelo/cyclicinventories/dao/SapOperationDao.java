@@ -85,10 +85,10 @@ public class SapOperationDao {
 			+ "INNER JOIN INV_REL_CAT_MAT AS B ON (A.CAT_ID = B.REL_CAT_ID) "
 			+ "WHERE B.REL_MATNR IN (SELECT * FROM STRING_SPLIT(?, ','))";
 
-	private static final String TRANSIT_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM(CAST(MENGE AS decimal(20,3))) MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? "
+	private static final String TRANSIT_BY_WERKS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM(CAST(MENGE AS decimal(20,3))) MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 	
-	private static final String CONSIGNATION_BY_BUKRS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(20,3)) "
+	private static final String CONSIGNATION_BY_WERKS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(20,3)) "
 			+ "+ CAST(KUINS AS decimal(20,3)) + CAST(KUEIN AS decimal(20,3)))) AS CONS FROM E_MSKU_F WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 	
@@ -761,11 +761,11 @@ public class SapOperationDao {
 		
 		try {
 			
-			stm = con.prepareStatement(TRANSIT_BY_BUKRS);
+			stm = con.prepareStatement(TRANSIT_BY_WERKS);
 			stm.setInt(1, docInvId);
 			
-			log.info("[getMatnrOnTransitByWerks] Executing... " + TRANSIT_BY_BUKRS);			
-			stm = con.prepareStatement(TRANSIT_BY_BUKRS);
+			log.info("[getMatnrOnTransitByWerks] Executing... " + TRANSIT_BY_WERKS);			
+			stm = con.prepareStatement(TRANSIT_BY_WERKS);
 			stm.setInt(1, docInvId);			
 			ResultSet rs = stm.executeQuery();		
 
@@ -780,7 +780,7 @@ public class SapOperationDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			log.log(Level.SEVERE,
-					"[getMatnrOnTransitByWerks] Some error occurred while was trying to excute." + TRANSIT_BY_BUKRS, e);
+					"[getMatnrOnTransitByWerks] Some error occurred while was trying to excute." + TRANSIT_BY_WERKS, e);
 			e.printStackTrace();
 		}finally{
 			
@@ -805,9 +805,9 @@ public class SapOperationDao {
 		
 		try {
 			
-			log.info("[getMatnrOnConsByWerks] Executing... " + CONSIGNATION_BY_BUKRS);
+			log.info("[getMatnrOnConsByWerks] Executing... " + CONSIGNATION_BY_WERKS);
 			
-			stm = con.prepareStatement(CONSIGNATION_BY_BUKRS);
+			stm = con.prepareStatement(CONSIGNATION_BY_WERKS);
 			stm.setInt(1, docInvId);
 			
 			ResultSet rs = stm.executeQuery();			
@@ -822,7 +822,7 @@ public class SapOperationDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			log.log(Level.SEVERE,
-					"[getMatnrOnConsByWerks] Some error occurred while was trying to excute." + CONSIGNATION_BY_BUKRS, e);
+					"[getMatnrOnConsByWerks] Some error occurred while was trying to excute." + CONSIGNATION_BY_WERKS, e);
 			e.printStackTrace();
 		}finally{
 			
