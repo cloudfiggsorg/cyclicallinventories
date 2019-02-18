@@ -369,31 +369,34 @@ public class ReportesWorkService {
 		
 		// Create a map by matnr
 		for (PosDocInvBean pb : listBean) {
-
-			if (mapByMatNr.containsKey(pb.getMatnr())) {
-
-				pbAux = (PosDocInvBean) mapByMatNr.get(pb.getMatnr());
-				sumCounted = Double.parseDouble(pbAux.getCounted());
-				sumCounted += Double.parseDouble(pb.getCounted());
-				pbAux.setCounted(Double.toString(sumCounted));
+			
+			if(pb.isGrouped()){
 				
-				sumCountedExpl = Double.parseDouble(pbAux.getCountedExpl());
-				sumCountedExpl += Double.parseDouble(pb.getCountedExpl());
-				pbAux.setCountedExpl(Double.toString(sumCountedExpl));
-				
-				sumTeoric = Double.parseDouble(pbAux.getTheoric() == null ? "0" : pbAux.getTheoric());
-				sumTeoric += Double.parseDouble(pb.getTheoric() == null ? "0" : pb.getTheoric());
-				pbAux.setTheoric(Double.toString(sumTeoric));
-				
-				mapByMatNr.replace(pb.getMatnr(), pbAux);
+				if (mapByMatNr.containsKey(pb.getMatnr())) {
 
-			} else {
+					pbAux = (PosDocInvBean) mapByMatNr.get(pb.getMatnr());
+					sumCounted = Double.parseDouble(pbAux.getCounted());
+					sumCounted += Double.parseDouble(pb.getCounted());
+					pbAux.setCounted(Double.toString(sumCounted));
+					
+					sumCountedExpl = Double.parseDouble(pbAux.getCountedExpl());
+					sumCountedExpl += Double.parseDouble(pb.getCountedExpl());
+					pbAux.setCountedExpl(Double.toString(sumCountedExpl));
+					
+					sumTeoric = Double.parseDouble(pbAux.getTheoric() == null ? "0" : pbAux.getTheoric());
+					sumTeoric += Double.parseDouble(pb.getTheoric() == null ? "0" : pb.getTheoric());
+					pbAux.setTheoric(Double.toString(sumTeoric));
+					
+					mapByMatNr.replace(pb.getMatnr(), pbAux);
 
-				pb.setCategory("");
-				pb.setConsignation("0");
-				pb.setTransit("0");
-				mapByMatNr.put(pb.getMatnr(), pb);
-			}
+				} else {
+
+					pb.setCategory("");
+					pb.setConsignation("0");
+					pb.setTransit("0");
+					mapByMatNr.put(pb.getMatnr(), pb);
+				}
+			}			
 		}
 		
 		listBean.clear();		
