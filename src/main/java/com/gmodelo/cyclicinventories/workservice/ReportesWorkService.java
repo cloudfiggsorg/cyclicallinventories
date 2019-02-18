@@ -353,6 +353,13 @@ public class ReportesWorkService {
 			
 			log.info("[getReporteDocInvSAPByWerks] Getting the report...");
 			resp = getReporteDocInvSAPByLgpla(request);
+			
+			//Check if there was an error
+			if(resp.getAbstractResult().getResultId() != 1){ 
+				
+				return resp;
+			}
+			
 			reportBylgPla = resp.getLsObject(); 
 			reportByWerks = resp.getLsObject(); 
 		}
