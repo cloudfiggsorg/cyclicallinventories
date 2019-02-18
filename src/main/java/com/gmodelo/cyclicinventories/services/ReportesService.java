@@ -42,14 +42,6 @@ public class ReportesService {
 		return new ReportesWorkService().getReporteConteos(request);
 	}
 
-	@POST//Cons SAP
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getReporteDocInv")
-	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAP(Request request) {
-		return new ReportesWorkService().getReporteDocInvSAP(request);
-	}
-
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -88,6 +80,14 @@ public class ReportesService {
 	@Path("/getReporteDocInvByLgpla")
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
 		return new ReportesWorkService().getReporteDocInvSAPByLgpla(request);
+	}
+	
+	@POST//Cons SAP
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getReporteDocInvSAPByWerks")
+	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByWerks(Request request) {
+		return new ReportesWorkService().getReporteDocInvSAPByWerks(request);
 	}
 
 }

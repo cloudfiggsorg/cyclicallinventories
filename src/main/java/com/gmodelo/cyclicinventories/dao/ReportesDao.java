@@ -16,29 +16,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ApegosBean;
 import com.gmodelo.cyclicinventories.beans.ConciAccntReportBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
-import com.gmodelo.cyclicinventories.beans.CostByMatnr;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
-import com.gmodelo.cyclicinventories.beans.DocInvBeanHeaderSAP;
-import com.gmodelo.cyclicinventories.beans.E_Lqua_SapEntity;
-import com.gmodelo.cyclicinventories.beans.E_Mard_SapEntity;
-import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
-import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
-import com.gmodelo.cyclicinventories.beans.MatExplReport;
-import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ProductivityBean;
 import com.gmodelo.cyclicinventories.beans.ReporteConteosBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBean;
 import com.gmodelo.cyclicinventories.beans.ReporteDocInvBeanHeader;
 import com.gmodelo.cyclicinventories.beans.Response;
+import com.gmodelo.cyclicinventories.exception.InvCicException;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
+import com.gmodelo.cyclicinventories.utils.Utilities;
 
 public class ReportesDao {
 
@@ -368,282 +360,7 @@ public class ReportesDao {
 		res.setLsObject(bean);
 		return res;
 	}
-
-	public Response<DocInvBeanHeaderSAP> getConsDocInv(DocInvBean docInvBean) {
-
-		if (docInvBean.getStatus().equalsIgnoreCase("TRUE")) {
-			return new SapOperationDao().getClosedConsSapReport(docInvBean);
-		} else {
-			return getNoClosedConsSapReport(docInvBean);
-		}
-
-	}
-
-	private static final String INV_VW_REP_POS_SAP = "SELECT DIP_LGORT, A.LGOBE, " + "CASE "
-			+ "WHEN IMWM = 'IM' THEN NULL " + "WHEN IMWM = 'WM' THEN (SELECT TOP 1 LGNUM "
-			+ "FROM INV_VW_NGORT_WITH_GORT INVG " + "WHERE WERKS = ? " + "AND LEN(LGNUM) > 0) "
-			+ "END LGNUM, LGTYP, DIP_LGPLA, DIP_MATNR, "
-			+ "MAKTX, ISNULL(CATEGORY, '') CATEGORY, MEINS, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, IMWM "
-			+ "FROM INV_VW_DOC_INV_REP_POSITIONS AS A WITH(NOLOCK) "
-			+ "LEFT JOIN INV_REL_CAT_MAT AS B ON (A.DIP_MATNR = B.REL_MATNR) "
-			+ "LEFT JOIN INV_CAT_CATEGORY AS C ON (B.REL_CAT_ID = C.CAT_ID) " + "WHERE DOC_INV_ID = ?";
-
-	public Response<DocInvBeanHeaderSAP> getNoClosedConsSapReport(DocInvBean docInvBean) {
-
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
-		PreparedStatement stm = null;
-		DocInvBeanHeaderSAP bean = new DocInvBeanHeaderSAP();
-		Response<DocInvBeanHeaderSAP> res = new Response<>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		List<PosDocInvBean> listBean = new ArrayList<>();
-
-		log.info(INV_VW_REP_HEADER);
-		log.info("[getNoClosedConsSapReportDao] Preparing sentence...");
-
-		try {
-
-			stm = con.prepareStatement(INV_VW_REP_HEADER);
-			stm.setInt(1, docInvBean.getDocInvId());
-			log.info("[getNoClosedConsSapReportDao] Executing query...");
-			ResultSet rs = stm.executeQuery();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss");
-
-			if (rs.next()) {
-
-				bean.setDocInvId(docInvBean.getDocInvId());
-				bean.setBukrs(rs.getString("DIH_BUKRS"));
-				bean.setBukrsD(rs.getString("BUTXT"));
-				bean.setRoute(rs.getString("ROU_DESC"));
-				bean.setWerks(rs.getString("DIH_WERKS"));
-				bean.setWerksD(rs.getString("NAME1"));
-				bean.setType(rs.getString("DIH_TYPE"));
-				bean.setCreationDate(sdf.format(new Date(rs.getTimestamp("DIH_CREATED_DATE").getTime())));
-				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
-				log.info(INV_VW_REP_POS_SAP);
-				log.info("[getNoClosedConsSapReportDao] Preparing sentence...");
-
-				stm = con.prepareStatement(INV_VW_REP_POS_SAP);
-				stm.setString(1, bean.getWerks());
-				stm.setInt(2, docInvBean.getDocInvId());
-
-				rs = stm.executeQuery();
-
-				while (rs.next()) {
-
-					PosDocInvBean positionBean = new PosDocInvBean();
-					positionBean.setLgort(rs.getString("DIP_LGORT"));
-					positionBean.setLgortD(rs.getString("LGOBE"));
-					positionBean.setLgNum(rs.getString("LGNUM"));
-					positionBean.setLgtyp(rs.getString("LGTYP"));
-					positionBean.setLgpla(rs.getString("DIP_LGPLA"));
-					positionBean.setMatnr(rs.getString("DIP_MATNR"));
-					positionBean.setMatnrD(rs.getString("MAKTX"));
-					positionBean.setCategory(rs.getString("CATEGORY"));
-					positionBean.setMeins(rs.getString("MEINS"));
-					positionBean.setCounted(rs.getString("DIP_COUNTED"));
-					positionBean.setCountedExpl("0");
-					positionBean.setImwmMarker(rs.getString("IMWM"));
-					positionBean.setTheoric("0");
-					positionBean.setTransit("0");
-					positionBean.setCostByUnit("0");
-					positionBean.setConsignation("0");
-
-					listBean.add(positionBean);
-				}
-
-				HashMap<String, PosDocInvBean> mapByMatNr = new HashMap<>();
-				PosDocInvBean pbAux = null;
-				double sumCounted = 0.0D;
-
-				// Create a map by matnr
-				for (PosDocInvBean pb : listBean) {
-
-					if (mapByMatNr.containsKey(pb.getMatnr())) {
-
-						pbAux = (PosDocInvBean) mapByMatNr.get(pb.getMatnr());
-						sumCounted = Double.parseDouble(pbAux.getCounted());
-						sumCounted += Double.parseDouble(pb.getCounted());
-						pbAux.setCounted(Double.toString(sumCounted));
-						mapByMatNr.replace(pb.getMatnr(), pbAux);
-
-					} else {
-
-						mapByMatNr.put(pb.getMatnr(), pb);
-					}
-				}
-
-				// Get the explosion detail
-				ArrayList<MatExplReport> lsExpDet = null;
-				lsExpDet = new ExplosionDetailDao().getExplosionReportByWerks(docInvBean.getDocInvId()).getLsObject();
-
-				listBean.clear();
-
-				// Set the counted explosioned
-				double countedExpl;
-				PosDocInvBean pdibAux = null;
-				
-				for (Map.Entry<String, PosDocInvBean> mapEntry : mapByMatNr.entrySet()) {
-
-					pdibAux = mapEntry.getValue();
-					countedExpl = 0;
-
-					for (MatExplReport obj : lsExpDet) {
-
-						if (pdibAux.getMatnr().equalsIgnoreCase(obj.getMatnrExpl())) {
-
-							countedExpl += Double.parseDouble(obj.getQuantity());
-						}
-					}
-
-					pdibAux.setCountedExpl(Double.toString(countedExpl));
-					listBean.add(pdibAux);
-				}
-
-				// Add the not listed matnrs from explosion
-				boolean found = false;
-				for (MatExplReport obj : lsExpDet) {
-
-					found = false;
-					for (PosDocInvBean pdib : listBean) {
-
-						if (obj.getMatnrExpl().equalsIgnoreCase(pdib.getMatnr())) {
-							found = true;
-						}
-					}
-
-					if (!found && obj.getMatnrExpl().length() > 0) {
-
-						countedExpl = 0;
-
-						for (MatExplReport objAux : lsExpDet) {
-
-							if (obj.getMatnrExpl().equalsIgnoreCase(objAux.getMatnrExpl())) {
-
-								if(objAux.getQuantity().length() > 0){
-									countedExpl += Double.parseDouble(objAux.getQuantity());
-								}
-							}
-						}
-
-						PosDocInvBean pdib = new PosDocInvBean();
-						pdib.setMatnr(obj.getMatnrExpl());
-						pdib.setMatnrD(obj.getDescMantrExpl());
-						pdib.setCategory(obj.getCatExpl());
-						pdib.setMeins(obj.getUmbExpl());
-						pdib.setCounted("0");
-						pdib.setCountedExpl(Double.toString(countedExpl));
-						pdib.setTheoric("0");
-						pdib.setTransit("0");
-						pdib.setCostByUnit("0");
-						pdib.setConsignation("0");
-						pdib.setExplosion(true);
-						listBean.add(pdib);
-					}
-				}
-
-				ArrayList<E_Mseg_SapEntity> lsTransit = this.sod.getMatnrOnTransit(docInvBean.getDocInvId().intValue(),
-						con);
-				ArrayList<E_Msku_SapEntity> lsCons = this.sod.getMatnrOnCons(docInvBean.getDocInvId().intValue(), con);
-				ArrayList<CostByMatnr> lsMatnrCost = this.sod.getCostByMatnr(docInvBean.getDocInvId().intValue(), con);
-				ArrayList<PosDocInvBean> lsMatnrDates = sod.getMatnrDatesByBukrs(docInvBean.getDocInvId().intValue(),
-						con);
-				
-				Date dateCounted = null;
-				double movements = 0.0D;
-								
-				for (PosDocInvBean pb : listBean) {
-
-					for (PosDocInvBean pdib : lsMatnrDates) {
-
-						if (pdib.getMatnr().contentEquals(pb.getMatnr())) {
-
-							dateCounted = pdib.getdCounted();
-							break;
-						}
-					}
-					
-					//Get the movements for this matnr
-					movements = this.sod.getMatnrMovementsByBukrs(pb, docInvBean.getDocInvId().intValue(),
-							dateCounted, con);
-					
-					//Get the teoric if exists on WM
-					E_Mard_SapEntity ems = sod.getMatnrTheoricImByBukrs(docInvBean.getDocInvId().intValue(), pb,
-							con);
-					
-					//Get the teoric if exists on IM
-					E_Lqua_SapEntity els = sod.getMatnrTheoricWmByBukrs(docInvBean.getDocInvId().intValue(), pb,
-							con);
-					
-					movements += Double.parseDouble(ems.getRetme()) + Double.parseDouble(els.getVerme());
-					
-					//Set the teoric for this matnr + movements
-					pb.setTheoric(Double.toString(movements));
-										
-					for (CostByMatnr matnrCost : lsMatnrCost) {
-
-						if (matnrCost.getMatnr().contentEquals(pb.getMatnr())) {
-							pb.setCostByUnit(matnrCost.getCost());														
-							break;
-						}
-					}
-
-					for (E_Mseg_SapEntity ojb : lsTransit) {
-
-						if (ojb.getMatnr().contentEquals(pb.getMatnr())) {
-
-							pb.setTransit(ojb.getMeins());
-							break;
-						}
-					}
-
-					for (E_Msku_SapEntity ojb : lsCons) {
-
-						if (ojb.getMatnr().contentEquals(pb.getMatnr())) {
-
-							pb.setConsignation(ojb.getKulab());
-							break;
-						}
-					}
-				}
-
-				bean.setDocInvPosition(listBean);
-			} else {
-
-				abstractResult.setResultId(-999);
-				abstractResult.setResultMsgAbs(
-						"Ocurrio un Error al recuperar los datos de Documento de Invetnario ó Documento Inexistente");
-			}
-			this.log.info("[getNoClosedConsSapReportDao] Sentence successfully executed.");
-		} catch (SQLException e) {
-
-			log.log(Level.SEVERE,
-					"[getNoClosedConsSapReportDao] Some error occurred while was trying to execute the query: SELECT DOC_INV_ID, DIH_ROUTE_ID,RDESC, DIH_BUKRS, BDESC, WERKS, WDESC,DIH_STATUS, DIH_TYPE, DIH_CREATED_BY, DIH_CREATED_DATE, DIP_LGORT, LGOBE, DIP_LGTYP, LTYPT, DIP_LGPLA, DIP_MATNR, MAKTX, DIP_THEORIC, DIP_COUNTED, DIP_DIFF_COUNTED, DIP_DIFF_FLAG FROM INV_VW_REPORTE_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?",
-					e);
-			abstractResult.setResultId(-105);
-			abstractResult.setResultMsgAbs(e.getMessage());
-
-			try {
-				con.close();
-			} catch (SQLException ex) {
-				log.log(Level.SEVERE,
-						"[getNoClosedConsSapReportDao] Some error occurred while was trying to close the connection.", ex);
-			}
-		} finally {
-
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,
-						"[getNoClosedConsSapReportDao] Some error occurred while was trying to close the connection.", e);
-			}
-		}
-
-		res.setAbstractResult(abstractResult);
-		res.setLsObject(bean);
-		return res;
-	}	
-
+	
 	public Response<List<ProductivityBean>> getCountedProductivityDao(ProductivityBean tareasBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -965,10 +682,10 @@ public class ReportesDao {
 				: "";
 		condition += routeId;
 		bukrs = (apegosB.getBukrs() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS = '" + apegosB.getBukrs() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS LIKE '" + apegosB.getBukrs() + "%' " : "";
 		condition += bukrs;
 		werks = (apegosB.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + apegosB.getWerks() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS LIKE '" + apegosB.getWerks() + "%' " : "";
 		condition += werks;
 		rdesc = (apegosB.getRdesc() != null)
 				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " RDESC = '" + apegosB.getRdesc() + "' " : "";
@@ -982,7 +699,7 @@ public class ReportesDao {
 		condition += docInv;
 
 		lgort = (apegosB.getLgort() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT = '" + apegosB.getLgort() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " LGORT LIKE '" + apegosB.getLgort() + "%' " : "";
 		condition += lgort;
 
 		lgortD = (apegosB.getLgDesc() != null)
@@ -1001,6 +718,14 @@ public class ReportesDao {
 
 			fechas = (condition.contains("WHERE") ? " AND " : " WHERE ") + " DATE_INI BETWEEN '"
 					+ new java.sql.Date(Long.parseLong((apegosB.getDateIni()))) + "' "
+					+ (" AND  '" + new java.sql.Date(c.getTimeInMillis()) + "' ");
+		}else if(apegosB.getDateIni() == null && apegosB.getDateFin() != null){
+			Calendar c = Calendar.getInstance();
+			c.setTimeInMillis(Long.parseLong(apegosB.getDateFin()));
+			c.add(Calendar.DATE, 1);
+
+			fechas = (condition.contains("WHERE") ? " AND " : " WHERE ") + " DATE_FIN BETWEEN '"
+					+ new java.sql.Date(Long.parseLong((apegosB.getDateFin()))) + "' "
 					+ (" AND  '" + new java.sql.Date(c.getTimeInMillis()) + "' ");
 		}
 		condition += fechas;
@@ -1059,7 +784,7 @@ public class ReportesDao {
 				: "";
 		condition += bukrs;
 		werks = (tareasB.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS = '" + tareasB.getWerks() + "' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS LIKE '" + tareasB.getWerks() + "%' "
 				: "";
 		condition += werks;
 		lgort = (tareasB.getLgort() != null)
@@ -1107,7 +832,7 @@ public class ReportesDao {
 				: "";
 		condition += bukrs;
 		werks = (tareasB.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS = '" + tareasB.getWerks() + "' "
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " DIH_WERKS LIKE '" + tareasB.getWerks() + "%' "
 				: "";
 		condition += werks;
 		lgort = (tareasB.getLgort() != null)
@@ -1159,7 +884,7 @@ public class ReportesDao {
 		condition += bukrs;
 
 		werks = (carb.getWerks() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS = '" + carb.getWerks() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " WERKS LIKE '" + carb.getWerks() + "%' " : "";
 		condition += werks;
 
 		type = (carb.getType() != null)
@@ -1184,6 +909,27 @@ public class ReportesDao {
 
 		condition = condition.isEmpty() ? null : condition;
 		return condition;
+	}
+	
+	public String getLastUpdateClass(){
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager .createConnection();
+		 String date = "";
+		try {
+			 date = new Utilities().getValueRepByKey(con, ReturnValues.E_CLASS_LAST_UPDATED).getStrCom1();
+		} catch (InvCicException e) {
+			log.log(Level.SEVERE, "[getlastUpdateClassDao] ", e);
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getlastUpdateClassDao] Some error occurred while was trying to close the connection.",
+						e);
+			}
+		}
+		
+		return date;
 	}
 
 }
