@@ -80,18 +80,18 @@ public class SapOperationDao {
 			+ " INNER JOIN MAKT MKT WITH(NOLOCK) ON SUBSTRING(EC.MATNR, PATINDEX('%[^0 ]%', EC.MATNR + ' '), LEN(EC.MATNR)) = "
 			+ " SUBSTRING(MKT.MATNR, PATINDEX('%[^0 ]%', MKT.MATNR + ' '), LEN(MKT.MATNR)) "
 			+ " GROUP BY EC.MATNR, MKT.MAKTX, SMBEZ, ATFLV, ATNAM";
-	
+
 	private static final String CATEGORY_BY_MATNR = "SELECT B.REL_MATNR MATNR, CATEGORY FROM INV_CAT_CATEGORY AS A "
 			+ "INNER JOIN INV_REL_CAT_MAT AS B ON (A.CAT_ID = B.REL_CAT_ID) "
 			+ "WHERE B.REL_MATNR IN (SELECT * FROM STRING_SPLIT(?, ','))";
 
 	private static final String TRANSIT_BY_WERKS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM(CAST(MENGE AS decimal(20,3))) MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
-	
+
 	private static final String CONSIGNATION_BY_WERKS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(20,3)) "
 			+ "+ CAST(KUINS AS decimal(20,3)) + CAST(KUEIN AS decimal(20,3)))) AS CONS FROM E_MSKU_F WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
-	
+
 	private static final String GET_MBEW_PIVOT = "SELECT DIP_MATNR MATNR FROM (SELECT DIP_MATNR FROM INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR "
 			+ " UNION SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ? "
 			+ "UNION SELECT DIP_VHILM FROM INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM)	AS A "
@@ -309,8 +309,10 @@ public class SapOperationDao {
 				bean.setLtypt(rs.getString("LTYPT"));
 				bean.setLgpla(rs.getString("DIP_LGPLA"));
 				bean.setCounted(rs.getString("DIP_COUNTED"));
-				bean.setDateIniCounted(rs.getTimestamp("DIP_COUNT_DATE_INI").getTime());
-				bean.setDateEndCounted(rs.getTimestamp("DIP_COUNT_DATE").getTime());
+				bean.setDateIniCounted(rs.getTimestamp("DIP_COUNT_DATE_INI") != null
+						? rs.getTimestamp("DIP_COUNT_DATE_INI").getTime() : docInvBean.getCreatedDate());
+				bean.setDateEndCounted(rs.getTimestamp("DIP_COUNT_DATE") != null
+						? rs.getTimestamp("DIP_COUNT_DATE").getTime() : docInvBean.getCreatedDate());
 				bean.setVhilm(rs.getString("DIP_VHILM"));
 				bean.setVhilmCounted(rs.getString("DIP_VHILM_COUNT"));
 				bean.setImwmMarker(rs.getString("IMWM"));
@@ -364,7 +366,7 @@ public class SapOperationDao {
 				entity.setMatnr(rs.getString("MATNR"));
 				entity.setLgort(rs.getString("LGORT"));
 				entity.setLabst(rs.getString("LABST"));
-				mapMard.put(rs.getString("LGORT")+rs.getString("MATNR"), entity);
+				mapMard.put(rs.getString("LGORT") + rs.getString("MATNR"), entity);
 			}
 		} catch (SQLException e) {
 			throw e;
@@ -736,15 +738,12 @@ public class SapOperationDao {
 				i360_OBJECTDATA_SapEntities.add(new ZIACST_I360_OBJECTDATA_SapEntity(rs));
 			}
 		} catch (Exception e) {
-			log.log(Level.SEVERE,
-					"[getClassSystem] : ",
-					e);
-		}finally {
+			log.log(Level.SEVERE, "[getClassSystem] : ", e);
+		} finally {
 			try {
 				con.close();
 			} catch (SQLException e) {
-				log.log(Level.SEVERE,
-						"[getClassSystem] Some error occurred while was trying to close the connection.",
+				log.log(Level.SEVERE, "[getClassSystem] Some error occurred while was trying to close the connection.",
 						e);
 			}
 		}
@@ -755,35 +754,35 @@ public class SapOperationDao {
 	public ArrayList<E_Mseg_SapEntity> getMatnrOnTransitByWerks(int docInvId) {
 
 		PreparedStatement stm = null;
-		Connection con = new ConnectionManager().createConnection();		
+		Connection con = new ConnectionManager().createConnection();
 		ArrayList<E_Mseg_SapEntity> lsMatnr = new ArrayList<>();
 		E_Mseg_SapEntity emse;
-		
+
 		try {
-			
+
 			stm = con.prepareStatement(TRANSIT_BY_WERKS);
 			stm.setInt(1, docInvId);
-			
-			log.info("[getMatnrOnTransitByWerks] Executing... " + TRANSIT_BY_WERKS);			
+
+			log.info("[getMatnrOnTransitByWerks] Executing... " + TRANSIT_BY_WERKS);
 			stm = con.prepareStatement(TRANSIT_BY_WERKS);
-			stm.setInt(1, docInvId);			
-			ResultSet rs = stm.executeQuery();		
+			stm.setInt(1, docInvId);
+			ResultSet rs = stm.executeQuery();
 
 			while (rs.next()) {
-				
+
 				emse = new E_Mseg_SapEntity();
 				emse.setMatnr(rs.getString("MATNR"));
 				emse.setMenge(rs.getString("MENGE"));
 				lsMatnr.add(emse);
 			}
-			
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			log.log(Level.SEVERE,
 					"[getMatnrOnTransitByWerks] Some error occurred while was trying to excute." + TRANSIT_BY_WERKS, e);
 			e.printStackTrace();
-		}finally{
-			
+		} finally {
+
 			try {
 				con.close();
 			} catch (SQLException e) {
@@ -793,7 +792,7 @@ public class SapOperationDao {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return lsMatnr;
 	}
 
@@ -802,15 +801,15 @@ public class SapOperationDao {
 		PreparedStatement stm = null;
 		ArrayList<E_Msku_SapEntity> lsMatnr = new ArrayList<>();
 		Connection con = new ConnectionManager().createConnection();
-		
+
 		try {
-			
+
 			log.info("[getMatnrOnConsByWerks] Executing... " + CONSIGNATION_BY_WERKS);
-			
+
 			stm = con.prepareStatement(CONSIGNATION_BY_WERKS);
 			stm.setInt(1, docInvId);
-			
-			ResultSet rs = stm.executeQuery();			
+
+			ResultSet rs = stm.executeQuery();
 			E_Msku_SapEntity emskuEntity;
 
 			while (rs.next()) {
@@ -822,10 +821,11 @@ public class SapOperationDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			log.log(Level.SEVERE,
-					"[getMatnrOnConsByWerks] Some error occurred while was trying to excute." + CONSIGNATION_BY_WERKS, e);
+					"[getMatnrOnConsByWerks] Some error occurred while was trying to excute." + CONSIGNATION_BY_WERKS,
+					e);
 			e.printStackTrace();
-		}finally{
-			
+		} finally {
+
 			try {
 				con.close();
 			} catch (SQLException e) {
@@ -835,24 +835,24 @@ public class SapOperationDao {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return lsMatnr;
 	}
-	
+
 	public ArrayList<RelMatnrCategory> getCatByMatnr(String lsIds) {
 
 		PreparedStatement stm = null;
 		ArrayList<RelMatnrCategory> lsRel = new ArrayList<>();
 		Connection con = new ConnectionManager().createConnection();
-		
+
 		try {
-			
+
 			log.info("[getCatByMatnr] Executing... " + CATEGORY_BY_MATNR);
-			
+
 			stm = con.prepareStatement(CATEGORY_BY_MATNR);
 			stm.setString(1, lsIds);
-			
-			ResultSet rs = stm.executeQuery();			
+
+			ResultSet rs = stm.executeQuery();
 			RelMatnrCategory rel;
 
 			while (rs.next()) {
@@ -863,24 +863,24 @@ public class SapOperationDao {
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			log.log(Level.SEVERE,
-					"[getCatByMatnr] Some error occurred while was trying to excute." + CATEGORY_BY_MATNR, e);
+			log.log(Level.SEVERE, "[getCatByMatnr] Some error occurred while was trying to excute." + CATEGORY_BY_MATNR,
+					e);
 			e.printStackTrace();
-		}finally{
-			
+		} finally {
+
 			try {
 				con.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				log.log(Level.SEVERE,
-						"[getCatByMatnr] Some error occurred while was trying to close the connection.", e);
+				log.log(Level.SEVERE, "[getCatByMatnr] Some error occurred while was trying to close the connection.",
+						e);
 				e.printStackTrace();
 			}
 		}
-		
+
 		return lsRel;
 	}
-		
+
 	/*
 	 * THIS IS THE SECTION FOR INSERT METHODS
 	 * 
@@ -1236,7 +1236,7 @@ public class SapOperationDao {
 	}
 
 	// SapConciliationDao Moved Code
-	
+
 	public Response<DocInvBeanHeaderSAP> saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, String userId) {
 
 		Response<DocInvBeanHeaderSAP> resp = new Response<>();
@@ -1297,7 +1297,7 @@ public class SapOperationDao {
 						cs = con.prepareCall(INV_SP_ADD_JUSTIFY);
 						cs.setLong(1, dipb.getPosId());
 						cs.setString(2, js.getQuantity());
-						cs.setInt(3, js.getJsId());						
+						cs.setInt(3, js.getJsId());
 						cs.setString(4, js.getJsDescription());
 						cs.setString(5, js.getFileName());
 						cs.registerOutParameter(6, Types.BIGINT);
@@ -1525,7 +1525,7 @@ public class SapOperationDao {
 				pdib.setExplosion(rs.getBoolean("CS_IS_EXPL"));
 				lsPosIds += pdib.getPosId() + ",";
 				lsPdib.add(pdib);
-			}			
+			}
 
 			// Get the justifications
 			ArrayList<Justification> lsJustify = getJustification(lsPosIds, con);
