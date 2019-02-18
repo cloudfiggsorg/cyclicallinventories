@@ -285,7 +285,7 @@ public class SapOperationDao {
 	private static final String GET_QUA_EXP_BY_DOC_INV = "SELECT DIP_MATNR, BMEIN, BMENG, MENGE, BMCAL, IDNRK, MEINS, EX_LGORT, MAKTX, LGOBE "
 			+ " FROM INV_VW_GET_QUA_EXP_BY_DOC_INV WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
-	private static final String GET_E_MSGE_FOR_DATA = "SELECT PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, SHKZG, MENGE, LGNUM, LGTYP, LGPLA, BUDAT_MKPF, CPUTM_MKPF FROM E_MSEG WHERE DOC_INV_ID = ?";
+	private static final String GET_E_MSGE_FOR_DATA = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, LGORT, SHKZG, MENGE, LGNUM, LGTYP, LGPLA, BUDAT_MKPF, CPUTM_MKPF FROM E_MSEG WHERE DOC_INV_ID = ?";
 
 	public List<PosDocInvBean> getDocInvPositions(DocInvBean docInvBean, Connection con) throws SQLException {
 		if (!con.isValid(0)) {

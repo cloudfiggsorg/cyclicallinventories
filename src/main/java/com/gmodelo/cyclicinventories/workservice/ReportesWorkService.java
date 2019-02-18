@@ -683,6 +683,7 @@ public class ReportesWorkService {
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] IM MERGES");
 
 				for (PosDocInvBean imPos : imPositions) {
+					imPos.setLgpla("");
 					if (expPosition.containsKey(imPos.getLgort() + "" + imPos.getMatnr())) {
 						imPos.setCountedExpl(
 								expPosition.get(imPos.getLgort() + "" + imPos.getMatnr()).getCountedExpl());
