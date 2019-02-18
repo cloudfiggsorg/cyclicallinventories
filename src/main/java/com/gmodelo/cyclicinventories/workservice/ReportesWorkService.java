@@ -523,40 +523,38 @@ public class ReportesWorkService {
 					if (eLqua.get(lquaKey) != null) {
 						if (eLqua.get(lquaKey).get(wmPos.getMatnr()) != null) {
 							wmPos.setTheoric(eLqua.get(lquaKey).get(wmPos.getMatnr()).getVerme());
-
 							eLqua.get(lquaKey).get(wmPos.getMatnr()).setMarked(true);
-							BigDecimal theoMovs = new BigDecimal(wmPos.getTheoric());
 							Date lastCounted = new Date(wmPos.getDateEndCounted());
+							BigDecimal theoMovs = new BigDecimal(wmPos.getTheoric());
+
 							if (eSalida.containsKey(lquaKey)) {
 								if (eSalida.get(lquaKey).containsKey(wmPos.getMatnr())) {
-
 									for (E_Salida_SapEntity eSalidaBean : eSalida.get(lquaKey).get(wmPos.getMatnr())) {
 										if (lastCounted.getTime() >= sdf
 												.parse(eSalidaBean.getQdatu() + " " + eSalidaBean.getQzeit())
 												.getTime()) {
-											theoMovs.add(new BigDecimal(eSalidaBean.getNistm()));
-											theoMovs.subtract(new BigDecimal(eSalidaBean.getVistm()));
+											theoMovs = theoMovs.add(new BigDecimal(eSalidaBean.getNistm()));
+											theoMovs = theoMovs.subtract(new BigDecimal(eSalidaBean.getVistm()));
 										}
 									}
-
 								}
 							}
-							if (eMseg.containsKey(lquaKey)) {
-								if (eMseg.get(lquaKey).containsKey(wmPos.getMatnr())) {
-									for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(wmPos.getMatnr())) {
+							if (eMseg.containsKey(wmPos.getLgort() + lquaKey)) {
+								if (eMseg.get(wmPos.getLgort() + lquaKey).containsKey(wmPos.getMatnr())) {
+									for (E_Mseg_SapEntity eMsegBean : eMseg.get(wmPos.getLgort() + lquaKey)
+											.get(wmPos.getMatnr())) {
 										if (lastCounted.getTime() >= sdf
 												.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf())
 												.getTime()) {
 											if (eMsegBean.getShkzg().equals("S")) {
-												theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+												theoMovs = theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
 											} else {
-												theoMovs.subtract(new BigDecimal(eMsegBean.getMenge()));
+												theoMovs = theoMovs.subtract(new BigDecimal(eMsegBean.getMenge()));
 											}
 										}
 									}
 								}
 							}
-
 							if (theoMovs.compareTo(BigDecimal.ZERO) >= 0) {
 								wmPos.setTheoric(theoMovs.toString());
 							} else {
@@ -685,7 +683,6 @@ public class ReportesWorkService {
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] IM MERGES");
 
 				for (PosDocInvBean imPos : imPositions) {
-					imPos.setLgpla("");
 					if (expPosition.containsKey(imPos.getLgort() + "" + imPos.getMatnr())) {
 						imPos.setCountedExpl(
 								expPosition.get(imPos.getLgort() + "" + imPos.getMatnr()).getCountedExpl());
@@ -713,9 +710,9 @@ public class ReportesWorkService {
 											.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf())
 											.getTime()) {
 										if (eMsegBean.getShkzg().equals("S")) {
-											theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+											theoMovs = theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
 										} else {
-											theoMovs.subtract(new BigDecimal(eMsegBean.getMenge()));
+											theoMovs = theoMovs.subtract(new BigDecimal(eMsegBean.getMenge()));
 										}
 									}
 								}
