@@ -32,6 +32,7 @@ public class ReturnValues {
 	public static final String SINVALIDUSER = "USUARIO Y/O PASSWORD INVALIDO";
 
 	public static final int IUSERNOTTASK = -107;
+	
 	public static final int IUSERNOTVALIDATEDTASK = -108;
 	public static final int IUSERTASKFINISHED = -109;
 	public static final int IUSERTASKNOUPDATED = -110;
@@ -40,6 +41,7 @@ public class ReturnValues {
 	public static final int IMISSING_BUKRS_OR_WERKS = -112;
 	public static final int FILE_EXCEPTION = -113;
 	public static final int FILE_NOT_FOUND = -114;
+	public static final int IUSERNOTTASKNOTREADY = -128;
 	
 	public static final String SMISSING_BUKRS_OR_WERKS = "BUKRS OR WERKS NOT FOUND";
 
