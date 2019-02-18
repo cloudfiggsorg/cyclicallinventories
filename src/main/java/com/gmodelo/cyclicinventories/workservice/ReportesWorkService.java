@@ -548,7 +548,7 @@ public class ReportesWorkService {
 													if (eMsegBean.getShkzg().equals("S")) {
 														theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
 													} else {
-														theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+														theoMovs.subtract(new BigDecimal(eMsegBean.getMenge()));
 													}
 												}
 											}
@@ -712,7 +712,7 @@ public class ReportesWorkService {
 										if (eMsegBean.getShkzg().equals("S")) {
 											theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
 										} else {
-											theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+											theoMovs.subtract(new BigDecimal(eMsegBean.getMenge()));
 										}
 									}
 								}
