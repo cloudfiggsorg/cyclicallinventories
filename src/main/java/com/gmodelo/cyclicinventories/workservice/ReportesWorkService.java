@@ -354,15 +354,15 @@ public class ReportesWorkService {
 
 			log.info("[getReporteDocInvSAPByWerks] Getting the report...");
 			resp = getReporteDocInvSAPByLgpla(request);
-			
-			//Check if there was an error
-			if(resp.getAbstractResult().getResultId() != 1){ 
-				
+
+			// Check if there was an error
+			if (resp.getAbstractResult().getResultId() != 1) {
+
 				return resp;
 			}
-			
-			reportBylgPla = resp.getLsObject(); 
-			reportByWerks = resp.getLsObject(); 
+
+			reportBylgPla = resp.getLsObject();
+			reportByWerks = resp.getLsObject();
 		}
 
 		ArrayList<E_Mseg_SapEntity> lsTransit = new SapOperationDao()
@@ -539,14 +539,17 @@ public class ReportesWorkService {
 										}
 									}
 									if (eMseg.containsKey(lquaKey)) {
-										for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(wmPos.getMatnr())) {
-											if (lastCounted.getTime() >= sdf
-													.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf())
-													.getTime()) {
-												if (eMsegBean.getShkzg().equals("S")) {
-													theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
-												} else {
-													theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+										if (eMseg.get(lquaKey).containsKey(wmPos.getMatnr())) {
+											for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey)
+													.get(wmPos.getMatnr())) {
+												if (lastCounted.getTime() >= sdf.parse(
+														eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf())
+														.getTime()) {
+													if (eMsegBean.getShkzg().equals("S")) {
+														theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+													} else {
+														theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+													}
 												}
 											}
 										}
@@ -701,13 +704,16 @@ public class ReportesWorkService {
 						Date lastCounted = new Date(imPos.getDateEndCounted());
 						BigDecimal theoMovs = new BigDecimal(imPos.getTheoric());
 						if (eMseg.containsKey(lquaKey)) {
-							for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(imPos.getMatnr())) {
-								if (lastCounted.getTime() >= sdf
-										.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf()).getTime()) {
-									if (eMsegBean.getShkzg().equals("S")) {
-										theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
-									} else {
-										theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+							if (eMseg.get(lquaKey).containsKey(imPos.getMatnr())) {
+								for (E_Mseg_SapEntity eMsegBean : eMseg.get(lquaKey).get(imPos.getMatnr())) {
+									if (lastCounted.getTime() >= sdf
+											.parse(eMsegBean.getBudat_mkpf() + " " + eMsegBean.getCputm_mkpf())
+											.getTime()) {
+										if (eMsegBean.getShkzg().equals("S")) {
+											theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+										} else {
+											theoMovs.add(new BigDecimal(eMsegBean.getMenge()));
+										}
 									}
 								}
 							}
