@@ -566,112 +566,119 @@ public class ReportesWorkService {
 						}
 					}
 					// GET EXPLOSION DATA
-					if (explosionMap.containsKey(wmPos.getMatnr())) {
-						for (MaterialExplosionBean posEx : explosionMap.get(wmPos.getMatnr())) {
+
+					if (!bean.isSapRecount()) {
+						if (explosionMap.containsKey(wmPos.getMatnr())) {
+							for (MaterialExplosionBean posEx : explosionMap.get(wmPos.getMatnr())) {
+								PosDocInvBean pBean = new PosDocInvBean();
+								String toCount = "0.00";
+								if (expPosition.containsKey(posEx.getLgort() + "" + posEx.getIdnrk())) {
+									toCount = new BigDecimal(posEx.getBmcal())
+											.multiply(new BigDecimal(
+													wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00"))
+											.toString();
+									pBean = expPosition.get(posEx.getLgort() + "" + posEx.getIdnrk());
+									pBean.setDateIniCounted(wmPos.getDateIniCounted());
+									pBean.setDateEndCounted(wmPos.getDateEndCounted());
+									pBean.setCountedExpl(new BigDecimal(pBean.getCountedExpl())
+											.add(new BigDecimal(toCount)).toString());
+								} else {
+									pBean.setLgort(posEx.getLgort());
+									pBean.setLgortD(posEx.getLgortD());
+									pBean.setMatnr(posEx.getIdnrk());
+									pBean.setMatnrD(posEx.getMaktx());
+									pBean.setMeins(posEx.getMeins());
+									pBean.setTheoric("0.00");
+									pBean.setCountedExpl(new BigDecimal(posEx.getBmcal())
+											.multiply(new BigDecimal(
+													wmPos.getCounted() != null ? wmPos.getCounted() : "0.00"))
+											.toString());
+									pBean.setCounted("0.00");
+									pBean.setDateIniCounted(wmPos.getDateIniCounted());
+									pBean.setDateEndCounted(wmPos.getDateEndCounted());
+									pBean.setImwmMarker("IM");
+									pBean.setGrouped(true);
+									expPosition.put(posEx.getLgort() + "" + posEx.getIdnrk(), pBean);
+								}
+							}
+						}
+
+						// Tarimas
+
+						if (wmPos.getVhilm() != null && !wmPos.getVhilm().isEmpty()
+								&& !wmPos.getVhilm().equalsIgnoreCase("-987")) {
 							PosDocInvBean pBean = new PosDocInvBean();
 							String toCount = "0.00";
-							if (expPosition.containsKey(posEx.getLgort() + "" + posEx.getIdnrk())) {
-								toCount = new BigDecimal(posEx.getBmcal())
-										.multiply(new BigDecimal(
-												wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00"))
-										.toString();
-								pBean = expPosition.get(posEx.getLgort() + "" + posEx.getIdnrk());
+							if (expPosition.containsKey(wmPos.getLgort() + "" + wmPos.getVhilm())) {
+								toCount = new BigDecimal(
+										wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00").toString();
+								pBean = expPosition.get(wmPos.getLgort() + "" + wmPos.getVhilm());
 								pBean.setDateIniCounted(wmPos.getDateIniCounted());
 								pBean.setDateEndCounted(wmPos.getDateEndCounted());
 								pBean.setCountedExpl(
 										new BigDecimal(pBean.getCountedExpl()).add(new BigDecimal(toCount)).toString());
 							} else {
-								pBean.setLgort(posEx.getLgort());
-								pBean.setLgortD(posEx.getLgortD());
-								pBean.setMatnr(posEx.getIdnrk());
-								pBean.setMatnrD(posEx.getMaktx());
-								pBean.setMeins(posEx.getMeins());
+								pBean.setLgort(wmPos.getLgort());
+								pBean.setLgortD(wmPos.getLgortD());
+								pBean.setMatnr(wmPos.getVhilm());
+								pBean.setMatnrD(operationDao.getNameFromTarima(wmPos.getVhilm(), con));
+								pBean.setMeins(wmPos.getMeins());
 								pBean.setTheoric("0.00");
-								pBean.setCountedExpl(
-										new BigDecimal(posEx.getBmcal())
-												.multiply(new BigDecimal(
-														wmPos.getCounted() != null ? wmPos.getCounted() : "0.00"))
-												.toString());
+								pBean.setCountedExpl(new BigDecimal(
+										wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00").toString());
 								pBean.setCounted("0.00");
 								pBean.setDateIniCounted(wmPos.getDateIniCounted());
 								pBean.setDateEndCounted(wmPos.getDateEndCounted());
 								pBean.setImwmMarker("IM");
 								pBean.setGrouped(true);
-								expPosition.put(posEx.getLgort() + "" + posEx.getIdnrk(), pBean);
+								expPosition.put(wmPos.getLgort() + "" + wmPos.getVhilm(), pBean);
 							}
-						}
-					}
-
-					// Tarimas
-
-					if (wmPos.getVhilm() != null && !wmPos.getVhilm().isEmpty() && !wmPos.getVhilm().equalsIgnoreCase("-987")) {
-						PosDocInvBean pBean = new PosDocInvBean();
-						String toCount = "0.00";
-						if (expPosition.containsKey(wmPos.getLgort() + "" + wmPos.getVhilm())) {
-							toCount = new BigDecimal(wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00")
-									.toString();
-							pBean = expPosition.get(wmPos.getLgort() + "" + wmPos.getVhilm());
-							pBean.setDateIniCounted(wmPos.getDateIniCounted());
-							pBean.setDateEndCounted(wmPos.getDateEndCounted());
-							pBean.setCountedExpl(
-									new BigDecimal(pBean.getCountedExpl()).add(new BigDecimal(toCount)).toString());
-						} else {
-							pBean.setLgort(wmPos.getLgort());
-							pBean.setLgortD(wmPos.getLgortD());
-							pBean.setMatnr(wmPos.getVhilm());
-							pBean.setMatnrD(operationDao.getNameFromTarima(wmPos.getVhilm(), con));
-							pBean.setMeins(wmPos.getMeins());
-							pBean.setTheoric("0.00");
-							pBean.setCountedExpl(
-									new BigDecimal(wmPos.getVhilmCounted() != null ? wmPos.getVhilmCounted() : "0.00")
-											.toString());
-							pBean.setCounted("0.00");
-							pBean.setDateIniCounted(wmPos.getDateIniCounted());
-							pBean.setDateEndCounted(wmPos.getDateEndCounted());
-							pBean.setImwmMarker("IM");
-							pBean.setGrouped(true);
-							expPosition.put(wmPos.getLgort() + "" + wmPos.getVhilm(), pBean);
 						}
 					}
 
 				}
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get WM LQUA AND MOVEMENTS END");
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get IM MARD");
+				Iterator it = null;
 
-				Iterator it = eLqua.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry pair = (Map.Entry) it.next();
-					HashMap<String, E_Lqua_SapEntity> single_lqua = (HashMap<String, E_Lqua_SapEntity>) pair.getValue();
-					Iterator it2 = single_lqua.entrySet().iterator();
-					while (it2.hasNext()) {
-						Map.Entry pair2 = (Map.Entry) it2.next();
-						E_Lqua_SapEntity lquaExEn = (E_Lqua_SapEntity) pair2.getValue();
-						if (!lquaExEn.getMarked()) {
-							PosDocInvBean posExLq = new PosDocInvBean();
-							posExLq.setLgort(lquaExEn.getLgort());
-							posExLq.setLgortD(lquaExEn.getLgortD());
-							posExLq.setLgNum(lquaExEn.getLgnum());
-							posExLq.setLgtyp(lquaExEn.getLgtyp());
-							posExLq.setLgpla(lquaExEn.getLgpla());
-							posExLq.setTheoric(lquaExEn.getVerme());
-							posExLq.setMeins(lquaExEn.getMeins());
-							posExLq.setMatnr(lquaExEn.getMatnr());
-							posExLq.setMatnrD(lquaExEn.getMaktx());
-							posExLq.setCountedExpl("0.00");
-							posExLq.setCounted("0.00");
-							posExLq.setImwmMarker("WM");
-							posExLq.setGrouped(false);
-							wmExtraPos.add(posExLq);
+				if (!bean.isSapRecount()) {
+
+					it = eLqua.entrySet().iterator();
+					while (it.hasNext()) {
+						Map.Entry pair = (Map.Entry) it.next();
+						HashMap<String, E_Lqua_SapEntity> single_lqua = (HashMap<String, E_Lqua_SapEntity>) pair
+								.getValue();
+						Iterator it2 = single_lqua.entrySet().iterator();
+						while (it2.hasNext()) {
+							Map.Entry pair2 = (Map.Entry) it2.next();
+							E_Lqua_SapEntity lquaExEn = (E_Lqua_SapEntity) pair2.getValue();
+							if (!lquaExEn.getMarked()) {
+								PosDocInvBean posExLq = new PosDocInvBean();
+								posExLq.setLgort(lquaExEn.getLgort());
+								posExLq.setLgortD(lquaExEn.getLgortD());
+								posExLq.setLgNum(lquaExEn.getLgnum());
+								posExLq.setLgtyp(lquaExEn.getLgtyp());
+								posExLq.setLgpla(lquaExEn.getLgpla());
+								posExLq.setTheoric(lquaExEn.getVerme());
+								posExLq.setMeins(lquaExEn.getMeins());
+								posExLq.setMatnr(lquaExEn.getMatnr());
+								posExLq.setMatnrD(lquaExEn.getMaktx());
+								posExLq.setCountedExpl("0.00");
+								posExLq.setCounted("0.00");
+								posExLq.setImwmMarker("WM");
+								posExLq.setGrouped(false);
+								wmExtraPos.add(posExLq);
+							}
 						}
 					}
-				}
 
-				for (PosDocInvBean wmPos : wmPositions) {
-					for (PosDocInvBean wmPosEx : wmExtraPos) {
-						if ((wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla())
-								.equals(wmPosEx.getLgNum() + "" + wmPosEx.getLgtyp() + "" + wmPosEx.getLgpla())) {
-							if (!wmExtraPosPiv.contains(wmPosEx)) {
-								wmExtraPosPiv.add(wmPosEx);
+					for (PosDocInvBean wmPos : wmPositions) {
+						for (PosDocInvBean wmPosEx : wmExtraPos) {
+							if ((wmPos.getLgNum() + "" + wmPos.getLgtyp() + "" + wmPos.getLgpla())
+									.equals(wmPosEx.getLgNum() + "" + wmPosEx.getLgtyp() + "" + wmPosEx.getLgpla())) {
+								if (!wmExtraPosPiv.contains(wmPosEx)) {
+									wmExtraPosPiv.add(wmPosEx);
+								}
 							}
 						}
 					}

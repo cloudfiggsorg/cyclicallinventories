@@ -71,6 +71,11 @@ public class DocInvDao {
 			} else {
 				cs.setNull(9, Types.BIGINT);
 			}
+			if (docInvBean.isSapRecount()) {
+				cs.setBoolean(10, true);
+			} else {
+				cs.setBoolean(10, false);
+			}
 
 			cs.registerOutParameter(6, Types.VARCHAR);
 			cs.registerOutParameter(7, Types.VARCHAR);

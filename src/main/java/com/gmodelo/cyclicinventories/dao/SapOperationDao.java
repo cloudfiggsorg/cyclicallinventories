@@ -51,7 +51,7 @@ public class SapOperationDao {
 			+ " DIH_MODIFIED_DATE, DIH_WERKS FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_INV_ID = ?";
 
 	private static final String GET_SINGLE_DOC_INV_WITH_HEADERS = "SELECT DOC_INV_ID, DIH_ROUTE_ID, DIH_BUKRS, T1.BUTXT DIH_BUTXT, "
-			+ "DIH_CREATED_DATE, DIH_MODIFIED_DATE, DIH_WERKS, T1W.NAME1 DIH_WERKD, DIH_TYPE FROM INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) "
+			+ "DIH_CREATED_DATE, DIH_MODIFIED_DATE, DIH_WERKS, T1W.NAME1 DIH_WERKD, DIH_TYPE, DIH_SAP_REC FROM INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) "
 			+ "INNER JOIN T001 T1 WITH(NOLOCK) on  IDIH.DIH_BUKRS = T1.BUKRS "
 			+ "INNER JOIN T001W T1W WITH(NOLOCK) on IDIH.DIH_WERKS = T1W.WERKS WHERE DOC_INV_ID = ?";
 
@@ -521,6 +521,7 @@ public class SapOperationDao {
 				outputDoc.setModifiedDate(rs.getTimestamp("DIH_MODIFIED_DATE").getTime());
 				outputDoc.setRoute(rs.getString("DIH_ROUTE_ID"));
 				outputDoc.setType(rs.getString("DIH_TYPE"));
+				outputDoc.setSapRecount(rs.getBoolean("DIH_SAP_REC"));
 			} else {
 				outputDoc = null;
 			}
