@@ -487,6 +487,7 @@ public class ReportesWorkService {
 			headerSap.setWerksD(bean.getWerksD());
 			headerSap.setRoute(bean.getRoute());
 			headerSap.setType(bean.getType());
+			headerSap.setSapRecount(bean.isSapRecount());
 			headerSap.setConciliationDate(sdf.format(new Date(bean.getModifiedDate())));
 			headerSap.setCreationDate(sdf.format(new Date(bean.getCreatedDate())));
 
