@@ -72,7 +72,7 @@ public class DocInvDao {
 				cs.setNull(9, Types.BIGINT);
 			}
 
-			cs.setBoolean(10, docInvBean.isSapRecount());
+			cs.setInt(10, docInvBean.isSapRecount() ? 1 : 0);
 
 			cs.registerOutParameter(6, Types.VARCHAR);
 			cs.registerOutParameter(7, Types.VARCHAR);
