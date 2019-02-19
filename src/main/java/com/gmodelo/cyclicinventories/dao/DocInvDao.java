@@ -40,7 +40,7 @@ public class DocInvDao {
 		int docInvId = 0;
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
-		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?, ?, ?, ?";
+		final String INV_SP_ADD_DOC_INVENTOY_HEADER = "INV_SP_ADD_DOC_INVENTOY_HEADER ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 
 		log.info("[addDocInv] Preparing sentence...");
 		try {
