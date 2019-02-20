@@ -302,7 +302,7 @@ public class ReportesWorkService {
 			}
 
 			for (ConciAccntReportBean item : finalList) {
-				if (item.getAccountant() != 0D && item.getAccDiff() != 0D) {
+				if ((item.getAccountant() != 0D && item.getAccDiff() != 0D) || (item.getAccountant() != 0D && item.getAccDiff() == 0D)) {
 					item.setPercAccDiff(String.valueOf((item.getAccDiff() * 100) / item.getAccountant()));
 				} else if (item.getAccountant() == 0D && item.getAccDiff() != 0D) {
 					item.setPercAccDiff("100");
@@ -310,7 +310,7 @@ public class ReportesWorkService {
 					item.setPercAccDiff("");
 				}
 
-				if (item.getAccountant() != 0D && item.getJustification() != 0D) {
+				if ((item.getAccountant() != 0D && item.getJustification() != 0D) || (item.getAccountant() != 0D && item.getJustification() == 0D)) {
 					item.setPercJustification(String.valueOf((item.getJustification() * 100) / item.getAccountant()));
 				} else if (item.getAccountant() == 0D && item.getJustification() != 0D) {
 					item.setPercJustification("100");

@@ -113,8 +113,8 @@ public class CountsDao {
 				if (abstractResult.getResultId() == ReturnValues.ISUCCESS) {
 					log.info("[addConteo] Se ingresaron los conteos correctamente ");
 					cs = con.prepareCall(INV_SP_UPDATE_TASK);
-					cs.setLong(1, routeBean.getDateIni());
-					cs.setLong(2, routeBean.getDateEnd());
+					cs.setTimestamp(1, new java.sql.Timestamp(routeBean.getDateIni()));
+					cs.setTimestamp(2, new java.sql.Timestamp(routeBean.getDateEnd()));
 					cs.setString(3, routeBean.getTaskId());
 					cs.registerOutParameter(4, Types.INTEGER);
 					cs.execute();
