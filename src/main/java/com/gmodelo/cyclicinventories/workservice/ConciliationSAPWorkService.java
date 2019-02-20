@@ -40,10 +40,10 @@ public class ConciliationSAPWorkService {
 
 		Response<DocInvBeanHeaderSAP> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		DocInvBeanHeaderSAP dibhSAP;
+		DocInvBeanHeaderSAP dibhSAPByWerks, dibhSAPByLgpla;
 
 		try {
-			dibhSAP = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBeanHeaderSAP.class);
+			dibhSAPByWerks = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBeanHeaderSAP.class);		
 		} catch (JSONException e) {
 			log.log(Level.SEVERE, "[saveConciliation] Objeto no válido.");
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -51,8 +51,17 @@ public class ConciliationSAPWorkService {
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
+		
+		Response<DocInvBeanHeaderSAP> reportByLgpla = new ReportesWorkService().getReporteDocInvSAPByLgpla(request);
+		
+		if(reportByLgpla.getAbstractResult().getResultId() != 1){
+			
+			return reportByLgpla;
+		}
+		
+		dibhSAPByLgpla = reportByLgpla.getLsObject();
 
-		return new SapOperationDao().saveConciliationSAP(dibhSAP, userId);
+		return new SapOperationDao().saveConciliationSAP(dibhSAPByWerks, dibhSAPByLgpla,  userId);
 	}
 
 	public Response<List<ConciliationsIDsBean>> getClosedConciliationIDs(Request<?> request) {

@@ -348,7 +348,7 @@ public class ReportesWorkService {
 		if (docInvBean.getStatus().equalsIgnoreCase("TRUE")) {
 
 			log.info("[getReporteDocInvSAPByWerks] Getting closed object...");
-			return new SapOperationDao().getClosedConsSapReport(docInvBean);
+			return new SapOperationDao().getClosedConsSapReportByWerks(docInvBean);
 
 		} else {
 
@@ -466,18 +466,29 @@ public class ReportesWorkService {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
+		
 		log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] " + request.toString());
+		
+		DocInvBean bean = new DocInvBean();		
+		bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
+		
+		if (bean.getStatus() != null && bean.getStatus().equalsIgnoreCase("TRUE")) {
+
+			log.info("[getReporteDocInvSAPByLgpla] Getting closed object...");
+			return new SapOperationDao().getClosedConsSapReportByLgpla(bean);
+
+		}
+		
 		Response<DocInvBeanHeaderSAP> response = new Response<>();
 		DocInvBeanHeaderSAP headerSap = new DocInvBeanHeaderSAP();
 		AbstractResultsBean result = new AbstractResultsBean();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		response.setAbstractResult(result);
-		DocInvBean bean = new DocInvBean();
+		
 		List<PosDocInvBean> docInvBeanList = new ArrayList<>();
 		Connection con = iConnectionManager.createConnection();
 		try {
 			log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] try");
-			bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
 			// response = new ReportesDao().getConcSAPByPosition(bean);
 			bean = operationDao.getDocInvBeanDataHeaders(bean, con);
 			headerSap.setDocInvId(bean.getDocInvId());
