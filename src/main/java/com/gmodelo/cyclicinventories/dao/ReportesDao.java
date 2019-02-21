@@ -880,7 +880,7 @@ public class ReportesDao {
 		condition += docInvId;
 
 		bukrs = (carb.getBukrs() != null)
-				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS = '" + carb.getBukrs() + "' " : "";
+				? (condition.contains("WHERE") ? " AND " : " WHERE ") + " BUKRS LIKE '" + carb.getBukrs() + "%' " : "";
 		condition += bukrs;
 
 		werks = (carb.getWerks() != null)
