@@ -71,8 +71,9 @@ public class DocInvDao {
 			} else {
 				cs.setNull(9, Types.BIGINT);
 			}
-
-			cs.setInt(10, docInvBean.isSapRecount() ? 1 : 0);
+			log.info("[addDocInv] DocInv Id: "+docInvBean.getDocInvId());
+			log.info("[addDocInv] Recount SAP: "+docInvBean.isSapRecount());
+			cs.setByte(10, (byte)(docInvBean.isSapRecount() ? 1 : 0));
 
 			cs.registerOutParameter(6, Types.VARCHAR);
 			cs.registerOutParameter(7, Types.VARCHAR);
