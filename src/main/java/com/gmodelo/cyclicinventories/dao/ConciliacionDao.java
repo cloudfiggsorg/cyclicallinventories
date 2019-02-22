@@ -282,9 +282,11 @@ public class ConciliacionDao {
 
 	private static final String TASK_ASSIGNED_FOR_DOC_INV = "SELECT COUNT(*) AS COUNTED FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?";
 
-	private static final String GET_NOTE_AND_PROD = "SELECT COU_POSITION_ID_ZONE, COU_MATNR, COU_NOTE, COU_PROD_DATE FROM INV_COUNT WITH(NOLOCK) "
-			+ " WHERE COU_TASK_ID IN (SELECT TASK_ID FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?) "
-			+ " AND(COU_NOTE IS NOT NULL  AND COU_NOTE != '') OR (COU_PROD_DATE IS NOT NULL AND COU_PROD_DATE != '')";
+	private static final String GET_NOTE_AND_PROD = "SELECT COU_POSITION_ID_ZONE, COU_MATNR, COU_NOTE, COU_PROD_DATE FROM INV_COUNT IC WITH(NOLOCK) "
+			+ " INNER JOIN INV_TASK IT WITH(NOLOCK) ON IC.COU_TASK_ID = IT.TASK_ID "
+			+ " INNER JOIN INV_DOC_INVENTORY_HEADER IDIH WITH(NOLOCK) ON IT.TAS_DOC_INV_ID = IDIH.DOC_INV_ID "
+			+ " WHERE (IDIH.DOC_INV_ID = ? OR IDIH.DOC_FATHER_INV_ID = ?) "
+			+ " AND((COU_NOTE IS NOT NULL  AND COU_NOTE != '') OR (COU_PROD_DATE IS NOT NULL AND COU_PROD_DATE != ''))";
 
 	private static final String GET_MIN_MAX_LGPLA_DATE = "SELECT COU_POSITION_ID_ZONE, MIN(COU_START_DATE)  MIN_DATE, MAX(COU_END_DATE) MAX_DATE FROM INV_COUNT WITH(NOLOCK) "
 			+ " WHERE COU_TASK_ID IN (SELECT TASK_ID FROM INV_TASK WITH(NOLOCK) WHERE TAS_DOC_INV_ID = ?) "
@@ -315,6 +317,7 @@ public class ConciliacionDao {
 
 			errorQuery = GET_NOTE_AND_PROD;
 			stm.setInt(1, docInvBean.getDocInvId());
+			stm.setInt(2, docInvBean.getDocInvId());
 			log.info("[getPositionsConciliationDao - getConciliationPositions] GET_NOTE_AND_PROD, Executing query...");
 
 			rs = stm.executeQuery();
@@ -493,15 +496,15 @@ public class ConciliacionDao {
 						docInvBean.setCountB(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount1B(total);
-						if(bean.getVhilmCount() == null || bean.getVhilmCount().isEmpty()){
+						if (bean.getVhilmCount() == null || bean.getVhilmCount().isEmpty()) {
 							bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
-							
+
 						}
-						if(bean.getVhilm() == null || bean.getVhilm().isEmpty()){
+						if (bean.getVhilm() == null || bean.getVhilm().isEmpty()) {
 							bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
-							
+
 						}
-						if(bean.getDateIni() == null || bean.getDateIni().isEmpty()){
+						if (bean.getDateIni() == null || bean.getDateIni().isEmpty()) {
 							if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
 								bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
 								bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
@@ -582,21 +585,20 @@ public class ConciliacionDao {
 						docInvBean.setCountB(true);
 						total = rs.getString("COU_TOTAL") != null ? rs.getString("COU_TOTAL") : "0";
 						bean.setCount1B(total);
-						if(bean.getVhilmCount() == null || bean.getVhilmCount().isEmpty()){
+						if (bean.getVhilmCount() == null || bean.getVhilmCount().isEmpty()) {
 							bean.setVhilmCount(rs.getString("VHILM_COUNT") != null ? rs.getString("VHILM_COUNT") : "");
-							
+
 						}
-						if(bean.getVhilm() == null || bean.getVhilm().isEmpty()){
+						if (bean.getVhilm() == null || bean.getVhilm().isEmpty()) {
 							bean.setVhilm(rs.getString("COU_VHILM") != null ? rs.getString("COU_VHILM") : "");
-							
+
 						}
-						if(bean.getDateIni() == null || bean.getDateIni().isEmpty()){
+						if (bean.getDateIni() == null || bean.getDateIni().isEmpty()) {
 							if (timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")) != null) {
 								bean.setDateIni(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateIni());
 								bean.setDateEnd(timesMapPositions.get(rs.getString("ZPO_PK_ASG_ID")).getDateEnd());
 							}
 						}
-						
 
 					} else if (count == 2) {
 						docInvBean.setCount2(true);
