@@ -25,10 +25,10 @@ public class DownloadDao {
 			+ "FROM PACKPO PAT left JOIN MAKT MAKT ON PAT.MATNR = MAKT.MATNR WHERE MAKT.MAKTX IS NOT NULL "
 			+ "GROUP BY  PAT.PACKNR, PAT.MATNR, MAKT.MAKTX, PAT.TRGQTY, PAT.BASEUNIT, PAT.PACKITEM, PAT.PAITEMTYPE ";
 
-	public static final String GET_ALL_INFO_MATERIAL = "SELECT MR.MATNR, MK.MAKTX, MR.MEINS, MM.MEINH, MM.UMREZ, "
-			+ "MM.UMREN, MR.EANNR, MR.EAN11  FROM MARA MR WITH(NOLOCK) INNER JOIN MAKT MK ON MR.MATNR = MK.MATNR "
-			+ "INNER JOIN MARM MM ON MR.MATNR = MM.MATNR "
-			+ "GROUP BY MR.MATNR, MK.MAKTX, MR.MEINS, MM.MEINH, MM.UMREZ, MM.UMREN, MR.EANNR, MR.EAN11";
+	public static final String GET_ALL_INFO_MATERIAL = "SELECT MR.MATNR, MK.MAKTX, TA.MSEH3 MEINS, '' MEINH, '' UMREZ, '' UMREN, MR.EANNR, MR.EAN11 "
+			+ " FROM MARA MR WITH(NOLOCK) INNER JOIN MAKT MK ON MR.MATNR = MK.MATNR "
+			+ " INNER JOIN MARM MM ON MR.MATNR = MM.MATNR  " + " INNER JOIN T006A TA ON MR.MEINS = TA.MSEHI "
+			+ " GROUP BY MR.MATNR, MK.MAKTX, TA.MSEH3, MR.EANNR, MR.EAN11";
 
 	public static final String GET_CLASS_SYSTEM = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) MATNR, "
 			+ "SMBEZ, ATFLV, ATNAM FROM E_CLASS WITH(NOLOCK)";
@@ -130,12 +130,11 @@ public class DownloadDao {
 			+ "PAT.BASEUNIT, PAT.PACKITEM, PAT.PAITEMTYPE "
 			+ "FROM PACKPO PAT left JOIN MAKT MAKT ON PAT.MATNR = MAKT.MATNR WHERE MAKT.MAKTX IS NOT NULL AND MAKT.LASTMODIFY >= ? "
 			+ "GROUP BY  PAT.PACKNR, PAT.MATNR, MAKT.MAKTX, PAT.TRGQTY, PAT.BASEUNIT, PAT.PACKITEM, PAT.PAITEMTYPE ";
-			
 
-	public static final String GET_DELTA_ALL_INFO_MATERIAL = "SELECT MR.MATNR, MK.MAKTX, MR.MEINS, MM.MEINH, MM.UMREZ, "
-			+ "MM.UMREN, MR.EANNR, MR.EAN11 FROM MARA MR WITH(NOLOCK) INNER JOIN MAKT MK ON MR.MATNR = MK.MATNR "
-			+ "INNER JOIN MARM MM ON MR.MATNR = MM.MATNR " + "WHERE MR.LASTMODIFY >= ? "
-			+ "GROUP BY MR.MATNR, MK.MAKTX, MR.MEINS, MM.MEINH, MM.UMREZ, MM.UMREN, MR.EANNR, MR.EAN11";
+	public static final String GET_DELTA_ALL_INFO_MATERIAL = "SELECT MR.MATNR, MK.MAKTX, TA.MSEH3 MEINS, '' MEINH, '' UMREZ, '' UMREN, MR.EANNR, MR.EAN11 "
+			+ " FROM MARA MR WITH(NOLOCK) INNER JOIN MAKT MK ON MR.MATNR = MK.MATNR "
+			+ " INNER JOIN MARM MM ON MR.MATNR = MM.MATNR  INNER JOIN T006A TA ON MR.MEINS = TA.MSEHI "
+			+ " WHERE MR.LASTMODIFY >= ? GROUP BY MR.MATNR, MK.MAKTX, TA.MSEH3, MR.EANNR, MR.EAN11";
 
 	public List<MaterialTarimasBean> getDeltaAllMaterialCrossTarimas(Date lastRequest, Connection con)
 			throws InvCicException {
@@ -144,7 +143,7 @@ public class DownloadDao {
 			log.log(Level.WARNING, "getAllMaterialCrossTarimas");
 			PreparedStatement stm = con.prepareStatement(GET_DELTA_MATERIALES_TARIMAS);
 			log.log(Level.WARNING, "executing: " + GET_DELTA_MATERIALES_TARIMAS);
-			stm.setDate(1, new java.sql.Date( lastRequest.getTime()));
+			stm.setDate(1, new java.sql.Date(lastRequest.getTime()));
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				MaterialTarimasBean bean = new MaterialTarimasBean();
@@ -173,7 +172,7 @@ public class DownloadDao {
 		log.log(Level.WARNING, "getAllMaterialMobile");
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_DELTA_ALL_INFO_MATERIAL);
-			stm.setDate(1, new java.sql.Date( lastRequest.getTime()));
+			stm.setDate(1, new java.sql.Date(lastRequest.getTime()));
 			log.log(Level.WARNING, "executing: " + GET_DELTA_ALL_INFO_MATERIAL);
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
