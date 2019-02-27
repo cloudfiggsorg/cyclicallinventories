@@ -30,12 +30,12 @@ public class VersionDao {
 		log.info("[getVersionDao] Preparing sentence...");
 		try {
 			requestResult = new Gson().fromJson(request.getLsObject().toString(), AbstractResultsBean.class);
-			requestResult.setResultId(ReturnValues.IERROR);
+			abstractResult.setResultId(ReturnValues.IERROR);
 			stm = con.prepareStatement(INV_VW_VERSION_APP);
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				if (requestResult.getIntCom1() == rs.getInt("VERSION")) {
-					requestResult.setResultId(ReturnValues.ISUCCESS);
+					abstractResult.setResultId(ReturnValues.ISUCCESS);
 					break;
 				}
 			}
