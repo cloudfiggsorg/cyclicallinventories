@@ -23,7 +23,6 @@ import com.gmodelo.cyclicinventories.beans.E_Mseg_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Msku_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Salida_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Xtab6_SapEntity;
-import com.gmodelo.cyclicinventories.beans.JustifyCat;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.beans.ZIACST_I360_OBJECTDATA_SapEntity;
 import com.gmodelo.cyclicinventories.exception.InvCicException;

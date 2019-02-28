@@ -186,7 +186,7 @@ public class RouteWorkService {
 	}
 
 	public String getRoutesByUser(Request<?> request) {
-
+		log.info("[getRoutesByUserWS] "+request.toString());
 		Response<RouteUserBean> routeResponse = new Response<>();
 		RouteUserDao routeDao = new RouteUserDao();
 		AbstractResultsBean result = new AbstractResultsBean();
