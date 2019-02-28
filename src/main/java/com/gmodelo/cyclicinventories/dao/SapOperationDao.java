@@ -323,6 +323,7 @@ public class SapOperationDao {
 				bean.setVhilm(rs.getString("DIP_VHILM"));
 				bean.setVhilmCounted(rs.getString("DIP_VHILM_COUNT"));
 				bean.setImwmMarker(rs.getString("IMWM"));
+				bean.setTheoric("0.00");
 				bean.setGrouped(true);
 				docInvBeans.add(bean);
 			}
