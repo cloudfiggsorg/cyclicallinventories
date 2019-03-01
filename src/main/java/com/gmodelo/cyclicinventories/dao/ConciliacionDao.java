@@ -213,9 +213,9 @@ public class ConciliacionDao {
 		return res;
 	}
 
-	private static final String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE,JUSTIFICATION "
+	private static final String INV_VW_DOC_INV = "SELECT DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, SAP_RECOUNT, JUSTIFICATION "
 			+ "FROM INV_VW_DOC_INV WITH(NOLOCK) " + "WHERE DOC_INV_ID = ? "
-			+ "GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, JUSTIFICATION";
+			+ "GROUP BY DOC_INV_ID, ROUTE_ID, BUKRS, BDESC, WERKS, WERKSD, TYPE, SAP_RECOUNT, JUSTIFICATION";
 
 	public Response<ConciliacionBean> getConciliacion(ConciliacionBean docInvBean) {
 		Response<ConciliacionBean> res = new Response<>();
