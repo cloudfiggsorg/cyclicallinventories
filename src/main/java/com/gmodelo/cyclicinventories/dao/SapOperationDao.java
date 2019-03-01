@@ -88,11 +88,11 @@ public class SapOperationDao {
 			+ "INNER JOIN INV_REL_CAT_MAT AS B ON (A.CAT_ID = B.REL_CAT_ID) "
 			+ "WHERE B.REL_MATNR IN (SELECT * FROM STRING_SPLIT(?, ','))";
 
-	private static final String TRANSIT_BY_WERKS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM(CAST(MENGE AS decimal(20,3))) MENGE FROM E_XTAB6 WHERE DOC_INV_ID = ? "
+	private static final String TRANSIT_BY_WERKS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM(CAST(MENGE AS decimal(20,3))) MENGE FROM E_XTAB6 WITH(NOLOCK) WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
 	private static final String CONSIGNATION_BY_WERKS = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR, SUM((CAST(KULAB AS decimal(20,3)) "
-			+ "+ CAST(KUINS AS decimal(20,3)) + CAST(KUEIN AS decimal(20,3)))) AS CONS FROM E_MSKU_F WHERE DOC_INV_ID = ? "
+			+ "+ CAST(KUINS AS decimal(20,3)) + CAST(KUEIN AS decimal(20,3)))) AS CONS FROM E_MSKU_F WITH(NOLOCK) WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
 	private static final String CONSIGNATION_BY_WERKS_MAP = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR,  KULAB, KUINS, KUEIN FROM E_MSKU_F WITH(NOLOCK) WHERE DOC_INV_ID = ?";
@@ -819,19 +819,19 @@ public class SapOperationDao {
 
 			log.info("[getMatnrOnConsByWerks] Executing... " + CONSIGNATION_BY_WERKS);
 
-			// stm = con.prepareStatement(CONSIGNATION_BY_WERKS);
-			// stm.setInt(1, docInvId);
+			 stm = con.prepareStatement(CONSIGNATION_BY_WERKS);
+			 stm.setInt(1, docInvId);
 
-			// ResultSet rs = stm.executeQuery();
-			// E_Msku_SapEntity emskuEntity;
+			 ResultSet rs = stm.executeQuery();
+			 E_Msku_SapEntity emskuEntity;
 
-			// while (rs.next()) {
-			// emskuEntity = new E_Msku_SapEntity();
-			// emskuEntity.setMatnr(rs.getString("MATNR"));
-			// emskuEntity.setKulab(rs.getString("CONS"));// The total here
-			// lsMatnr.add(emskuEntity);
-			// }
-			lsMatnr = this.getMatnrOnConsByWerksMap(docInvId, con);
+			 while (rs.next()) {
+				 emskuEntity = new E_Msku_SapEntity();
+				 emskuEntity.setMatnr(rs.getString("MATNR"));
+				 emskuEntity.setKulab(rs.getString("CONS"));// The total here
+				 lsMatnr.add(emskuEntity);
+			 }
+			//lsMatnr = this.getMatnrOnConsByWerksMap(docInvId, con);
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
