@@ -137,7 +137,7 @@ public class SapOperationDao {
 
 	private static final String GET_POS_CONS_SAP_BY_LGPLA = "SELECT INV_CNS_LGORT, LGOBE, INV_CNS_LGPLA, INV_CNS_MATNR, MAKTX, "
 			+ "MEINS, INV_CNS_COUNTED, INV_CNS_CNT_EXPL, INV_CNS_TOT_CONT, INV_CNS_THEORIC, "
-			+ "INV_CNS_DIFF, INV_CNS_COUNTED_COST, INV_CNS_THEO_COST, INV_CNS_CST_BY_UNIT "
+			+ "INV_CNS_DIFF, INV_CNS_COUNTED_COST, INV_CNS_THEO_COST, INV_CNS_DIFF_COST, INV_CNS_CST_BY_UNIT "
 			+ "FROM INV_VW_CONC_SAP_LGPLA " + "WHERE INV_CNS_DOV_INV_ID = ?";
 
 	// CONCILIATION FOR WM - LGORT_LGPLA
@@ -1494,7 +1494,8 @@ public class SapOperationDao {
 				csBatch.setString(10, dipb.getCountedCost());
 				csBatch.setString(11, dipb.getTheoricCost());
 				csBatch.setString(12, dipb.getCostByUnit());
-				csBatch.setString(13, userId);
+				csBatch.setString(13, dipb.getDiffCost());
+				csBatch.setString(14, userId);
 				csBatch.addBatch();
 			}
 
@@ -1782,6 +1783,7 @@ public class SapOperationDao {
 				pdib.setDiff(rs.getString("INV_CNS_DIFF"));
 				pdib.setCountedCost(rs.getString("INV_CNS_COUNTED_COST"));
 				pdib.setTheoricCost(rs.getString("INV_CNS_THEO_COST"));
+				pdib.setDiffCost(rs.getString("INV_CNS_DIFF_COST"));
 				pdib.setCostByUnit(rs.getString("INV_CNS_CST_BY_UNIT"));
 				lsPdib.add(pdib);
 			}
