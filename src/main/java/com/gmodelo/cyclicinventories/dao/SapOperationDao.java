@@ -219,7 +219,7 @@ public class SapOperationDao {
 	// SP CALLS
 
 	private static final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
-	private static final String INV_SP_ADD_CON_POS_SAP_BY_GLPLA = "INV_SP_ADD_CON_POS_SAP_BY_GLPLA ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
+	private static final String INV_SP_ADD_CON_POS_SAP_BY_GLPLA = "INV_SP_ADD_CON_POS_SAP_BY_GLPLA ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
 	private static final String INV_SP_ADD_JUSTIFY = "INV_SP_ADD_JUSTIFY ?, ?, ?, ?, ?, ?";
 	private static final String INV_CLS_SAP_DOC_INV = "INV_CLS_SAP_DOC_INV ?, ?";
 	private static final String INV_SP_DEL_CONS_SAP = "INV_SP_DEL_CONS_SAP ?";
