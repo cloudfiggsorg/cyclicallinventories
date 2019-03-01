@@ -819,19 +819,19 @@ public class SapOperationDao {
 
 			log.info("[getMatnrOnConsByWerks] Executing... " + CONSIGNATION_BY_WERKS);
 
-			// stm = con.prepareStatement(CONSIGNATION_BY_WERKS);
-			// stm.setInt(1, docInvId);
+			 stm = con.prepareStatement(CONSIGNATION_BY_WERKS);
+			 stm.setInt(1, docInvId);
 
-			// ResultSet rs = stm.executeQuery();
-			// E_Msku_SapEntity emskuEntity;
+			 ResultSet rs = stm.executeQuery();
+			 E_Msku_SapEntity emskuEntity;
 
-			// while (rs.next()) {
-			// emskuEntity = new E_Msku_SapEntity();
-			// emskuEntity.setMatnr(rs.getString("MATNR"));
-			// emskuEntity.setKulab(rs.getString("CONS"));// The total here
-			// lsMatnr.add(emskuEntity);
-			// }
-			lsMatnr = this.getMatnrOnConsByWerksMap(docInvId, con);
+			 while (rs.next()) {
+				 emskuEntity = new E_Msku_SapEntity();
+				 emskuEntity.setMatnr(rs.getString("MATNR"));
+				 emskuEntity.setKulab(rs.getString("CONS"));// The total here
+				 lsMatnr.add(emskuEntity);
+			 }
+			//lsMatnr = this.getMatnrOnConsByWerksMap(docInvId, con);
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
