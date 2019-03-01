@@ -17,6 +17,7 @@ public class DocInvBeanHeaderSAP {
 	private String createdBy;
 	private String concSAPDate;
 	private boolean sapRecount;
+	private boolean cost;
 
 	public Integer getDocInvId() {
 		return docInvId;
@@ -127,9 +128,17 @@ public class DocInvBeanHeaderSAP {
 		// TODO Auto-generated constructor stub
 	}
 
+	public boolean isCost() {
+		return cost;
+	}
+
+	public void setCost(boolean cost) {
+		this.cost = cost;
+	}
+
 	public DocInvBeanHeaderSAP(Integer docInvId, String route, String bukrs, String bukrsD, String werks, String werksD,
 			String type, String creationDate, String conciliationDate, List<PosDocInvBean> docInvPosition,
-			String createdBy, String concSAPDate, boolean sapRecount) {
+			String createdBy, String concSAPDate, boolean sapRecount, boolean cost) {
 		super();
 		this.docInvId = docInvId;
 		this.route = route;
@@ -144,6 +153,7 @@ public class DocInvBeanHeaderSAP {
 		this.createdBy = createdBy;
 		this.concSAPDate = concSAPDate;
 		this.sapRecount = sapRecount;
+		this.cost = cost;
 	}
 
 	@Override
@@ -151,7 +161,8 @@ public class DocInvBeanHeaderSAP {
 		return "DocInvBeanHeaderSAP [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD="
 				+ bukrsD + ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", creationDate="
 				+ creationDate + ", conciliationDate=" + conciliationDate + ", docInvPosition=" + docInvPosition
-				+ ", createdBy=" + createdBy + ", concSAPDate=" + concSAPDate + ", sapRecount=" + sapRecount + "]";
+				+ ", createdBy=" + createdBy + ", concSAPDate=" + concSAPDate + ", sapRecount=" + sapRecount + ", cost="
+				+ cost + "]";
 	}
 
 	@Override
@@ -162,6 +173,7 @@ public class DocInvBeanHeaderSAP {
 		result = prime * result + ((bukrsD == null) ? 0 : bukrsD.hashCode());
 		result = prime * result + ((concSAPDate == null) ? 0 : concSAPDate.hashCode());
 		result = prime * result + ((conciliationDate == null) ? 0 : conciliationDate.hashCode());
+		result = prime * result + (cost ? 1231 : 1237);
 		result = prime * result + ((createdBy == null) ? 0 : createdBy.hashCode());
 		result = prime * result + ((creationDate == null) ? 0 : creationDate.hashCode());
 		result = prime * result + ((docInvId == null) ? 0 : docInvId.hashCode());
@@ -202,6 +214,8 @@ public class DocInvBeanHeaderSAP {
 			if (other.conciliationDate != null)
 				return false;
 		} else if (!conciliationDate.equals(other.conciliationDate))
+			return false;
+		if (cost != other.cost)
 			return false;
 		if (createdBy == null) {
 			if (other.createdBy != null)
@@ -248,4 +262,5 @@ public class DocInvBeanHeaderSAP {
 		return true;
 	}
 
+	
 }
