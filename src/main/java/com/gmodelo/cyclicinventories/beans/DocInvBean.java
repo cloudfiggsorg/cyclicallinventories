@@ -16,6 +16,7 @@ public class DocInvBean {
 	private String modifiedBy;
 	private Integer docFatherInvId;
 	private boolean sapRecount;
+	private boolean cost;
 	private Long createdDate;
 	private Long modifiedDate;
 	private List<DocInvPositionBean> docInvPositions;
@@ -140,9 +141,17 @@ public class DocInvBean {
 		this.sapRecount = sapRecount;
 	}
 
+	public boolean isCost() {
+		return cost;
+	}
+
+	public void setCost(boolean cost) {
+		this.cost = cost;
+	}
+
 	public DocInvBean(Integer docInvId, String route, String bukrs, String bukrsD, String werks, String werksD,
 			String type, String status, String createdBy, String modifiedBy, Integer docFatherInvId, boolean sapRecount,
-			Long createdDate, Long modifiedDate, List<DocInvPositionBean> docInvPositions) {
+			boolean cost, Long createdDate, Long modifiedDate, List<DocInvPositionBean> docInvPositions) {
 		super();
 		this.docInvId = docInvId;
 		this.route = route;
@@ -156,6 +165,7 @@ public class DocInvBean {
 		this.modifiedBy = modifiedBy;
 		this.docFatherInvId = docFatherInvId;
 		this.sapRecount = sapRecount;
+		this.cost = cost;
 		this.createdDate = createdDate;
 		this.modifiedDate = modifiedDate;
 		this.docInvPositions = docInvPositions;
@@ -166,13 +176,15 @@ public class DocInvBean {
 		// TODO Auto-generated constructor stub
 	}
 
+	
+
 	@Override
 	public String toString() {
 		return "DocInvBean [docInvId=" + docInvId + ", route=" + route + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
 				+ ", werks=" + werks + ", werksD=" + werksD + ", type=" + type + ", status=" + status + ", createdBy="
 				+ createdBy + ", modifiedBy=" + modifiedBy + ", docFatherInvId=" + docFatherInvId + ", sapRecount="
-				+ sapRecount + ", createdDate=" + createdDate + ", modifiedDate=" + modifiedDate + ", docInvPositions="
-				+ docInvPositions + "]";
+				+ sapRecount + ", cost=" + cost + ", createdDate=" + createdDate + ", modifiedDate=" + modifiedDate
+				+ ", docInvPositions=" + docInvPositions + "]";
 	}
 
 	@Override
@@ -181,6 +193,7 @@ public class DocInvBean {
 		int result = 1;
 		result = prime * result + ((bukrs == null) ? 0 : bukrs.hashCode());
 		result = prime * result + ((bukrsD == null) ? 0 : bukrsD.hashCode());
+		result = prime * result + (cost ? 1231 : 1237);
 		result = prime * result + ((createdBy == null) ? 0 : createdBy.hashCode());
 		result = prime * result + ((createdDate == null) ? 0 : createdDate.hashCode());
 		result = prime * result + ((docFatherInvId == null) ? 0 : docFatherInvId.hashCode());
@@ -215,6 +228,8 @@ public class DocInvBean {
 			if (other.bukrsD != null)
 				return false;
 		} else if (!bukrsD.equals(other.bukrsD))
+			return false;
+		if (cost != other.cost)
 			return false;
 		if (createdBy == null) {
 			if (other.createdBy != null)

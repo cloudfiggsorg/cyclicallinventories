@@ -1,5 +1,6 @@
 package com.gmodelo.cyclicinventories.dao;
 
+import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,6 +95,8 @@ public class SapOperationDao {
 			+ "+ CAST(KUINS AS decimal(20,3)) + CAST(KUEIN AS decimal(20,3)))) AS CONS FROM E_MSKU_F WITH(NOLOCK) WHERE DOC_INV_ID = ? "
 			+ "GROUP BY MATNR";
 
+	private static final String CONSIGNATION_BY_WERKS_MAP = "SELECT SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) AS MATNR,  KULAB, KUINS, KUEIN FROM E_MSKU_F WITH(NOLOCK) WHERE DOC_INV_ID = ?";
+
 	private static final String GET_MBEW_PIVOT = "SELECT DIP_MATNR MATNR FROM (SELECT DIP_MATNR FROM INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_MATNR "
 			+ " UNION SELECT MATNR FROM INV_VW_GET_EXP_MAT_FOR_DOC_INV WHERE DOC_INV_ID = ? "
 			+ "UNION SELECT DIP_VHILM FROM INV_DOC_INVENTORY_POSITIONS WITH(NOLOCK) WHERE DIP_DOC_INV_ID = ? GROUP BY DIP_VHILM)	AS A "
@@ -129,12 +134,11 @@ public class SapOperationDao {
 			+ "LEFT JOIN INV_CAT_CATEGORY AS C ON (B.REL_CAT_ID = C.CAT_ID) " + "WHERE DOC_INV_ID = ? "
 			+ "GROUP BY CS_CON_SAP, CS_MATNR, CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
 			+ "CS_COUNTED, CS_COUNTED_EXPL, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_IS_EXPL";
-	
-	private static final String GET_POS_CONS_SAP_BY_LGPLA = "SELECT INV_CNS_LGORT, LGOBE, INV_CNS_LGPLA, INV_CNS_MATNR, MAKTX, " 
-			+ "MEINS, INV_CNS_COUNTED, INV_CNS_CNT_EXPL, INV_CNS_TOT_CONT, INV_CNS_THEORIC, " 
+
+	private static final String GET_POS_CONS_SAP_BY_LGPLA = "SELECT INV_CNS_LGORT, LGOBE, INV_CNS_LGPLA, INV_CNS_MATNR, MAKTX, "
+			+ "MEINS, INV_CNS_COUNTED, INV_CNS_CNT_EXPL, INV_CNS_TOT_CONT, INV_CNS_THEORIC, "
 			+ "INV_CNS_DIFF, INV_CNS_COUNTED_COST, INV_CNS_THEO_COST, INV_CNS_CST_BY_UNIT "
-			+ "FROM INV_VW_CONC_SAP_LGPLA "
-			+ "WHERE INV_CNS_DOV_INV_ID = ?";
+			+ "FROM INV_VW_CONC_SAP_LGPLA " + "WHERE INV_CNS_DOV_INV_ID = ?";
 
 	// CONCILIATION FOR WM - LGORT_LGPLA
 
@@ -815,18 +819,20 @@ public class SapOperationDao {
 
 			log.info("[getMatnrOnConsByWerks] Executing... " + CONSIGNATION_BY_WERKS);
 
-			stm = con.prepareStatement(CONSIGNATION_BY_WERKS);
-			stm.setInt(1, docInvId);
+			// stm = con.prepareStatement(CONSIGNATION_BY_WERKS);
+			// stm.setInt(1, docInvId);
 
-			ResultSet rs = stm.executeQuery();
-			E_Msku_SapEntity emskuEntity;
+			// ResultSet rs = stm.executeQuery();
+			// E_Msku_SapEntity emskuEntity;
 
-			while (rs.next()) {
-				emskuEntity = new E_Msku_SapEntity();
-				emskuEntity.setMatnr(rs.getString("MATNR"));
-				emskuEntity.setKulab(rs.getString("CONS"));// The total here
-				lsMatnr.add(emskuEntity);
-			}
+			// while (rs.next()) {
+			// emskuEntity = new E_Msku_SapEntity();
+			// emskuEntity.setMatnr(rs.getString("MATNR"));
+			// emskuEntity.setKulab(rs.getString("CONS"));// The total here
+			// lsMatnr.add(emskuEntity);
+			// }
+			lsMatnr = this.getMatnrOnConsByWerksMap(docInvId, con);
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			log.log(Level.SEVERE,
@@ -845,6 +851,48 @@ public class SapOperationDao {
 			}
 		}
 
+		return lsMatnr;
+	}
+
+	public ArrayList<E_Msku_SapEntity> getMatnrOnConsByWerksMap(int docInvId, Connection con) throws SQLException {
+		PreparedStatement stm = null;
+		ArrayList<E_Msku_SapEntity> lsMatnr = new ArrayList<>();
+		try {
+			log.info("[getMatnrOnConsByWerks] Executing... " + CONSIGNATION_BY_WERKS);
+
+			HashMap<String, E_Msku_SapEntity> eHashMap = new HashMap<>();
+			stm = con.prepareStatement(CONSIGNATION_BY_WERKS_MAP);
+			stm.setInt(1, docInvId);
+
+			ResultSet rs = stm.executeQuery();
+			E_Msku_SapEntity emskuEntity;
+			// KULAB, KUINS, KUEIN
+			while (rs.next()) {
+				if (eHashMap.containsKey(rs.getString("MATNR"))) {
+					String value = eHashMap.get(rs.getString("MATNR")).getKulab();
+					String valuetoAdd = new BigDecimal(rs.getString("KULAB"))
+							.add(new BigDecimal(rs.getString("KUINS")).add(new BigDecimal(rs.getString("KUEIN"))))
+							.toString();
+					eHashMap.get(rs.getString("MATNR"))
+							.setKulab(new BigDecimal(value).add(new BigDecimal(valuetoAdd)).toString());
+				} else {
+					emskuEntity = new E_Msku_SapEntity();
+					emskuEntity.setMatnr(rs.getString("MATNR"));
+					emskuEntity.setKulab(new BigDecimal(rs.getString("KULAB"))
+							.add(new BigDecimal(rs.getString("KUINS")).add(new BigDecimal(rs.getString("KUEIN"))))
+							.toString());// The total here
+					eHashMap.put(rs.getString("MATNR"), emskuEntity);
+				}
+			}
+
+			Iterator it = eHashMap.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry pair = (Map.Entry) it.next();
+				lsMatnr.add((E_Msku_SapEntity) pair.getValue());
+			}
+		} catch (SQLException e) {
+			throw e;
+		}
 		return lsMatnr;
 	}
 
@@ -1246,7 +1294,7 @@ public class SapOperationDao {
 
 	// SapConciliationDao Moved Code
 
-	public Response<DocInvBeanHeaderSAP> saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP, 
+	public Response<DocInvBeanHeaderSAP> saveConciliationSAP(DocInvBeanHeaderSAP dibhSAP,
 			DocInvBeanHeaderSAP dibhSAPByLgpla, String userId) {
 
 		Response<DocInvBeanHeaderSAP> resp = new Response<>();
@@ -1348,24 +1396,24 @@ public class SapOperationDao {
 			cs = con.prepareCall(INV_CLS_SAP_DOC_INV);
 			cs.setInt(1, dibhSAP.getDocInvId());
 			cs.setString(2, userId);
-			cs.execute();			
-			
-			//Generate the report by lgpla
+			cs.execute();
+
+			// Generate the report by lgpla
 			Response<DocInvBeanHeaderSAP> respAux = saveConciliationSAPByLgpla(dibhSAPByLgpla, userId);
-			if(respAux.getAbstractResult().getResultId() != 1){
-				
+			if (respAux.getAbstractResult().getResultId() != 1) {
+
 				log.log(Level.WARNING, "[saveConciliationSAP] Execute rollback");
 				con.rollback();
-				
+
 				try {
 					con.close();
 				} catch (SQLException e) {
 					log.log(Level.SEVERE,
 							"[saveConciliationSAP] Some error occurred while was trying to close the connection.", e);
 				}
-				
+
 				return respAux;
-			}			
+			}
 
 			UMEDaoE ume = new UMEDaoE();
 			User user = new User();
@@ -1417,7 +1465,7 @@ public class SapOperationDao {
 		return resp;
 
 	}
-	
+
 	public Response<DocInvBeanHeaderSAP> saveConciliationSAPByLgpla(DocInvBeanHeaderSAP dibhSAP, String userId) {
 
 		Response<DocInvBeanHeaderSAP> resp = new Response<>();
@@ -1428,12 +1476,12 @@ public class SapOperationDao {
 		CallableStatement csBatch = null;
 
 		try {
-			
+
 			con.setAutoCommit(false);
 			csBatch = con.prepareCall(INV_SP_ADD_CON_POS_SAP_BY_GLPLA);
 
 			for (PosDocInvBean dipb : lsPositionBean) {
-				
+
 				csBatch.setInt(1, dibhSAP.getDocInvId());
 				csBatch.setString(2, dipb.getLgort());
 				csBatch.setString(3, dipb.getLgpla());
@@ -1445,7 +1493,7 @@ public class SapOperationDao {
 				csBatch.setString(9, dipb.getDiff());
 				csBatch.setString(10, dipb.getCountedCost());
 				csBatch.setString(11, dipb.getTheoricCost());
-				csBatch.setString(12, dipb.getCostByUnit());				
+				csBatch.setString(12, dipb.getCostByUnit());
 				csBatch.setString(13, userId);
 				csBatch.addBatch();
 			}
@@ -1467,7 +1515,9 @@ public class SapOperationDao {
 			}
 
 			log.log(Level.SEVERE,
-					"[saveConciliationSAPByLgpla] Some error occurred while was trying to execute the S.P.: " + INV_SP_ADD_CON_POS_SAP_BY_GLPLA, e);
+					"[saveConciliationSAPByLgpla] Some error occurred while was trying to execute the S.P.: "
+							+ INV_SP_ADD_CON_POS_SAP_BY_GLPLA,
+					e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
 			abstractResult.setResultMsgAbs(e.getMessage());
 			resp.setAbstractResult(abstractResult);
@@ -1477,7 +1527,8 @@ public class SapOperationDao {
 				con.close();
 			} catch (SQLException e) {
 				log.log(Level.SEVERE,
-						"[saveConciliationSAPByLgpla] Some error occurred while was trying to close the connection.", e);
+						"[saveConciliationSAPByLgpla] Some error occurred while was trying to close the connection.",
+						e);
 			}
 		}
 
@@ -1590,7 +1641,7 @@ public class SapOperationDao {
 
 		return res;
 	}
-	
+
 	public Response<DocInvBeanHeaderSAP> getClosedConsSapReportByLgpla(DocInvBean docInvBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -1622,8 +1673,8 @@ public class SapOperationDao {
 				bean.setConciliationDate(sdf.format(new Date(rs.getTimestamp("DIH_MODIFIED_DATE").getTime())));
 				bean.setDocInvPosition(getConciliationSAPPositionsByLgpla(bean.getDocInvId(), con));
 				bean.setCreatedBy(rs.getString("DIH_CLSD_SAP_BY"));
-				bean.setSapRecount(rs.getBoolean("DIH_SAP_REC"));				
-				
+				bean.setSapRecount(rs.getBoolean("DIH_SAP_REC"));
+
 			}
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[getClosedConsSap] Some error occurred while was trying to execute the query: "
@@ -1645,7 +1696,8 @@ public class SapOperationDao {
 		return res;
 	}
 
-	public ArrayList<PosDocInvBean> getConciliationSAPPositionsByWerks(int docInvId, Connection con) throws SQLException {
+	public ArrayList<PosDocInvBean> getConciliationSAPPositionsByWerks(int docInvId, Connection con)
+			throws SQLException {
 
 		PreparedStatement ps = null;
 		ResultSet rs;
@@ -1700,8 +1752,9 @@ public class SapOperationDao {
 
 		return lsPdib;
 	}
-	
-	public ArrayList<PosDocInvBean> getConciliationSAPPositionsByLgpla(int docInvId, Connection con) throws SQLException {
+
+	public ArrayList<PosDocInvBean> getConciliationSAPPositionsByLgpla(int docInvId, Connection con)
+			throws SQLException {
 
 		PreparedStatement ps = null;
 		ResultSet rs;
@@ -1720,7 +1773,7 @@ public class SapOperationDao {
 				pdib.setLgortD(rs.getString("LGOBE"));
 				pdib.setLgpla(rs.getString("INV_CNS_LGPLA"));
 				pdib.setMatnr(rs.getString("INV_CNS_MATNR"));
-				pdib.setMatnrD(rs.getString("MAKTX"));				
+				pdib.setMatnrD(rs.getString("MAKTX"));
 				pdib.setMeins(rs.getString("MEINS"));
 				pdib.setCounted(rs.getString("INV_CNS_COUNTED"));
 				pdib.setCountedExpl(rs.getString("INV_CNS_CNT_EXPL"));
@@ -1729,13 +1782,14 @@ public class SapOperationDao {
 				pdib.setDiff(rs.getString("INV_CNS_DIFF"));
 				pdib.setCountedCost(rs.getString("INV_CNS_COUNTED_COST"));
 				pdib.setTheoricCost(rs.getString("INV_CNS_THEO_COST"));
-				pdib.setCostByUnit(rs.getString("INV_CNS_CST_BY_UNIT"));				
+				pdib.setCostByUnit(rs.getString("INV_CNS_CST_BY_UNIT"));
 				lsPdib.add(pdib);
 			}
 
 		} catch (SQLException e) {
 			log.log(Level.SEVERE,
-					"[getConciliationSAPPositionsByLgpla] Some error occurred while was trying to retrive the positions.", e);
+					"[getConciliationSAPPositionsByLgpla] Some error occurred while was trying to retrive the positions.",
+					e);
 			throw e;
 		}
 
