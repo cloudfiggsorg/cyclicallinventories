@@ -18,6 +18,8 @@ public class ConciliacionBean {
 	private boolean count3;
 	private boolean countE;
 	private int docInvId;
+	private boolean sapRecount;
+	
 	private List<ConciliationPositionBean> positions;
 
 	public String getRoute() {
@@ -140,17 +142,28 @@ public class ConciliacionBean {
 		this.counted = counted;
 	}
 
+	public boolean isSapRecount() {
+		return sapRecount;
+	}
+
+	public void setSapRecount(boolean sapRecount) {
+		this.sapRecount = sapRecount;
+	}
+
 	@Override
 	public String toString() {
 		return "ConciliacionBean [route=" + route + ", type=" + type + ", bukrs=" + bukrs + ", bukrsD=" + bukrsD
 				+ ", werks=" + werks + ", werksD=" + werksD + ", justification=" + justification + ", counted="
 				+ counted + ", countA=" + countA + ", countB=" + countB + ", count2=" + count2 + ", count3=" + count3
-				+ ", countE=" + countE + ", docInvId=" + docInvId + ", positions=" + positions + "]";
+				+ ", countE=" + countE + ", docInvId=" + docInvId + ", sapRecount=" + sapRecount + ", positions="
+				+ positions + "]";
 	}
+
+
 
 	public ConciliacionBean(String route, String type, String bukrs, String bukrsD, String werks, String werksD,
 			String justification, Integer counted, boolean countA, boolean countB, boolean count2, boolean count3,
-			boolean countE, int docInvId, List<ConciliationPositionBean> positions) {
+			boolean countE, int docInvId, boolean sapRecount, List<ConciliationPositionBean> positions) {
 		super();
 		this.route = route;
 		this.type = type;
@@ -166,6 +179,7 @@ public class ConciliacionBean {
 		this.count3 = count3;
 		this.countE = countE;
 		this.docInvId = docInvId;
+		this.sapRecount = sapRecount;
 		this.positions = positions;
 	}
 

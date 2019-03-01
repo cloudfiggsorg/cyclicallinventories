@@ -240,6 +240,7 @@ public class ConciliacionDao {
 				docInvBean.setWerks(rs.getString("WERKS"));
 				docInvBean.setWerksD(rs.getString("WERKSD"));
 				docInvBean.setJustification(rs.getString("JUSTIFICATION"));
+				docInvBean.setSapRecount(rs.getBoolean("SAP_RECOUNT"));
 				docInvBean.setPositions(getConciliationPositions(con, docInvBean));
 			}
 
