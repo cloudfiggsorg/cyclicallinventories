@@ -37,6 +37,7 @@ import com.gmodelo.cyclicinventories.dao.SapOperationDao;
 import com.gmodelo.cyclicinventories.dao.UMEDaoE;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
+import com.gmodelo.cyclicinventories.utils.Utilities;
 import com.google.gson.Gson;
 
 public class ReportesWorkService {
@@ -302,7 +303,8 @@ public class ReportesWorkService {
 			}
 
 			for (ConciAccntReportBean item : finalList) {
-				if ((item.getAccountant() != 0D && item.getAccDiff() != 0D) || (item.getAccountant() != 0D && item.getAccDiff() == 0D)) {
+				if ((item.getAccountant() != 0D && item.getAccDiff() != 0D)
+						|| (item.getAccountant() != 0D && item.getAccDiff() == 0D)) {
 					item.setPercAccDiff(String.valueOf((item.getAccDiff() * 100) / item.getAccountant()));
 				} else if (item.getAccountant() == 0D && item.getAccDiff() != 0D) {
 					item.setPercAccDiff("100");
@@ -310,7 +312,8 @@ public class ReportesWorkService {
 					item.setPercAccDiff("");
 				}
 
-				if ((item.getAccountant() != 0D && item.getJustification() != 0D) || (item.getAccountant() != 0D && item.getJustification() == 0D)) {
+				if ((item.getAccountant() != 0D && item.getJustification() != 0D)
+						|| (item.getAccountant() != 0D && item.getJustification() == 0D)) {
 					item.setPercJustification(String.valueOf((item.getJustification() * 100) / item.getAccountant()));
 				} else if (item.getAccountant() == 0D && item.getJustification() != 0D) {
 					item.setPercJustification("100");
@@ -466,25 +469,25 @@ public class ReportesWorkService {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Response<DocInvBeanHeaderSAP> getReporteDocInvSAPByLgpla(Request request) {
-		
+
 		log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] " + request.toString());
-		
-		DocInvBean bean = new DocInvBean();		
+
+		DocInvBean bean = new DocInvBean();
 		bean = gson.fromJson(gson.toJson(request.getLsObject()), DocInvBean.class);
-		
+
 		if (bean.getStatus() != null && bean.getStatus().equalsIgnoreCase("TRUE")) {
 
 			log.info("[getReporteDocInvSAPByLgpla] Getting closed object...");
 			return new SapOperationDao().getClosedConsSapReportByLgpla(bean);
 
 		}
-		
+
 		Response<DocInvBeanHeaderSAP> response = new Response<>();
 		DocInvBeanHeaderSAP headerSap = new DocInvBeanHeaderSAP();
 		AbstractResultsBean result = new AbstractResultsBean();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		response.setAbstractResult(result);
-		
+
 		List<PosDocInvBean> docInvBeanList = new ArrayList<>();
 		Connection con = iConnectionManager.createConnection();
 		try {
@@ -501,10 +504,15 @@ public class ReportesWorkService {
 			headerSap.setSapRecount(bean.isSapRecount());
 			headerSap.setConciliationDate(sdf.format(new Date(bean.getModifiedDate())));
 			headerSap.setCreationDate(sdf.format(new Date(bean.getCreatedDate())));
+			headerSap.setCost(false);
 
 			List<PosDocInvBean> docPosition = operationDao.getDocInvPositions(bean, con);
 			if (!docPosition.isEmpty()) {
-				HashMap<String, String> costByMaterial = operationDao.getCostByMaterial(bean, con);
+				HashMap<String, String> costByMaterial = new HashMap<>();
+				if (new Utilities().getValueRepByKey(con, "MBEW_THREAD").equals("0")) {
+					costByMaterial = operationDao.getCostByMaterial(bean, con);
+					headerSap.setCost(true);
+				}
 				HashMap<String, List<PosDocInvBean>> orderWm = new HashMap<>();
 				HashMap<String, HashMap<String, List<E_Salida_SapEntity>>> eSalida = operationDao
 						.getEsalidaDataDocInv(bean, con);
