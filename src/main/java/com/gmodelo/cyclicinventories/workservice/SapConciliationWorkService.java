@@ -129,10 +129,14 @@ public class SapConciliationWorkService {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
 				con = connectionManager.createConnection();
 			}
+			log.log(Level.INFO, "[SapConciliationWorkService - inventoryTransit] - : conciliationDao.getTransitMovements Begin");
 			ZIACMF_I360_INV_MOV_3 getTransit = conciliationDao.getTransitMovements(docInvBean, con, destination);
+			log.log(Level.INFO, "[SapConciliationWorkService - inventoryTransit] - : conciliationDao.getTransitMovements End");
 			if (getTransit.geteError_SapEntities().getType().equals("S") && getTransit.getXtab6_SapEntities() != null
 					&& !getTransit.getXtab6_SapEntities().isEmpty()) {
+				log.log(Level.INFO, "[SapConciliationWorkService - inventoryTransit] - : conciliationDao.getTransitMovements Database Insert Begin");
 				operationDao.setZIACMF_I360_INV_MOV3(docInvBean, getTransit, con);
+				log.log(Level.INFO, "[SapConciliationWorkService - inventoryTransit] - : conciliationDao.getTransitMovements Database Insert End");
 			}
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryTransit] - SQLException: ", e);
@@ -155,10 +159,14 @@ public class SapConciliationWorkService {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
 				con = connectionManager.createConnection();
 			}
+			log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements] - : conciliationDao.inventoryMovementsDao Begin");
 			ZIACMF_I360_INV_MOV_1 getMovements = conciliationDao.inventoryMovementsDao(docInvBean, con, destination);
+			log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements] - : conciliationDao.inventoryMovementsDao Begin");
 			if (getMovements.geteError_SapEntities().getType().equals("S")
 					&& getMovements.geteMseg_SapEntities() != null && !getMovements.geteMseg_SapEntities().isEmpty()) {
+				log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements] - : conciliationDao.inventoryMovementsDao Database Insert Begin");
 				operationDao.setZIACMF_I360_INV_MOV1(docInvBean, getMovements, con);
+				log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements] - : conciliationDao.inventoryMovementsDao Database Insert Begin");
 			}
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements] - SQLException: ", e);
@@ -185,10 +193,14 @@ public class SapConciliationWorkService {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
 				con = connectionManager.createConnection();
 			}
+			log.log(Level.INFO, "[SapConciliationWorkService - inventorySnapShot_F] - : conciliationDao.getSystemSnapshot_F Begin");
 			ZIACMF_I360_INV_MOV_2 getSnapshot = conciliationDao.getSystemSnapshot_F(docInvBean, con, destination);
+			log.log(Level.INFO, "[SapConciliationWorkService - inventorySnapShot_F] - : conciliationDao.getSystemSnapshot_F End");
 			if (getSnapshot.geteError_SapEntities().getType().equals("S") && getSnapshot.geteLqua_SapEntities() != null
 					&& getSnapshot.geteMard_SapEntities() != null && getSnapshot.geteMsku_SapEntities() != null) {
+				log.log(Level.INFO, "[SapConciliationWorkService - inventorySnapShot_F] - : conciliationDao.getSystemSnapshot_F Database Insert Begin");
 				operationDao.setZIACMF_I360_INV_MOV2_F(docInvBean, getSnapshot, con);
+				log.log(Level.INFO, "[SapConciliationWorkService - inventorySnapShot_F] - : conciliationDao.getSystemSnapshot_F Database Insert End");
 			}
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot_F] - SQLException: ", e);
@@ -215,9 +227,13 @@ public class SapConciliationWorkService {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
 				con = connectionManager.createConnection();
 			}
+			log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements_WM] - : conciliationDao.wm_InventoryMovementDao Begin");
 			ZIACMF_I360_MOV ziacmf_I360_MOV = conciliationDao.wm_InventoryMovementDao(docInvBean, con, destination);
+			log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements_WM] - : conciliationDao.wm_InventoryMovementDao Database Insert End");
 			if (!ziacmf_I360_MOV.geteSalida_SapEntities().isEmpty()) {
+				log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements_WM] - : conciliationDao.wm_InventoryMovementDao Begin");
 				operationDao.setZIACMF_I360_MOV(docInvBean, ziacmf_I360_MOV, con);
+				log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements_WM] - : conciliationDao.wm_InventoryMovementDao Database Insert End");
 			} else {
 				log.warning("Nothing to insert, due to empty result from ZIACMF_I360_MOV");
 			}
@@ -240,6 +256,7 @@ public class SapConciliationWorkService {
 				con = connectionManager.createConnection();
 			}
 			Integer materialCount = operationDao.getCountMaterialForPivotDocInv(docInvBean, con);
+			log.log(Level.INFO, "[SapConciliationWorkService - getZiacmfMbew] - : conciliationDao.getZiacmfMbew Init" );
 			if (materialCount > 0) {
 				operationDao.setUpdatePivotBegin(con, docInvBean);
 				List<String> listMaterial = operationDao.getmaterialForPivotDocInv(docInvBean, con);
@@ -290,6 +307,8 @@ public class SapConciliationWorkService {
 					log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] :"
 							+ ziacmf_MBEW.geteError_SapEntities().toString());
 				}
+			}else{
+				log.log(Level.INFO, "[SapConciliationWorkService - getZiacmfMbew] - : conciliationDao.getZiacmfMbew Nothing to Update" );
 			}
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] - SQLException: ", e);
