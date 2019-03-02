@@ -191,6 +191,13 @@ public class SapOperationDao {
 
 	private static final String POP_E_CLASS = "DELETE FROM E_CLASS";
 
+	private static final String DELETE_E_MBEW_BY_PIVOT = "DELETE FROM E_MBEW SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) IN IN( "
+			+ "SELECT MATNR FROM INV_VW_PIV_MBEW WITH(NOLOCK) "
+			+ "WHERE DATEDIFF(DAY, LAST_UPDATED, CONVERT(DATE, GETDATE())) > " 
+			+ "CONVERT(INT, (SELECT STORED_VALUE FROM INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY = 'INV_CIC_E_PIV_UPDATE_FREC' )) " 
+			+ "AND IS_UPDATING = 1 AND DOC_INV_ID = ?) ";
+	
+	
 	// SP CALLS
 
 	private static final String INV_SP_ADD_CON_POS_SAP = "INV_SP_ADD_CON_POS_SAP ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?";
@@ -1226,6 +1233,19 @@ public class SapOperationDao {
 		}
 		try {
 			PreparedStatement stm = con.prepareStatement(UPDATE_INV_CIC_MBEW_PIVOT_END);
+			stm.setInt(1, docInvBean.getDocInvId());
+			stm.executeUpdate();
+		} catch (SQLException e) {
+			throw e;
+		}
+	}
+	
+	public void setDeleteEmbew(Connection con, DocInvBean docInvBean) throws SQLException {
+		if (!con.isValid(0)) {
+			con = new ConnectionManager().createConnection();
+		}
+		try {
+			PreparedStatement stm = con.prepareStatement(DELETE_E_MBEW_BY_PIVOT);
 			stm.setInt(1, docInvBean.getDocInvId());
 			stm.executeUpdate();
 		} catch (SQLException e) {

@@ -29,7 +29,8 @@ public class ZiacmfMovFinalRuntime extends Thread {
 		try {
 			log.log(Level.INFO, "ZiacmfMovFinalRuntime - onInit");
 			asyncConnection.setAutoCommit(false);
-			//new SapConciliationWorkService().inventorySnapShot_F(docInvBean, asyncConnection, asyncDestination);
+			// new SapConciliationWorkService().inventorySnapShot_F(docInvBean,
+			// asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryMovements_WM(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryMovements(docInvBean, asyncConnection, asyncDestination);
 			new SapConciliationWorkService().inventoryTransit(docInvBean, asyncConnection, asyncDestination);

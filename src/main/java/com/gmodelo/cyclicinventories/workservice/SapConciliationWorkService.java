@@ -243,6 +243,7 @@ public class SapConciliationWorkService {
 			if (materialCount > 0) {
 				operationDao.setUpdatePivotBegin(con, docInvBean);
 				List<String> listMaterial = operationDao.getmaterialForPivotDocInv(docInvBean, con);
+				operationDao.setDeleteEmbew(con, docInvBean);
 				operationDao.setUpdatePivotEnd(con, docInvBean);
 				List<String> pivotList = new ArrayList<>();
 				ZIACMF_MBEW ziacmf_MBEW = new ZIACMF_MBEW();
@@ -277,32 +278,13 @@ public class SapConciliationWorkService {
 				if (ziacmf_MBEW.geteError_SapEntities().getType().equals("S")
 						&& ziacmf_MBEW.geteMbewSapEntities() != null) {
 
-					log.log(Level.INFO,
-							"[SapConciliationWorkService-getZiacmfMbew] : ziacmf_MBEW " + ziacmf_MBEW.geteMbewSapEntities().size());
+					log.log(Level.INFO, "[SapConciliationWorkService-getZiacmfMbew] : ziacmf_MBEW "
+							+ ziacmf_MBEW.geteMbewSapEntities().size());
 
-					HashMap<String, List<String>> matWerkMap = operationDao.getMbewValues(con);
-					List<E_Mbew_SapEntity> toInsertMbew = new ArrayList<>();
-					List<E_Mbew_SapEntity> toUpdateMbew = new ArrayList<>();
-					for (E_Mbew_SapEntity entity : ziacmf_MBEW.geteMbewSapEntities()) {
-						if (matWerkMap.containsKey(entity.getMatnr())) {
-							if (matWerkMap.get(entity.getMatnr()).contains(entity.getBwkey())) {
-								toUpdateMbew.add(entity);
-							} else {
-								toInsertMbew.add(entity);
-							}
-						} else {
-							toInsertMbew.add(entity);
-						}
-					}
-					if (toInsertMbew.size() > 0) {
-						operationDao.setZIACMF_E_MBEW(con, toInsertMbew);
-						log.log(Level.INFO,
-								"[SapConciliationWorkService-getZiacmfMbew] : toInsert: " + toInsertMbew.size());
-					}
-					if (toUpdateMbew.size() > 0) {
-						operationDao.setZIACMF_E_MBEW_UPD(con, toUpdateMbew);
-						log.log(Level.INFO,
-								"[SapConciliationWorkService-getZiacmfMbew] : toUpdate: " + toUpdateMbew.size());
+					if (ziacmf_MBEW.geteMbewSapEntities().size() > 0) {
+						operationDao.setZIACMF_E_MBEW(con, ziacmf_MBEW.geteMbewSapEntities());
+						log.log(Level.INFO, "[SapConciliationWorkService-getZiacmfMbew] : toInsert: "
+								+ ziacmf_MBEW.geteMbewSapEntities().size());
 					}
 				} else {
 					log.log(Level.SEVERE, "[SapConciliationWorkService-getZiacmfMbew] :"
@@ -346,7 +328,7 @@ public class SapConciliationWorkService {
 			result.setResultMsgAbs(e.getMessage());
 			log.log(Level.SEVERE, "[WS_getClassSystem] - SQLException: ", e);
 
-		} 
+		}
 		return response;
 	}
 
@@ -361,7 +343,7 @@ public class SapConciliationWorkService {
 					new Utilities().getValueRepByKey(con, ReturnValues.REP_DESTINATION_VALUE).getStrCom1());
 			if (ReturnValues.REP_CLASS_UPDATED == 0) {
 				new ClassificationRuntime(destination, con, null, null, "X").start();
-				
+
 			} else {
 				result.setResultId(ReturnValues.IERROR);
 				result.setResultMsgAbs("Ejecución en progreso");
