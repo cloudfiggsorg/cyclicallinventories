@@ -679,10 +679,6 @@ public class SapOperationDao {
 		try {
 			PreparedStatement stm = con.prepareStatement(GET_MBEW_COUNT_PIVOT);
 			stm.setInt(1, docInvBean.getDocInvId());
-			stm.setInt(2, docInvBean.getDocInvId());
-			stm.setInt(3, docInvBean.getDocInvId());
-			stm.setInt(4, docInvBean.getDocInvId());
-			stm.setInt(5, docInvBean.getDocInvId());
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				materialCount = rs.getInt("MAT_UPD");
