@@ -344,9 +344,7 @@ public class ZoneDao {
 		ZoneBean zb = null;
 
 		String INV_VW_ZONE_BY_LGORT = "SELECT [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] FROM [INV_CIC_DB].[dbo].[INV_VW_ZONE_BY_LGORT] ";
-		INV_VW_ZONE_BY_LGORT += "WHERE ZONE_ID LIKE '" + zoneBean.getZoneId() + "' ";
-		INV_VW_ZONE_BY_LGORT += "AND BUKRS = '" + zoneBean.getBukrs() + "' ";
-		INV_VW_ZONE_BY_LGORT += "AND WERKS = '" + zoneBean.getWerks() + "' ";
+		INV_VW_ZONE_BY_LGORT += "WHERE ZONE_ID = ? AND BUKRS = ? AND WERKS = ? ";
 		INV_VW_ZONE_BY_LGORT += "GROUP BY [LGORT], [LGOBE], [ZONE_ID], [ZON_DESC], [BUKRS], [WERKS] ";
 		INV_VW_ZONE_BY_LGORT += "ORDER BY [ZONE_ID]";
 
@@ -356,6 +354,9 @@ public class ZoneDao {
 
 		try {
 			stm = con.prepareStatement(INV_VW_ZONE_BY_LGORT);
+			stm.setInt(1, Integer.parseInt(zoneBean.getZoneId()));
+			stm.setString(2, zoneBean.getBukrs());
+			stm.setString(3, zoneBean.getWerks());
 
 			log.info("[getZoneById] Executing query...");
 
