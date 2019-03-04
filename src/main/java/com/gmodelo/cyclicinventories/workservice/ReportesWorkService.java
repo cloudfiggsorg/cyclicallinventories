@@ -504,15 +504,10 @@ public class ReportesWorkService {
 			headerSap.setSapRecount(bean.isSapRecount());
 			headerSap.setConciliationDate(sdf.format(new Date(bean.getModifiedDate())));
 			headerSap.setCreationDate(sdf.format(new Date(bean.getCreatedDate())));
-			headerSap.setCost(false);
 
 			List<PosDocInvBean> docPosition = operationDao.getDocInvPositions(bean, con);
 			if (!docPosition.isEmpty()) {
-				HashMap<String, String> costByMaterial = new HashMap<>();
-				if (new Utilities().getValueRepByKey(con, "MBEW_THREAD").equals("0")) {
-					costByMaterial = operationDao.getCostByMaterial(bean, con);
-					headerSap.setCost(true);
-				}
+				HashMap<String, String> costByMaterial = operationDao.getCostByMaterial(bean, con);
 				HashMap<String, List<PosDocInvBean>> orderWm = new HashMap<>();
 				HashMap<String, HashMap<String, List<E_Salida_SapEntity>>> eSalida = operationDao
 						.getEsalidaDataDocInv(bean, con);
