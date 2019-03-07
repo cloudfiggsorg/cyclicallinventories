@@ -73,6 +73,8 @@ public class JustficationFileWorkService {
 			
 		} catch (Exception e) {
 			
+			e.printStackTrace();
+			
 			// Delete directory if was created
 			File directory = new File(PATH_TO_SAVE_FILES + File.separator + "Files" + File.separator + jsFile.getDocInvId());
 
