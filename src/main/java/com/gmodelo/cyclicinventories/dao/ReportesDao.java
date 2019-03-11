@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,8 +36,6 @@ import com.gmodelo.cyclicinventories.utils.Utilities;
 public class ReportesDao {
 
 	private Logger log = Logger.getLogger(ReportesDao.class.getName());
-	private SapOperationDao sod = new SapOperationDao();
-
 	public Response<List<ApegosBean>> getReporteApegos(ApegosBean apegosBean) {
 
 		ConnectionManager iConnectionManager = new ConnectionManager();
@@ -673,8 +672,6 @@ public class ReportesDao {
 		String lgort = "";
 		String lgortD = "";
 		String condition = "";
-		String dateIni = "";
-		String dateFin = "";
 		String fechas = "";
 
 		routeId = (apegosB.getRouteId() != null)
@@ -914,9 +911,13 @@ public class ReportesDao {
 	public String getLastUpdateClass(){
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager .createConnection();
+		SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd yyyy hh:mm:ss a", new Locale("es", "MX"));
 		 String date = "";
 		try {
 			 date = new Utilities().getValueRepByKey(con, ReturnValues.E_CLASS_LAST_UPDATED).getStrCom1();
+			 Calendar c = Calendar.getInstance();
+				c.setTimeInMillis(Long.parseLong(date));
+				date = sdf.format(c.getTime());
 		} catch (InvCicException e) {
 			log.log(Level.SEVERE, "[getlastUpdateClassDao] ", e);
 		}finally {
