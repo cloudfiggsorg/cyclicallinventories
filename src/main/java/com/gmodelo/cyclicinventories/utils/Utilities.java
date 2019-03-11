@@ -46,7 +46,11 @@ public class Utilities {
 			ResultSet rs = stm.executeQuery();
 			if (rs.next()) {
 				result.setResultId(ReturnValues.ISUCCESS);
-				result.setStrCom1(rs.getString(ReturnValues.SREPVALUE));
+				if (rs.getBoolean(ReturnValues.SREPSECURED)) {
+					result.setStrCom1(decodeB64(rs.getString(ReturnValues.SREPVALUE)));
+				} else {
+					result.setStrCom1(rs.getString(ReturnValues.SREPVALUE));
+				}
 				result.setBooleanResult(rs.getBoolean(ReturnValues.SREPSECURED));
 			} else {
 				throw new InvCicException("GetValueRepByKey Not Found!");
@@ -81,8 +85,5 @@ public class Utilities {
 		return new String(Base64.getDecoder().decode(toDecode.getBytes()));
 	}
 
-	public String generateLoginToken(LoginBean login) {
-		return this.encodeB64(login.getLoginId()) + UUID.randomUUID().toString() + new Date().toString();
-	}
 
 }
