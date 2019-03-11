@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -17,6 +16,7 @@ import com.gmodelo.cyclicinventories.beans.Repository;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
+import com.gmodelo.cyclicinventories.utils.Utilities;
 
 public class RepositoryDao {
 	
@@ -37,11 +37,14 @@ private Logger log = Logger.getLogger(RepositoryDao.class.getName());
 		try {
 			cs = con.prepareCall(SP);
 			
-			cs.setString(1, option.getKey());			
-			cs.setString(2, option.getValue());
-			cs.setByte(3, (byte)(option.isStored() ? 1 : 0));
+			cs.setString(1, option.getKey());
+			if(option.isEncoded()){
+				cs.setString(2, new Utilities().encodeB64(option.getValue()));
+			}else{
+				cs.setString(2, option.getValue());
+			}			
+			cs.setByte(3, (byte)(option.isEncoded() ? 1 : 0));
 			
-			cs.registerOutParameter(1, Types.INTEGER);
 			log.info("[saveOption] Executing query...");
 			
 			cs.execute();
@@ -85,7 +88,7 @@ private Logger log = Logger.getLogger(RepositoryDao.class.getName());
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
-		final String SP = "IN_SP_DEL_OPTIONS ?"; //The Store procedure to call
+		final String SP = "INV_SP_DEL_OPTIONS ?"; //The Store procedure to call
 		
 		log.info("[deleteOptions] Preparing sentence...");
 		
@@ -138,6 +141,7 @@ private Logger log = Logger.getLogger(RepositoryDao.class.getName());
 		Statement stm = null;		
 		List<Repository> lsOptions = new ArrayList<>();
 		Repository option = new Repository();
+		Utilities utils = new Utilities();
 		
 		String QUERY = "SELECT STORED_KEY, STORED_VALUE, STORED_ENCODED FROM INV_CIC_REPOSITORY ";		
 		log.info(QUERY);
@@ -152,8 +156,12 @@ private Logger log = Logger.getLogger(RepositoryDao.class.getName());
 				
 				option = new Repository();
 				option.setKey(rs.getString("STORED_KEY"));
-				option.setValue(rs.getString("STORED_VALUE"));	
-				option.setStored(rs.getBoolean("STORED_ENCODED"));
+				option.setEncoded(rs.getBoolean("STORED_ENCODED"));
+				if(option.isEncoded()){
+					option.setValue(utils.decodeB64(rs.getString("STORED_VALUE")));
+				}else{
+					option.setValue(rs.getString("STORED_VALUE"));
+				}
 				lsOptions.add(option);
 			}
 			log.info("[getOptions] Sentence successfully executed.");
