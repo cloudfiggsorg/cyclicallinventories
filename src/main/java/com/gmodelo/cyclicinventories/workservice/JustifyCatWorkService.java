@@ -13,7 +13,7 @@ import com.google.gson.Gson;
 
 public class JustifyCatWorkService {
 	
-	private Logger log = Logger.getLogger(ZoneWorkService.class.getName());
+	private Logger log = Logger.getLogger(JustifyCatWorkService.class.getName());
 	private Gson gson = new Gson();
 
 	public Response<JustifyCat> addJustify(Request<?> request, String userId) {
