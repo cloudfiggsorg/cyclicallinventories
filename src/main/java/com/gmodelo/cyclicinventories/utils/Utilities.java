@@ -16,6 +16,7 @@ public class Utilities {
 
 	public static final String GETLANGBYKEY = "SELECT LANG_VALUE FROM INV_CIC_LNG_VAL WITH(NOLOCK) WHERE LANG_KEY = ? and LANG = ?";
 	public static final String GETREPVALUEBYKEY = "SELECT STORED_VALUE, STORED_ENCODED from  INV_CIC_REPOSITORY WITH(NOLOCK) WHERE STORED_KEY  = ?";
+	public static final String INSERTVALUEBYKEY = "INSERT INTO INV_CIC_REPOSITORY (STORED_KEY, STORED_VALUE, STORED_ENCODED) VALUES (?,?,?)";
 	public static final String UPDATEVALUEBYKEY = "UPDATE INV_CIC_REPOSITORY SET STORED_VALUE = ? WHERE STORED_KEY = ?";
 
 	public AbstractResultsBean getLangByKey(Connection con, String key, String lang) throws InvCicException {
@@ -77,6 +78,26 @@ public class Utilities {
 		return result;
 	}
 
+	public AbstractResultsBean insertValueRepKey(Connection con, String key, String value, boolean encoded)
+			throws InvCicException {
+		AbstractResultsBean result = new AbstractResultsBean();
+		try {
+			PreparedStatement stm = con.prepareStatement(INSERTVALUEBYKEY);
+			stm.setString(1, key);
+			if (encoded) {
+				stm.setString(2, encodeB64(value));
+			} else {
+				stm.setString(2, value);
+			}
+			stm.setBoolean(3, encoded);
+			stm.executeUpdate();
+		} catch (SQLException e) {
+			result.setResultId(ReturnValues.IEXCEPTION);
+			result.setResultMsgAbs(e.getMessage());
+		}
+		return result;
+	}
+
 	public String encodeB64(String toEncode) {
 		return Base64.getEncoder().encodeToString(toEncode.getBytes());
 	}
@@ -84,6 +105,5 @@ public class Utilities {
 	public String decodeB64(String toDecode) {
 		return new String(Base64.getDecoder().decode(toDecode.getBytes()));
 	}
-
 
 }
