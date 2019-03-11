@@ -39,9 +39,8 @@ private Logger log = Logger.getLogger(RepositoryDao.class.getName());
 			
 			cs.setString(1, option.getKey());			
 			cs.setString(2, option.getValue());
-			cs.setByte(3, (byte)(option.isStored() ? 1 : 0));
+			cs.setByte(3, (byte)(option.isEncoded() ? 1 : 0));
 			
-			cs.registerOutParameter(1, Types.INTEGER);
 			log.info("[saveOption] Executing query...");
 			
 			cs.execute();
@@ -85,7 +84,7 @@ private Logger log = Logger.getLogger(RepositoryDao.class.getName());
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
 		
-		final String SP = "IN_SP_DEL_OPTIONS ?"; //The Store procedure to call
+		final String SP = "INV_SP_DEL_OPTIONS ?"; //The Store procedure to call
 		
 		log.info("[deleteOptions] Preparing sentence...");
 		
@@ -153,7 +152,7 @@ private Logger log = Logger.getLogger(RepositoryDao.class.getName());
 				option = new Repository();
 				option.setKey(rs.getString("STORED_KEY"));
 				option.setValue(rs.getString("STORED_VALUE"));	
-				option.setStored(rs.getBoolean("STORED_ENCODED"));
+				option.setEncoded(rs.getBoolean("STORED_ENCODED"));
 				lsOptions.add(option);
 			}
 			log.info("[getOptions] Sentence successfully executed.");

@@ -4,18 +4,18 @@ public class Repository {
 	
 	private String key;
 	private String value;
-	private boolean stored;
+	private boolean encoded;
 	
 	public Repository(){
 		
 		super();
 	}
 
-	public Repository(String key, String value, boolean stored) {
+	public Repository(String key, String value, boolean encoded) {
 		super();
 		this.key = key;
 		this.value = value;
-		this.stored = stored;
+		this.encoded = encoded;
 	}
 
 	public String getKey() {
@@ -34,17 +34,17 @@ public class Repository {
 		this.value = value;
 	}
 
-	public boolean isStored() {
-		return stored;
+	public boolean isEncoded() {
+		return encoded;
 	}
 
-	public void setStored(boolean stored) {
-		this.stored = stored;
+	public void setEncoded(boolean encoded) {
+		this.encoded = encoded;
 	}
 
 	@Override
 	public String toString() {
-		return "Repository [key=" + key + ", value=" + value + ", stored=" + stored + "]";
+		return "Repository [key=" + key + ", value=" + value + ", encoded=" + encoded + "]";
 	}
 
 }
