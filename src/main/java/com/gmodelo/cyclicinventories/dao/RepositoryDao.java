@@ -157,6 +157,7 @@ private Logger log = Logger.getLogger(RepositoryDao.class.getName());
 				option = new Repository();
 				option.setKey(rs.getString("STORED_KEY"));
 				option.setEncoded(rs.getBoolean("STORED_ENCODED"));
+				
 				if(option.isEncoded()){
 					option.setValue(utils.decodeB64(rs.getString("STORED_VALUE")));
 				}else{
