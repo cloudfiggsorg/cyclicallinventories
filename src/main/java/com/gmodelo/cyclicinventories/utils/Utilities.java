@@ -5,11 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
-import java.util.Date;
-import java.util.UUID;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
-import com.gmodelo.cyclicinventories.beans.LoginBean;
 import com.gmodelo.cyclicinventories.exception.InvCicException;
 
 public class Utilities {
