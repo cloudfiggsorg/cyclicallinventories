@@ -83,8 +83,12 @@ public class Utilities {
 		AbstractResultsBean result = new AbstractResultsBean();
 		try {
 			PreparedStatement stm = con.prepareStatement(INSERTVALUEBYKEY);
-			stm.setString(1, value);
-			stm.setString(2, key);
+			stm.setString(1, key);
+			if (encoded) {
+				stm.setString(2, encodeB64(value));
+			} else {
+				stm.setString(2, value);
+			}
 			stm.setBoolean(3, encoded);
 			stm.executeUpdate();
 		} catch (SQLException e) {
