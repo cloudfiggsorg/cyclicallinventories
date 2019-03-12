@@ -30,4 +30,15 @@ public class VersionService {
 	public Response validateAdmin(Request request) {
 		return new VersionWorkService().isAdminEnabled(request);
 	}
+	
+
+	@SuppressWarnings("rawtypes")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/isServerUsable")
+	public Response isServerUsable(Request request) {
+		return new VersionWorkService().isServerUsable(request);
+	}
+
 }

@@ -1148,7 +1148,7 @@ public class SapOperationDao {
 			}
 			stmDel.executeUpdate();
 			stm.executeBatch();
-			new Utilities().updateValueRepByKey(con, ReturnValues.E_CLASS_LAST_UPDATED, new Date().toString());
+			new Utilities().updateValueRepByKey(con, ReturnValues.E_CLASS_LAST_UPDATED, String.valueOf(new Date().getTime()));
 		} catch (SQLException e) {
 			throw e;
 		} catch (InvCicException e) {
