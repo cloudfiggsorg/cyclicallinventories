@@ -3,7 +3,6 @@ package com.gmodelo.cyclicinventories.services;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -14,7 +13,6 @@ import org.jboss.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.LoginBean;
 import com.gmodelo.cyclicinventories.beans.Response;
-import com.gmodelo.cyclicinventories.utils.CommunicationObjects;
 import com.gmodelo.cyclicinventories.workservice.LoginWorkService;
 
 @Path("/LoginModule")

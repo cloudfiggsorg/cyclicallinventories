@@ -24,6 +24,7 @@ public class UMEDaoE extends UMEdao{
 		Utilities iUtils = new Utilities();
 		
 		try {
+			
 			super.setLDAPUser(iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_USER).getStrCom1());
 			super.setLDAPPassword(iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_PASSWORD).getStrCom1());
 			super.setLDAPInitialContecxtFactory("com.sun.jndi.ldap.LdapCtxFactory");
@@ -32,6 +33,7 @@ public class UMEDaoE extends UMEdao{
 			super.setLDAPSecurityAuthentication(iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_SECURITY_AUTH).getStrCom1());
 			super.setLDAPSecurityPrincipal(iUtils.getValueRepByKey(con, ReturnValues.REP_LDAP_DOMAIN).getStrCom1());		
 			super.setDataSourceName(UMEDaoE.DS_UME);
+			
 		} catch (InvCicException e) {
 			
 			log.error("Error al intentar consultar las propiedades de conexión.");
