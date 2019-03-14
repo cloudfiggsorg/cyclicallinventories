@@ -699,9 +699,85 @@ public class ReportesWorkService {
 					}
 				}
 
-				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get IM MARD");
-
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get IM MARD END");
 				// WM PROC BEGIN
+
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get IM EXPLOSION ");
+				// IM EXPLOSION BEGIN
+				if (!bean.isSapRecount()) {
+					for (PosDocInvBean imPos : imPositions) {
+						if (explosionMap.containsKey(imPos.getMatnr())) {
+							for (MaterialExplosionBean posEx : explosionMap.get(imPos.getMatnr())) {
+								PosDocInvBean pBean = new PosDocInvBean();
+								String toCount = "0.00";
+								if (expPosition.containsKey(posEx.getLgort() + "" + posEx.getIdnrk())) {
+									toCount = new BigDecimal(posEx.getBmcal())
+											.multiply(new BigDecimal(
+													imPos.getVhilmCounted() != null ? imPos.getVhilmCounted() : "0.00"))
+											.toString();
+									pBean = expPosition.get(posEx.getLgort() + "" + posEx.getIdnrk());
+									pBean.setDateIniCounted(imPos.getDateIniCounted());
+									pBean.setDateEndCounted(imPos.getDateEndCounted());
+									pBean.setCountedExpl(new BigDecimal(pBean.getCountedExpl())
+											.add(new BigDecimal(toCount)).toString());
+								} else {
+									pBean.setLgort(posEx.getLgort());
+									pBean.setLgortD(posEx.getLgortD());
+									pBean.setMatnr(posEx.getIdnrk());
+									pBean.setMatnrD(posEx.getMaktx());
+									pBean.setMeins(posEx.getMeins());
+									pBean.setTheoric("0.00");
+									pBean.setCountedExpl(new BigDecimal(posEx.getBmcal())
+											.multiply(new BigDecimal(
+													imPos.getCounted() != null ? imPos.getCounted() : "0.00"))
+											.toString());
+									pBean.setCounted("0.00");
+									pBean.setDateIniCounted(imPos.getDateIniCounted());
+									pBean.setDateEndCounted(imPos.getDateEndCounted());
+									pBean.setImwmMarker("IM");
+									pBean.setGrouped(true);
+									expPosition.put(posEx.getLgort() + "" + posEx.getIdnrk(), pBean);
+								}
+							}
+
+							if (imPos.getVhilm() != null && !imPos.getVhilm().isEmpty()
+									&& !imPos.getVhilm().equalsIgnoreCase("-987")) {
+								PosDocInvBean pBean = new PosDocInvBean();
+								String toCount = "0.00";
+								if (expPosition.containsKey(imPos.getLgort() + "" + imPos.getVhilm())) {
+									toCount = new BigDecimal(
+											imPos.getVhilmCounted() != null ? imPos.getVhilmCounted() : "0.00").toString();
+									pBean = expPosition.get(imPos.getLgort() + "" + imPos.getVhilm());
+									pBean.setDateIniCounted(imPos.getDateIniCounted());
+									pBean.setDateEndCounted(imPos.getDateEndCounted());
+									pBean.setCountedExpl(
+											new BigDecimal(pBean.getCountedExpl()).add(new BigDecimal(toCount)).toString());
+								} else {
+									pBean.setLgort(imPos.getLgort());
+									pBean.setLgortD(imPos.getLgortD());
+									pBean.setMatnr(imPos.getVhilm());
+									pBean.setMatnrD(operationDao.getNameFromTarima(imPos.getVhilm(), con));
+									pBean.setMeins(imPos.getMeins());
+									pBean.setTheoric("0.00");
+									pBean.setCountedExpl(new BigDecimal(
+											imPos.getVhilmCounted() != null ? imPos.getVhilmCounted() : "0.00").toString());
+									pBean.setCounted("0.00");
+									pBean.setDateIniCounted(imPos.getDateIniCounted());
+									pBean.setDateEndCounted(imPos.getDateEndCounted());
+									pBean.setImwmMarker("IM");
+									pBean.setGrouped(true);
+									expPosition.put(imPos.getLgort() + "" + imPos.getVhilm(), pBean);
+								}
+							}
+						}
+					}
+					
+					
+				}
+				
+				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] Get IM EXPLOSION  END");
+
+				// IM EXPLOSION END
 
 				// Begin Fill IM
 				log.info("[ReporteWorkService getReporteDocInvSAPByLgpla] IM MERGES");
