@@ -190,11 +190,12 @@ public class ExplosionDetailDao {
 
 		final String GET_EXPL_DET = "SELECT  A.WERKS, SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) AS MATNR, "
 				+ "SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) AS MATNR_EXPL, " 
-				+ "D.MAKTX, C.MEINS, 0 IS_RELEVANT, '' LGORT " 
+				+ "D.MAKTX, T006.MSEH3, 0 IS_RELEVANT, '' LGORT " 
 				+ "FROM MAST AS A " 
 					+ "INNER JOIN STKO AS B ON (A.STLNR = B.STLNR) " 
 					+ "INNER JOIN STPO AS C ON (A.STLNR = C.STLNR) " 
-					+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS D ON (SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) = D.MATNR) " 
+					+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS D ON (SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) = D.MATNR) "
+					+ "INNER JOIN T006A T006 WITH(NOLOCK) ON C.MEINS = T006.MSEHI "
 				+ "WHERE A.WERKS = ? AND SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) = ? " 
 					+ "AND D.WERKS = ? "
 					+ "AND SUBSTRING(C.IDNRK, PATINDEX('%[^0 ]%', C.IDNRK + ' '), LEN(C.IDNRK)) NOT IN (SELECT EX_COMPONENT " 
@@ -202,10 +203,11 @@ public class ExplosionDetailDao {
 
 				+ "UNION " 
 
-				+ "SELECT A.EX_WERKS, A.EX_MATNR, A.EX_COMPONENT, B.MAKTX, C.MEINS, A.EX_RELEVANT, A.EX_LGORT LGORT " 
+				+ "SELECT A.EX_WERKS, A.EX_MATNR, A.EX_COMPONENT, B.MAKTX, T006.MSEH3, A.EX_RELEVANT, A.EX_LGORT LGORT " 
 				+ "FROM INV_EXPLOSION AS A " 
 					+ "INNER JOIN INV_VW_MATNR_BY_WERKS AS B ON (A.EX_COMPONENT = B.MATNR) " 
 					+ "INNER JOIN MARA AS C ON (SUBSTRING(C.MATNR, PATINDEX('%[^0 ]%', C.MATNR + ' '), LEN(C.MATNR)) = A.EX_COMPONENT) "
+					+ "INNER JOIN T006A T006 WITH(NOLOCK) ON C.MEINS = T006.MSEHI "
 				+ "WHERE EX_WERKS = ? " 
 					+ "AND B.WERKS = ? "
 					+ "AND SUBSTRING(EX_MATNR, PATINDEX('%[^0 ]%', EX_MATNR + ' '), LEN(EX_MATNR))  = ? " 
@@ -248,7 +250,7 @@ public class ExplosionDetailDao {
 				ed.setMatnr(rs.getString("MATNR"));
 				ed.setComponent(rs.getString("MATNR_EXPL"));				
 				ed.setCompDesc(rs.getString("MAKTX"));
-				ed.setUmb(rs.getString("MEINS"));
+				ed.setUmb(rs.getString("MSEH3"));
 				ed.setRelevant(rs.getBoolean("IS_RELEVANT"));
 				ed.setLgort(rs.getString("LGORT"));
 				lsEd.add(ed);
@@ -301,21 +303,24 @@ public class ExplosionDetailDao {
 		ArrayList<MatExplReport> lsDetail = new ArrayList<>();
 		HashMap<String, ArrayList<MatExplReport>> map = new HashMap<>(); 
 		
-		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MEINS, A.COUNTED, " 
-				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, D.MEINS MEINS_EXLP, " 
+		final String GET_MST_EXPL_REP = "SELECT A.MATNR, E.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MSEH3, A.COUNTED, " 
+				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, T006.MSEH3 MSEH3_EXLP, " 
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
 				+ "CAST((CAST(D.MENGE AS decimal(20, 3)) / CAST(C.BMENG AS decimal(15, 2))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(20, 3)) AS varchar(50)) AS QUANTITY, " 
 				+ "ISNULL((SELECT CATEGORY FROM INV_CAT_CATEGORY AS ICC " 
 						+ "INNER JOIN INV_REL_CAT_MAT AS IRCM ON (ICC.CAT_ID = IRCM.REL_CAT_ID) " 
 						+ "WHERE REL_MATNR = SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK))), '') AS CAT_EXPL " 
 			+ "FROM (SELECT DIP_MATNR MATNR, DIP_DOC_INV_ID, SUM(CAST(DIP_COUNTED AS decimal(20, 3))) COUNTED, " 
-				+ "(SELECT MEINS FROM MARA WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MEINS " 
+				+ "(SELECT T006.MSEH3 FROM MARA "
+				+ "INNER JOIN T006A T006 WITH(NOLOCK) ON MARA.MEINS = T006.MSEHI "
+				+ "WHERE SUBSTRING(MATNR, PATINDEX('%[^0 ]%', MATNR + ' '), LEN(MATNR)) = DIP_MATNR) MSEH3 " 
 				+ "FROM INV_DOC_INVENTORY_POSITIONS " 
 				+ "WHERE DIP_DOC_INV_ID = ? " 
 			+ "GROUP BY DIP_DOC_INV_ID, DIP_MATNR) AS A " 
 				+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
 				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) "  
 				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) " 
+				+ "INNER JOIN T006A T006 WITH(NOLOCK) ON D.MEINS = T006.MSEHI "
 				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DIP_DOC_INV_ID) " 
 				+ "INNER JOIN MAKT AS E ON (A.MATNR = SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR))) " 
 				+ "LEFT JOIN INV_REL_CAT_MAT AS F ON (F.REL_MATNR = A.MATNR) " 
@@ -326,19 +331,20 @@ public class ExplosionDetailDao {
 							+ "IN (SELECT EX_COMPONENT " 
 								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
 								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
-			+ "GROUP BY A.MATNR, E.MAKTX, G.CATEGORY, A.MEINS, COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG "
+			+ "GROUP BY A.MATNR, E.MAKTX, G.CATEGORY, A.MSEH3, COUNTED, D.IDNRK, T006.MSEH3, D.MENGE, C.BMENG "
 
 			+ "UNION "
 
 			+ "SELECT DIP_MATNR, B.MAKTX, ISNULL(D.CATEGORY, '') CATEGORY, " 
-				+ "E.MEINS, SUM(CAST(REPLACE(A.DIP_COUNTED, ',', '') AS decimal(20, 3))) DIP_COUNTED, '' IDNRK, '' MEINS_EXPL, '' DESC_MATNR_EXPL, '' QUANTITY, '' CAT_EXPL "
+				+ "T006.MSEH3, SUM(CAST(REPLACE(A.DIP_COUNTED, ',', '') AS decimal(20, 3))) DIP_COUNTED, '' IDNRK, '' MSEH3_EXLP, '' DESC_MATNR_EXPL, '' QUANTITY, '' CAT_EXPL "
 			+ "FROM INV_DOC_INVENTORY_POSITIONS AS A "
 			+ "INNER JOIN MAKT AS B ON (SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR)) = A.DIP_MATNR) "
 			+ "LEFT JOIN INV_REL_CAT_MAT AS C ON (C.REL_MATNR = A.DIP_MATNR) " 
 			+ "LEFT JOIN INV_CAT_CATEGORY AS D ON (C.REL_CAT_ID = D.CAT_ID) " 
 			+ "INNER JOIN MARA AS E ON (SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR)) = A.DIP_MATNR) "
+			+ "INNER JOIN T006A T006 WITH(NOLOCK) ON E.MEINS = T006.MSEHI "
 			+ "WHERE DIP_DOC_INV_ID = ? "
-			+ "GROUP BY DIP_MATNR, B.MAKTX, D.CATEGORY, E.MEINS "
+			+ "GROUP BY DIP_MATNR, B.MAKTX, D.CATEGORY, T006.MSEH3 "
 			+ "ORDER BY A.MATNR, IDNRK ASC ";
 
 		log.info(GET_MST_EXPL_REP);
@@ -363,12 +369,12 @@ public class ExplosionDetailDao {
 				expl.setMatnr(rs.getString("MATNR"));
 				expl.setDescription(rs.getString("MAKTX"));
 				expl.setCategory(rs.getString("CATEGORY"));
-				expl.setUmb(rs.getString("MEINS"));
+				expl.setUmb(rs.getString("MSEH3"));
 				expl.setCounted(rs.getString("COUNTED"));
 				expl.setMatnrExpl(rs.getString("IDNRK"));
 				expl.setDescMantrExpl(rs.getString("MATNR_EXPL_DESC"));
 				expl.setCatExpl(rs.getString("CAT_EXPL"));
-				expl.setUmbExpl(rs.getString("MEINS_EXLP"));
+				expl.setUmbExpl(rs.getString("MSEH3_EXLP"));
 				expl.setQuantity(rs.getString("QUANTITY"));
 				
 				if(map.containsKey(expl.getMatnr())){
@@ -500,21 +506,22 @@ public class ExplosionDetailDao {
 		HashMap<String, ArrayList<MatExplReport>> map = new HashMap<>(); 
 		String key = "";
 		
-		final String GET_MST_EXPL_REP = "SELECT DIP_LGORT, LGTYP, LTYPT, A.LGPLA, A.MATNR, A.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MEINS, A.COUNTED, " 
-				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, D.MEINS MEINS_EXLP, " 
+		final String GET_MST_EXPL_REP = "SELECT DIP_LGORT, LGTYP, LTYPT, A.LGPLA, A.MATNR, A.MAKTX, ISNULL(G.CATEGORY, ' ') CATEGORY, A.MSEH3, A.COUNTED, " 
+				+ "SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK)) IDNRK, T006.MSEH3 MSEH3_EXLP, " 
 				+ "(SELECT MAKTX FROM MAKT WHERE MATNR = D.IDNRK) AS MATNR_EXPL_DESC, " 
 				+ "CAST((CAST(D.MENGE AS decimal(20, 3)) / CAST(C.BMENG AS decimal(20, 3))) * CAST(REPLACE(A.COUNTED, ',', '') AS decimal(20, 3)) AS varchar(30)) AS QUANTITY, "
 				+ "ISNULL((SELECT CATEGORY FROM INV_CAT_CATEGORY AS ICC " 
 						+ "INNER JOIN INV_REL_CAT_MAT AS IRCM ON (ICC.CAT_ID = IRCM.REL_CAT_ID) " 
 						+ "WHERE REL_MATNR = SUBSTRING(D.IDNRK, PATINDEX('%[^0 ]%', D.IDNRK + ' '), LEN(D.IDNRK))), '') AS CAT_EXPL, H.EX_LGORT " 		 
 			+ "FROM (SELECT DIP_LGORT, LGTYP, LTYPT, DIP_LGPLA LGPLA, DIP_MATNR MATNR, MAKTX, DOC_INV_ID, " 
-					+ "SUM(CAST(DIP_COUNTED AS decimal(20,3))) COUNTED, MEINS "
+					+ "SUM(CAST(DIP_COUNTED AS decimal(20,3))) COUNTED, MEINS MSEH3 "
 				+ "FROM INV_VW_DOC_INV_REP_LGORT_LGPLA " 
 				+ "WHERE DOC_INV_ID = ? "
 				+ "GROUP BY DIP_LGORT, LGTYP, LTYPT, DIP_LGPLA, DIP_MATNR, MAKTX, DOC_INV_ID, DIP_MATNR, IMWM, MEINS) AS A " 
 				+ "LEFT JOIN MAST AS B ON (A.MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR))) " 
 				+ "INNER JOIN STKO AS C ON (B.STLNR = C.STLNR) "  
 				+ "INNER JOIN STPO AS D ON (C.STLNR = D.STLNR) " 
+				+ "INNER JOIN T006A T006 WITH(NOLOCK) ON D.MEINS = T006.MSEHI " 
 				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS IDIH ON (IDIH.DOC_INV_ID = A.DOC_INV_ID) "  
 				+ "LEFT JOIN INV_REL_CAT_MAT AS F ON (F.REL_MATNR = A.MATNR) " 
 				+ "LEFT JOIN INV_CAT_CATEGORY AS G ON (F.REL_CAT_ID = G.CAT_ID) "
@@ -525,17 +532,18 @@ public class ExplosionDetailDao {
 							+ "IN (SELECT EX_COMPONENT " 
 								+ "FROM INV_EXPLOSION WHERE EX_WERKS = IDIH.DIH_WERKS " 
 								+ "AND A.MATNR = EX_MATNR AND EX_RELEVANT = 1) " 
-			+ "GROUP BY DIP_LGORT, LGTYP, LTYPT, LGPLA, A.MATNR, A.MAKTX, G.CATEGORY, A.MEINS, COUNTED, D.IDNRK, D.MEINS, D.MENGE, C.BMENG, H.EX_LGORT "	 
+			+ "GROUP BY DIP_LGORT, LGTYP, LTYPT, LGPLA, A.MATNR, A.MAKTX, G.CATEGORY, A.MSEH3, COUNTED, D.IDNRK, T006.MSEH3, D.MENGE, C.BMENG, H.EX_LGORT "	 
 
 			+ "UNION "
 
 			+ "SELECT DIP_LGORT, LGTYP, LTYPT, DIP_LGPLA LGPLA, DIP_MATNR MATNR, A.MAKTX, ISNULL(D.CATEGORY, '') CATEGORY, " 
-			+ "A.MEINS, DIP_COUNTED, '' IDNRK, '' MEINS_EXPL, '' DESC_MATNR_EXPL, '' QUANTITY, '' CAT_EXPL, '' LGORT_EXPL "
+			+ "T006.MSEH3, DIP_COUNTED, '' IDNRK, '' MEINS_EXPL, '' DESC_MATNR_EXPL, '' QUANTITY, '' CAT_EXPL, '' LGORT_EXPL "
 			+ "FROM INV_VW_DOC_INV_REP_LGORT_LGPLA AS A "
 			+ "INNER JOIN MAKT AS B ON (SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR)) = A.DIP_MATNR) "
 			+ "LEFT JOIN INV_REL_CAT_MAT AS C ON (C.REL_MATNR = A.DIP_MATNR) " 
 			+ "LEFT JOIN INV_CAT_CATEGORY AS D ON (C.REL_CAT_ID = D.CAT_ID) " 
 			+ "INNER JOIN MARA AS E ON (SUBSTRING(E.MATNR, PATINDEX('%[^0 ]%', E.MATNR + ' '), LEN(E.MATNR)) = A.DIP_MATNR) "
+			+ "INNER JOIN T006A T006 WITH(NOLOCK) ON A.MEINS = T006.MSEHI " 
 			+ "WHERE DOC_INV_ID = ? ";
 
 		log.info(GET_MST_EXPL_REP);
@@ -579,13 +587,13 @@ public class ExplosionDetailDao {
 				expl.setMatnr(rs.getString("MATNR"));
 				expl.setDescription(rs.getString("MAKTX"));
 				expl.setCategory(rs.getString("CATEGORY"));
-				expl.setUmb(rs.getString("MEINS"));
+				expl.setUmb(rs.getString("MSEH3"));
 				expl.setCounted(rs.getString("COUNTED"));
 				expl.setMatnrExpl(rs.getString("IDNRK"));
 				expl.setDescMantrExpl(rs.getString("MATNR_EXPL_DESC"));
 				expl.setLgortExpl(rs.getString("EX_LGORT"));
 				expl.setCatExpl(rs.getString("CAT_EXPL"));
-				expl.setUmbExpl(rs.getString("MEINS_EXLP"));
+				expl.setUmbExpl(rs.getString("MSEH3_EXLP"));
 				expl.setQuantity(rs.getString("QUANTITY"));
 				
 				key = expl.getLgort() + expl.getLgtyp() + expl.getLtypt() + expl.getLgpla() + expl.getMatnr(); 

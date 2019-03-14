@@ -115,17 +115,20 @@ public class SapOperationDao {
 			+ "FROM INV_JUSTIFY AS A " + "INNER JOIN INV_CAT_JUSTIFY AS B ON (A.JS_JUSTIFY = B.JS_ID) "
 			+ "WHERE JS_CON_SAP IN (SELECT * FROM STRING_SPLIT(?, ',')) ";
 
-	private static final String GET_POS_CONS_SAP_BY_WERKS = "SELECT CS_CON_SAP, CS_MATNR, ISNULL(CATEGORY, '') CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
+	private static final String GET_POS_CONS_SAP_BY_WERKS = "SELECT CS_CON_SAP, CS_MATNR, ISNULL(CATEGORY, '') CATEGORY, MAKTX, T006.MSEH3, CS_COST_BY_UNIT, CS_THEORIC, "
 			+ "CS_COUNTED, CS_COUNTED_EXPL, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_IS_EXPL "
-			+ "FROM INV_VW_CONC_SAP AS A " + "LEFT JOIN INV_REL_CAT_MAT AS B ON (A.CS_MATNR = B.REL_MATNR) "
+			+ "FROM INV_VW_CONC_SAP AS A "
+			+ "INNER JOIN T006A T006 WITH(NOLOCK) ON A.MEINS = T006.MSEHI "
+			+ "LEFT JOIN INV_REL_CAT_MAT AS B ON (A.CS_MATNR = B.REL_MATNR) "
 			+ "LEFT JOIN INV_CAT_CATEGORY AS C ON (B.REL_CAT_ID = C.CAT_ID) " + "WHERE DOC_INV_ID = ? "
-			+ "GROUP BY CS_CON_SAP, CS_MATNR, CATEGORY, MAKTX, MEINS, CS_COST_BY_UNIT, CS_THEORIC, "
+			+ "GROUP BY CS_CON_SAP, CS_MATNR, CATEGORY, MAKTX, T006.MSEH3, CS_COST_BY_UNIT, CS_THEORIC, "
 			+ "CS_COUNTED, CS_COUNTED_EXPL, CS_DIFFERENCE, CS_TRANSIT, CS_CONSIGNATION, CS_IS_EXPL";
 
 	private static final String GET_POS_CONS_SAP_BY_LGPLA = "SELECT INV_CNS_LGORT, LGOBE, INV_CNS_LGPLA, INV_CNS_MATNR, MAKTX, "
-			+ "MEINS, INV_CNS_COUNTED, INV_CNS_CNT_EXPL, INV_CNS_TOT_CONT, INV_CNS_THEORIC, "
+			+ "MEINS MSEH3, INV_CNS_COUNTED, INV_CNS_CNT_EXPL, INV_CNS_TOT_CONT, INV_CNS_THEORIC, "
 			+ "INV_CNS_DIFF, INV_CNS_COUNTED_COST, INV_CNS_THEO_COST, INV_CNS_DIFF_COST, INV_CNS_CST_BY_UNIT "
-			+ "FROM INV_VW_CONC_SAP_LGPLA " + "WHERE INV_CNS_DOC_INV_ID = ?";
+			+ "FROM INV_VW_CONC_SAP_LGPLA AS A "
+			+ "WHERE INV_CNS_DOC_INV_ID = ?";
 
 	// CONCILIATION FOR WM - LGORT_LGPLA
 
@@ -1697,7 +1700,7 @@ public class SapOperationDao {
 				pdib.setMatnr(rs.getString("CS_MATNR"));
 				pdib.setMatnrD(rs.getString("MAKTX"));
 				pdib.setCategory(rs.getString("CATEGORY"));
-				pdib.setMeins(rs.getString("MEINS"));
+				pdib.setMeins(rs.getString("MSEH3"));
 				pdib.setCostByUnit(rs.getString("CS_COST_BY_UNIT"));
 				pdib.setTheoric(rs.getString("CS_THEORIC"));
 				pdib.setCounted(rs.getString("CS_COUNTED"));
@@ -1754,7 +1757,7 @@ public class SapOperationDao {
 				pdib.setLgpla(rs.getString("INV_CNS_LGPLA"));
 				pdib.setMatnr(rs.getString("INV_CNS_MATNR"));
 				pdib.setMatnrD(rs.getString("MAKTX"));
-				pdib.setMeins(rs.getString("MEINS"));
+				pdib.setMeins(rs.getString("MSEH3"));
 				pdib.setCounted(rs.getString("INV_CNS_COUNTED"));
 				pdib.setCountedExpl(rs.getString("INV_CNS_CNT_EXPL"));
 				pdib.setCountedTot(rs.getString("INV_CNS_TOT_CONT"));
