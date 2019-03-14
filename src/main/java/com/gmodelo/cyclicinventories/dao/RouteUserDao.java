@@ -295,7 +295,7 @@ public class RouteUserDao {
 			if (con == null || !con.isValid(0) || con.isClosed()) {
 				con = connectionManager.createConnection();
 			}
-			HashMap<String, HashMap<String, LgplaValuesBean>> mapPosition = this.getPositionMaterials(con);
+			HashMap<String, HashMap<String, LgplaValuesBean>> mapPosition = this.getPositionMaterials(con, zoneId);
 			stm = con.prepareCall(INV_VW_ZONE_WITH_POSITIONS);
 			stm.setString(1, zoneId);
 			log.info("[getPositionsZoneDao] Executing query...");
@@ -333,9 +333,10 @@ public class RouteUserDao {
 		return listPositions;
 	}
 
-	private static final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT POSITION_ID, MATNR, MAKTX FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WITH(NOLOCK) GROUP BY POSITION_ID, MATNR, MAKTX";
+	private static final String INV_VW_ZONE_POSITIONS_MATERIALS = "SELECT POSITION_ID, MATNR, MAKTX FROM dbo.INV_VW_ZONE_POSITIONS_MATERIALS WITH(NOLOCK) WHERE ZONE_ID = ? GROUP BY POSITION_ID, MATNR, MAKTX";
 
-	private HashMap<String, HashMap<String, LgplaValuesBean>> getPositionMaterials(Connection con) throws SQLException {
+	private HashMap<String, HashMap<String, LgplaValuesBean>> getPositionMaterials(Connection con, String zone_id)
+			throws SQLException {
 		PreparedStatement stm = null;
 		HashMap<String, HashMap<String, LgplaValuesBean>> mapMaterials = new HashMap<>();
 
@@ -347,6 +348,7 @@ public class RouteUserDao {
 			}
 			stm = con.prepareCall(INV_VW_ZONE_POSITIONS_MATERIALS);
 			log.info("[getPositionMaterialsDao] Executing query...");
+			stm.setString(1, zone_id);
 			ResultSet rs = stm.executeQuery();
 			while (rs.next()) {
 				if (mapMaterials.containsKey(rs.getString("POSITION_ID"))) {
