@@ -10,7 +10,7 @@ import org.jboss.logging.Logger;
 
 public class ModuleReader {
 
-	private static final String PROPERTIES_FILENAME = "settings.properties"; //some comment
+	private static final String PROPERTIES_FILENAME = "settings.properties";
 	public static Properties settings = null;
 	private static Logger log = Logger.getLogger(ModuleReader.class.getName());
 	
