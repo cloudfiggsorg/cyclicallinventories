@@ -1,6 +1,6 @@
 package com.gmodelo.cyclicinventories.beans;
 
-public class ExplosionDetailByRule {
+public class ExplosionDetailByPackingRule {
 	
 	private String werks;
 	private String matnr;
@@ -14,11 +14,11 @@ public class ExplosionDetailByRule {
 	private String lgort;
 	private String lastUpdate;	
 		
-	public ExplosionDetailByRule() {
+	public ExplosionDetailByPackingRule() {
 		super();
 	}
 	
-	public ExplosionDetailByRule(String werks, String matnr, String ruleId, String ruleDesc, String mantr, String maktx,
+	public ExplosionDetailByPackingRule(String werks, String matnr, String ruleId, String ruleDesc, String mantr, String maktx,
 			String umb, String quantity, boolean relevant, String lgort, String lastUpdate) {
 		super();
 		this.werks = werks;
@@ -33,7 +33,6 @@ public class ExplosionDetailByRule {
 		this.lgort = lgort;
 		this.lastUpdate = lastUpdate;
 	}
-
 	
 	public String getWerks() {
 		return werks;
@@ -146,7 +145,7 @@ public class ExplosionDetailByRule {
 
 	@Override
 	public String toString() {
-		return "ExplosionDetailByRule [werks=" + werks + ", matnr=" + matnr + ", ruleId=" + ruleId + ", ruleDesc="
+		return "ExplosionDetailByPackingRule [werks=" + werks + ", matnr=" + matnr + ", ruleId=" + ruleId + ", ruleDesc="
 				+ ruleDesc + ", mantr=" + mantr + ", maktx=" + maktx + ", umb=" + umb + ", quantity=" + quantity
 				+ ", relevant=" + relevant + ", lgort=" + lgort + ", lastUpdate=" + lastUpdate + "]";
 	}
