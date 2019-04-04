@@ -2,7 +2,6 @@ package com.gmodelo.cyclicinventories.workservice;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,17 +15,11 @@ import com.gmodelo.cyclicinventories.beans.ConciliacionBean;
 import com.gmodelo.cyclicinventories.beans.ConciliationsIDsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.GroupBean;
-import com.gmodelo.cyclicinventories.beans.LgplaValuesBean;
-import com.gmodelo.cyclicinventories.beans.LoginBean;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
-import com.gmodelo.cyclicinventories.beans.RouteUserBean;
-import com.gmodelo.cyclicinventories.beans.RouteUserPositionBean;
 import com.gmodelo.cyclicinventories.beans.TaskBean;
-import com.gmodelo.cyclicinventories.beans.ZoneUserPositionsBean;
 import com.gmodelo.cyclicinventories.dao.ConciliacionDao;
 import com.gmodelo.cyclicinventories.dao.DocInvDao;
-import com.gmodelo.cyclicinventories.dao.TaskDao;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 import com.google.gson.Gson;
 

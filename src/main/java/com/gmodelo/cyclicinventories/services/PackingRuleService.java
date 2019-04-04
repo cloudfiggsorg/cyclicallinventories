@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.ExplosionDetailByPackingRule;
 import com.gmodelo.cyclicinventories.beans.PackingRule;
 import com.gmodelo.cyclicinventories.beans.Request;
@@ -36,6 +37,15 @@ public class PackingRuleService {
 	@Path("/getPackingRuleByMatnr")
 	public Response<List<ExplosionDetailByPackingRule>> getPackingRuleByMatnr(Request request){
 		return new PackingRulesWorkService().getPackingRuleByMatnr(request);
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/savePackingRuleByMatnr")
+	public Response savePackingRuleByMatnr(Request request){
+		User user = (User) httpRequest.getSession().getAttribute("user");
+		return new PackingRulesWorkService().savePackingRuleByMatnr(request, user);
 	}
 		
 }
