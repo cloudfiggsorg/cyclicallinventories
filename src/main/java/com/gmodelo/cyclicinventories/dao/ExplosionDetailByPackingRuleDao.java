@@ -28,7 +28,6 @@ public class ExplosionDetailByPackingRuleDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-		CallableStatement cs = null;
 		CallableStatement csBatch = null;	
 		String currentSP = "";		
 		
@@ -55,7 +54,7 @@ public class ExplosionDetailByPackingRuleDao {
 			lsLgort = "";
 
 			while (rs.next()){
-				lsLgort += rs.getString("value");
+				lsLgort += rs.getString("value") + ",";
 			}
 									
 		} catch (SQLException e) {
@@ -66,68 +65,56 @@ public class ExplosionDetailByPackingRuleDao {
 			return res;
 		}
 		
+		lsLgort = lsLgort.substring(0, lsLgort.length() - 1);
+		
 		if(lsLgort.length() > 0){
 			
-			lsLgort = lsLgort.substring(0, lsLgort.length() - 2);
+			lsLgort = lsLgort.substring(0, lsLgort.length() - 1);
 			abstractResult.setResultId(ReturnValues.IERROR);
-			abstractResult.setResultMsgAbs(lsLgort);
+			abstractResult.setResultMsgAbs("No se encontraron los sig. almancenes para el centro indicado: " + lsLgort);
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-		
+				
 		//////////////////////////FIN VALIDACIONES ANTES DE GUARDAR///////////////////////////////////		
 
-		final String INV_SP_SAVE_EXPLOSION = "INV_SP_SAVE_NRM_EXPL ?, ?, ?, ?, ?, ?, ?";		
+		final String INV_SP_SAVE_NRM_EXPL = "INV_SP_SAVE_NRM_EXPL ?, ?, ?, ?, ?, ?, ?";		
 		log.info("[saveExplosionDetailByPackingRule] Preparing sentence...");
 		
 		try {
-			
-			currentSP = INV_SP_SAVE_EXPLOSION;
+			con.setAutoCommit(false);
+			currentSP = INV_SP_SAVE_NRM_EXPL;
 			csBatch = null;
-			csBatch = con.prepareCall(INV_SP_SAVE_EXPLOSION);
+			csBatch = con.prepareCall(INV_SP_SAVE_NRM_EXPL);
 
 			for (ExplosionDetailByPackingRule obj : ed) {
 								
-				if(obj.isRelevant()){
-					
-					csBatch.setString(1, obj.getWerks());
-					csBatch.setString(2, obj.getMatnr());
-					csBatch.setString(3, obj.getRuleId());
-					csBatch.setString(4, obj.getComponent());
-					csBatch.setByte(5, (byte) (obj.isRelevant()?1:0));
-					csBatch.setString(6, obj.getLgort());
-					csBatch.setString(7, user);
-					csBatch.addBatch();					
-				}
+				csBatch.setString(1, obj.getWerks());
+				csBatch.setString(2, obj.getMatnr());
+				csBatch.setString(3, obj.getRuleId());
+				csBatch.setString(4, obj.getComponent());
+				csBatch.setByte(5, (byte) (obj.isRelevant()?1:0));
+				csBatch.setString(6, (obj.getLgort() == null ? "": obj.getLgort()));
+				csBatch.setString(7, user);
+				csBatch.addBatch();	
 
 			}
 						
 			log.info("[saveExplosionDetailByPackingRule] Executing batch..." + csBatch.executeBatch());
 
 			// Retrive the warnings if there're
-			SQLWarning warning = cs.getWarnings();
+			SQLWarning warning = csBatch.getWarnings();
 			while (warning != null) {
 				log.log(Level.WARNING, warning.getMessage());
 				warning = warning.getNextWarning();
 			}
 
 			con.commit();
-			// Free resources
-			cs.close();
-
-			log.info("[saveExplosionDetailByPackingRule] Sentence successfully executed.");
+			
+			log.info("[saveExplosionDetailByPackingRule] Sentence successfully executed.");			
 
 		} catch (SQLException e) {
 			
-			e.printStackTrace();
-			
-			try {
-				log.log(Level.WARNING, "[saveExplosionDetailByPackingRule] Executing rollback");
-				con.rollback();
-			} catch (SQLException e1) {
-				log.log(Level.SEVERE, "[saveExplosionDetailByPackingRule] Not rollback .", e);
-			}
-
 			log.log(Level.SEVERE, "[saveExplosionDetailByPackingRule] Some error occurred while was trying to execute the S.P.: " + currentSP,
 					e);
 			abstractResult.setResultId(ReturnValues.IEXCEPTION);
@@ -156,27 +143,23 @@ public class ExplosionDetailByPackingRuleDao {
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
 		final String GET_RULES = "SELECT SUBSTRING(B.POBJID, PATINDEX('%[^0 ]%', B.POBJID + ' '), LEN(B.POBJID)) POBJID, " 
-				+ "D.CONTENT, SUBSTRING(C.MATNR, PATINDEX('%[^0 ]%', C.MATNR + ' '), LEN(C.MATNR)) MATNR, "
-				+ "F.MAKTX, G.MSEH3 BASEUNIT, C.TRGQTY, 0 RELEVANT, '' LGORT, "
-				+ "CAST(CAST(C.LASTMODIFY AS varchar(50)) + ' ' +  SUBSTRING(CAST(C.LASTMODIFYH   AS varchar(30)) ,1 , 12 ) AS datetime ) NRM_DMODIFIED "				
-				+ "FROM PACKPO AS A WITH (NOLOCK) "
-				+ "INNER JOIN PACKKP AS B WITH (NOLOCK) ON A.PACKNR = B.PACKNR "
-				+ "INNER JOIN PACKPO AS C WITH (NOLOCK) ON A.PACKNR = C.PACKNR AND C.PAITEMTYPE <> 'I' "
-				+ "INNER JOIN PACKKPS AS D WITH (NOLOCK) ON A.PACKNR = D.PACKNR "
-				+ "INNER JOIN MAKT AS F WITH (NOLOCK) ON C.MATNR = F.MATNR "
-				+ "INNER JOIN T006A AS G WITH (NOLOCK) ON G.MSEHI = C.BASEUNIT "
+				+ "D.CONTENT, SUBSTRING(C.MATNR, PATINDEX('%[^0 ]%', C.MATNR + ' '), LEN(C.MATNR)) MATNR, " 
+				+ "F.MAKTX, G.MSEH3 BASEUNIT, C.TRGQTY, " 
+				+ "ISNULL(H.NRM_RELEVANT, 0) RELEVANT, " 
+				+ "ISNULL(H.NRM_LGORT, '') LGORT, " 
+				+ "CAST(CAST(C.LASTMODIFY AS varchar(50)) + ' ' +  SUBSTRING(CAST(C.LASTMODIFYH   AS varchar(30)) ,1 , 12 ) AS datetime ) NRM_DMODIFIED " 
+				+ "FROM PACKPO AS A WITH (NOLOCK) " 
+				+ "INNER JOIN PACKKP AS B WITH (NOLOCK) ON A.PACKNR = B.PACKNR " 
+				+ "INNER JOIN PACKPO AS C WITH (NOLOCK) ON A.PACKNR = C.PACKNR AND C.PAITEMTYPE <> 'I' " 
+				+ "INNER JOIN PACKKPS AS D WITH (NOLOCK) ON A.PACKNR = D.PACKNR " 
+				+ "INNER JOIN MAKT AS F WITH (NOLOCK) ON C.MATNR = F.MATNR " 
+				+ "INNER JOIN T006A AS G WITH (NOLOCK) ON G.MSEHI = C.BASEUNIT " 
+				+ "LEFT JOIN INV_NRM_EXPL AS H WITH (NOLOCK) ON (H.NRM_RULE = SUBSTRING(B.POBJID, PATINDEX('%[^0 ]%', B.POBJID + ' '), LEN(B.POBJID)) "
+					+ "AND H.NRM_WERKS = ? AND H.NRM_MATNR = ? "
+					+ "AND SUBSTRING(C.MATNR, PATINDEX('%[^0 ]%', C.MATNR + ' '), LEN(C.MATNR)) = H.NRM_COMPONENT) "
 				+ "WHERE SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) = ? "
-				+ "AND SUBSTRING(B.POBJID, PATINDEX('%[^0 ]%', B.POBJID + ' '), LEN(B.POBJID)) = ? "
-				+ "GROUP BY B.POBJID, D.CONTENT, C.MATNR, F.MAKTX, G.MSEH3, C.TRGQTY, C.LASTMODIFY, C.LASTMODIFYH "				
-				+ "UNION "
-				+ "SELECT A.NRM_RULE POBJID, C.CONTENT, A.NRM_COMPONENT, D.MAKTX, E.MSEH3 BASEUNIT, B.TRGQTY, A.NRM_RELEVANT, A.NRM_LGORT, A.NRM_DMODIFIED "
-				+ "FROM INV_NRM_EXPL AS A "
-				+ "INNER JOIN PACKPO AS B WITH (NOLOCK) ON (A.NRM_MATNR = SUBSTRING(B.MATNR, PATINDEX('%[^0 ]%', B.MATNR + ' '), LEN(B.MATNR)) ) "
-				+ "INNER JOIN PACKKPS AS C WITH (NOLOCK) ON C.PACKNR = B.PACKNR "
-				+ "INNER JOIN MAKT AS D WITH (NOLOCK) ON SUBSTRING(D.MATNR, PATINDEX('%[^0 ]%', D.MATNR + ' '), LEN(D.MATNR)) = A.NRM_COMPONENT "
-				+ "INNER JOIN T006A AS E WITH (NOLOCK) ON E.MSEHI = B.BASEUNIT "
-				+ "WHERE A.NRM_WERKS = ? AND A.NRM_MATNR = ? AND A.NRM_RULE = ? "				
-				+ "ORDER BY POBJID";
+				+ "AND SUBSTRING(B.POBJID, PATINDEX('%[^0 ]%', B.POBJID + ' '), LEN(B.POBJID)) = ? " 
+				+ "GROUP BY B.POBJID, D.CONTENT, C.MATNR, F.MAKTX, G.MSEH3, C.TRGQTY, H.NRM_RELEVANT, H.NRM_LGORT, C.LASTMODIFY, C.LASTMODIFYH "; 
 
 		log.info(GET_RULES);
 
@@ -185,11 +168,10 @@ public class ExplosionDetailByPackingRuleDao {
 		try {
 			
 			stm = con.prepareStatement(GET_RULES);
-			stm.setString(1, matnr);
-			stm.setString(2, rulePackingId);
-			stm.setString(3, werks);
-			stm.setString(4, matnr);
-			stm.setString(5, rulePackingId);
+			stm.setString(1, werks);
+			stm.setString(2, matnr);
+			stm.setString(3, matnr);
+			stm.setString(4, rulePackingId);		
 			
 			log.info("[getPackingRuleByMatnr] Executing query...");
 
