@@ -55,6 +55,7 @@ public class ExplosionDetailByPackingRuleDao {
 
 			while (rs.next()){
 				lsLgort += rs.getString("value") + ",";
+				//System.out.println("Here " + rs.getString("value") + " " + rs.getString("value").length());
 			}
 									
 		} catch (SQLException e) {
@@ -64,9 +65,7 @@ public class ExplosionDetailByPackingRuleDao {
 			res.setAbstractResult(abstractResult);
 			return res;
 		}
-		
-		lsLgort = lsLgort.substring(0, lsLgort.length() - 1);
-		
+				
 		if(lsLgort.length() > 0){
 			
 			lsLgort = lsLgort.substring(0, lsLgort.length() - 1);
