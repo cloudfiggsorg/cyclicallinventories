@@ -92,7 +92,7 @@ public class LogInveDao {
 				+ "FROM INV_LOG "
 				+ "WHERE (INV_LG_USER_ID IS NULL OR INV_LG_USER_ID = ?) AND "
 				+ "INV_LD_DATE >= DATEADD(HOUR, -2, GETDATE()) "
-				+ "ORDER BY INV_LG_TYPE ASC";
+				+ "ORDER BY INV_LD_DATE ASC";
 		
 		log.info(QUERY);
 		log.info("[getLogByUser] Preparing sentence...");
