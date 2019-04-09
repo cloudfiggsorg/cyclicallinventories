@@ -15,9 +15,25 @@ public class LogInveWorkService {
 	public Response<List<LogInve>> getLog(User user) {
 		
 		log.info("[getLog]");
-		String userId = user.getEntity().getIdentyId();
-		Response<List<LogInve>> res = new LogInveDao().getLogByUser(userId);
-		return res;
+		String userId = null;
+		
+		if(user != null){
+			userId = user.getEntity().getIdentyId();
+		}
+				 
+		return new LogInveDao().getLogByUser(userId);
+	}
+	
+	public Response<String> getLogCount(User user) {
+		
+		log.info("[getLogCount]");
+		String userId = null;
+		
+		if(user != null){
+			userId = user.getEntity().getIdentyId();
+		}
+		
+		return new LogInveDao().getLogCountByUser(userId);
 	}
 
 }

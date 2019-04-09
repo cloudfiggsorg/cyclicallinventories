@@ -2,10 +2,10 @@ package com.gmodelo.cyclicinventories.dao;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Statement;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public class LogInveDao {
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
-		Statement stm = null;		
+		PreparedStatement stm = null;		
 		List<LogInve> lsLog = new ArrayList<>();
 		LogInve li = new LogInve();
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -89,27 +89,34 @@ public class LogInveDao {
 		String QUERY = "SELECT INV_LG_TYPE, INV_LG_TITLE, " 
 				+ "INV_LG_SUB_TITLE, INV_LG_DESCRIPTION, " 
 				+ "INV_LG_USER_ID, INV_LD_DATE "
-				+ "FROM INV_LOG "
-				+ "WHERE (INV_LG_USER_ID IS NULL OR INV_LG_USER_ID = ?) AND "
-				+ "INV_LD_DATE >= DATEADD(HOUR, -2, GETDATE()) "
-				+ "ORDER BY INV_LD_DATE ASC";
+				+ "FROM INV_LOG WITH (NOLOCK)"
+				+ "WHERE INV_LD_DATE >= DATEADD(HOUR, -2, GETDATE()) ";
+				if(userId != null){
+					QUERY += "AND INV_LG_USER_ID = ? ";
+				}
+		QUERY += "ORDER BY INV_LD_DATE ASC";
 		
 		log.info(QUERY);
 		log.info("[getLogByUser] Preparing sentence...");
 		
 		try {
-			stm = con.createStatement();
-			log.info("[getLogByUser] Executing query...");
-			ResultSet rs = stm.executeQuery(QUERY);
+			
+			stm = con.prepareStatement(QUERY);
+			if(userId != null){
+				stm.setString(1, userId);
+			}	
+			
+			log.info("[getLogByUser] Executing query...");			
+			ResultSet rs = stm.executeQuery();			
 			
 			while (rs.next()) {
 				
 				li = new LogInve();
 				li.setType(rs.getString("INV_LG_TYPE"));
 				li.setTitle(rs.getString("INV_LG_TITLE"));
-				li.setSubtile(rs.getString("INV_LG_SUB_TITLE"));
+				li.setSubtitle(rs.getString("INV_LG_SUB_TITLE"));
 				li.setDescription(rs.getString("INV_LG_DESCRIPTION"));
-				li.setDate(format.format(rs.getDate("INV_LD_DATE")));
+				li.setDate(format.format(rs.getTimestamp("INV_LD_DATE")));
 				lsLog.add(li);
 			}
 			log.info("[getLogByUser] Sentence successfully executed.");
@@ -130,5 +137,55 @@ public class LogInveDao {
 		res.setLsObject(lsLog);
 		return res;
 	}
-
+	
+	public Response<String> getLogCountByUser(String userId) {
+		
+		Response<String> res = new Response<>();
+		AbstractResultsBean abstractResult = new AbstractResultsBean();
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;		
+		String counted = "";
+		
+		String QUERY = "SELECT COUNT(*) FROM INV_LOG WITH (NOLOCK)"
+				+ "WHERE INV_LD_DATE >= DATEADD(HOUR, -2, GETDATE()) ";
+				if(userId != null){
+					QUERY += "AND INV_LG_USER_ID = ? ";
+				}
+		
+		//log.info(QUERY);
+		//log.info("[getLogCountByUser] Preparing sentence...");
+		
+		try {
+			
+			stm = con.prepareStatement(QUERY);
+			if(userId != null){
+				stm.setString(1, userId);
+			}	
+			
+			//log.info("[getLogCountByUser] Executing query...");			
+			ResultSet rs = stm.executeQuery();			
+			
+			while (rs.next()) {
+				
+				counted = rs.getString(1);
+			}
+			//log.info("[getLogCountByUser] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[getLogByUser] Some error occurred while was trying to execute the query: "
+					+ QUERY, e);
+			abstractResult.setResultId(ReturnValues.IEXCEPTION);
+			abstractResult.setResultMsgAbs(e.getMessage());
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getLogCountByUser] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		res.setAbstractResult(abstractResult);
+		res.setLsObject(counted);
+		return res;
+	}
 }

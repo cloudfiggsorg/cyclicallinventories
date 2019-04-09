@@ -34,10 +34,28 @@ public class LogInveService {
 		@SuppressWarnings("unchecked")
 		ArrayList<String> roles = (ArrayList<String>) httpRequest.getSession().getAttribute("roles");
 		
-		if(roles.contains("INV_CIC_ADMIN")){
+		if(!roles.contains("INV_CIC_ADMIN")){
 			user = (User) httpRequest.getSession().getAttribute("user");
 		}
 		
 		return new LogInveWorkService().getLog(user);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getLogCount")
+	public Response<String> getLogCount(Request request) {
+		
+		User user = null ;
+		@SuppressWarnings("unchecked")
+		ArrayList<String> roles = (ArrayList<String>) httpRequest.getSession().getAttribute("roles");
+		
+		if(!roles.contains("INV_CIC_ADMIN")){
+			user = (User) httpRequest.getSession().getAttribute("user");
+		}
+		
+		return new LogInveWorkService().getLogCount(user);
 	}
 }

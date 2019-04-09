@@ -5,7 +5,7 @@ public class LogInve {
 	private String type;
 	private String title;
 	private String description;
-	private String subtile;
+	private String subtitle;
 	private String userId;
 	private String date;
 	
@@ -14,12 +14,12 @@ public class LogInve {
 		super();
 	}
 
-	public LogInve(String type, String title, String description, String subtile, String userId, String date) {
+	public LogInve(String type, String title, String description, String subtitle, String userId, String date) {
 		super();
 		this.type = type;
 		this.title = title;
 		this.description = description;
-		this.subtile = subtile;
+		this.subtitle = subtitle;
 		this.userId = userId;
 		this.date = date;
 	}
@@ -48,12 +48,12 @@ public class LogInve {
 		this.description = description;
 	}
 
-	public String getSubtile() {
-		return subtile;
+	public String getSubtitle() {
+		return subtitle;
 	}
 
-	public void setSubtile(String subtile) {
-		this.subtile = subtile;
+	public void setSubtitle(String subtitle) {
+		this.subtitle = subtitle;
 	}
 
 	public String getUserId() {
@@ -74,7 +74,7 @@ public class LogInve {
 
 	@Override
 	public String toString() {
-		return "LogInve [type=" + type + ", title=" + title + ", description=" + description + ", subtile=" + subtile
+		return "LogInve [type=" + type + ", title=" + title + ", description=" + description + ", subtitle=" + subtitle
 				+ ", userId=" + userId + ", date=" + date + "]";
 	}
 		
