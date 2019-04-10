@@ -29,6 +29,7 @@ public class FServices implements Filter {
 
 	@Context
 	private HttpSession session;
+	private static ThreadLocal<HttpServletRequest> localRequest = new ThreadLocal<HttpServletRequest>();
 	private Logger log = Logger.getLogger(FServices.class.getName());
 
 	@Override
@@ -142,8 +143,14 @@ public class FServices implements Filter {
 							response.getWriter().write(json);
 							
 						} else{
+							
+							if (sRequest instanceof HttpServletRequest) {
+					            localRequest.set((HttpServletRequest) sRequest);
+					        }
+							
 							log.info("[doFilter] Consola. Forwading request...");
-							filterChain.doFilter(myRequestWrapper, sResponse);	
+							filterChain.doFilter(myRequestWrapper, sResponse);
+							localRequest.remove();	
 						}
 					}
 					
@@ -179,9 +186,11 @@ public class FServices implements Filter {
 				response.getWriter().write(json);
 				
 			} else{
+								
 				log.info("[doFilter] Consola. Forwading request...");
-				filterChain.doFilter(myRequestWrapper, sResponse);	
+				filterChain.doFilter(myRequestWrapper, sResponse);								
 			}
+						
 		}catch (NullPointerException e) {
 			log.error("Algo se fue nulo",e);
 		} 
@@ -193,5 +202,10 @@ public class FServices implements Filter {
 		// TODO Auto-generated method stub
 
 	}
+	
+	public static HttpSession getSession() {
+        HttpServletRequest request = localRequest.get();
+        return (request != null) ? request.getSession() : null;
+    }
 
 }

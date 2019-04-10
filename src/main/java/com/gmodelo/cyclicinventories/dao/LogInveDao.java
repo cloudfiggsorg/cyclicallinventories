@@ -24,7 +24,7 @@ public class LogInveDao {
 	
 	private Logger log = Logger.getLogger(LogInveDao.class.getName());
 	
-	public void logInve(MessagesTypes messageType, String title, String subtitle, String description, String userId){
+	public void log(MessagesTypes messageType, String title, String subtitle, String description, String userId){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
@@ -89,12 +89,12 @@ public class LogInveDao {
 		String QUERY = "SELECT INV_LG_TYPE, INV_LG_TITLE, " 
 				+ "INV_LG_SUB_TITLE, INV_LG_DESCRIPTION, " 
 				+ "INV_LG_USER_ID, INV_LD_DATE "
-				+ "FROM INV_LOG WITH (NOLOCK)"
-				+ "WHERE INV_LD_DATE >= DATEADD(HOUR, -2, GETDATE()) ";
+				+ "FROM INV_LOG WITH (NOLOCK) "
+				+ "WHERE INV_LD_DATE >= DATEADD(HOUR, -24, GETDATE()) ";
 				if(userId != null){
 					QUERY += "AND INV_LG_USER_ID = ? ";
 				}
-		QUERY += "ORDER BY INV_LD_DATE ASC";
+		QUERY += "ORDER BY INV_LD_DATE DESC";
 		
 		log.info(QUERY);
 		log.info("[getLogByUser] Preparing sentence...");

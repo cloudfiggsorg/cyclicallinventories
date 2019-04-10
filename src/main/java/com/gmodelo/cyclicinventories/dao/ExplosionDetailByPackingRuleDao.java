@@ -12,10 +12,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ExplosionDetailByPackingRule;
 import com.gmodelo.cyclicinventories.beans.MessagesTypes;
 import com.gmodelo.cyclicinventories.beans.Response;
+import com.gmodelo.cyclicinventories.filters.FServices;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 
@@ -45,8 +47,10 @@ public class ExplosionDetailByPackingRuleDao {
 		final String  LGORT_BY_WERK = "SELECT A.value FROM (SELECT * FROM STRING_SPLIT(?, ',')) AS A "
 				+ "WHERE A.value NOT IN (SELECT DISTINCT LGORT FROM dbo.T001L WITH (NOLOCK) WHERE WERKS = ?)";
 		
-		logInve.logInve(MessagesTypes.Warning, "Intento de guardado de datos", "Explosión por Norma", 
-				"Intentando salvar los datos de Explosión por Norma", user);
+		User usr = (User) FServices.getSession().getAttribute("user");
+		
+		logInve.log(MessagesTypes.Warning, "Explosión por Norma", "Guardado de datos...", 
+				"Intentando salvar los datos de Explosión por Norma.", usr.getEntity().getIdentyId());
 		
 		try {
 			
@@ -71,8 +75,8 @@ public class ExplosionDetailByPackingRuleDao {
 			return res;
 		}
 		
-		logInve.logInve(MessagesTypes.Information, "Éxito", "Explosión por Norma", 
-				"Se guardaron los datos de forma éxitosa.", user);
+		logInve.log(MessagesTypes.Information, "Explosión por Norma", "Guardado de datos...", 
+				"Se guardaron los datos de forma éxitosa.", usr.getEntity().getIdentyId());
 				
 		if(lsLgort.length() > 0){
 			

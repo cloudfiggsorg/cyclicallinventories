@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -36,6 +37,7 @@ public class SSessionData {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response<List<Object>> getSessionData() {
+		
 		Response<List<Object>> resp = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
 		List<Object> listObject = new ArrayList<>();
@@ -59,5 +61,5 @@ public class SSessionData {
 
 		return resp;
 	}
-
+	
 }
