@@ -6,8 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -119,6 +121,18 @@ public class LogInveDao {
 				li.setDate(format.format(rs.getTimestamp("INV_LD_DATE")));
 				lsLog.add(li);
 			}
+			
+			//Get another notifications
+			li = getOpenDocInv();
+			if(li != null){
+				lsLog.add(li);
+			}
+			
+			li = checkIfExplosionIsConfig();
+			if(li != null){
+				lsLog.add(li);
+			}
+			
 			log.info("[getLogByUser] Sentence successfully executed.");
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[getLogByUser] Some error occurred while was trying to execute the query: "
@@ -137,4 +151,128 @@ public class LogInveDao {
 		res.setLsObject(lsLog);
 		return res;
 	}	
+	
+	private LogInve getGeneratedDocInv(){
+		
+		return null;		
+	}
+	
+	private LogInve getOpenDocInv(){
+		
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		PreparedStatement stm = null;		
+		LogInve li = null;
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");			
+		@SuppressWarnings("unchecked")
+		boolean isAdmin = ((ArrayList<String>) FServices.getSession().getAttribute("roles")).contains("INV_CIC_ADMIN");
+		User usr = (User) FServices.getSession().getAttribute("user");
+		String userId = usr.getEntity().getIdentyId();
+		String bukrs = usr.getBukrs();
+		String werks = usr.getWerks();
+		String lsDocIvids = "";
+								
+		String QUERY = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER "
+				+ "WHERE DIH_STATUS = '1' AND DIH_CREATED_DATE >= DATEADD(HOUR, -12, GETDATE()) ";
+				if(!isAdmin){
+					QUERY += "AND DIH_CREATED_BY = ?  AND DIH_BUKRS = ? AND DIH_WERKS = ?";
+				}
+		
+		log.info(QUERY);
+		log.info("[getOpenDocInv] Preparing sentence...");
+		
+		try {
+			
+			stm = con.prepareStatement(QUERY);
+			if(!isAdmin){
+				stm.setString(1, userId);
+				stm.setString(2, bukrs);
+				stm.setString(3, werks);
+			}	
+			
+			log.info("[getOpenDocInv] Executing query...");			
+			ResultSet rs = stm.executeQuery();			
+			
+			while (rs.next()) {
+				
+				lsDocIvids += rs.getString("DOC_INV_ID") + ", ";
+			}
+			
+			if(lsDocIvids.length() > 0){
+				
+				lsDocIvids = lsDocIvids.substring(0, lsDocIvids.length() - 3);
+				
+				li = new LogInve();
+				li.setType(MessagesTypes.Information.name());
+				li.setTitle("Documentos de Inventario");
+				li.setSubtitle("Pendientes de cierre");
+				li.setDescription("Los siguientes documentos de inventario "
+						+ "se encuentran pendientes de cierre: " + lsDocIvids);
+				li.setDate(format.format(new Date()));
+			}
+						
+			log.info("[getOpenDocInv] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[getLogByUser] Some error occurred while was trying to execute the query: "
+					+ QUERY, e);
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getOpenDocInv] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		
+		return li;		
+	}
+	
+	private LogInve checkIfExplosionIsConfig(){
+				
+		ConnectionManager iConnectionManager = new ConnectionManager();
+		Connection con = iConnectionManager.createConnection();
+		Statement stm = null;		
+		LogInve li = null;
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");								
+		String QUERY = "SELECT COUNT(*) FROM INV_EXPLOSION WITH (NOLOCK) ";
+		
+		log.info(QUERY);
+		log.info("[getLogByUser] Preparing sentence...");
+		
+		try {
+			
+			stm = con.createStatement();
+			
+			log.info("[getLogByUser] Executing query...");			
+			ResultSet rs = stm.executeQuery(QUERY);			
+			
+			if (rs.next()) {
+								
+				if(rs.getInt(1) == 0){
+					
+					li = new LogInve();
+					li.setType(MessagesTypes.Information.name());
+					li.setTitle("Explosión de Materiales");
+					li.setSubtitle("Configuración");
+					li.setDescription("No sea han configurado los materiales a explosionar.");
+					li.setDate(format.format(new Date()));
+				}
+			}
+			
+			log.info("[getLogByUser] Sentence successfully executed.");
+		} catch (SQLException e) {
+			log.log(Level.SEVERE, "[getLogByUser] Some error occurred while was trying to execute the query: "
+					+ QUERY, e);
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				log.log(Level.SEVERE,
+						"[getLogByUser] Some error occurred while was trying to close the connection.", e);
+			}
+		}
+		
+		return li;		
+	}
+
 }
