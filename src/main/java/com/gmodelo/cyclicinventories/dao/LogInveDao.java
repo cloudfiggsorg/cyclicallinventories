@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.LogInve;
 import com.gmodelo.cyclicinventories.beans.MessagesTypes;
 import com.gmodelo.cyclicinventories.beans.Response;
+import com.gmodelo.cyclicinventories.filters.FServices;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
 
@@ -24,34 +26,30 @@ public class LogInveDao {
 	
 	private Logger log = Logger.getLogger(LogInveDao.class.getName());
 	
-	public void log(MessagesTypes messageType, String title, String subtitle, String description, String userId){
+	public void log(MessagesTypes messageType, String title, String subtitle, String description){
 		
 		ConnectionManager iConnectionManager = new ConnectionManager();
 		Connection con = iConnectionManager.createConnection();
 		CallableStatement cs = null;
+		
+		String userId = ((User) FServices.getSession().getAttribute("user")).getEntity().getIdentyId();
+		String bukrs = ((User) FServices.getSession().getAttribute("user")).getBukrs();
+		bukrs = (bukrs == null ? "":bukrs);
+		String werks = ((User) FServices.getSession().getAttribute("user")).getWerks();
+		werks = (werks == null ? "":werks);
 				
-		final String SP = "INV_SP_SAVE_LOG ?, ?, ?, ?, ?"; //The Store procedure to call
+		final String SP = "INV_SP_SAVE_LOG ?, ?, ?, ?, ?, ?, ?"; //The Store procedure to call
 		
 		try {
 			cs = con.prepareCall(SP);
 			
 			cs.setString(1, messageType.name());		
-			cs.setString(2, title);
-			
-			if(subtitle == null){
-				cs.setNull(3, Types.VARCHAR);
-			}else{
-				cs.setString(3, subtitle);
-			}
-			
+			cs.setString(2, title);			
+			cs.setString(3, subtitle);			
 			cs.setString(4, description);
-			
-			if(userId == null){
-				cs.setNull(5, Types.VARCHAR);
-			}else{
-				cs.setString(5, userId);
-			}
-				
+			cs.setString(5, userId);							
+			cs.setString(6, bukrs);
+			cs.setString(7, werks);
 			cs.execute();
 			
 			//Retrive the warnings if there're
