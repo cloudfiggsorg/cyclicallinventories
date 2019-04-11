@@ -111,8 +111,15 @@ public class FServices implements Filter {
 				if(!HttpSessionCollector.sessions.isEmpty()){
 					if(req.getTokenObject() != null && req.getTokenObject().getRelationUUID() != null){
 						if(HttpSessionCollector.sessions.containsKey(req.getTokenObject().getRelationUUID())){
-							log.info("[doFilter] Android. Token exists. Forwading request...");
+														
+							if (sRequest instanceof HttpServletRequest) {
+					            localRequest.set((HttpServletRequest) sRequest);
+					        }
+							
+							log.info("[doFilter] Android. Token exists. Forwading request...");							
 							filterChain.doFilter(myRequestWrapper, sResponse);
+							localRequest.remove();
+							
 						}else{
 							@SuppressWarnings("rawtypes")
 							Response resp = new Response();
@@ -184,11 +191,16 @@ public class FServices implements Filter {
 				// Using json to response
 				String json = new Gson().toJson(resp);
 				response.getWriter().write(json);
-				
+								
 			} else{
 								
+				if (sRequest instanceof HttpServletRequest) {
+		            localRequest.set((HttpServletRequest) sRequest);
+		        }
+				
 				log.info("[doFilter] Consola. Forwading request...");
-				filterChain.doFilter(myRequestWrapper, sResponse);								
+				filterChain.doFilter(myRequestWrapper, sResponse);
+				localRequest.remove();	
 			}
 						
 		}catch (NullPointerException e) {

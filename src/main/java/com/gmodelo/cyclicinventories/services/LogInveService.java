@@ -1,6 +1,5 @@
 package com.gmodelo.cyclicinventories.services;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +10,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import com.bmore.ume001.beans.User;
 import com.gmodelo.cyclicinventories.beans.LogInve;
 import com.gmodelo.cyclicinventories.beans.Request;
 import com.gmodelo.cyclicinventories.beans.Response;
@@ -30,32 +28,6 @@ public class LogInveService {
 	@Path("/getLog")
 	public Response<List<LogInve>> getLog(Request request) {
 		
-		User user = null ;
-		@SuppressWarnings("unchecked")
-		ArrayList<String> roles = (ArrayList<String>) httpRequest.getSession().getAttribute("roles");
-		
-		if(!roles.contains("INV_CIC_ADMIN")){
-			user = (User) httpRequest.getSession().getAttribute("user");
-		}
-		
-		return new LogInveWorkService().getLog(user);
-	}
-	
-	@SuppressWarnings("rawtypes")
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/getLogCount")
-	public Response<String> getLogCount(Request request) {
-		
-		User user = null ;
-		@SuppressWarnings("unchecked")
-		ArrayList<String> roles = (ArrayList<String>) httpRequest.getSession().getAttribute("roles");
-		
-		if(!roles.contains("INV_CIC_ADMIN")){
-			user = (User) httpRequest.getSession().getAttribute("user");
-		}
-		
-		return new LogInveWorkService().getLogCount(user);
-	}
+		return new LogInveWorkService().getLog();
+	}	
 }

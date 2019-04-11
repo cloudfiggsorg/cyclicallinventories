@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +72,7 @@ public class LogInveDao {
 		}	
 	}
 		
-	public Response<List<LogInve>> getLogByUser(String userId) {
+	public Response<List<LogInve>> getLogByUser() {
 		
 		Response<List<LogInve>> res = new Response<>();
 		AbstractResultsBean abstractResult = new AbstractResultsBean();
@@ -83,13 +82,16 @@ public class LogInveDao {
 		List<LogInve> lsLog = new ArrayList<>();
 		LogInve li = new LogInve();
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-		
+		String userId = ((User) FServices.getSession().getAttribute("user")).getEntity().getIdentyId();
+		@SuppressWarnings("unchecked")
+		boolean isAdmin = ((ArrayList<String>) FServices.getSession().getAttribute("roles")).contains("INV_CIC_ADMIN");				 
+								
 		String QUERY = "SELECT INV_LG_TYPE, INV_LG_TITLE, " 
 				+ "INV_LG_SUB_TITLE, INV_LG_DESCRIPTION, " 
 				+ "INV_LG_USER_ID, INV_LD_DATE "
 				+ "FROM INV_LOG WITH (NOLOCK) "
 				+ "WHERE INV_LD_DATE >= DATEADD(HOUR, -24, GETDATE()) ";
-				if(userId != null){
+				if(!isAdmin){
 					QUERY += "AND INV_LG_USER_ID = ? ";
 				}
 		QUERY += "ORDER BY INV_LD_DATE DESC";
@@ -100,7 +102,7 @@ public class LogInveDao {
 		try {
 			
 			stm = con.prepareStatement(QUERY);
-			if(userId != null){
+			if(!isAdmin){
 				stm.setString(1, userId);
 			}	
 			
@@ -134,56 +136,5 @@ public class LogInveDao {
 		res.setAbstractResult(abstractResult);
 		res.setLsObject(lsLog);
 		return res;
-	}
-	
-	public Response<String> getLogCountByUser(String userId) {
-		
-		Response<String> res = new Response<>();
-		AbstractResultsBean abstractResult = new AbstractResultsBean();
-		ConnectionManager iConnectionManager = new ConnectionManager();
-		Connection con = iConnectionManager.createConnection();
-		PreparedStatement stm = null;		
-		String counted = "";
-		
-		String QUERY = "SELECT COUNT(*) FROM INV_LOG WITH (NOLOCK)"
-				+ "WHERE INV_LD_DATE >= DATEADD(HOUR, -2, GETDATE()) ";
-				if(userId != null){
-					QUERY += "AND INV_LG_USER_ID = ? ";
-				}
-		
-		//log.info(QUERY);
-		//log.info("[getLogCountByUser] Preparing sentence...");
-		
-		try {
-			
-			stm = con.prepareStatement(QUERY);
-			if(userId != null){
-				stm.setString(1, userId);
-			}	
-			
-			//log.info("[getLogCountByUser] Executing query...");			
-			ResultSet rs = stm.executeQuery();			
-			
-			while (rs.next()) {
-				
-				counted = rs.getString(1);
-			}
-			//log.info("[getLogCountByUser] Sentence successfully executed.");
-		} catch (SQLException e) {
-			log.log(Level.SEVERE, "[getLogByUser] Some error occurred while was trying to execute the query: "
-					+ QUERY, e);
-			abstractResult.setResultId(ReturnValues.IEXCEPTION);
-			abstractResult.setResultMsgAbs(e.getMessage());
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-				log.log(Level.SEVERE,
-						"[getLogCountByUser] Some error occurred while was trying to close the connection.", e);
-			}
-		}
-		res.setAbstractResult(abstractResult);
-		res.setLsObject(counted);
-		return res;
-	}
+	}	
 }
