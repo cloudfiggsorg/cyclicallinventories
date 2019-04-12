@@ -32,6 +32,7 @@ import com.gmodelo.cyclicinventories.beans.E_Salida_SapEntity;
 import com.gmodelo.cyclicinventories.beans.E_Xtab6_SapEntity;
 import com.gmodelo.cyclicinventories.beans.Justification;
 import com.gmodelo.cyclicinventories.beans.MaterialExplosionBean;
+import com.gmodelo.cyclicinventories.beans.MessagesTypes;
 import com.gmodelo.cyclicinventories.beans.PosDocInvBean;
 import com.gmodelo.cyclicinventories.beans.RelMatnrCategory;
 import com.gmodelo.cyclicinventories.beans.Response;
@@ -49,6 +50,8 @@ import com.gmodelo.cyclicinventories.utils.Utilities;
 public class SapOperationDao {
 
 	// Selects Area
+	
+	private static LogInveDao logInve = new LogInveDao();
 
 	private static final String GET_SINGLE_DOC_INV = "SELECT DOC_INV_ID, DIH_ROUTE_ID, DIH_BUKRS, DIH_CREATED_DATE,"
 			+ " DIH_MODIFIED_DATE, DIH_WERKS FROM INV_DOC_INVENTORY_HEADER WITH(NOLOCK) WHERE DOC_INV_ID = ?";
@@ -1148,6 +1151,8 @@ public class SapOperationDao {
 			}
 			stmDel.executeUpdate();
 			stm.executeBatch();
+			logInve.log(MessagesTypes.Warning, "Sistema de Clasificación", "Resincronización...", 
+					"Se ha realizado la resincronización del sistema de clasificación.");
 			new Utilities().updateValueRepByKey(con, ReturnValues.E_CLASS_LAST_UPDATED, String.valueOf(new Date().getTime()));
 		} catch (SQLException e) {
 			throw e;

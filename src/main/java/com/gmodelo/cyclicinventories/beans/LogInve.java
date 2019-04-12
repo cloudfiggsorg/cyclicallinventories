@@ -1,6 +1,10 @@
 package com.gmodelo.cyclicinventories.beans;
 
-public class LogInve {
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class LogInve implements Comparable<LogInve>{
 	
 	private String type;
 	private String title;
@@ -8,6 +12,7 @@ public class LogInve {
 	private String subtitle;
 	private String userId;
 	private String date;
+	protected SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 	
 	public LogInve(){
 		
@@ -71,11 +76,31 @@ public class LogInve {
 	public void setDate(String date) {
 		this.date = date;
 	}
+	
+	private Date convertDate(String date){
+		
+		Date dateAux = null;
+		
+		try {
+			dateAux = formatter.parse(date);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return dateAux;
+	}
 
 	@Override
 	public String toString() {
 		return "LogInve [type=" + type + ", title=" + title + ", description=" + description + ", subtitle=" + subtitle
 				+ ", userId=" + userId + ", date=" + date + "]";
+	}
+
+	@Override
+	public int compareTo(LogInve o) {
+		// TODO Auto-generated method stub
+		return convertDate(this.date).compareTo(convertDate(o.date));
 	}
 		
 }
