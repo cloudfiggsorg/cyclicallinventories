@@ -10,7 +10,9 @@ import java.util.logging.Logger;
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.DocInvBean;
 import com.gmodelo.cyclicinventories.beans.E_Mbew_SapEntity;
+import com.gmodelo.cyclicinventories.beans.MessagesTypes;
 import com.gmodelo.cyclicinventories.beans.Response;
+import com.gmodelo.cyclicinventories.dao.LogInveDao;
 import com.gmodelo.cyclicinventories.dao.ReportesDao;
 import com.gmodelo.cyclicinventories.dao.SapConciliationDao;
 import com.gmodelo.cyclicinventories.dao.SapOperationDao;
@@ -36,6 +38,7 @@ public class SapConciliationWorkService {
 	private ConnectionManager connectionManager = new ConnectionManager();
 	private SapOperationDao operationDao = new SapOperationDao();
 	private SapConciliationDao conciliationDao = new SapConciliationDao();
+	private static LogInveDao logInve = new LogInveDao();
 
 	public AbstractResultsBean WS_RuntimeInventorySnapShot(DocInvBean docInvBean) {
 		AbstractResultsBean results = new AbstractResultsBean();
@@ -71,6 +74,8 @@ public class SapConciliationWorkService {
 					&& getSnapshot.geteMard_SapEntities() != null && getSnapshot.geteMsku_SapEntities() != null) {
 				operationDao.setZIACMF_I360_INV_MOV2(docInvBean, getSnapshot, con);
 				operationDao.setUpdateInitialInventory(con, docInvBean);
+				logInve.log(MessagesTypes.Information, "Foto de Inventario SAP", "Guardado de datos...", 
+						"Finaliza obtención de datos de SAP para el documento de inventario: " + docInvBean.getDocInvId() +".");
 			}
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService - inventorySnapShot] - SQLException: ", e);
@@ -136,6 +141,8 @@ public class SapConciliationWorkService {
 				log.log(Level.INFO, "[SapConciliationWorkService - inventoryTransit] - : conciliationDao.getTransitMovements Database Insert Begin");
 				operationDao.setZIACMF_I360_INV_MOV3(docInvBean, getTransit, con);
 				log.log(Level.INFO, "[SapConciliationWorkService - inventoryTransit] - : conciliationDao.getTransitMovements Database Insert End");
+				logInve.log(MessagesTypes.Information, "Foto de Inventario SAP", "Guardado de datos...", 
+						"Finaliza obtención del inventario en transito para el documento de inventario: " + docInvBean.getDocInvId() +".");
 			}
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryTransit] - SQLException: ", e);
@@ -166,6 +173,8 @@ public class SapConciliationWorkService {
 				log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements] - : conciliationDao.inventoryMovementsDao Database Insert Begin");
 				operationDao.setZIACMF_I360_INV_MOV1(docInvBean, getMovements, con);
 				log.log(Level.INFO, "[SapConciliationWorkService - inventoryMovements] - : conciliationDao.inventoryMovementsDao Database Insert Begin");
+				logInve.log(MessagesTypes.Information, "Foto de Inventario SAP", "Guardado de datos...", 
+						"Finaliza obtención del inventario en movimiento para el documento de inventario: " + docInvBean.getDocInvId() +".");
 			}
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "[SapConciliationWorkService - inventoryMovements] - SQLException: ", e);
