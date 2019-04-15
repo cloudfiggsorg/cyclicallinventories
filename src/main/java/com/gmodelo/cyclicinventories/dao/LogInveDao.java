@@ -143,13 +143,13 @@ public class LogInveDao {
 				lsLog.add(li);
 			}
 
-			li = getFinishedCountDocInv(con);
+			li = getFinishedTasks(con);
 			if (li != null) {
 				lsLog.add(li);
 			}
 			
 			//Sort the list by date
-			Collections.sort(lsLog);
+			Collections.sort(lsLog, Collections.reverseOrder());
 
 			log.info("[getLogByUser] Sentence successfully executed.");
 		} catch (SQLException e) {
@@ -329,7 +329,7 @@ public class LogInveDao {
 		return li;
 	}
 
-	private LogInve getFinishedCountDocInv(Connection con) {
+	private LogInve getFinishedTasks(Connection con) {
 
 		PreparedStatement stm = null;
 		LogInve li = null;
