@@ -183,7 +183,7 @@ public class LogInveDao {
 		String werks = usr.getWerks();
 		String lsDocIvids = "";
 
-		String QUERY = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER "
+		String QUERY = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH (NOLOCK) "
 				+ "WHERE DIH_STATUS = 'T' AND DIH_MODIFIED_DATE >= DATEADD(HOUR, -12, GETDATE()) ";
 		if (!isAdmin) {
 			QUERY += "AND DIH_CREATED_BY = ?  AND DIH_BUKRS = ? AND DIH_WERKS = ?";
@@ -243,7 +243,7 @@ public class LogInveDao {
 		String werks = usr.getWerks();
 		String lsDocIvids = "";
 
-		String QUERY = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER "
+		String QUERY = "SELECT DOC_INV_ID FROM INV_DOC_INVENTORY_HEADER WITH (NOLOCK) "
 				+ "WHERE DIH_STATUS = '1' AND DIH_CREATED_DATE >= DATEADD(HOUR, -12, GETDATE()) ";
 		if (!isAdmin) {
 			QUERY += "AND DIH_CREATED_BY = ?  AND DIH_BUKRS = ? AND DIH_WERKS = ?";
@@ -341,8 +341,8 @@ public class LogInveDao {
 		String werks = usr.getWerks();
 		String lsTasks = "";
 
-		String QUERY = "SELECT TASK_ID FROM INV_TASK AS A "
-				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS B ON (A.TAS_DOC_INV_ID = B.DOC_INV_ID) "
+		String QUERY = "SELECT TASK_ID FROM INV_TASK AS A WITH (NOLOCK) "
+				+ "INNER JOIN INV_DOC_INVENTORY_HEADER AS B WITH (NOLOCK)  ON (A.TAS_DOC_INV_ID = B.DOC_INV_ID) "
 				+ "WHERE TAS_UPLOAD_DATE >= DATEADD(HOUR, -12, GETDATE())";
 		if (!isAdmin) {
 			QUERY += "AND B.DIH_BUKRS = ? AND B.DIH_WERKS = ?";
