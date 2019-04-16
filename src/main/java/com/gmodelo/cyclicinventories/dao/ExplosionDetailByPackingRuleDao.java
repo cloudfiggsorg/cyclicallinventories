@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import com.gmodelo.cyclicinventories.beans.AbstractResultsBean;
 import com.gmodelo.cyclicinventories.beans.ExplosionDetailByPackingRule;
+import com.gmodelo.cyclicinventories.beans.MessagesTypes;
 import com.gmodelo.cyclicinventories.beans.Response;
 import com.gmodelo.cyclicinventories.utils.ConnectionManager;
 import com.gmodelo.cyclicinventories.utils.ReturnValues;
@@ -21,7 +22,7 @@ import com.gmodelo.cyclicinventories.utils.ReturnValues;
 public class ExplosionDetailByPackingRuleDao {
 	
 	private Logger log = Logger.getLogger(ExplosionDetailByPackingRuleDao.class.getName());
-	//private static LogInveDao logInve = new LogInveDao();
+	private static LogInveDao logInve = new LogInveDao();
 	
 	public Response saveExplosionDetailByPackingRule(ArrayList<ExplosionDetailByPackingRule> ed, String user) {
 		
@@ -44,8 +45,8 @@ public class ExplosionDetailByPackingRuleDao {
 		final String  LGORT_BY_WERK = "SELECT A.value FROM (SELECT * FROM STRING_SPLIT(?, ',')) AS A "
 				+ "WHERE A.value NOT IN (SELECT DISTINCT LGORT FROM dbo.T001L WITH (NOLOCK) WHERE WERKS = ?)";
 		
-		/*logInve.log(MessagesTypes.Warning, "Explosión por Norma", "Guardado de datos...", 
-				"Intentando salvar los datos de Explosión por Norma.");*/
+		logInve.log(MessagesTypes.Warning, "Explosión por Norma", "Guardado de datos...", 
+				"Intentando salvar los datos de Explosión por Norma.");
 		
 		try {
 			
@@ -70,8 +71,8 @@ public class ExplosionDetailByPackingRuleDao {
 			return res;
 		}
 		
-		/*logInve.log(MessagesTypes.Information, "Explosión por Norma", "Guardado de datos...", 
-				"Se guardaron los datos de forma éxitosa.");*/
+		logInve.log(MessagesTypes.Information, "Explosión por Norma", "Guardado de datos...", 
+				"Se guardaron los datos de forma éxitosa.");
 				
 		if(lsLgort.length() > 0){
 			
@@ -148,7 +149,7 @@ public class ExplosionDetailByPackingRuleDao {
 		ExplosionDetailByPackingRule edbpr;
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
-		final String GET_RULES = "SELECT SUBSTRING(B.POBJID, PATINDEX('%[^0 ]%', B.POBJID + ' '), LEN(B.POBJID)) POBJID, " 
+		String GET_RULES = "SELECT SUBSTRING(B.POBJID, PATINDEX('%[^0 ]%', B.POBJID + ' '), LEN(B.POBJID)) POBJID, " 
 				+ "D.CONTENT, SUBSTRING(C.MATNR, PATINDEX('%[^0 ]%', C.MATNR + ' '), LEN(C.MATNR)) MATNR, " 
 				+ "F.MAKTX, G.MSEH3 BASEUNIT, C.TRGQTY, " 
 				+ "ISNULL(H.NRM_RELEVANT, 0) RELEVANT, " 
@@ -163,9 +164,14 @@ public class ExplosionDetailByPackingRuleDao {
 				+ "LEFT JOIN INV_NRM_EXPL AS H WITH (NOLOCK) ON (H.NRM_RULE = SUBSTRING(B.POBJID, PATINDEX('%[^0 ]%', B.POBJID + ' '), LEN(B.POBJID)) "
 					+ "AND H.NRM_WERKS = ? AND H.NRM_MATNR = ? "
 					+ "AND SUBSTRING(C.MATNR, PATINDEX('%[^0 ]%', C.MATNR + ' '), LEN(C.MATNR)) = H.NRM_COMPONENT) "
-				+ "WHERE SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) = ? "
-				+ "AND SUBSTRING(B.POBJID, PATINDEX('%[^0 ]%', B.POBJID + ' '), LEN(B.POBJID)) = ? " 
-				+ "GROUP BY B.POBJID, D.CONTENT, C.MATNR, F.MAKTX, G.MSEH3, C.TRGQTY, H.NRM_RELEVANT, H.NRM_LGORT, C.LASTMODIFY, C.LASTMODIFYH "; 
+				+ "WHERE SUBSTRING(A.MATNR, PATINDEX('%[^0 ]%', A.MATNR + ' '), LEN(A.MATNR)) = ? ";
+		
+				if(!rulePackingId.isEmpty()){
+					
+					GET_RULES += "AND SUBSTRING(B.POBJID, PATINDEX('%[^0 ]%', B.POBJID + ' '), LEN(B.POBJID)) = ? "; 
+				}
+				 				
+				GET_RULES += "GROUP BY B.POBJID, D.CONTENT, C.MATNR, F.MAKTX, G.MSEH3, C.TRGQTY, H.NRM_RELEVANT, H.NRM_LGORT, C.LASTMODIFY, C.LASTMODIFYH "; 
 
 		log.info(GET_RULES);
 
@@ -177,7 +183,10 @@ public class ExplosionDetailByPackingRuleDao {
 			stm.setString(1, werks);
 			stm.setString(2, matnr);
 			stm.setString(3, matnr);
-			stm.setString(4, rulePackingId);		
+			
+			if(!rulePackingId.isEmpty()){
+				stm.setString(4, rulePackingId);
+			}					
 			
 			log.info("[getPackingRuleByMatnr] Executing query...");
 

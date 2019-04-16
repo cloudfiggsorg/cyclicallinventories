@@ -40,9 +40,7 @@ public class LogInveDao {
 		String werks = ((User) FServices.getSession().getAttribute("user")).getWerks();
 		werks = (werks == null ? "" : werks);
 
-		final String SP = "INV_SP_SAVE_LOG ?, ?, ?, ?, ?, ?, ?"; // The Store
-																	// procedure
-																	// to call
+		final String SP = "INV_SP_SAVE_LOG ?, ?, ?, ?, ?, ?, ?"; // The Store procedure to call
 
 		try {
 			cs = con.prepareCall(SP);
